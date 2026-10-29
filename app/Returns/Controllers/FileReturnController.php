@@ -5,12 +5,12 @@ namespace App\Returns\Controllers;
 use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Services\RecordsExport;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -97,16 +97,13 @@ class FileReturnController extends Controller
         ]);
     }
 
-    public function pdf(Request $request, int $year, int $quarter, string $form): HttpResponse
+    public function pdf(Request $request, RecordsExport $export, int $year, int $quarter, string $form): HttpResponse
     {
         $profile = $this->ensureForm($year, $quarter, $form);
         $filing = $this->history->filingFor($year, $quarter, $form);
         $snapshot = $filing ? $this->returns->snapshotOf($filing, $profile) : $this->returns->snapshot($profile, $year, $quarter, $form);
 
-        $pdf = Pdf::loadView('returns.pdf', [
-            'layout' => $this->returns->layout($snapshot),
-            'filedOn' => $filing?->filed_on,
-        ])->setPaper('a4');
+        $pdf = $export->returnDocument($this->returns->layout($snapshot), $filing?->filed_on);
         $name = "{$form}-{$year}-Q{$quarter}.pdf";
 
         return $request->boolean('print') ? $pdf->stream($name) : $pdf->download($name);

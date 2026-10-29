@@ -3,6 +3,7 @@
 use App\Returns\Controllers\FileReturnController;
 use App\Returns\Controllers\FilingController;
 use App\Returns\Controllers\HistoryController;
+use App\Returns\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('setup.complete')->group(function () {
@@ -18,6 +19,13 @@ Route::middleware('setup.complete')->group(function () {
         });
 
     Route::get('/history', HistoryController::class)->name('history');
+
+    Route::prefix('/reports/{year}')->whereNumber('year')->name('reports.')->group(function () {
+        Route::get('/tax-summary', [ReportController::class, 'summary'])->name('summary');
+        Route::get('/income', [ReportController::class, 'income'])->name('income');
+        Route::get('/sawt/{quarter}', [ReportController::class, 'sawt'])->where('quarter', '[1-4]')->name('sawt');
+        Route::post('/package', [ReportController::class, 'package'])->name('package');
+    });
 
     Route::post('/filings', [FilingController::class, 'store'])->name('filings.store');
     Route::patch('/filings/{filing}', [FilingController::class, 'update'])->name('filings.update');

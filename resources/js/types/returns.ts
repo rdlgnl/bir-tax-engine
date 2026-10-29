@@ -52,3 +52,5 @@ export type HistoryDetail = {
     } | null;
     drift: { payable_now: number; difference: number } | null;
 };
+
+export type ReportYear = { year: number; sawt_quarters: number[] };
