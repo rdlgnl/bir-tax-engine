@@ -5,6 +5,7 @@ namespace App\Returns\Controllers;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Requests\ShowHistoryRequest;
+use App\Returns\Services\RecordsExport;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
 use Carbon\CarbonImmutable;
@@ -18,7 +19,7 @@ use Inertia\Response;
  */
 class HistoryController extends Controller
 {
-    public function __invoke(ShowHistoryRequest $request, ReturnHistory $history, ReturnForm $returns): Response
+    public function __invoke(ShowHistoryRequest $request, ReturnHistory $history, ReturnForm $returns, RecordsExport $export): Response
     {
         $profile = TaxProfile::current();
         $today = CarbonImmutable::now();
@@ -56,9 +57,15 @@ class HistoryController extends Controller
             ];
         }
 
+        $years = array_values(array_unique(array_column($entries, 'year')));
+
         return Inertia::render('history/index', [
             'entries' => $entries,
             'detail' => $detail,
+            'reports' => Inertia::defer(fn () => array_map(fn (int $year) => [
+                'year' => $year,
+                'sawt_quarters' => $export->sawtQuarters($year),
+            ], $years ?: [$today->year])),
         ]);
     }
 }

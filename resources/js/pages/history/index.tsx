@@ -1,18 +1,20 @@
-import { Head, Link } from '@inertiajs/react';
+import { Deferred, Head, Link } from '@inertiajs/react';
 import { AlertTriangle, FileText } from 'lucide-react';
 import { useState } from 'react';
 import { ChoiceChips } from '@/components/choice-chips';
+import { ReportsCard } from '@/components/returns/reports-card';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, formAmount, peso, signedPeso } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { history } from '@/routes';
 import { pdf, show as prepare } from '@/routes/returns';
-import type { HistoryDetail, HistoryEntry } from '@/types';
+import type { HistoryDetail, HistoryEntry, ReportYear } from '@/types';
 
 type Props = {
     entries: HistoryEntry[];
     detail: HistoryDetail | null;
+    reports?: ReportYear[];
 };
 
 type Filter = 'all' | 'filed' | 'open';
@@ -27,7 +29,7 @@ function key(e: { year: number; quarter: number; form: string }): string {
     return `${e.year}-${e.quarter}-${e.form}`;
 }
 
-export default function HistoryIndex({ entries, detail }: Props) {
+export default function HistoryIndex({ entries, detail, reports }: Props) {
     const [filter, setFilter] = useState<Filter>('all');
     const visible = entries.filter((e) =>
         filter === 'all'
@@ -123,6 +125,19 @@ export default function HistoryIndex({ entries, detail }: Props) {
                 </SectionCard>
 
                 {detail ? <Detail detail={detail} /> : null}
+            </div>
+
+            <div className="mt-5">
+                <Deferred
+                    data="reports"
+                    fallback={
+                        <SectionCard className="h-40 animate-pulse">
+                            {null}
+                        </SectionCard>
+                    }
+                >
+                    {reports ? <ReportsCard reports={reports} /> : null}
+                </Deferred>
             </div>
         </>
     );
