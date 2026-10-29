@@ -20,7 +20,10 @@ test('home shows Q3 as next to pay, as in the design', function () {
         ->where('nextPayment.quarter.days_left', 20)
         ->where('focus.quarter_withheld', 2000)
         ->where('checklist.missing_certificates.0.counterparty', 'Acme Co.')
-        ->where('upcoming.0', ['date' => '2026-11-16', 'title' => 'Q3 1701Q · file + pay', 'amount' => 14000, 'note' => null, 'tone' => 'default'])
+        ->where('upcoming.0', [
+            'date' => '2026-11-16', 'statutory_date' => '2026-11-15', 'title' => 'Q3 1701Q · file + pay',
+            'kind' => 'income_tax', 'status' => 'due', 'amount' => 14000, 'note' => null, 'tone' => 'default',
+        ])
         ->where('upcoming.1.title', 'Sworn declarations to clients')
         ->where('nextDeadline', ['date' => '2026-11-16', 'form' => '1701Q', 'quarter' => 3, 'amount' => 14000])
         ->has('recent', 5)

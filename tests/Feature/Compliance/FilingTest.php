@@ -53,3 +53,15 @@ test('filing details are validated', function (array $data, string $field) {
     'paid with no amount' => [['amount_paid' => ''], 'amount_paid'],
     'unknown channel' => [['payment_channel' => 'gcash-direct'], 'payment_channel'],
 ]);
+
+test('a return filed without payment can be marked paid once', function () {
+    $this->post('/filings', q3Filing(['paid' => false]))->assertSessionHasNoErrors();
+    $filing = Filing::query()->where('quarter', 3)->first();
+
+    $this->patch("/filings/{$filing->id}", ['amount_paid' => '14000', 'paid_on' => '2026-10-27', 'payment_channel' => 'bank'])
+        ->assertSessionHasNoErrors();
+    expect($filing->fresh()->isPaid())->toBeTrue();
+
+    $this->patch("/filings/{$filing->id}", ['amount_paid' => '1', 'paid_on' => '2026-10-27'])
+        ->assertSessionHasErrors(['amount_paid' => 'This return is already marked as paid.']);
+});

@@ -14,7 +14,7 @@ import type {
     NextPayment,
     QuarterResult,
     TransactionWithEffect,
-    UpcomingItem,
+    Deadline,
     YearStatus,
 } from '@/types';
 
@@ -27,7 +27,7 @@ type Props = {
     regime: string | null;
     vatRegistered: boolean;
     checklist: Checklist;
-    upcoming: UpcomingItem[];
+    upcoming: Deadline[];
     recent: TransactionWithEffect[];
 };
 

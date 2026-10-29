@@ -65,13 +65,26 @@ class FilingCalendar
 
     public function nextWorkingDay(CarbonImmutable $date): CarbonImmutable
     {
-        $holidays = config('tax.holidays');
+        $holidays = $this->holidays();
 
-        while ($date->isWeekend() || in_array($date->toDateString(), $holidays, true)) {
+        while ($date->isWeekend() || array_key_exists($date->toDateString(), $holidays)) {
             $date = $date->addDay();
         }
 
         return $date;
+    }
+
+    /**
+     * @return array<string, string> holiday names keyed by Y-m-d
+     */
+    public function holidays(): array
+    {
+        return config('tax.holidays');
+    }
+
+    public function holidayName(CarbonImmutable $date): ?string
+    {
+        return $this->holidays()[$date->toDateString()] ?? null;
     }
 
     /**
@@ -85,6 +98,6 @@ class FilingCalendar
 
         return $statutory->isWeekend()
             ? "{$statutory->format('M j')} is a {$statutory->format('l')}"
-            : "{$statutory->format('M j')} is a holiday";
+            : "{$statutory->format('M j')} is {$this->holidayName($statutory)}";
     }
 }

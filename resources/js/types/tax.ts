@@ -101,19 +101,64 @@ export type NextPayment = {
     days_until_next: number | null;
 };
 
-export type ChecklistItem = { key: string; label: string; done: boolean };
+export type ChecklistItem = {
+    key: string;
+    label: string;
+    done: boolean;
+    state: 'done' | 'warning' | 'todo';
+    detail: string;
+    action: 'transactions' | 'tax' | 'file' | 'pay' | null;
+};
+
+export type FilingSummary = {
+    id: number;
+    filed_on: string;
+    amount_paid: number | null;
+    paid_on: string | null;
+};
 
 export type Checklist = {
     items: ChecklistItem[];
     done: number;
     total: number;
     missing_certificates: { counterparty: string; amount: number }[];
+    filing: FilingSummary | null;
 };
 
-export type UpcomingItem = {
+/** A deadline from App\Compliance\Services\TaxObligations::deadlines(). */
+export type Deadline = {
     date: string;
+    statutory_date: string;
     title: string;
+    kind: 'income_tax' | 'percentage_tax' | 'reminder' | 'decision';
+    status: 'open' | 'due' | 'overdue' | 'filed' | 'reminder';
     amount: number | null;
     note: string | null;
     tone: 'default' | 'action';
+};
+
+export type CertificateRow = {
+    counterparty: string;
+    quarter: number;
+    amount: number;
+    amount_paid: number;
+    payment_date: string | null;
+    status: 'received' | 'missing' | 'pending';
+    received_on: string | null;
+    expected_by: string;
+    certificate_id: number | null;
+    transaction_id: number;
+};
+
+export type CertificateTracker = {
+    credits: number;
+    confirmed: number;
+    waiting: number;
+    rows: CertificateRow[];
+    filed: {
+        quarters: number[];
+        count: number;
+        amount: number;
+        all_received: boolean;
+    } | null;
 };

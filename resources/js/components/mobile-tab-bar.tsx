@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { isActive, navItems } from '@/components/nav-items';
 import { cn } from '@/lib/utils';
 
-const tabs = ['Home', 'Transactions', 'My tax', 'Profile & settings'];
+const tabs = ['Home', 'Transactions', 'Calendar', 'Profile & settings'];
 
 export function MobileTabBar({ onAdd }: { onAdd: () => void }) {
     const { url } = usePage();
@@ -46,7 +46,7 @@ export function MobileTabBar({ onAdd }: { onAdd: () => void }) {
                 </span>
                 Add
             </button>
-            {tab('My tax')}
+            {tab('Calendar')}
             {tab('Profile & settings')}
         </nav>
     );

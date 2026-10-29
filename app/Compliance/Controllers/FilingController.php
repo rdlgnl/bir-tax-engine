@@ -4,6 +4,7 @@ namespace App\Compliance\Controllers;
 
 use App\Compliance\Models\Filing;
 use App\Compliance\Requests\StoreFilingRequest;
+use App\Compliance\Requests\UpdateFilingPaymentRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -18,5 +19,12 @@ class FilingController extends Controller
 
         return Inertia::flash('toast', "{$what} is marked filed".($filing->isPaid() ? ' and paid' : '').'. Later changes become an amendment.')
             ->back();
+    }
+
+    public function update(UpdateFilingPaymentRequest $request, Filing $filing): RedirectResponse
+    {
+        $filing->update($request->validated());
+
+        return Inertia::flash('toast', 'Payment recorded. This return is filed and paid.')->back();
     }
 }

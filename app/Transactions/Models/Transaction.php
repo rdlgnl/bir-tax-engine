@@ -2,6 +2,7 @@
 
 namespace App\Transactions\Models;
 
+use App\Compliance\Models\Certificate;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Something that happened to the business: money in, an invoice, or an expense.
@@ -25,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $amount
  * @property string $tax_withheld
  * @property CarbonImmutable|null $certificate_received_on
+ * @property int|null $certificate_id
  * @property string|null $invoice_number
  * @property bool $invoice_paid
  * @property ExpenseCategory|null $category
@@ -84,11 +87,31 @@ class Transaction extends Model
      * @param  Builder<self>  $query
      */
     #[Scope]
+    protected function forQuarter(Builder $query, int $year, int $quarter): void
+    {
+        $start = CarbonImmutable::create($year, $quarter * 3 - 2);
+
+        $query->where('occurred_on', '>=', $start->toDateString())
+            ->where('occurred_on', '<', $start->addMonths(3)->toDateString());
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
     protected function forYear(Builder $query, int $year): void
     {
         // Half-open, because SQLite stores dates as "2026-12-31 00:00:00".
         $query->where('occurred_on', '>=', "{$year}-01-01")
             ->where('occurred_on', '<', ($year + 1).'-01-01');
+    }
+
+    /**
+     * @return BelongsTo<Certificate, $this>
+     */
+    public function certificate(): BelongsTo
+    {
+        return $this->belongsTo(Certificate::class);
     }
 
     public function quarter(): int

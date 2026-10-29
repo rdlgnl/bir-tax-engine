@@ -1,11 +1,15 @@
-import { SectionCard } from '@/components/section-card';
+import { CardLink, SectionCard } from '@/components/section-card';
 import { formatDate, peso } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { UpcomingItem } from '@/types';
+import { calendar } from '@/routes';
+import type { Deadline } from '@/types';
 
-export function UpcomingCard({ items }: { items: UpcomingItem[] }) {
+export function UpcomingCard({ items }: { items: Deadline[] }) {
     return (
-        <SectionCard title="Upcoming">
+        <SectionCard
+            title="Upcoming"
+            action={<CardLink href={calendar().url}>Calendar</CardLink>}
+        >
             {items.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                     No deadlines coming up.

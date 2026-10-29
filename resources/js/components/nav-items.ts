@@ -10,7 +10,8 @@ import {
     MessageCircleQuestion,
     UserRound,
 } from 'lucide-react';
-import { home, profile } from '@/routes';
+import { calendar, home, profile } from '@/routes';
+import { show as complianceShow } from '@/routes/compliance';
 import { show as taxShow } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
 
@@ -32,8 +33,18 @@ export const navItems: NavItem[] = [
         match: ['/transactions'],
     },
     { label: 'My tax', icon: BarChart3, href: taxShow.url(), match: ['/tax'] },
-    { label: 'Compliance & 2307s', icon: FileCheck2, href: null, match: [] },
-    { label: 'Calendar', icon: CalendarDays, href: null, match: [] },
+    {
+        label: 'Compliance & 2307s',
+        icon: FileCheck2,
+        href: complianceShow.url(),
+        match: ['/compliance', '/certificates'],
+    },
+    {
+        label: 'Calendar',
+        icon: CalendarDays,
+        href: calendar.url(),
+        match: ['/calendar'],
+    },
     { label: 'File a return', icon: FileText, href: null, match: [] },
     { label: 'History & reports', icon: History, href: null, match: [] },
     { label: 'Ask', icon: MessageCircleQuestion, href: null, match: [] },

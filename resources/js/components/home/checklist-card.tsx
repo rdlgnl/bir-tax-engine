@@ -1,7 +1,8 @@
 import { AlertTriangle, Check } from 'lucide-react';
-import { SectionCard } from '@/components/section-card';
+import { CardLink, SectionCard } from '@/components/section-card';
 import { Progress } from '@/components/ui/progress';
 import { formatDate, peso } from '@/lib/format';
+import { show as complianceShow } from '@/routes/compliance';
 import type { Checklist, QuarterResult } from '@/types';
 
 export function ChecklistCard({
@@ -19,6 +20,11 @@ export function ChecklistCard({
     return (
         <SectionCard
             title={`Compliance · ${checklist.done} of ${checklist.total}`}
+            action={
+                <CardLink href={complianceShow(quarter.quarter).url}>
+                    Checklist
+                </CardLink>
+            }
         >
             <Progress
                 value={(checklist.done / checklist.total) * 100}

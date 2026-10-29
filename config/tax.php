@@ -68,18 +68,43 @@ return [
         'sworn_declaration' => [1, 15],
     ],
 
-    // Non-working days that push a deadline to the next working day.
-    // Regular holidays plus the usual special non-working days. Check each
-    // year's proclamation before relying on these.
+    // Non-working days that push a deadline to the next working day, with
+    // the names the calendar shows. Regular holidays plus the usual special
+    // non-working days. Check each year's proclamation before relying on these.
     'holidays' => [
-        '2026-01-01', '2026-02-17', '2026-04-02', '2026-04-03', '2026-04-04',
-        '2026-04-09', '2026-05-01', '2026-06-12', '2026-08-21', '2026-08-31',
-        '2026-11-01', '2026-11-30', '2026-12-08', '2026-12-24', '2026-12-25',
-        '2026-12-30', '2026-12-31',
-        '2027-01-01', '2027-03-25', '2027-03-26', '2027-03-27', '2027-04-09',
-        '2027-05-01', '2027-06-12', '2027-08-21', '2027-08-30', '2027-11-01',
-        '2027-11-30', '2027-12-08', '2027-12-24', '2027-12-25', '2027-12-30',
-        '2027-12-31',
+        '2026-01-01' => "New Year's Day",
+        '2026-02-17' => 'Chinese New Year',
+        '2026-04-02' => 'Maundy Thursday',
+        '2026-04-03' => 'Good Friday',
+        '2026-04-04' => 'Black Saturday',
+        '2026-04-09' => 'Araw ng Kagitingan',
+        '2026-05-01' => 'Labor Day',
+        '2026-06-12' => 'Independence Day',
+        '2026-08-21' => 'Ninoy Aquino Day',
+        '2026-08-31' => 'National Heroes Day',
+        '2026-11-01' => "All Saints' Day",
+        '2026-11-30' => 'Bonifacio Day',
+        '2026-12-08' => 'Immaculate Conception',
+        '2026-12-24' => 'Christmas Eve',
+        '2026-12-25' => 'Christmas Day',
+        '2026-12-30' => 'Rizal Day',
+        '2026-12-31' => 'Last day of the year',
+        '2027-01-01' => "New Year's Day",
+        '2027-03-25' => 'Maundy Thursday',
+        '2027-03-26' => 'Good Friday',
+        '2027-03-27' => 'Black Saturday',
+        '2027-04-09' => 'Araw ng Kagitingan',
+        '2027-05-01' => 'Labor Day',
+        '2027-06-12' => 'Independence Day',
+        '2027-08-21' => 'Ninoy Aquino Day',
+        '2027-08-30' => 'National Heroes Day',
+        '2027-11-01' => "All Saints' Day",
+        '2027-11-30' => 'Bonifacio Day',
+        '2027-12-08' => 'Immaculate Conception',
+        '2027-12-24' => 'Christmas Eve',
+        '2027-12-25' => 'Christmas Day',
+        '2027-12-30' => 'Rizal Day',
+        '2027-12-31' => 'Last day of the year',
     ],
 
     'rules' => [

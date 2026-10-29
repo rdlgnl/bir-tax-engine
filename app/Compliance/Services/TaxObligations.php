@@ -12,6 +12,8 @@ use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 
 /**
  * What the taxpayer has to do next: the return to pay, the deadlines coming
@@ -20,6 +22,36 @@ use Illuminate\Support\Collection;
  * @phpstan-import-type QuarterResult from TaxCalculationService
  * @phpstan-import-type YearResult from TaxCalculationService
  *
+ * @phpstan-type Deadline array{
+ *     date: string,
+ *     statutory_date: string,
+ *     title: string,
+ *     kind: 'income_tax'|'percentage_tax'|'reminder'|'decision',
+ *     status: 'open'|'due'|'overdue'|'filed'|'reminder',
+ *     amount: float|null,
+ *     note: string|null,
+ *     tone: 'default'|'action',
+ * }
+ * @phpstan-type ChecklistItem array{
+ *     key: string,
+ *     label: string,
+ *     done: bool,
+ *     state: 'done'|'warning'|'todo',
+ *     detail: string,
+ *     action: 'transactions'|'tax'|'file'|'pay'|null,
+ * }
+ * @phpstan-type CertificateRow array{
+ *     counterparty: string,
+ *     quarter: int,
+ *     amount: float,
+ *     amount_paid: float,
+ *     payment_date: string|null,
+ *     status: 'received'|'missing'|'pending',
+ *     received_on: string|null,
+ *     expected_by: string,
+ *     certificate_id: int|null,
+ *     transaction_id: int,
+ * }
  * @phpstan-type NextPayment array{
  *     state: 'empty'|'cannot_compute'|'due'|'overdue'|'clear'|'not_applicable',
  *     year: int,
@@ -105,76 +137,130 @@ class TaxObligations
     }
 
     /**
-     * Deadlines from today on, soonest first.
+     * Every deadline that comes from a tax year: its returns, plus the
+     * reminders and decisions that fall early the next year.
      *
      * @param  YearResult  $year
-     * @return list<array{date: string, title: string, amount: float|null, note: string|null, tone: 'default'|'action'}>
+     * @return list<Deadline>
      */
-    public function upcoming(TaxProfile $profile, array $year, CarbonImmutable $today, int $limit = 4): array
+    public function deadlines(TaxProfile $profile, array $year, bool $includeFiled = false): array
     {
         $y = $year['year'];
         $filedPercentageTax = Filing::query()->where('year', $y)->where('form', '2551Q')->pluck('quarter')->all();
         $items = [];
 
         foreach ($year['quarters'] as $quarter) {
-            if ($quarter['status'] === 'filed') {
+            if ($quarter['status'] === 'filed' && ! $includeFiled) {
                 continue;
             }
 
             $ended = $quarter['status'] !== 'open';
             $items[] = $this->deadline(
-                $quarter['due_date'],
-                $quarter['quarter'] === 4 ? "{$y} annual {$quarter['form']}" : "Q{$quarter['quarter']} {$quarter['form']} · file + pay",
-                $ended ? $quarter['due'] : null,
-                $ended ? null : ($quarter['quarter'] === 4 ? 'After Q4' : 'Estimate'),
+                date: $quarter['due_date'],
+                statutoryDate: $quarter['statutory_date'],
+                title: $quarter['quarter'] === 4 ? "{$y} annual return ({$quarter['form']})" : "Q{$quarter['quarter']} {$quarter['form']} · file + pay",
+                kind: 'income_tax',
+                status: $quarter['status'],
+                amount: $ended ? $quarter['due'] : null,
+                note: $ended ? null : ($quarter['quarter'] === 4 ? 'After Q4' : 'Estimate'),
             );
 
-            if ($quarter['percentage_tax'] !== null && ! in_array($quarter['quarter'], $filedPercentageTax, true)) {
-                $items[] = $this->deadline(
-                    $this->calendar->percentageTaxDue($y, $quarter['quarter'])->toDateString(),
-                    "Q{$quarter['quarter']} 2551Q · percentage tax",
-                    $ended ? $quarter['percentage_tax'] : null,
-                    $ended ? null : 'Estimate',
-                );
+            if ($quarter['percentage_tax'] === null) {
+                continue;
             }
+
+            $filed = in_array($quarter['quarter'], $filedPercentageTax, true);
+
+            if ($filed && ! $includeFiled) {
+                continue;
+            }
+
+            $date = $this->calendar->percentageTaxDue($y, $quarter['quarter'])->toDateString();
+            $items[] = $this->deadline(
+                date: $date,
+                statutoryDate: $date,
+                title: "Q{$quarter['quarter']} 2551Q · percentage tax",
+                kind: 'percentage_tax',
+                status: $filed ? 'filed' : ($ended ? 'due' : 'open'),
+                amount: $ended ? $quarter['percentage_tax'] : null,
+                note: $ended ? null : 'Estimate',
+            );
         }
 
         if ($profile->clients_withhold !== ClientsWithhold::No) {
-            $items[] = $this->deadline($this->calendar->swornDeclarationDue($y + 1)->toDateString(), 'Sworn declarations to clients', null, 'Reminder');
+            $date = $this->calendar->swornDeclarationDue($y + 1)->toDateString();
+            $items[] = $this->deadline($date, $date, 'Sworn declarations to clients', 'reminder', 'reminder', null, 'Reminder');
         }
 
-        $items[] = $this->deadline($this->calendar->incomeTaxDue($y + 1, 1)->toDateString(), 'Q1 '.($y + 1).' · tax method locks', null, 'Decide', 'action');
+        $date = $this->calendar->incomeTaxDue($y + 1, 1)->toDateString();
+        $items[] = $this->deadline($date, $date, 'Q1 '.($y + 1).' · tax method locks', 'decision', 'reminder', null, 'Decide', 'action');
 
-        $upcoming = array_values(array_filter($items, fn (array $item) => $item['date'] >= $today->toDateString()));
-        usort($upcoming, fn (array $a, array $b) => strcmp($a['date'], $b['date']));
+        usort($items, fn (array $a, array $b) => strcmp($a['date'], $b['date']));
 
-        return array_slice($upcoming, 0, $limit);
+        return $items;
     }
 
     /**
-     * @param  'default'|'action'  $tone
-     * @return array{date: string, title: string, amount: float|null, note: string|null, tone: 'default'|'action'}
+     * Deadlines from today on, soonest first.
+     *
+     * @param  YearResult  $year
+     * @return list<Deadline>
      */
-    private function deadline(string $date, string $title, ?float $amount, ?string $note, string $tone = 'default'): array
+    public function upcoming(TaxProfile $profile, array $year, CarbonImmutable $today, int $limit = 4): array
     {
-        return ['date' => $date, 'title' => $title, 'amount' => $amount, 'note' => $note, 'tone' => $tone];
+        $upcoming = array_filter(
+            $this->deadlines($profile, $year),
+            fn (array $item) => $item['date'] >= $today->toDateString(),
+        );
+
+        return array_slice(array_values($upcoming), 0, $limit);
     }
 
     /**
-     * The quarter's to-do list, as shown on the compliance card.
+     * @param  'income_tax'|'percentage_tax'|'reminder'|'decision'  $kind
+     * @param  'open'|'due'|'overdue'|'filed'|'reminder'  $status
+     * @param  'default'|'action'  $tone
+     * @return Deadline
+     */
+    private function deadline(
+        string $date,
+        string $statutoryDate,
+        string $title,
+        string $kind,
+        string $status,
+        ?float $amount,
+        ?string $note,
+        string $tone = 'default',
+    ): array {
+        return [
+            'date' => $date,
+            'statutory_date' => $statutoryDate,
+            'title' => $title,
+            'kind' => $kind,
+            'status' => $status,
+            'amount' => $amount,
+            'note' => $note,
+            'tone' => $tone,
+        ];
+    }
+
+    /**
+     * The quarter's to-do list, as shown on the compliance page and card.
      *
      * @param  QuarterResult  $quarter
      * @param  Collection<int, Transaction>  $transactions  the year's transactions
      * @return array{
-     *     items: list<array{key: string, label: string, done: bool}>,
+     *     items: list<ChecklistItem>,
      *     done: int,
      *     total: int,
      *     missing_certificates: list<array{counterparty: string, amount: float}>,
+     *     filing: array{id: int, filed_on: string, amount_paid: float|null, paid_on: string|null}|null,
      * }
      */
     public function checklist(TaxProfile $profile, int $year, array $quarter, Collection $transactions, CarbonImmutable $today): array
     {
         $inQuarter = $transactions->filter(fn (Transaction $t) => $t->quarter() === $quarter['quarter'] || $quarter['quarter'] === 4);
+        $income = $inQuarter->filter(fn (Transaction $t) => $t->isIncome());
         $withheld = $inQuarter->filter(fn (Transaction $t) => (float) $t->tax_withheld > 0);
         $missing = $withheld
             ->filter(fn (Transaction $t) => $t->certificateStatus($today) === CertificateStatus::Missing)
@@ -184,16 +270,38 @@ class TaxObligations
             ->all();
         $received = $withheld->filter(fn (Transaction $t) => $t->certificateStatus($today) === CertificateStatus::Received)->count();
         $filing = Filing::query()->where('year', $year)->where('quarter', $quarter['quarter'])->where('form', $quarter['form'])->first();
+        $ended = $quarter['status'] !== 'open';
+        $due = $this->peso($quarter['due']);
+        $dueOn = CarbonImmutable::parse($quarter['due_date'])->format('M j');
+
+        $certificatesDetail = match (true) {
+            $withheld->isEmpty() => 'No tax withheld this quarter',
+            $missing !== [] => 'Missing from '.collect($missing)->pluck('counterparty')->join(', ', ' and '),
+            $received < $withheld->count() => 'Clients have until 20 days after the quarter',
+            default => 'All received',
+        };
 
         $items = [
-            ['key' => 'income', 'label' => 'Income recorded', 'done' => $inQuarter->contains(fn (Transaction $t) => $t->isIncome())],
-            ['key' => 'computed', 'label' => 'Tax computed', 'done' => $quarter['status'] !== 'open'],
-            ['key' => 'certificates', 'label' => "Tax certificates: {$received} of {$withheld->count()}", 'done' => $received === $withheld->count()],
+            $this->item('income', 'Income recorded', $income->isNotEmpty(),
+                $income->count().' '.Str::plural('payment', $income->count()).' · '.$this->peso((float) $income->sum('amount')),
+                action: 'transactions'),
+            $this->item('computed', 'Tax calculated', $ended,
+                "{$due} · rule pack ".config('tax.version'), action: 'tax'),
+            $this->item('certificates', "Tax certificates: {$received} of {$withheld->count()}", $received === $withheld->count(),
+                $certificatesDetail, warning: $missing !== []),
             $profile->regime === Regime::Graduated
-                ? ['key' => 'percentage_tax', 'label' => 'Percentage tax filed (2551Q)', 'done' => Filing::query()->where('year', $year)->where('quarter', $quarter['quarter'])->where('form', '2551Q')->exists()]
-                : ['key' => 'percentage_tax', 'label' => 'No percentage tax due', 'done' => true],
-            ['key' => 'filed', 'label' => 'Return filed', 'done' => $filing !== null],
-            ['key' => 'paid', 'label' => 'Tax paid', 'done' => $filing?->isPaid() ?? false],
+                ? $this->item('percentage_tax', 'Percentage tax filed (2551Q)',
+                    Filing::query()->where('year', $year)->where('quarter', $quarter['quarter'])->where('form', '2551Q')->exists(),
+                    $this->peso((float) $quarter['percentage_tax']).' · due '.$this->calendar->percentageTaxDue($year, $quarter['quarter'])->format('M j'))
+                : $this->item('percentage_tax', 'No percentage tax due', true, '8% option replaces 2551Q'),
+            $this->item('filed', 'Return filed', $filing !== null,
+                $filing ? "Filed {$filing->filed_on->format('M j')}" : "{$quarter['form']} · due {$dueOn}",
+                action: $filing === null && $ended ? 'file' : null),
+            $this->item('paid', 'Tax paid', $filing?->isPaid() ?? false,
+                $filing?->isPaid()
+                    ? 'Paid '.$this->peso((float) $filing->amount_paid)." on {$filing->paid_on?->format('M j')}"
+                    : "{$due} · any bank, e-wallet or BIR office",
+                action: $filing !== null && ! $filing->isPaid() ? 'pay' : null),
         ];
 
         return [
@@ -201,7 +309,114 @@ class TaxObligations
             'done' => count(array_filter($items, fn (array $item) => $item['done'])),
             'total' => count($items),
             'missing_certificates' => array_values($missing),
+            'filing' => $filing ? [
+                'id' => $filing->id,
+                'filed_on' => $filing->filed_on->toDateString(),
+                'amount_paid' => $filing->amount_paid !== null ? (float) $filing->amount_paid : null,
+                'paid_on' => $filing->paid_on?->toDateString(),
+            ] : null,
         ];
+    }
+
+    /**
+     * The year's 2307s: what clients withheld, what is confirmed, and one row
+     * per client per open quarter. Filed quarters fold into a single row.
+     *
+     * @param  Collection<int, Transaction>  $transactions  the year's transactions
+     * @param  list<int>  $filedQuarters
+     * @return array{
+     *     credits: float,
+     *     confirmed: float,
+     *     waiting: float,
+     *     rows: list<CertificateRow>,
+     *     filed: array{quarters: list<int>, count: int, amount: float, all_received: bool}|null,
+     * }
+     */
+    public function certificates(Collection $transactions, array $filedQuarters, CarbonImmutable $today): array
+    {
+        $withheld = $transactions->filter(fn (Transaction $t) => (float) $t->tax_withheld > 0);
+        $isReceived = fn (Transaction $t) => $t->certificateStatus($today) === CertificateStatus::Received;
+        $groups = $withheld->groupBy(fn (Transaction $t) => $t->quarter().'|'.$t->counterparty);
+
+        $rows = [];
+
+        foreach ($groups as $group) {
+            if (! in_array($group->first()->quarter(), $filedQuarters, true)) {
+                $rows[] = $this->certificateRow($group, $today);
+            }
+        }
+
+        usort($rows, fn (array $a, array $b) => [$a['quarter'], $a['counterparty']] <=> [$b['quarter'], $b['counterparty']]);
+
+        $filedGroups = $groups->filter(fn (Collection $group) => in_array($group->first()->quarter(), $filedQuarters, true));
+        $credits = round((float) $withheld->sum('tax_withheld'), 2);
+        $confirmed = round((float) $withheld->filter($isReceived)->sum('tax_withheld'), 2);
+
+        return [
+            'credits' => $credits,
+            'confirmed' => $confirmed,
+            'waiting' => round($credits - $confirmed, 2),
+            'rows' => $rows,
+            'filed' => $filedGroups->isEmpty() ? null : [
+                'quarters' => array_values(array_unique($filedGroups->map(fn (Collection $g) => $g->first()->quarter())->sort()->values()->all())),
+                'count' => $filedGroups->count(),
+                'amount' => round((float) $filedGroups->flatten()->sum('tax_withheld'), 2),
+                'all_received' => $filedGroups->flatten()->every($isReceived),
+            ],
+        ];
+    }
+
+    /**
+     * One client's withheld payments in one quarter.
+     *
+     * @param  Collection<int, Transaction>  $group
+     * @return CertificateRow
+     */
+    private function certificateRow(Collection $group, CarbonImmutable $today): array
+    {
+        $first = $group->firstOrFail();
+        $statuses = $group->map(fn (Transaction $t) => $t->certificateStatus($today));
+        $allReceived = $statuses->every(fn (CertificateStatus $s) => $s === CertificateStatus::Received);
+
+        return [
+            'counterparty' => $first->counterparty,
+            'quarter' => $first->quarter(),
+            'amount' => round((float) $group->sum('tax_withheld'), 2),
+            'amount_paid' => round((float) $group->sum('amount'), 2),
+            'payment_date' => $group->count() === 1 ? $first->occurred_on->toDateString() : null,
+            'status' => match (true) {
+                $allReceived => 'received',
+                $statuses->contains(CertificateStatus::Missing) => 'missing',
+                default => 'pending',
+            },
+            'received_on' => $allReceived
+                ? $group->map(fn (Transaction $t) => (string) $t->certificate_received_on?->toDateString())->max()
+                : null,
+            'expected_by' => $first->occurred_on->lastOfQuarter()->addDays(config('tax.certificate_grace_days'))->toDateString(),
+            'certificate_id' => $first->certificate_id,
+            'transaction_id' => $first->id,
+        ];
+    }
+
+    /**
+     * @param  'transactions'|'tax'|'file'|'pay'|null  $action
+     * @return ChecklistItem
+     */
+    private function item(string $key, string $label, bool $done, string $detail, bool $warning = false, ?string $action = null): array
+    {
+        return [
+            'key' => $key,
+            'label' => $label,
+            'done' => $done,
+            'state' => $done ? 'done' : ($warning ? 'warning' : 'todo'),
+            'detail' => $detail,
+            'action' => $action,
+        ];
+    }
+
+    private function peso(float $amount): string
+    {
+        return '₱'.Number::format($amount, maxPrecision: 2);
     }
 
     private function hasIncome(int $year): bool
