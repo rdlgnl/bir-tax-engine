@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desktop: ask about your taxes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+input::placeholder{color:#64748B}
+@media (max-width: 760px){.desk-nav{display:none}}
+</style>
+</helmet>
+<div style="min-height: 1000px; box-sizing: border-box; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <div class="desk-nav" style="flex: 1 1 220px; max-width: 260px; min-width: 200px"><dc-import name="DeskNav" active="ask" hint-size="100%,1000px"></dc-import></div>
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px">
+    <div style="max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <section aria-label="Conversation" style="flex: 999 1 520px; min-width: 0; background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; display: flex; flex-direction: column; min-height: 900px">
+        <header style="padding: 18px 24px; border-bottom: 1px solid #E3E7EC">
+          <h1 style="margin: 0; font-size: 22px; font-weight: 800">Ask about your taxes</h1>
+          <span style="font-size: 13px; color: #475569">Answers use your numbers from the tax engine and cite the BIR rule. Not legal advice.</span>
+        </header>
+        <div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+          <div style="align-self: flex-end; max-width: 70%; padding: 12px 16px; border-radius: 18px 18px 4px 18px; background: #1D4ED8; color: #FFFFFF; font-size: 15px">Why don't I pay percentage tax?</div>
+          <div style="align-self: flex-start; max-width: 85%; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px 18px 18px 4px; background: #F4F6F8">
+            <span style="font-size: 15px; line-height: 1.55">Because you chose the flat 8% option on your Q1 return. The 8% covers both your income tax and the 3% percentage tax, so there's no separate quarterly percentage tax return for you this year.</span>
+            <span style="font-size: 14px; line-height: 1.5; color: #334155">One loose end: your COR still lists percentage tax. Updating it (Form 1905) keeps the BIR from expecting 2551Q returns.</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap"><a href="DeskTax.dc.html" style="font-size: 12px; font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 6px 10px; border-radius: 999px; text-decoration: none">Rule IT-8PCT-PURE v2</a><a href="DeskTax.dc.html" style="font-size: 12px; font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 6px 10px; border-radius: 999px; text-decoration: none">NIRC Sec. 24(A)(2)(b)</a></div>
+          </div>
+          <div style="align-self: flex-end; max-width: 70%; padding: 12px 16px; border-radius: 18px 18px 4px 18px; background: #1D4ED8; color: #FFFFFF; font-size: 15px">I got a letter from the BIR. What does it want?</div>
+          <div style="align-self: flex-start; max-width: 85%; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px 18px 18px 4px; background: #F4F6F8">
+            <span style="font-size: 15px; line-height: 1.55">Upload a photo or PDF of the letter and I'll summarize what it asks for, which period it covers, and any deadline written on it. I'll compare it with what you've filed here, but for a notice or assessment, please talk to a CPA or tax lawyer before replying.</span>
+            <a href="DeskAssistant.dc.html" style="align-self: flex-start; display: flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 10px; background: #1D4ED8; color: #FFFFFF; font-size: 13px; font-weight: 700; text-decoration: none">Upload the letter</a>
+          </div>
+        </div>
+        <div style="padding: 16px 24px 20px; border-top: 1px solid #E3E7EC; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button type="button" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #F4F6F8; font: inherit; font-size: 13px; font-weight: 600; color: #0F172A">What's a 2307?</button>
+            <button type="button" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #F4F6F8; font: inherit; font-size: 13px; font-weight: 600; color: #0F172A">Should I switch next year?</button>
+            <button type="button" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #F4F6F8; font: inherit; font-size: 13px; font-weight: 600; color: #0F172A">Summarize Q3</button>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <label for="dask" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Your question</label>
+            <input id="dask" placeholder="Ask anything about your taxes" style="flex: 1; height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 15px; color: #0F172A; min-width: 0">
+            <button type="button" style="height: 48px; padding: 0 20px; border-radius: 12px; border: 0; background: #1D4ED8; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 700">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <aside aria-label="What the assistant can see" style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <section style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 13px; font-weight: 800; color: #475569; letter-spacing: 0.4px">NUMBERS IT'S USING</span>
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-variant-numeric: tabular-nums"><span>Q3 income tax</span><strong>₱14,000</strong></div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-variant-numeric: tabular-nums"><span>Percentage tax</span><strong>₱0 · not applied</strong></div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-variant-numeric: tabular-nums"><span>Credits waiting on 2307s</span><strong>₱2,500</strong></div>
+          <span style="font-size: 12px; color: #475569">From calculation #9120. The assistant can read these but never change or compute them.</span>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 13px; font-weight: 800; color: #475569; letter-spacing: 0.4px">IT CAN SUGGEST, YOU DECIDE</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #334155">Drafting emails, adding a transaction or fixing a profile answer always shows you a preview to approve first.</span>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 18px 20px; display: flex; gap: 8px; flex-wrap: wrap">
+          <button type="button" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #CBD2DA; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700; color: #0F172A">Helpful</button>
+          <button type="button" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #CBD2DA; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700; color: #0F172A">This was wrong</button>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

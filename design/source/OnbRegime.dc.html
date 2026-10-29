@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How should we compute your tax?</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 980px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFFFFF; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-direction: column; padding: 16px 20px 32px">
+  <div style="display: flex; align-items: center; gap: 12px; height: 48px">
+    <a href="OnbEstimate.dc.html" aria-label="Back" style="width: 44px; height: 44px; margin-left: -8px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div aria-hidden="true" style="flex: 1; height: 6px; border-radius: 3px; background: #E3E7EC"><div style="width: 78%; height: 6px; border-radius: 3px; background: #1D4ED8"></div></div>
+    <span style="font-size: 13px; font-weight: 600; color: #475569">Almost done</span>
+  </div>
+
+  <h1 style="margin: 18px 4px 6px; font-size: 26px; line-height: 1.2; font-weight: 800; letter-spacing: -0.5px">How should we compute your income tax?</h1>
+  <p style="margin: 0 4px 18px; font-size: 15px; line-height: 1.5; color: #475569">Based on about <strong style="color: #0F172A">₱800,000</strong> this year. You qualify for both.</p>
+
+  <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+    <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Income tax method</legend>
+    <label style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px; border: 2px solid #1D4ED8; background: #F5F8FF; cursor: pointer">
+      <span style="display: flex; align-items: center; gap: 10px">
+        <input type="radio" name="regime" checked style="width: 20px; height: 20px; margin: 0; accent-color: #1D4ED8">
+        <span style="font-size: 17px; font-weight: 800; flex: 1">Flat 8%</span>
+        <span style="font-size: 12px; font-weight: 800; color: #1D4ED8; background: #E8EEFD; padding: 4px 10px; border-radius: 999px">Recommended</span>
+      </span>
+      <span style="display: flex; align-items: baseline; justify-content: space-between; padding-left: 30px">
+        <span style="font-size: 14px; color: #475569">Estimated tax for 2026</span>
+        <span style="font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">₱44,000</span>
+      </span>
+      <span style="padding-left: 30px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #334155">
+        <span>· Simple: 8% of income above ₱250,000</span>
+        <span>· No percentage tax to file</span>
+        <span>· No need to keep expense receipts for tax</span>
+      </span>
+    </label>
+
+    <label style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px; border: 1.5px solid #E3E7EC; background: #FFFFFF; cursor: pointer">
+      <span style="display: flex; align-items: center; gap: 10px">
+        <input type="radio" name="regime" style="width: 20px; height: 20px; margin: 0; accent-color: #1D4ED8">
+        <span style="font-size: 17px; font-weight: 800; flex: 1">Graduated rates</span>
+      </span>
+      <span style="display: flex; align-items: baseline; justify-content: space-between; padding-left: 30px">
+        <span style="font-size: 14px; color: #475569">Estimated tax for 2026</span>
+        <span style="font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">₱62,500</span>
+      </span>
+      <span style="padding-left: 30px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #334155">
+        <span style="display: flex; justify-content: space-between"><span>Income tax (with 40% deduction)</span><span style="font-variant-numeric: tabular-nums">₱38,500</span></span>
+        <span style="display: flex; justify-content: space-between"><span>Percentage tax 3%</span><span style="font-variant-numeric: tabular-nums">₱24,000</span></span>
+        <span style="color: #475569">Better when expenses are very high.</span>
+      </span>
+    </label>
+  </fieldset>
+
+  <div style="margin-top: 12px; display: flex; justify-content: space-between; gap: 12px">
+    <a href="Compare.dc.html" style="font-size: 14px; font-weight: 700; text-decoration: none; padding: 10px 4px">Compare in detail</a>
+    <a href="OnbDeduction.dc.html" style="font-size: 14px; font-weight: 700; text-decoration: none; padding: 10px 4px">My expenses are high</a>
+  </div>
+
+  <div style="margin-top: 8px; display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: #FFF7EB; border: 1px solid #F3D6A4">
+    <svg aria-hidden="true" style="flex: none; margin-top: 2px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span style="font-size: 14px; line-height: 1.5; color: #78350F"><strong>This locks for the year</strong> when you file your first-quarter return (due May 15). Until then you can switch here anytime.</span>
+  </div>
+
+  <a href="Why.dc.html" style="margin-top: 10px; font-size: 13px; font-weight: 600; text-decoration: none; padding: 8px 4px">Based on NIRC Sec. 24(A)(2)(b) and RR 8-2018. See the rule</a>
+
+  <div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px">
+    <a href="OnbWithholding.dc.html" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 700; font-size: 16px; text-decoration: none">Choose flat 8%</a>
+    <a href="OnbWithholding.dc.html" style="align-self: center; font-size: 14px; font-weight: 700; text-decoration: none; padding: 10px">Already filed Q1? Tell us what you chose</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

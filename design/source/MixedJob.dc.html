@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your job</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1120px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFFFFF; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 12px 20px 28px; display: flex; flex-direction: column; gap: 16px">
+  <header style="display: flex; align-items: center; gap: 6px; margin-left: -8px">
+    <a href="OnbIncome.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div style="flex: 1; height: 6px; border-radius: 3px; background: #EEF1F4"><div style="width: 30%; height: 6px; border-radius: 3px; background: #1D4ED8"></div></div>
+  </header>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-size: 26px; line-height: 1.2; font-weight: 800; letter-spacing: -0.4px">Tell us about your job</h1>
+    <span style="font-size: 15px; line-height: 1.5; color: #475569">You have a job and a side business. Your employer already takes tax from your salary; we only need it for your annual return.</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="mjEmp" style="font-size: 14px; font-weight: 700">Employer</label>
+    <input id="mjEmp" value="Northwind BPO Inc." style="height: 50px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 15px; color: #0F172A">
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="mjPay" style="font-size: 14px; font-weight: 700">Monthly taxable salary</label>
+    <div style="display: flex; align-items: center; height: 56px; border-radius: 12px; border: 2px solid #1D4ED8; padding: 0 14px; gap: 6px">
+      <span style="font-size: 20px; font-weight: 800; color: #475569">₱</span>
+      <input id="mjPay" value="50,000" inputmode="decimal" style="flex: 1; border: 0; outline: none; font: inherit; font-size: 22px; font-weight: 800; color: #0F172A; min-width: 0">
+    </div>
+    <span style="font-size: 12px; color: #475569">After SSS, PhilHealth and Pag-IBIG. It's on your payslip as "taxable income."</span>
+  </div>
+
+  <section style="border-radius: 18px; background: #F4F6F8; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 15px; font-weight: 800">Have your 2316 already?</span>
+    <span style="font-size: 13px; line-height: 1.45; color: #475569">Your employer gives it by Jan 31. Scan it then and we'll use its exact figures instead of the estimate.</span>
+    <a href="Scan2316.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; background: #FFFFFF; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">Scan 2316 (when you have it)</a>
+  </section>
+
+  <section style="border-radius: 18px; border: 1px solid #C9D7FB; background: #EEF4FF; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 15px; font-weight: 800; color: #1E3A8A">What changes for you</span>
+    <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.45; color: #1E3A8A">
+      <li>Quarterly returns cover only your business income.</li>
+      <li>With 8%, there's no ₱250,000 reduction, because you have a salary.</li>
+      <li>You can't rely on your employer's filing. You file an annual return by Apr 15 (1701, or the shorter 1701-MS for micro taxpayers).</li>
+    </ul>
+  </section>
+
+  <a href="MixedHome.dc.html" style="margin-top: auto; display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 700; font-size: 16px; text-decoration: none">Continue</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

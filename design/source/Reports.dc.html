@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reports and exports</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1080px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 12px 16px 96px; display: flex; flex-direction: column; gap: 14px">
+  <header style="display: flex; align-items: center; gap: 6px; margin-left: -4px">
+    <a href="History.dc.html" aria-label="Back to history" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 style="flex: 1; margin: 0; font-size: 20px; font-weight: 800">Reports</h1>
+    <label for="yr" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Year</label>
+    <select id="yr" style="height: 40px; padding: 0 10px; border-radius: 10px; border: 1.5px solid #CBD2DA; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 700; color: #0F172A"><option>2026</option><option>2025</option></select>
+  </header>
+
+  <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 4px 16px">
+    <a href="Reports.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #E8EEFD; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 13h6"/><path d="M9 17h6"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Tax summary</span><span style="font-size: 12px; color: #475569">Income, tax paid and filings. For loans, visas, clients · PDF</span></span>
+    </a>
+    <a href="AnnualPrep.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #FEF3E2; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Annual return 2026</span><span style="font-size: 12px; color: #475569">1701-MS · due Thu, Apr 15, 2027 · estimate now</span></span>
+    </a>
+    <a href="FormPreview.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #0F172A; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Filled BIR forms</span><span style="font-size: 12px; color: #475569">1701Q, 2551Q, 2307 · official PDF, ready to sign</span></span>
+    </a>
+    <a href="Reports.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #E8EEFD; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M9 4v16"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Income and withholding</span><span style="font-size: 12px; color: #475569">Every payment, client and 2307 · Excel or CSV</span></span>
+    </a>
+    <a href="Reports.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #E8EEFD; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Withholding summary (SAWT)</span><span style="font-size: 12px; color: #475569">Per quarter, to attach to your return</span></span>
+    </a>
+    <a href="Books.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #E8EEFD; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Books of accounts</span><span style="font-size: 12px; color: #475569">Cash receipts and disbursements journals · PDF</span></span>
+    </a>
+    <a href="Reports.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 72px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #E8EEFD; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3z"/><path d="M8 7V4h8v3"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">All documents</span><span style="font-size: 12px; color: #475569">COR, 2307s, returns, receipts · ZIP</span></span>
+    </a>
+  </section>
+
+  <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 15px; font-weight: 800">Give your accountant a copy</span>
+    <span style="font-size: 13px; line-height: 1.45; color: #475569">One password-protected ZIP with your 2026 numbers and documents. You send it yourself; nothing is uploaded anywhere.</span>
+    <a href="Reports.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 15px; font-weight: 700; text-decoration: none">Export accountant package</a>
+  </section>
+
+  <span style="font-size: 12px; line-height: 1.45; color: #475569; padding: 0 4px">Your records live only on this device. Keep backups: the BIR can ask for records for up to 5 years after filing.</span>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0">
+    <dc-import name="TabBar" active="history" hint-size="390px,76px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

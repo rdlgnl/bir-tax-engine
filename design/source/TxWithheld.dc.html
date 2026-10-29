@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A client withheld tax</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 980px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 12px 16px 28px; display: flex; flex-direction: column; gap: 14px">
+  <header style="display: flex; align-items: center; gap: 6px; margin-left: -4px">
+    <a href="AddSheet.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div style="flex: 1; display: flex; flex-direction: column">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 800">Tax certificate (2307)</h1>
+      <span style="font-size: 13px; color: #475569">Proof a client paid tax for you</span>
+    </div>
+  </header>
+
+  <div style="display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: #FFFFFF; border: 1px solid #E3E7EC">
+    <div style="width: 64px; height: 84px; border-radius: 8px; background: #E3E7EC; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569; text-align: center; flex: none">2307 photo</div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+      <span style="font-size: 15px; font-weight: 700">BIR Form 2307 read</span>
+      <span style="font-size: 13px; color: #475569">5 fields found · 1 to check</span>
+      <a href="OnbCorScan.dc.html" style="font-size: 13px; font-weight: 700; text-decoration: none; padding: 4px 0">Retake</a>
+    </div>
+  </div>
+
+  <section style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 4px 16px">
+    <div style="display: flex; align-items: center; min-height: 52px; gap: 10px; border-bottom: 1px solid #EEF1F4"><span style="width: 110px; font-size: 13px; color: #475569">Client (payor)</span><span style="flex: 1; font-size: 15px; font-weight: 600">Lumen Digital Inc.</span></div>
+    <div style="display: flex; align-items: center; min-height: 52px; gap: 10px; border-bottom: 1px solid #EEF1F4"><span style="width: 110px; font-size: 13px; color: #475569">Client TIN</span><span style="flex: 1; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums">008-123-456-000</span></div>
+    <div style="display: flex; align-items: center; min-height: 52px; gap: 10px; border-bottom: 1px solid #EEF1F4"><span style="width: 110px; font-size: 13px; color: #475569">Period</span><span style="flex: 1; font-size: 15px; font-weight: 600">Jul 1 – Sep 30, 2026</span></div>
+    <div style="display: flex; align-items: center; min-height: 52px; gap: 10px; border-bottom: 1px solid #EEF1F4"><span style="width: 110px; font-size: 13px; color: #475569">Amount paid</span><span style="flex: 1; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums">₱20,000.00</span></div>
+    <div style="display: flex; align-items: center; min-height: 52px; gap: 10px; border-bottom: 1px solid #EEF1F4"><span style="width: 110px; font-size: 13px; color: #475569">Tax withheld</span><span style="flex: 1; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums">₱1,000.00</span></div>
+    <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0 12px">
+      <label for="atc" style="font-size: 13px; color: #92400E; font-weight: 700; display: flex; gap: 6px; align-items: center"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4"/></svg>Tax code is blurry. Please check</label>
+      <input id="atc" value="WI010" style="height: 46px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1.5px solid #F3C77A; font: inherit; font-size: 15px; color: #0F172A">
+      <span style="font-size: 12px; color: #475569">Copy it exactly as printed. You won't need to understand it.</span>
+    </div>
+  </section>
+
+  <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #E7F5EC">
+    <svg aria-hidden="true" style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>
+    <span style="font-size: 13px; line-height: 1.45; color: #14532D">Matches your Jul 22 payment from Lumen Digital (₱20,000, ₱1,000 withheld). The credit is now confirmed.</span>
+  </div>
+
+  <a href="Certificates.dc.html" style="margin-top: auto; display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 700; font-size: 16px; text-decoration: none">Save certificate</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

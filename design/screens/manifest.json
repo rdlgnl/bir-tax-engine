@@ -1,0 +1,1118 @@
+[
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-01-Main.png",
+  "title": "Welcome",
+  "source": "source/Main.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-02-OnbIncome.png",
+  "title": "Q1 \u00b7 How you earn",
+  "source": "source/OnbIncome.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-03-OnbWork.png",
+  "title": "Q2 \u00b7 What you do",
+  "source": "source/OnbWork.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-04-OnbBusiness.png",
+  "title": "Business info",
+  "source": "source/OnbBusiness.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-05-OnbCorScan.png",
+  "title": "Scan your COR",
+  "source": "source/OnbCorScan.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-06-OnbCorConfirm.png",
+  "title": "Confirm registration",
+  "source": "source/OnbCorConfirm.dc.html",
+  "w": 390,
+  "h": 960
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-07-OnbEstimate.png",
+  "title": "Income estimate",
+  "source": "source/OnbEstimate.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-08-OnbRegime.png",
+  "title": "Tax regime choice",
+  "source": "source/OnbRegime.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-09-OnbDeduction.png",
+  "title": "Deduction choice (graduated)",
+  "source": "source/OnbDeduction.dc.html",
+  "w": 390,
+  "h": 900
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-10-OnbWithholding.png",
+  "title": "Client withholding",
+  "source": "source/OnbWithholding.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/mobile/01-11-OnbSummary.png",
+  "title": "Your tax profile",
+  "source": "source/OnbSummary.dc.html",
+  "w": 390,
+  "h": 960
+ },
+ {
+  "page": "mobile",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/mobile/02-01-Home.png",
+  "title": "Home",
+  "source": "source/Home.dc.html",
+  "w": 390,
+  "h": 1060
+ },
+ {
+  "page": "mobile",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/mobile/02-02-Breakdown.png",
+  "title": "Tax breakdown",
+  "source": "source/Breakdown.dc.html",
+  "w": 390,
+  "h": 1000
+ },
+ {
+  "page": "mobile",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/mobile/02-03-Why.png",
+  "title": "Why is this my tax?",
+  "source": "source/Why.dc.html",
+  "w": 390,
+  "h": 1320
+ },
+ {
+  "page": "mobile",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/mobile/02-04-Compare.png",
+  "title": "What if \u00b7 compare regimes",
+  "source": "source/Compare.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/mobile/02-05-Notifications.png",
+  "title": "Notifications",
+  "source": "source/Notifications.dc.html",
+  "w": 390,
+  "h": 920
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-01-AddSheet.png",
+  "title": "What happened?",
+  "source": "source/AddSheet.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-02-TxReceived.png",
+  "title": "I received money",
+  "source": "source/TxReceived.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-03-TxInvoice.png",
+  "title": "I issued an invoice",
+  "source": "source/TxInvoice.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-04-TxExpense.png",
+  "title": "I paid an expense",
+  "source": "source/TxExpense.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-05-TxWithheld.png",
+  "title": "A client withheld tax",
+  "source": "source/TxWithheld.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-06-TxImport.png",
+  "title": "Other \u00b7 import payouts",
+  "source": "source/TxImport.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/mobile/03-07-TxList.png",
+  "title": "Transactions list",
+  "source": "source/TxList.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "4 \u00b7 Stay compliant",
+  "file": "screens/mobile/04-01-Compliance.png",
+  "title": "Compliance \u00b7 Q3",
+  "source": "source/Compliance.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "4 \u00b7 Stay compliant",
+  "file": "screens/mobile/04-02-Certificates.png",
+  "title": "2307 tracker",
+  "source": "source/Certificates.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "4 \u00b7 Stay compliant",
+  "file": "screens/mobile/04-03-Calendar.png",
+  "title": "Calendar",
+  "source": "source/Calendar.dc.html",
+  "w": 390,
+  "h": 1160
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-01-FilingPrep.png",
+  "title": "Prepare 1701Q",
+  "source": "source/FilingPrep.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-02-FormPreview.png",
+  "title": "Filled BIR form (download)",
+  "source": "source/FormPreview.dc.html",
+  "w": 390,
+  "h": 1180
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-03-FormPct.png",
+  "title": "Filled 2551Q (graduated, non-VAT users)",
+  "source": "source/FormPct.dc.html",
+  "w": 390,
+  "h": 1180
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-04-MarkFiled.png",
+  "title": "Mark filed & paid",
+  "source": "source/MarkFiled.dc.html",
+  "w": 390,
+  "h": 980
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-05-History.png",
+  "title": "Tax history",
+  "source": "source/History.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-06-PeriodDetail.png",
+  "title": "Period snapshot",
+  "source": "source/PeriodDetail.dc.html",
+  "w": 390,
+  "h": 1260
+ },
+ {
+  "page": "mobile",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/mobile/05-07-Reports.png",
+  "title": "Reports & exports",
+  "source": "source/Reports.dc.html",
+  "w": 390,
+  "h": 1080
+ },
+ {
+  "page": "mobile",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/mobile/06-01-Assistant.png",
+  "title": "Ask about your taxes",
+  "source": "source/Assistant.dc.html",
+  "w": 390,
+  "h": 1040
+ },
+ {
+  "page": "mobile",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/mobile/06-02-Profile.png",
+  "title": "Profile & settings",
+  "source": "source/Profile.dc.html",
+  "w": 390,
+  "h": 1160
+ },
+ {
+  "page": "mobile",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/mobile/06-03-DataSettings.png",
+  "title": "Backup, rules, AI key",
+  "source": "source/DataSettings.dc.html",
+  "w": 390,
+  "h": 1160
+ },
+ {
+  "page": "mobile",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/mobile/06-04-AppLock.png",
+  "title": "App lock",
+  "source": "source/AppLock.dc.html",
+  "w": 390,
+  "h": 844
+ },
+ {
+  "page": "mobile",
+  "section": "7 \u00b7 States and errors",
+  "file": "screens/mobile/07-01-StatesHome.png",
+  "title": "Home card states",
+  "source": "source/StatesHome.dc.html",
+  "w": 390,
+  "h": 1520
+ },
+ {
+  "page": "mobile",
+  "section": "7 \u00b7 States and errors",
+  "file": "screens/mobile/07-02-StatesErrors.png",
+  "title": "Errors & edge cases",
+  "source": "source/StatesErrors.dc.html",
+  "w": 390,
+  "h": 1640
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-01-HomeVat.png",
+  "title": "Home \u00b7 VAT-registered (Scenario D)",
+  "source": "source/HomeVat.dc.html",
+  "w": 390,
+  "h": 1060
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-02-VatFiling.png",
+  "title": "Prepare 2550Q (VAT)",
+  "source": "source/VatFiling.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-03-FormVat.png",
+  "title": "Filled 2550Q",
+  "source": "source/FormVat.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-04-TxExpenseAgent.png",
+  "title": "Expense as withholding agent (Scenario E)",
+  "source": "source/TxExpenseAgent.dc.html",
+  "w": 390,
+  "h": 1040
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-05-Form2307.png",
+  "title": "Filled 2307 for the payee (Phase 2)",
+  "source": "source/Form2307.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-06-MixedJob.png",
+  "title": "Job + business \u00b7 your job",
+  "source": "source/MixedJob.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-07-MixedHome.png",
+  "title": "Home \u00b7 job + business",
+  "source": "source/MixedHome.dc.html",
+  "w": 390,
+  "h": 1060
+ },
+ {
+  "page": "mobile",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/mobile/08-08-FormMixed.png",
+  "title": "Filled 1701Q \u00b7 job + business",
+  "source": "source/FormMixed.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "desktop",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/desktop/01-01-DeskWelcome.png",
+  "title": "Desktop \u00b7 Welcome",
+  "source": "source/DeskWelcome.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/desktop/01-02-DeskSetup.png",
+  "title": "Desktop \u00b7 Setup, all steps (click the rail)",
+  "source": "source/DeskSetup.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "1 \u00b7 First launch and setup",
+  "file": "screens/desktop/01-03-DeskOnboarding.png",
+  "title": "Desktop \u00b7 Setup, regime step close-up",
+  "source": "source/DeskOnboarding.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/desktop/02-01-DesktopDashboard.png",
+  "title": "Desktop \u00b7 Home",
+  "source": "source/DesktopDashboard.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/desktop/02-02-DeskTax.png",
+  "title": "Desktop \u00b7 Breakdown + Why",
+  "source": "source/DeskTax.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/desktop/02-03-DeskCompare.png",
+  "title": "Desktop \u00b7 What if",
+  "source": "source/DeskCompare.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "2 \u00b7 Home and your tax",
+  "file": "screens/desktop/02-04-DeskNotifications.png",
+  "title": "Desktop \u00b7 Notifications",
+  "source": "source/DeskNotifications.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/desktop/03-01-DeskTransactions.png",
+  "title": "Desktop \u00b7 Transactions + add panel",
+  "source": "source/DeskTransactions.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/desktop/03-02-DeskCertUpload.png",
+  "title": "Desktop \u00b7 2307 upload review",
+  "source": "source/DeskCertUpload.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "3 \u00b7 Record what happened",
+  "file": "screens/desktop/03-03-DeskImport.png",
+  "title": "Desktop \u00b7 Import statement",
+  "source": "source/DeskImport.dc.html",
+  "w": 1440,
+  "h": 1300
+ },
+ {
+  "page": "desktop",
+  "section": "4 \u00b7 Stay compliant",
+  "file": "screens/desktop/04-01-DeskCompliance.png",
+  "title": "Desktop \u00b7 Compliance + 2307s",
+  "source": "source/DeskCompliance.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "4 \u00b7 Stay compliant",
+  "file": "screens/desktop/04-02-DeskCalendar.png",
+  "title": "Desktop \u00b7 Calendar",
+  "source": "source/DeskCalendar.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/desktop/05-01-DeskFiling.png",
+  "title": "Desktop \u00b7 Filing prep",
+  "source": "source/DeskFiling.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/desktop/05-02-DeskFormPreview.png",
+  "title": "Desktop \u00b7 Filled BIR form (download)",
+  "source": "source/DeskFormPreview.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/desktop/05-03-DeskFormPct.png",
+  "title": "Desktop \u00b7 Filled 2551Q (graduated, non-VAT)",
+  "source": "source/DeskFormPct.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "5 \u00b7 File and keep records",
+  "file": "screens/desktop/05-04-DeskHistory.png",
+  "title": "Desktop \u00b7 History + reports",
+  "source": "source/DeskHistory.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/desktop/06-01-DeskAssistant.png",
+  "title": "Desktop \u00b7 Assistant",
+  "source": "source/DeskAssistant.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/desktop/06-02-DeskProfile.png",
+  "title": "Desktop \u00b7 Profile & settings",
+  "source": "source/DeskProfile.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/desktop/06-03-DeskData.png",
+  "title": "Desktop \u00b7 Backup, rules, AI key",
+  "source": "source/DeskData.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "6 \u00b7 Ask, settings, backup, app lock",
+  "file": "screens/desktop/06-04-DeskLock.png",
+  "title": "Desktop \u00b7 App lock",
+  "source": "source/DeskLock.dc.html",
+  "w": 1440,
+  "h": 900
+ },
+ {
+  "page": "desktop",
+  "section": "7 \u00b7 States and errors",
+  "file": "screens/desktop/07-01-DeskStates.png",
+  "title": "Desktop \u00b7 States & errors",
+  "source": "source/DeskStates.dc.html",
+  "w": 1440,
+  "h": 1300
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-01-DeskHomeVat.png",
+  "title": "Desktop \u00b7 Home, VAT-registered (Phase 2)",
+  "source": "source/DeskHomeVat.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-02-DeskVatFiling.png",
+  "title": "Desktop \u00b7 Prepare 2550Q (VAT)",
+  "source": "source/DeskVatFiling.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-03-DeskFormVat.png",
+  "title": "Desktop \u00b7 Filled 2550Q",
+  "source": "source/DeskFormVat.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-04-DeskExpenseAgent.png",
+  "title": "Desktop \u00b7 Paying as withholding agent (Phase 2)",
+  "source": "source/DeskExpenseAgent.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-05-DeskForm2307.png",
+  "title": "Desktop \u00b7 Filled 2307 for the payee (Phase 2)",
+  "source": "source/DeskForm2307.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-06-DeskMixed.png",
+  "title": "Desktop \u00b7 Home, job + business",
+  "source": "source/DeskMixed.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "8 \u00b7 Phase 2: VAT, withholding agent, job + business",
+  "file": "screens/desktop/08-07-DeskFormMixed.png",
+  "title": "Desktop \u00b7 Filled 1701Q, job + business",
+  "source": "source/DeskFormMixed.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-01-Amend.png",
+  "title": "Amend a filed quarter",
+  "source": "source/Amend.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-02-LateEstimate.png",
+  "title": "Paying late \u00b7 penalty estimate",
+  "source": "source/LateEstimate.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-03-Dst.png",
+  "title": "Loan signed \u00b7 DST",
+  "source": "source/Dst.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-04-FormDst.png",
+  "title": "Filled Form 2000 (DST)",
+  "source": "source/FormDst.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-05-Payroll.png",
+  "title": "Your employee \u00b7 payroll withholding",
+  "source": "source/Payroll.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-06-Form2316.png",
+  "title": "Filled 2316 for the employee",
+  "source": "source/Form2316.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/mobile/09-07-NoticeReader.png",
+  "title": "BIR letter reader",
+  "source": "source/NoticeReader.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-01-DeskAmend.png",
+  "title": "Desktop \u00b7 Amend a filed quarter",
+  "source": "source/DeskAmend.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-02-DeskLate.png",
+  "title": "Desktop \u00b7 Paying late",
+  "source": "source/DeskLate.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-03-DeskDst.png",
+  "title": "Desktop \u00b7 Loan signed \u00b7 DST",
+  "source": "source/DeskDst.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-04-DeskFormDst.png",
+  "title": "Desktop \u00b7 Filled Form 2000",
+  "source": "source/DeskFormDst.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-05-DeskPayroll.png",
+  "title": "Desktop \u00b7 Payroll withholding",
+  "source": "source/DeskPayroll.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-06-DeskForm2316.png",
+  "title": "Desktop \u00b7 Filled 2316",
+  "source": "source/DeskForm2316.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "9 \u00b7 Phase 3: amendments, late payment, DST, payroll, BIR letters",
+  "file": "screens/desktop/09-07-DeskNotice.png",
+  "title": "Desktop \u00b7 BIR letter reader",
+  "source": "source/DeskNotice.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "mobile",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/mobile/10-01-FirstRun.png",
+  "title": "First run \u00b7 PIN and reminders",
+  "source": "source/FirstRun.dc.html",
+  "w": 390,
+  "h": 1120
+ },
+ {
+  "page": "mobile",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/mobile/10-02-AnnualPrep.png",
+  "title": "Annual return 2026",
+  "source": "source/AnnualPrep.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "mobile",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/mobile/10-03-FormAnnual.png",
+  "title": "Filled 1701-MS",
+  "source": "source/FormAnnual.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/mobile/10-04-Sworn.png",
+  "title": "Sworn declaration for clients",
+  "source": "source/Sworn.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "mobile",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/mobile/10-05-Backup.png",
+  "title": "Back up and restore",
+  "source": "source/Backup.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "mobile",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/mobile/10-06-Books.png",
+  "title": "Books of accounts",
+  "source": "source/Books.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "desktop",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/desktop/10-01-DeskFirstRun.png",
+  "title": "Desktop \u00b7 First run",
+  "source": "source/DeskFirstRun.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "desktop",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/desktop/10-02-DeskAnnual.png",
+  "title": "Desktop \u00b7 Annual return 2026",
+  "source": "source/DeskAnnual.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/desktop/10-03-DeskFormAnnual.png",
+  "title": "Desktop \u00b7 Filled 1701-MS",
+  "source": "source/DeskFormAnnual.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/desktop/10-04-DeskSworn.png",
+  "title": "Desktop \u00b7 Sworn declaration",
+  "source": "source/DeskSworn.dc.html",
+  "w": 1440,
+  "h": 1150
+ },
+ {
+  "page": "desktop",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/desktop/10-05-DeskBackup.png",
+  "title": "Desktop \u00b7 Back up and restore",
+  "source": "source/DeskBackup.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "10 \u00b7 MVP additions: first run, annual return, sworn declaration, backup, books",
+  "file": "screens/desktop/10-06-DeskBooks.png",
+  "title": "Desktop \u00b7 Books of accounts",
+  "source": "source/DeskBooks.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-01-AgentQ.png",
+  "title": "1601-EQ quarterly + list of payees",
+  "source": "source/AgentQ.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-02-Form1601EQ.png",
+  "title": "Filled 1601-EQ",
+  "source": "source/Form1601EQ.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-03-Form0619E.png",
+  "title": "Filled 0619-E (monthly)",
+  "source": "source/Form0619E.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-04-AgentY.png",
+  "title": "1604-E annual list of payees",
+  "source": "source/AgentY.dc.html",
+  "w": 390,
+  "h": 1200
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-05-Form1604E.png",
+  "title": "Filled 1604-E",
+  "source": "source/Form1604E.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-06-MarketImport.png",
+  "title": "Marketplace payout import",
+  "source": "source/MarketImport.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-07-Slsp.png",
+  "title": "SLSP for VAT",
+  "source": "source/Slsp.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/mobile/11-08-Scan2316.png",
+  "title": "2316 from employer",
+  "source": "source/Scan2316.dc.html",
+  "w": 390,
+  "h": 1200
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-01-DeskAgentQ.png",
+  "title": "Desktop \u00b7 1601-EQ + list of payees",
+  "source": "source/DeskAgentQ.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-02-DeskForm1601EQ.png",
+  "title": "Desktop \u00b7 Filled 1601-EQ",
+  "source": "source/DeskForm1601EQ.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-03-DeskForm0619E.png",
+  "title": "Desktop \u00b7 Filled 0619-E",
+  "source": "source/DeskForm0619E.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-04-DeskAgentY.png",
+  "title": "Desktop \u00b7 1604-E annual list",
+  "source": "source/DeskAgentY.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-05-DeskForm1604E.png",
+  "title": "Desktop \u00b7 Filled 1604-E",
+  "source": "source/DeskForm1604E.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-06-DeskMarket.png",
+  "title": "Desktop \u00b7 Marketplace import",
+  "source": "source/DeskMarket.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-07-DeskSlsp.png",
+  "title": "Desktop \u00b7 SLSP",
+  "source": "source/DeskSlsp.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "11 \u00b7 Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+  "file": "screens/desktop/11-08-DeskScan2316.png",
+  "title": "Desktop \u00b7 2316 from employer",
+  "source": "source/DeskScan2316.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "mobile",
+  "section": "12 \u00b7 Details: search, rule updates, erase",
+  "file": "screens/mobile/12-01-TxSearch.png",
+  "title": "Search and filters",
+  "source": "source/TxSearch.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "12 \u00b7 Details: search, rule updates, erase",
+  "file": "screens/mobile/12-02-RuleUpdate.png",
+  "title": "Rule update: what changed",
+  "source": "source/RuleUpdate.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "12 \u00b7 Details: search, rule updates, erase",
+  "file": "screens/mobile/12-03-EraseData.png",
+  "title": "Erase all data",
+  "source": "source/EraseData.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "desktop",
+  "section": "12 \u00b7 Details: search, rule updates, erase",
+  "file": "screens/desktop/12-01-DeskTxSearch.png",
+  "title": "Desktop \u00b7 Search and filters",
+  "source": "source/DeskTxSearch.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "12 \u00b7 Details: search, rule updates, erase",
+  "file": "screens/desktop/12-02-DeskRuleUpdate.png",
+  "title": "Desktop \u00b7 Rule update",
+  "source": "source/DeskRuleUpdate.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "12 \u00b7 Details: search, rule updates, erase",
+  "file": "screens/desktop/12-03-DeskErase.png",
+  "title": "Desktop \u00b7 Erase all data",
+  "source": "source/DeskErase.dc.html",
+  "w": 1440,
+  "h": 1000
+ },
+ {
+  "page": "devtools",
+  "section": "Developer tool: rule pack editor (not shipped in the app)",
+  "file": "screens/developer/Developer tool: rule pack editor (not shipped in the app)-01-RuleAdmin.png",
+  "title": "Rule admin (developer tool, not in the app)",
+  "source": "source/RuleAdmin.dc.html",
+  "w": 1440,
+  "h": 1000
+ }
+]

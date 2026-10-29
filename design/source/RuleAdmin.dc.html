@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rule admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="min-height: 1000px; box-sizing: border-box; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 32px; background: #0F172A; color: #FFFFFF">
+    <span style="font-size: 16px; font-weight: 800">BuwisBuddy · Rule admin</span>
+    <span style="font-size: 12px; font-weight: 700; color: #0F172A; background: #FDE68A; padding: 3px 8px; border-radius: 6px">INTERNAL</span>
+    <span style="flex: 1"></span>
+    <span style="font-size: 13px; color: #CBD5E1">Signed in as tax reviewer · maker-checker on</span>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; padding: 24px 32px; align-items: flex-start">
+    <section aria-label="Rules" style="flex: 1 1 520px; min-width: 0; background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 18px 20px">
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding-bottom: 12px">
+        <h1 style="margin: 0; flex: 1; font-size: 20px; font-weight: 800">Rules</h1>
+        <span style="font-size: 13px; color: #475569">22 published · 2 in review · 1 draft</span>
+        <button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: #1D4ED8; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700">New version</button>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 13px">
+          <thead><tr style="text-align: left; font-size: 12px; color: #475569"><th scope="col" style="padding: 8px 0; font-weight: 700">Rule</th><th scope="col" style="font-weight: 700">Tax</th><th scope="col" style="font-weight: 700">Ver.</th><th scope="col" style="font-weight: 700">Effective</th><th scope="col" style="font-weight: 700">Status</th><th scope="col" style="font-weight: 700">Check</th></tr></thead>
+          <tbody>
+            <tr style="border-top: 1px solid #EEF1F4"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">IT-8PCT-PURE</td><td>Income</td><td>v2</td><td>2018-01-01</td><td><span style="font-weight: 700; color: #14532D; background: #E7F5EC; padding: 3px 8px; border-radius: 999px">Published</span></td><td style="color: #15803D; font-weight: 700">Expert approved</td></tr>
+            <tr style="border-top: 1px solid #EEF1F4"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">IT-GRAD-2023</td><td>Income</td><td>v1</td><td>2023-01-01</td><td><span style="font-weight: 700; color: #14532D; background: #E7F5EC; padding: 3px 8px; border-radius: 999px">Published</span></td><td style="color: #15803D; font-weight: 700">Expert approved</td></tr>
+            <tr style="border-top: 1px solid #EEF1F4"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">PT-SEC116</td><td>Percentage</td><td>v2</td><td>2023-07-01</td><td><span style="font-weight: 700; color: #14532D; background: #E7F5EC; padding: 3px 8px; border-radius: 999px">Published</span></td><td style="color: #15803D; font-weight: 700">Expert approved</td></tr>
+            <tr style="border-top: 1px solid #EEF1F4"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">CWT-MARKETPLACE</td><td>Withholding</td><td>v2</td><td>2025 (RR 5-2025)</td><td><span style="font-weight: 700; color: #14532D; background: #E7F5EC; padding: 3px 8px; border-radius: 999px">Published</span></td><td style="color: #15803D; font-weight: 700">Expert approved</td></tr>
+            <tr style="border-top: 1px solid #EEF1F4; background: #F5F8FF"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">CWT-TWA</td><td>Withholding</td><td>v2</td><td style="color: #92400E; font-weight: 700">Conflict</td><td><span style="font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 3px 8px; border-radius: 999px">In review</span></td><td style="color: #92400E; font-weight: 700">Verify</td></tr>
+            <tr style="border-top: 1px solid #EEF1F4"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">DST-LEASE</td><td>DST</td><td>v1</td><td>—</td><td><span style="font-weight: 700; color: #334155; background: #EEF1F4; padding: 3px 8px; border-radius: 999px">Draft</span></td><td style="color: #92400E; font-weight: 700">Verify</td></tr>
+            <tr style="border-top: 1px solid #EEF1F4"><td style="padding: 11px 0; font-family: 'JetBrains Mono', monospace; font-weight: 600">DL-1701Q</td><td>Deadline</td><td>v1</td><td>current</td><td><span style="font-weight: 700; color: #14532D; background: #E7F5EC; padding: 3px 8px; border-radius: 999px">Published</span></td><td style="color: #15803D; font-weight: 700">Expert approved</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #F4F6F8; display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <span style="flex: 1 1 260px; font-size: 13px; color: #334155"><strong>Issuance watch:</strong> 3 new BIR items this week waiting for triage (RMCs, Big Four alerts).</span>
+        <a href="RuleAdmin.dc.html" style="font-size: 13px; font-weight: 700; text-decoration: none">Open triage queue</a>
+      </div>
+    </section>
+
+    <section aria-label="Rule version in review" style="flex: 1 1 460px; min-width: 0; background: #FFFFFF; border-radius: 18px; border: 2px solid #1D4ED8; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+        <h2 style="margin: 0; flex: 1; font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace">CWT-TWA v2</h2>
+        <span style="font-size: 12px; font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 3px 8px; border-radius: 999px">In review</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; font-size: 13px">
+        <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #475569; font-weight: 700">Legal basis</span><span>RR 24-2025 amending RR 2-98 Sec. 2.57.2(I); RMC 79-2026</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #475569; font-weight: 700">Source</span><a href="https://bir-cdn.bir.gov.ph/BIR/pdf/RR%20No.%2024-2025%20Digest%20FINAL.pdf" style="font-weight: 700; text-decoration: none">BIR digest (PDF, snapshot stored)</a></div>
+        <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #475569; font-weight: 700">Effective from</span><span style="color: #92400E; font-weight: 700">2025-10-10 vs 2025-10-18: sources disagree</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #475569; font-weight: 700">Supersedes</span><span>CWT-TWA v1 (RR 31-2020)</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; color: #475569; font-weight: 700">Parameters</span>
+        <pre style="margin: 0; padding: 12px 14px; border-radius: 12px; background: #0F172A; color: #E2E8F0; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto">{ "goods_rate": "0.01",
+  "services_rate": "0.02",
+  "wholesale_covered_goods_rate": "0.005",
+  "rounding": "half_up_centavo" }</pre>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+        <div style="padding: 12px; border-radius: 12px; background: #E7F5EC; display: flex; flex-direction: column"><span style="font-size: 12px; color: #14532D; font-weight: 700">Fixtures</span><span style="font-size: 18px; font-weight: 800; color: #14532D">14 / 14 pass</span></div>
+        <div style="padding: 12px; border-radius: 12px; background: #F4F6F8; display: flex; flex-direction: column"><span style="font-size: 12px; color: #475569; font-weight: 700">Users affected</span><span style="font-size: 18px; font-weight: 800">[from replay]</span></div>
+        <div style="padding: 12px; border-radius: 12px; background: #F4F6F8; display: flex; flex-direction: column"><span style="font-size: 12px; color: #475569; font-weight: 700">Open periods</span><span style="font-size: 18px; font-weight: 800">Recompute on publish</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #334155">
+        <span>Drafted by Tax specialist A · Oct 20</span>
+        <span>Engineer check: no new calculator needed</span>
+        <span style="color: #92400E; font-weight: 700">Blocked: resolve effective date before approval</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <button type="button" disabled style="height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: #CBD2DA; color: #334155; font: inherit; font-size: 14px; font-weight: 700">Approve and publish</button>
+        <button type="button" style="height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #CBD2DA; background: #FFFFFF; color: #0F172A; font: inherit; font-size: 14px; font-weight: 700">Request changes</button>
+        <button type="button" style="height: 44px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #CBD2DA; background: #FFFFFF; color: #0F172A; font: inherit; font-size: 14px; font-weight: 700">Diff vs v1</button>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

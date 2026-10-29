@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Paying someone, as a withholding agent</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFFFFF; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 12px 20px 28px; display: flex; flex-direction: column; gap: 16px">
+  <header style="display: flex; align-items: center; gap: 6px; margin-left: -8px">
+    <a href="AddSheet.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div style="flex: 1; display: flex; flex-direction: column">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 800">I paid someone</h1>
+      <span style="font-size: 13px; color: #475569">Ella's Design Studio · withholding agent</span>
+    </div>
+  </header>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="xamt" style="font-size: 14px; font-weight: 700">Their fee</label>
+    <div style="display: flex; align-items: center; height: 64px; border-radius: 14px; border: 2px solid #1D4ED8; padding: 0 16px; gap: 6px">
+      <span style="font-size: 26px; font-weight: 800; color: #475569">₱</span>
+      <input id="xamt" value="40,000" inputmode="decimal" style="flex: 1; border: 0; outline: none; font: inherit; font-size: 28px; font-weight: 800; color: #0F172A; min-width: 0">
+    </div>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="xto" style="font-size: 14px; font-weight: 700">Paid to</label>
+    <input id="xto" value="Mara Santos · freelance illustrator" style="height: 50px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 15px; color: #0F172A">
+  </div>
+
+  <fieldset style="border: 0; margin: 0; padding: 0">
+    <legend style="font-size: 14px; font-weight: 700; padding: 0; margin-bottom: 8px">Person or company?</legend>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 4px; border-radius: 14px; background: #F4F6F8">
+      <button type="button" aria-pressed="true" style="height: 44px; border-radius: 10px; border: 0; font: inherit; font-size: 15px; font-weight: 700; background: #FFFFFF; color: #0F172A; box-shadow: 0 1px 3px rgba(15,23,42,0.15)">Person</button>
+      <button type="button" aria-pressed="false" style="height: 44px; border-radius: 10px; border: 0; font: inherit; font-size: 15px; font-weight: 700; background: transparent; color: #0F172A">Company</button>
+    </div>
+  </fieldset>
+  <fieldset style="border: 0; margin: 0; padding: 0">
+    <legend style="font-size: 14px; font-weight: 700; padding: 0; margin-bottom: 8px">Did they give you a sworn declaration this year?</legend>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 4px; border-radius: 14px; background: #F4F6F8">
+      <button type="button" aria-pressed="true" style="height: 44px; border-radius: 10px; border: 0; font: inherit; font-size: 15px; font-weight: 700; background: #FFFFFF; color: #0F172A; box-shadow: 0 1px 3px rgba(15,23,42,0.15)">Yes</button>
+      <button type="button" aria-pressed="false" style="height: 44px; border-radius: 10px; border: 0; font: inherit; font-size: 15px; font-weight: 700; background: transparent; color: #0F172A">No / not sure</button>
+    </div>
+    <span style="display: block; margin-top: 6px; font-size: 12px; color: #475569">With it, you withhold 5%. Without it, 10%.</span>
+  </fieldset>
+
+  <section style="border-radius: 18px; background: #0F172A; color: #FFFFFF; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #CBD5E1">Keep and send to BIR (5%)</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">₱2,000</span></div>
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #CBD5E1">Pay Mara</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">₱38,000</span></div>
+  </section>
+
+  <section style="border-radius: 18px; border: 1px solid #E3E7EC; padding: 4px 16px">
+    <span style="display: block; padding: 12px 0 4px; font-size: 12px; font-weight: 800; color: #475569; letter-spacing: 0.4px">WE ADDED TO YOUR CALENDAR</span>
+    <div style="display: flex; gap: 10px; align-items: center; min-height: 52px; border-top: 1px solid #EEF1F4"><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Remit October withholding</span><span style="font-size: 12px; color: #475569">Form 0619-E · includes office rent ₱1,500 · <a href="Form0619E.dc.html" style="font-weight: 700; text-decoration: none">Filled form</a></span></span><span style="font-size: 13px; font-weight: 700; text-align: right">₱3,500<br>Tue, Nov 10</span></div>
+    <div style="display: flex; gap: 10px; align-items: center; min-height: 52px; border-top: 1px solid #EEF1F4"><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Quarterly withholding return</span><span style="font-size: 12px; color: #475569">Form 1601-EQ with list of payees · <a href="AgentQ.dc.html" style="font-weight: 700; text-decoration: none">See Q3</a></span></span><span style="font-size: 13px; font-weight: 700; text-align: right">Mon, Feb 1, 2027</span></div>
+    <div style="display: flex; gap: 10px; align-items: center; min-height: 52px; border-top: 1px solid #EEF1F4"><span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Give Mara her 2307</span><span style="font-size: 12px; color: #475569">Filled 2307 ready after the quarter · <a href="Form2307.dc.html" style="font-weight: 700; text-decoration: none">Preview</a></span></span><span style="font-size: 13px; font-weight: 700; color: #475569">Q4</span></div>
+  </section>
+
+  <a href="Calendar.dc.html" style="margin-top: auto; display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 700; font-size: 16px; text-decoration: none">Save payment</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ask about your taxes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+input::placeholder{color:#64748B}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+  <header style="display: flex; align-items: center; gap: 6px; padding: 12px 16px 10px 12px; background: #FFFFFF; border-bottom: 1px solid #E3E7EC">
+    <a href="Home.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div style="flex: 1; display: flex; flex-direction: column">
+      <h1 style="margin: 0; font-size: 18px; font-weight: 800">Ask about your taxes</h1>
+      <span style="font-size: 12px; color: #475569">Uses your numbers from the tax engine</span>
+    </div>
+  </header>
+
+  <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+    <div style="align-self: flex-end; max-width: 80%; padding: 12px 14px; border-radius: 18px 18px 4px 18px; background: #1D4ED8; color: #FFFFFF; font-size: 15px; line-height: 1.45">Why don't I pay percentage tax?</div>
+
+    <div style="align-self: flex-start; max-width: 92%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px 18px 18px 4px; background: #FFFFFF; border: 1px solid #E3E7EC">
+      <span style="font-size: 15px; line-height: 1.5">Because you chose the flat 8% option on your Q1 return. The 8% covers both your income tax and the 3% percentage tax, so there's no separate quarterly percentage tax return for you this year.</span>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; background: #F4F6F8; font-size: 13px">
+        <span style="font-weight: 700">From your Q3 calculation</span>
+        <span style="display: flex; justify-content: space-between; font-variant-numeric: tabular-nums"><span>Percentage tax</span><span>₱0 · not applied</span></span>
+        <span style="display: flex; justify-content: space-between; font-variant-numeric: tabular-nums"><span>Income tax (8%)</span><span>₱14,000</span></span>
+      </div>
+      <span style="font-size: 13px; line-height: 1.45; color: #334155">One loose end: your COR still lists percentage tax. Updating it (Form 1905) keeps the BIR from expecting 2551Q returns.</span>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap">
+        <a href="Why.dc.html" style="font-size: 12px; font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 6px 10px; border-radius: 999px; text-decoration: none">Rule IT-8PCT-PURE v2</a>
+        <a href="Why.dc.html" style="font-size: 12px; font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 6px 10px; border-radius: 999px; text-decoration: none">NIRC Sec. 24(A)(2)(b)</a>
+      </div>
+    </div>
+
+    <div style="align-self: flex-end; max-width: 80%; padding: 12px 14px; border-radius: 18px 18px 4px 18px; background: #1D4ED8; color: #FFFFFF; font-size: 15px; line-height: 1.45">What if Acme never sends the 2307?</div>
+
+    <div style="align-self: flex-start; max-width: 92%; display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px 18px 18px 4px; background: #FFFFFF; border: 1px solid #E3E7EC">
+      <span style="font-size: 15px; line-height: 1.5">Your Q3 estimate counts <strong>₱1,000</strong> that Acme withheld. Without their 2307, the BIR may not accept that credit, so you could owe up to ₱1,000 more. You can still file on time; most clients send it when asked.</span>
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; border: 1.5px dashed #94A3B8">
+        <span style="font-size: 13px; font-weight: 700">Suggested action</span>
+        <span style="font-size: 13px; color: #334155">Send Acme a request email. You review it before anything is sent.</span>
+        <a href="Certificates.dc.html" style="align-self: flex-start; display: flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 10px; background: #1D4ED8; color: #FFFFFF; font-size: 13px; font-weight: 700; text-decoration: none">Review the email</a>
+      </div>
+      <a href="Why.dc.html" style="align-self: flex-start; font-size: 12px; font-weight: 700; color: #1E3A8A; background: #E8EEFD; padding: 6px 10px; border-radius: 999px; text-decoration: none">RMC 14-2025 · 2307 matching</a>
+    </div>
+
+    <div style="display: flex; gap: 8px; align-items: center; justify-content: center; font-size: 12px; color: #475569">
+      <button type="button" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 700; color: #0F172A">Helpful</button>
+      <button type="button" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #FFFFFF; font: inherit; font-size: 12px; font-weight: 700; color: #0F172A">This was wrong</button>
+    </div>
+  </div>
+
+  <div style="padding: 12px 16px 20px; background: #FFFFFF; border-top: 1px solid #E3E7EC; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; gap: 8px; overflow: hidden">
+      <button type="button" style="flex: none; height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #F4F6F8; font: inherit; font-size: 13px; font-weight: 600; color: #0F172A">What's a 2307?</button>
+      <button type="button" style="flex: none; height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #F4F6F8; font: inherit; font-size: 13px; font-weight: 600; color: #0F172A">Should I switch next year?</button>
+      <button type="button" style="flex: none; height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #CBD2DA; background: #F4F6F8; font: inherit; font-size: 13px; font-weight: 600; color: #0F172A">Summarize Q3</button>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center">
+      <button type="button" aria-label="Upload a BIR letter or notice" style="flex: none; width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12l-8.5 8.5a5 5 0 0 1-7-7L14 5a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L15 8"/></svg>
+      </button>
+      <label for="ask" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Your question</label>
+      <input id="ask" placeholder="Ask, or upload a BIR letter" style="flex: 1; height: 46px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 15px; color: #0F172A; min-width: 0">
+      <button type="button" aria-label="Send" style="flex: none; width: 46px; height: 46px; border-radius: 12px; border: 0; background: #1D4ED8; display: flex; align-items: center; justify-content: center">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <span style="font-size: 11px; color: #475569; text-align: center">Explains and points to sources. Not legal advice. For BIR notices or disputes, talk to a CPA or tax lawyer.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

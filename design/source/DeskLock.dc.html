@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desktop app lock</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#BFDBFE}a:hover{color:#FFFFFF}
+input::placeholder{color:#94A3B8}
+</style>
+</helmet>
+<div style="min-height: 900px; box-sizing: border-box; background: #0F172A; color: #FFFFFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 40px 24px; display: flex; align-items: center; justify-content: center">
+  <section aria-label="Unlock" style="width: 100%; max-width: 420px; box-sizing: border-box; background: #1E293B; border-radius: 24px; padding: 36px 32px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center">
+    <div style="width: 56px; height: 56px; border-radius: 16px; background: #334155; display: flex; align-items: center; justify-content: center">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 800">BuwisBuddy is locked</h1>
+      <span style="font-size: 14px; color: #CBD5E1">Locked after 5 minutes away</span>
+    </div>
+    <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left">
+      <label for="dpin" style="font-size: 14px; font-weight: 700">PIN</label>
+      <input id="dpin" type="password" inputmode="numeric" placeholder="4 to 6 digits" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; border: 1.5px solid #475569; background: #0F172A; font: inherit; font-size: 20px; letter-spacing: 6px; color: #FFFFFF">
+    </div>
+    <a href="DesktopDashboard.dc.html" style="width: 100%; display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 12px; background: #FFFFFF; color: #0F172A; font-size: 15px; font-weight: 800; text-decoration: none">Unlock</a>
+    <a href="DeskData.dc.html" style="font-size: 13px; font-weight: 600; text-decoration: none; padding: 6px">Forgot PIN? Restore a backup on a fresh install</a>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

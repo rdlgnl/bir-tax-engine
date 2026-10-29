@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1060px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 16px 16px 96px; display: flex; flex-direction: column; gap: 14px">
+  <header style="display: flex; align-items: center; gap: 8px; padding: 0 4px">
+    <div style="flex: 1; display: flex; flex-direction: column">
+      <span style="font-size: 13px; color: #475569">Tuesday, October 27</span>
+      <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.3px">Good evening, Juan</span>
+    </div>
+    <a href="Notifications.dc.html" aria-label="Notifications, 2 new" style="position: relative; width: 44px; height: 44px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E3E7EC; display: flex; align-items: center; justify-content: center">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span style="position: absolute; top: 8px; right: 9px; width: 9px; height: 9px; border-radius: 50%; background: #DC2626; border: 2px solid #FFFFFF"></span>
+    </a>
+    <a href="Profile.dc.html" aria-label="Profile" style="width: 44px; height: 44px; border-radius: 50%; background: #0F172A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; text-decoration: none">JD</a>
+  </header>
+
+  <section aria-label="Next to pay" style="background: #0F172A; color: #FFFFFF; border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.6px; color: #CBD5E1">NEXT TO PAY</span>
+      <span style="font-size: 12px; font-weight: 700; color: #0F172A; background: #FDE68A; padding: 4px 10px; border-radius: 999px">20 days left</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <span style="font-size: 44px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums">₱14,000</span>
+      <span style="font-size: 15px; color: #E2E8F0">Income tax for Jul–Sep 2026</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: #1E293B">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E2E8F0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 10h18"/></svg>
+      <span style="display: flex; flex-direction: column">
+        <span style="font-size: 15px; font-weight: 700">Due Monday, November 16</span>
+        <span style="font-size: 12px; color: #CBD5E1">Nov 15 falls on a Sunday · File and pay 1701Q</span>
+      </span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <a href="Breakdown.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 12px; background: #FFFFFF; color: #0F172A; font-size: 15px; font-weight: 700; text-decoration: none">See breakdown</a>
+      <a href="FilingPrep.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 12px; border: 1.5px solid #475569; color: #FFFFFF; font-size: 15px; font-weight: 700; text-decoration: none">Prepare 1701Q</a>
+    </div>
+  </section>
+
+  <section aria-label="This quarter" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 6px 16px">
+    <div style="display: flex; justify-content: space-between; align-items: center; min-height: 44px">
+      <span style="font-size: 13px; font-weight: 800; color: #475569; letter-spacing: 0.4px">THIS QUARTER · Q3</span>
+      <a href="Calendar.dc.html" style="font-size: 13px; font-weight: 700; text-decoration: none; padding: 10px 0">Calendar</a>
+    </div>
+    <a href="Breakdown.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Income tax</span><span style="font-size: 12px; color: #475569">Flat 8% option</span></span>
+      <span style="font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums">₱14,000</span>
+      <span style="font-size: 12px; font-weight: 700; color: #92400E; background: #FEF3E2; padding: 4px 8px; border-radius: 999px">Due</span>
+    </a>
+    <a href="Why.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Percentage tax</span><span style="font-size: 12px; color: #475569">The 8% option replaces it</span></span>
+      <span style="font-size: 14px; font-weight: 600; color: #475569">Not needed</span>
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v5h1"/></svg>
+    </a>
+    <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #EEF1F4">
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">VAT</span><span style="font-size: 12px; color: #475569">You're not VAT-registered</span></span>
+      <span style="font-size: 14px; font-weight: 600; color: #475569">None</span>
+    </div>
+    <a href="Certificates.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-top: 1px solid #EEF1F4; text-decoration: none; color: #0F172A">
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 700">Withheld by clients</span><span style="font-size: 12px; color: #475569">Already counted as paid</span></span>
+      <span style="font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; color: #15803D">−₱2,000</span>
+    </a>
+  </section>
+
+  <section aria-label="Compliance" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; gap: 16px; flex-wrap: wrap">
+      <span style="display: flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Income recorded</span>
+      <span style="display: flex; gap: 6px; align-items: center; font-size: 14px; font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Tax computed</span>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #FFF7EB">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+      <span style="flex: 1; font-size: 14px; font-weight: 600; color: #78350F">1 tax certificate (2307) missing: Acme Co.</span>
+      <a href="Certificates.dc.html" style="font-size: 14px; font-weight: 700; text-decoration: none; padding: 8px 0">Ask</a>
+    </div>
+    <a href="Compliance.dc.html" style="font-size: 13px; font-weight: 700; text-decoration: none">View Q3 checklist</a>
+  </section>
+
+  <section aria-label="Year so far" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+    <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #475569">Earned in 2026</span><span style="font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums">₱695,000</span></div>
+    <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #475569">Tax on it so far</span><span style="font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums">₱35,600</span></div>
+    <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 6px">
+      <div aria-hidden="true" style="height: 8px; border-radius: 4px; background: #E3E7EC"><div style="width: 23%; height: 8px; border-radius: 4px; background: #1D4ED8"></div></div>
+      <span style="font-size: 12px; color: #475569">23% of the ₱3,000,000 limit for the 8% option</span>
+    </div>
+  </section>
+
+  <a href="Assistant.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 16px; background: #E8EEFD; text-decoration: none; color: #1E3A8A">
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+    <span style="flex: 1; font-size: 14px; font-weight: 600">Ask: "Why don't I pay percentage tax?"</span>
+  </a>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0">
+    <dc-import name="TabBar" active="home" hint-size="390px,76px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

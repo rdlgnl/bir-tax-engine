@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desktop: states and errors</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+.lbl{font-size:11px;font-weight:800;color:#475569;letter-spacing:0.6px}
+.cell{display:flex;flex-direction:column;gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none}
+.pri{background:#1D4ED8;color:#FFFFFF}
+.sec{border:1.5px solid #CBD2DA;color:#0F172A}
+</style>
+</helmet>
+<div style="min-height: 1300px; box-sizing: border-box; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 32px 32px 48px">
+  <div style="max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px">
+    <header style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">States and errors, desktop</h1>
+      <span style="font-size: 14px; color: #475569">Home card states use the dashboard's wide card. Dialogs open centered over the page at 480px wide.</span>
+    </header>
+
+    <h2 style="margin: 8px 0 0; font-size: 18px; font-weight: 800">Next-payment card</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px">
+      <div class="cell"><span class="lbl">EMPTY · NEW USER</span>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 1.5px dashed #94A3B8; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+          <span style="font-size: 19px; font-weight: 800">No income recorded yet</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">Based on your estimate, expect about <strong style="color: #0F172A">₱44,000</strong> in tax for 2026. Add payments to see the real number.</span>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap"><a href="DeskTransactions.dc.html" class="btn pri">Add a payment</a><a href="DeskImport.dc.html" class="btn sec">Import statement</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">ALL CLEAR</span>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 22px; display: flex; gap: 14px; align-items: center">
+          <span style="flex: none; width: 52px; height: 52px; border-radius: 14px; background: #E7F5EC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 18px; font-weight: 800">Nothing due for 34 days</span><span style="font-size: 14px; color: #475569">Q3 filed and paid · next: annual return, Apr 15</span></span>
+        </section></div>
+
+      <div class="cell"><span class="lbl">DUE IN 2 DAYS OR LESS</span>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 2px solid #B45309; padding: 22px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center">
+          <span style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 800; letter-spacing: 0.6px; color: #92400E">DUE TOMORROW · MON, NOV 16</span><span style="font-size: 38px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums">₱14,000</span></span>
+          <a href="DeskFiling.dc.html" class="btn pri" style="height: 48px">File and pay now</a>
+        </section></div>
+
+      <div class="cell"><span class="lbl">OVERDUE</span>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 2px solid #B91C1C; padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center">
+            <span style="flex: 1 1 180px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 800; letter-spacing: 0.6px; color: #991B1B">3 DAYS LATE</span><span style="font-size: 38px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums">₱14,000</span></span>
+            <a href="DeskFiling.dc.html" class="btn" style="height: 48px; background: #B91C1C; color: #FFFFFF">File now</a>
+          </div>
+          <span style="font-size: 14px; line-height: 1.5; color: #334155">Was due Nov 16. As a micro taxpayer, the late surcharge is 10% (₱1,400) instead of 25%, plus interest at the reduced rate. Filing today keeps it small. <a href="DeskLate.dc.html" style="font-weight: 700">What happens if I'm late?</a></span>
+        </section></div>
+
+      <div class="cell"><span class="lbl">UPDATING</span>
+        <section aria-busy="true" style="background: #0F172A; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+          <span style="font-size: 12px; font-weight: 800; letter-spacing: 0.6px; color: #CBD5E1">NEXT TO PAY</span>
+          <div aria-hidden="true" style="width: 200px; height: 42px; border-radius: 10px; background: #334155"></div>
+          <span style="font-size: 14px; color: #E2E8F0">Updating with your new payment…</span>
+        </section></div>
+
+      <div class="cell"><span class="lbl">A BIR RULE CHANGED</span>
+        <section style="background: #EEF4FF; border-radius: 22px; border: 1px solid #C9D7FB; padding: 18px 20px; display: flex; gap: 12px; align-items: flex-start">
+          <svg aria-hidden="true" style="flex: none; margin-top: 2px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 15px; font-weight: 700; color: #1E3A8A">[Rule name] changed on [date]</span><span style="font-size: 14px; line-height: 1.45; color: #1E3A8A">Your Q4 estimate moved from ₱5,600 to [new amount]. Filed quarters are not touched.</span><a href="DeskTax.dc.html" style="font-size: 14px; font-weight: 700; text-decoration: none">See what changed</a></span>
+        </section></div>
+
+      <div class="cell"><span class="lbl">CAN'T COMPUTE YET</span>
+        <section style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+          <span style="font-size: 16px; font-weight: 800">We can't compute this one yet</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">You passed ₱3,000,000. The rule for moving from 8% to graduated mid-year isn't in your rule pack yet, so we won't guess. A rule update will cover it; we'll notify you.</span>
+          <a href="DeskData.dc.html" style="font-size: 14px; font-weight: 700; text-decoration: none">Check for rule updates</a>
+        </section></div>
+
+      <div class="cell"><span class="lbl">NO INTERNET (AI AND RULE UPDATES ONLY)</span>
+        <section role="alert" style="background: #FDECEC; border-radius: 22px; border: 1px solid #F5B5B5; padding: 18px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.6a10 10 0 0 1 14 0"/><path d="M12 20h.01"/><path d="M3 3l18 18"/></svg>
+          <span style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700; color: #7F1D1D">You're offline</span><span style="font-size: 14px; color: #7F1D1D">Everything else works and saves on this computer. The assistant and rule-update check need the internet.</span></span>
+          <button type="button" style="height: 42px; padding: 0 16px; border-radius: 10px; border: 0; background: #B91C1C; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700">Try again</button>
+        </section></div>
+    </div>
+
+    <h2 style="margin: 16px 0 0; font-size: 18px; font-weight: 800">Errors and confirmation dialogs</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px">
+      <div class="cell"><span class="lbl">COR FILE UNREADABLE</span>
+        <section role="alertdialog" aria-label="Unreadable file" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; box-shadow: 0 12px 32px rgba(15,23,42,0.12); padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">We couldn't read this file</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">Use a PDF or a clear scan with all four corners visible.</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskSetup.dc.html" class="btn sec">Type it in</a><a href="DeskSetup.dc.html" class="btn pri">Choose another file</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">WRONG DOCUMENT</span>
+        <section role="alertdialog" aria-label="Wrong document" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; box-shadow: 0 12px 32px rgba(15,23,42,0.12); padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">This looks like a receipt, not a COR</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">Your COR (Form 2303) has your TIN, RDO and a "Tax Types" table. Want to save this receipt as an expense instead?</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskSetup.dc.html" class="btn sec">Cancel</a><a href="DeskTransactions.dc.html" class="btn pri">Save as expense</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">FIELD ERROR</span>
+        <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 22px; display: flex; flex-direction: column; gap: 6px">
+          <label for="dErrAmt" style="font-size: 14px; font-weight: 700">How much did you bill?</label>
+          <input id="dErrAmt" aria-invalid="true" aria-describedby="dErrAmtMsg" placeholder="0.00" style="height: 50px; max-width: 320px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 2px solid #B91C1C; font: inherit; font-size: 17px; color: #0F172A">
+          <span id="dErrAmtMsg" style="font-size: 13px; font-weight: 600; color: #B91C1C">Enter the full amount before anything was deducted.</span>
+        </section></div>
+
+      <div class="cell"><span class="lbl">POSSIBLE DUPLICATE</span>
+        <section role="alertdialog" aria-label="Possible duplicate" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; box-shadow: 0 12px 32px rgba(15,23,42,0.12); padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">Already recorded?</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">You saved ₱30,000 from Lumen Digital on Oct 20. Saving again would count it twice.</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskTransactions.dc.html" class="btn sec">It's a second payment</a><a href="DeskTransactions.dc.html" class="btn pri">Don't save</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">UNUSUAL AMOUNT</span>
+        <section role="alertdialog" aria-label="Check amount" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; box-shadow: 0 12px 32px rgba(15,23,42,0.12); padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">₱300,000 is 10 times your usual</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">Just checking for an extra zero. This one payment would add ₱24,000 to your Q4 tax.</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskTransactions.dc.html" class="btn sec">Fix amount</a><a href="DeskTransactions.dc.html" class="btn pri">Yes, it's right</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">CHANGING A FILED QUARTER</span>
+        <section role="alertdialog" aria-label="Filed quarter" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; box-shadow: 0 12px 32px rgba(15,23,42,0.12); padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">Q2 is already filed</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">This June 28 payment changes Q2. We'll keep the original and create an amended return for you to file, showing exactly what's different.</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskTransactions.dc.html" class="btn sec">Cancel</a><a href="DeskAmend.dc.html" class="btn pri">Create amendment</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">PASSED ₱3,000,000</span>
+        <section style="background: #FFFFFF; border-radius: 20px; border: 2px solid #B45309; padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">Your 2026 sales passed ₱3,000,000</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #334155">The 8% option ends for all of 2026, so we're recomputing the year on graduated rates. You'll also need to register for VAT (Form 1905). We've added both to your to-do list.</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskAssistant.dc.html" class="btn sec">Ask what to do</a><a href="DeskCompare.dc.html" class="btn pri">See the impact</a></div>
+        </section></div>
+
+      <div class="cell"><span class="lbl">BACKUP PASSWORD WRONG</span>
+        <section role="alertdialog" aria-label="Restore failed" style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; box-shadow: 0 12px 32px rgba(15,23,42,0.12); padding: 22px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 17px; font-weight: 800">That password didn't open the backup</span>
+          <span style="font-size: 14px; line-height: 1.5; color: #475569">Nothing on this computer was changed. Backups can't be opened without their password, and there's no account to reset it.</span>
+          <div style="display: flex; gap: 8px; justify-content: flex-end"><a href="DeskData.dc.html" class="btn sec">Cancel</a><a href="DeskData.dc.html" class="btn pri">Try again</a></div>
+        </section></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

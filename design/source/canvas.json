@@ -1,0 +1,1515 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-27T11:30:00Z"
+ },
+ "title": "BIR Tax Engine — App UI",
+ "launch": {
+  "view": "canvas",
+  "page": "mobile"
+ },
+ "pages": [
+  {
+   "id": "mobile",
+   "name": "Mobile (Android)"
+  },
+  {
+   "id": "desktop",
+   "name": "Desktop (Windows/macOS)"
+  },
+  {
+   "id": "devtools",
+   "name": "Developer tools"
+  },
+  {
+   "id": "components",
+   "name": "Components"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Welcome",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbIncome.dc.html": {
+   "x": 470,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Q1 · How you earn",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbWork.dc.html": {
+   "x": 940,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Q2 · What you do",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbBusiness.dc.html": {
+   "x": 1410,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Business info",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbCorScan.dc.html": {
+   "x": 1880,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Scan your COR",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbCorConfirm.dc.html": {
+   "x": 2350,
+   "y": 0,
+   "w": 390,
+   "h": 960,
+   "title": "Confirm registration",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbEstimate.dc.html": {
+   "x": 2820,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Income estimate",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbRegime.dc.html": {
+   "x": 3290,
+   "y": 0,
+   "w": 390,
+   "h": 980,
+   "title": "Tax regime choice",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbDeduction.dc.html": {
+   "x": 3760,
+   "y": 0,
+   "w": 390,
+   "h": 900,
+   "title": "Deduction choice (graduated)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbWithholding.dc.html": {
+   "x": 4230,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Client withholding",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "OnbSummary.dc.html": {
+   "x": 4700,
+   "y": 0,
+   "w": 390,
+   "h": 960,
+   "title": "Your tax profile",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Home.dc.html": {
+   "x": 0,
+   "y": 1460,
+   "w": 390,
+   "h": 1060,
+   "title": "Home",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Breakdown.dc.html": {
+   "x": 470,
+   "y": 1460,
+   "w": 390,
+   "h": 1000,
+   "title": "Tax breakdown",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Why.dc.html": {
+   "x": 940,
+   "y": 1460,
+   "w": 390,
+   "h": 1320,
+   "title": "Why is this my tax?",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Compare.dc.html": {
+   "x": 1410,
+   "y": 1460,
+   "w": 390,
+   "h": 1120,
+   "title": "What if · compare regimes",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Notifications.dc.html": {
+   "x": 1880,
+   "y": 1460,
+   "w": 390,
+   "h": 920,
+   "title": "Notifications",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "AddSheet.dc.html": {
+   "x": 0,
+   "y": 3260,
+   "w": 390,
+   "h": 844,
+   "title": "What happened?",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "TxReceived.dc.html": {
+   "x": 470,
+   "y": 3260,
+   "w": 390,
+   "h": 980,
+   "title": "I received money",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "TxInvoice.dc.html": {
+   "x": 940,
+   "y": 3260,
+   "w": 390,
+   "h": 980,
+   "title": "I issued an invoice",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "TxExpense.dc.html": {
+   "x": 1410,
+   "y": 3260,
+   "w": 390,
+   "h": 980,
+   "title": "I paid an expense",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "TxWithheld.dc.html": {
+   "x": 1880,
+   "y": 3260,
+   "w": 390,
+   "h": 980,
+   "title": "A client withheld tax",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "TxImport.dc.html": {
+   "x": 2350,
+   "y": 3260,
+   "w": 390,
+   "h": 1240,
+   "title": "Other · import payouts",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "TxList.dc.html": {
+   "x": 2820,
+   "y": 3260,
+   "w": 390,
+   "h": 1120,
+   "title": "Transactions list",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Compliance.dc.html": {
+   "x": 0,
+   "y": 4980,
+   "w": 390,
+   "h": 980,
+   "title": "Compliance · Q3",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Certificates.dc.html": {
+   "x": 470,
+   "y": 4980,
+   "w": 390,
+   "h": 980,
+   "title": "2307 tracker",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Calendar.dc.html": {
+   "x": 940,
+   "y": 4980,
+   "w": 390,
+   "h": 1160,
+   "title": "Calendar",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "FilingPrep.dc.html": {
+   "x": 0,
+   "y": 6620,
+   "w": 390,
+   "h": 1400,
+   "title": "Prepare 1701Q",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "FormPreview.dc.html": {
+   "x": 470,
+   "y": 6620,
+   "w": 390,
+   "h": 1180,
+   "title": "Filled BIR form (download)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "FormPct.dc.html": {
+   "x": 940,
+   "y": 6620,
+   "w": 390,
+   "h": 1180,
+   "title": "Filled 2551Q (graduated, non-VAT users)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "MarkFiled.dc.html": {
+   "x": 1410,
+   "y": 6620,
+   "w": 390,
+   "h": 980,
+   "title": "Mark filed & paid",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "History.dc.html": {
+   "x": 1880,
+   "y": 6620,
+   "w": 390,
+   "h": 1120,
+   "title": "Tax history",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "PeriodDetail.dc.html": {
+   "x": 2350,
+   "y": 6620,
+   "w": 390,
+   "h": 1260,
+   "title": "Period snapshot",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Reports.dc.html": {
+   "x": 2820,
+   "y": 6620,
+   "w": 390,
+   "h": 1080,
+   "title": "Reports & exports",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Assistant.dc.html": {
+   "x": 0,
+   "y": 8500,
+   "w": 390,
+   "h": 1040,
+   "title": "Ask about your taxes",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Profile.dc.html": {
+   "x": 470,
+   "y": 8500,
+   "w": 390,
+   "h": 1160,
+   "title": "Profile & settings",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "DataSettings.dc.html": {
+   "x": 940,
+   "y": 8500,
+   "w": 390,
+   "h": 1160,
+   "title": "Backup, rules, AI key",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "AppLock.dc.html": {
+   "x": 1410,
+   "y": 8500,
+   "w": 390,
+   "h": 844,
+   "title": "App lock",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "StatesHome.dc.html": {
+   "x": 0,
+   "y": 10140,
+   "w": 390,
+   "h": 1520,
+   "title": "Home card states",
+   "page": "mobile"
+  },
+  "StatesErrors.dc.html": {
+   "x": 470,
+   "y": 10140,
+   "w": 390,
+   "h": 1640,
+   "title": "Errors & edge cases",
+   "page": "mobile"
+  },
+  "HomeVat.dc.html": {
+   "x": 0,
+   "y": 12260,
+   "w": 390,
+   "h": 1060,
+   "title": "Home · VAT-registered (Scenario D)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "VatFiling.dc.html": {
+   "w": 390,
+   "h": 1120,
+   "title": "Prepare 2550Q (VAT)",
+   "page": "mobile",
+   "is_interactive": true,
+   "x": 470,
+   "y": 12260
+  },
+  "FormVat.dc.html": {
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 2550Q",
+   "page": "mobile",
+   "is_interactive": true,
+   "x": 940,
+   "y": 12260
+  },
+  "TxExpenseAgent.dc.html": {
+   "x": 1410,
+   "y": 12260,
+   "w": 390,
+   "h": 1040,
+   "title": "Expense as withholding agent (Scenario E)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form2307.dc.html": {
+   "x": 1880,
+   "y": 12260,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 2307 for the payee (Phase 2)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "MixedJob.dc.html": {
+   "w": 390,
+   "h": 1120,
+   "title": "Job + business · your job",
+   "page": "mobile",
+   "is_interactive": true,
+   "x": 2350,
+   "y": 12260
+  },
+  "MixedHome.dc.html": {
+   "w": 390,
+   "h": 1060,
+   "title": "Home · job + business",
+   "page": "mobile",
+   "is_interactive": true,
+   "x": 2820,
+   "y": 12260
+  },
+  "FormMixed.dc.html": {
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 1701Q · job + business",
+   "page": "mobile",
+   "is_interactive": true,
+   "x": 3290,
+   "y": 12260
+  },
+  "DeskWelcome.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Welcome",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskSetup.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Setup, all steps (click the rail)",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskOnboarding.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Setup, regime step close-up",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DesktopDashboard.dc.html": {
+   "x": 0,
+   "y": 1480,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Home",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskTax.dc.html": {
+   "x": 1520,
+   "y": 1480,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Breakdown + Why",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskCompare.dc.html": {
+   "x": 3040,
+   "y": 1480,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · What if",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskNotifications.dc.html": {
+   "x": 4560,
+   "y": 1480,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Notifications",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskTransactions.dc.html": {
+   "x": 0,
+   "y": 3060,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Transactions + add panel",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskCertUpload.dc.html": {
+   "x": 1520,
+   "y": 3060,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · 2307 upload review",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskImport.dc.html": {
+   "x": 3040,
+   "y": 3060,
+   "w": 1440,
+   "h": 1300,
+   "title": "Desktop · Import statement",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskCompliance.dc.html": {
+   "x": 0,
+   "y": 4840,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Compliance + 2307s",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskCalendar.dc.html": {
+   "x": 1520,
+   "y": 4840,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Calendar",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskFiling.dc.html": {
+   "x": 0,
+   "y": 6320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filing prep",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskFormPreview.dc.html": {
+   "x": 1520,
+   "y": 6320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled BIR form (download)",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskFormPct.dc.html": {
+   "x": 3040,
+   "y": 6320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 2551Q (graduated, non-VAT)",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskHistory.dc.html": {
+   "x": 4560,
+   "y": 6320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · History + reports",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskAssistant.dc.html": {
+   "x": 0,
+   "y": 7900,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Assistant",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskProfile.dc.html": {
+   "x": 1520,
+   "y": 7900,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Profile & settings",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskData.dc.html": {
+   "x": 3040,
+   "y": 7900,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Backup, rules, AI key",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskLock.dc.html": {
+   "x": 4560,
+   "y": 7900,
+   "w": 1440,
+   "h": 900,
+   "title": "Desktop · App lock",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskStates.dc.html": {
+   "x": 0,
+   "y": 9380,
+   "w": 1440,
+   "h": 1300,
+   "title": "Desktop · States & errors",
+   "page": "desktop",
+   "expand": "fill"
+  },
+  "DeskHomeVat.dc.html": {
+   "x": 0,
+   "y": 11160,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Home, VAT-registered (Phase 2)",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskVatFiling.dc.html": {
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Prepare 2550Q (VAT)",
+   "page": "desktop",
+   "is_interactive": true,
+   "x": 1520,
+   "y": 11160
+  },
+  "DeskFormVat.dc.html": {
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 2550Q",
+   "page": "desktop",
+   "is_interactive": true,
+   "x": 3040,
+   "y": 11160
+  },
+  "DeskExpenseAgent.dc.html": {
+   "x": 4560,
+   "y": 11160,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Paying as withholding agent (Phase 2)",
+   "page": "desktop",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskForm2307.dc.html": {
+   "x": 6080,
+   "y": 11160,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 2307 for the payee (Phase 2)",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskMixed.dc.html": {
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Home, job + business",
+   "page": "desktop",
+   "is_interactive": true,
+   "x": 7600,
+   "y": 11160
+  },
+  "DeskFormMixed.dc.html": {
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1701Q, job + business",
+   "page": "desktop",
+   "is_interactive": true,
+   "x": 9120,
+   "y": 11160
+  },
+  "Amend.dc.html": {
+   "x": 0,
+   "y": 14040,
+   "w": 390,
+   "h": 1300,
+   "title": "Amend a filed quarter",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "LateEstimate.dc.html": {
+   "x": 470,
+   "y": 14040,
+   "w": 390,
+   "h": 1120,
+   "title": "Paying late · penalty estimate",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Dst.dc.html": {
+   "x": 940,
+   "y": 14040,
+   "w": 390,
+   "h": 1240,
+   "title": "Loan signed · DST",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "FormDst.dc.html": {
+   "x": 1410,
+   "y": 14040,
+   "w": 390,
+   "h": 1240,
+   "title": "Filled Form 2000 (DST)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Payroll.dc.html": {
+   "x": 1880,
+   "y": 14040,
+   "w": 390,
+   "h": 1300,
+   "title": "Your employee · payroll withholding",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form2316.dc.html": {
+   "x": 2350,
+   "y": 14040,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 2316 for the employee",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "NoticeReader.dc.html": {
+   "x": 2820,
+   "y": 14040,
+   "w": 390,
+   "h": 1300,
+   "title": "BIR letter reader",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "DeskAmend.dc.html": {
+   "x": 0,
+   "y": 12740,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Amend a filed quarter",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskLate.dc.html": {
+   "x": 1520,
+   "y": 12740,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Paying late",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskDst.dc.html": {
+   "x": 3040,
+   "y": 12740,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Loan signed · DST",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskFormDst.dc.html": {
+   "x": 4560,
+   "y": 12740,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled Form 2000",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskPayroll.dc.html": {
+   "x": 6080,
+   "y": 12740,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · Payroll withholding",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm2316.dc.html": {
+   "x": 7600,
+   "y": 12740,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 2316",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskNotice.dc.html": {
+   "x": 9120,
+   "y": 12740,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · BIR letter reader",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "FirstRun.dc.html": {
+   "x": 0,
+   "y": 15820,
+   "w": 390,
+   "h": 1120,
+   "title": "First run · PIN and reminders",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "AnnualPrep.dc.html": {
+   "x": 470,
+   "y": 15820,
+   "w": 390,
+   "h": 1400,
+   "title": "Annual return 2026",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "FormAnnual.dc.html": {
+   "x": 940,
+   "y": 15820,
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 1701-MS",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Sworn.dc.html": {
+   "x": 1410,
+   "y": 15820,
+   "w": 390,
+   "h": 1400,
+   "title": "Sworn declaration for clients",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Backup.dc.html": {
+   "x": 1880,
+   "y": 15820,
+   "w": 390,
+   "h": 1400,
+   "title": "Back up and restore",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Books.dc.html": {
+   "x": 2350,
+   "y": 15820,
+   "w": 390,
+   "h": 1400,
+   "title": "Books of accounts",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "DeskFirstRun.dc.html": {
+   "x": 0,
+   "y": 14320,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · First run",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskAnnual.dc.html": {
+   "x": 1520,
+   "y": 14320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Annual return 2026",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskFormAnnual.dc.html": {
+   "x": 3040,
+   "y": 14320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1701-MS",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskSworn.dc.html": {
+   "x": 4560,
+   "y": 14320,
+   "w": 1440,
+   "h": 1150,
+   "title": "Desktop · Sworn declaration",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskBackup.dc.html": {
+   "x": 6080,
+   "y": 14320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Back up and restore",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskBooks.dc.html": {
+   "x": 7600,
+   "y": 14320,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Books of accounts",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "AgentQ.dc.html": {
+   "x": 0,
+   "y": 17700,
+   "w": 390,
+   "h": 1300,
+   "title": "1601-EQ quarterly + list of payees",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1601EQ.dc.html": {
+   "x": 470,
+   "y": 17700,
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 1601-EQ",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form0619E.dc.html": {
+   "x": 940,
+   "y": 17700,
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 0619-E (monthly)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "AgentY.dc.html": {
+   "x": 1410,
+   "y": 17700,
+   "w": 390,
+   "h": 1200,
+   "title": "1604-E annual list of payees",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1604E.dc.html": {
+   "x": 1880,
+   "y": 17700,
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 1604-E",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "MarketImport.dc.html": {
+   "x": 2350,
+   "y": 17700,
+   "w": 390,
+   "h": 1300,
+   "title": "Marketplace payout import",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Slsp.dc.html": {
+   "x": 2820,
+   "y": 17700,
+   "w": 390,
+   "h": 1300,
+   "title": "SLSP for VAT",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Scan2316.dc.html": {
+   "x": 3290,
+   "y": 17700,
+   "w": 390,
+   "h": 1200,
+   "title": "2316 from employer",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "DeskAgentQ.dc.html": {
+   "x": 0,
+   "y": 15950,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · 1601-EQ + list of payees",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1601EQ.dc.html": {
+   "x": 1520,
+   "y": 15950,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1601-EQ",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm0619E.dc.html": {
+   "x": 3040,
+   "y": 15950,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 0619-E",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskAgentY.dc.html": {
+   "x": 4560,
+   "y": 15950,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · 1604-E annual list",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1604E.dc.html": {
+   "x": 6080,
+   "y": 15950,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1604-E",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskMarket.dc.html": {
+   "x": 7600,
+   "y": 15950,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Marketplace import",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskSlsp.dc.html": {
+   "x": 9120,
+   "y": 15950,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · SLSP",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskScan2316.dc.html": {
+   "x": 10640,
+   "y": 15950,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · 2316 from employer",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "TxSearch.dc.html": {
+   "x": 0,
+   "y": 19480,
+   "w": 390,
+   "h": 1240,
+   "title": "Search and filters",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "RuleUpdate.dc.html": {
+   "x": 470,
+   "y": 19480,
+   "w": 390,
+   "h": 1300,
+   "title": "Rule update: what changed",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "EraseData.dc.html": {
+   "x": 940,
+   "y": 19480,
+   "w": 390,
+   "h": 1240,
+   "title": "Erase all data",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "DeskTxSearch.dc.html": {
+   "x": 0,
+   "y": 17530,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · Search and filters",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskRuleUpdate.dc.html": {
+   "x": 1520,
+   "y": 17530,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · Rule update",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskErase.dc.html": {
+   "x": 3040,
+   "y": 17530,
+   "w": 1440,
+   "h": 1000,
+   "title": "Desktop · Erase all data",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "RuleAdmin.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1000,
+   "title": "Rule admin (developer tool, not in the app)",
+   "page": "devtools",
+   "expand": "fill"
+  },
+  "TabBar.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 76,
+   "title": "Tab bar (component)",
+   "page": "components",
+   "is_interactive": true
+  },
+  "DeskNav.dc.html": {
+   "x": 470,
+   "y": 0,
+   "w": 260,
+   "h": 1000,
+   "title": "Desktop sidebar (component)",
+   "page": "components",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "OnbIncome.dc.html",
+  "OnbWork.dc.html",
+  "OnbBusiness.dc.html",
+  "OnbCorScan.dc.html",
+  "OnbCorConfirm.dc.html",
+  "OnbEstimate.dc.html",
+  "OnbRegime.dc.html",
+  "OnbDeduction.dc.html",
+  "OnbWithholding.dc.html",
+  "OnbSummary.dc.html",
+  "Home.dc.html",
+  "Breakdown.dc.html",
+  "Why.dc.html",
+  "Compare.dc.html",
+  "Notifications.dc.html",
+  "AddSheet.dc.html",
+  "TxReceived.dc.html",
+  "TxInvoice.dc.html",
+  "TxExpense.dc.html",
+  "TxWithheld.dc.html",
+  "TxImport.dc.html",
+  "TxList.dc.html",
+  "Compliance.dc.html",
+  "Certificates.dc.html",
+  "Calendar.dc.html",
+  "FilingPrep.dc.html",
+  "FormPreview.dc.html",
+  "FormPct.dc.html",
+  "MarkFiled.dc.html",
+  "History.dc.html",
+  "PeriodDetail.dc.html",
+  "Reports.dc.html",
+  "Assistant.dc.html",
+  "Profile.dc.html",
+  "DataSettings.dc.html",
+  "AppLock.dc.html",
+  "StatesHome.dc.html",
+  "StatesErrors.dc.html",
+  "HomeVat.dc.html",
+  "VatFiling.dc.html",
+  "FormVat.dc.html",
+  "TxExpenseAgent.dc.html",
+  "Form2307.dc.html",
+  "MixedJob.dc.html",
+  "MixedHome.dc.html",
+  "FormMixed.dc.html",
+  "DeskWelcome.dc.html",
+  "DeskSetup.dc.html",
+  "DeskOnboarding.dc.html",
+  "DesktopDashboard.dc.html",
+  "DeskTax.dc.html",
+  "DeskCompare.dc.html",
+  "DeskNotifications.dc.html",
+  "DeskTransactions.dc.html",
+  "DeskCertUpload.dc.html",
+  "DeskImport.dc.html",
+  "DeskCompliance.dc.html",
+  "DeskCalendar.dc.html",
+  "DeskFiling.dc.html",
+  "DeskFormPreview.dc.html",
+  "DeskFormPct.dc.html",
+  "DeskHistory.dc.html",
+  "DeskAssistant.dc.html",
+  "DeskProfile.dc.html",
+  "DeskData.dc.html",
+  "DeskLock.dc.html",
+  "DeskStates.dc.html",
+  "DeskHomeVat.dc.html",
+  "DeskVatFiling.dc.html",
+  "DeskFormVat.dc.html",
+  "DeskExpenseAgent.dc.html",
+  "DeskForm2307.dc.html",
+  "DeskMixed.dc.html",
+  "DeskFormMixed.dc.html",
+  "Amend.dc.html",
+  "LateEstimate.dc.html",
+  "Dst.dc.html",
+  "FormDst.dc.html",
+  "Payroll.dc.html",
+  "Form2316.dc.html",
+  "NoticeReader.dc.html",
+  "DeskAmend.dc.html",
+  "DeskLate.dc.html",
+  "DeskDst.dc.html",
+  "DeskFormDst.dc.html",
+  "DeskPayroll.dc.html",
+  "DeskForm2316.dc.html",
+  "DeskNotice.dc.html",
+  "FirstRun.dc.html",
+  "AnnualPrep.dc.html",
+  "FormAnnual.dc.html",
+  "Sworn.dc.html",
+  "Backup.dc.html",
+  "Books.dc.html",
+  "DeskFirstRun.dc.html",
+  "DeskAnnual.dc.html",
+  "DeskFormAnnual.dc.html",
+  "DeskSworn.dc.html",
+  "DeskBackup.dc.html",
+  "DeskBooks.dc.html",
+  "AgentQ.dc.html",
+  "Form1601EQ.dc.html",
+  "Form0619E.dc.html",
+  "AgentY.dc.html",
+  "Form1604E.dc.html",
+  "MarketImport.dc.html",
+  "Slsp.dc.html",
+  "Scan2316.dc.html",
+  "DeskAgentQ.dc.html",
+  "DeskForm1601EQ.dc.html",
+  "DeskForm0619E.dc.html",
+  "DeskAgentY.dc.html",
+  "DeskForm1604E.dc.html",
+  "DeskMarket.dc.html",
+  "DeskSlsp.dc.html",
+  "DeskScan2316.dc.html",
+  "TxSearch.dc.html",
+  "RuleUpdate.dc.html",
+  "EraseData.dc.html",
+  "DeskTxSearch.dc.html",
+  "DeskRuleUpdate.dc.html",
+  "DeskErase.dc.html",
+  "RuleAdmin.dc.html",
+  "TabBar.dc.html",
+  "DeskNav.dc.html"
+ ],
+ "notes": {
+  "m0": {
+   "x": 0,
+   "y": -260,
+   "text": "1 · First launch and setup",
+   "kind": "title1",
+   "maxW": 5090,
+   "page": "mobile"
+  },
+  "m1": {
+   "x": 0,
+   "y": 1200,
+   "text": "2 · Home and your tax",
+   "kind": "title1",
+   "maxW": 2270,
+   "page": "mobile"
+  },
+  "m2": {
+   "x": 0,
+   "y": 3000,
+   "text": "3 · Record what happened",
+   "kind": "title1",
+   "maxW": 3210,
+   "page": "mobile"
+  },
+  "m3": {
+   "x": 0,
+   "y": 4720,
+   "text": "4 · Stay compliant",
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "mobile"
+  },
+  "m4": {
+   "x": 0,
+   "y": 6360,
+   "text": "5 · File and keep records",
+   "kind": "title1",
+   "maxW": 3210,
+   "page": "mobile"
+  },
+  "m5": {
+   "x": 0,
+   "y": 8240,
+   "text": "6 · Ask, settings, backup, app lock",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "mobile"
+  },
+  "m6": {
+   "x": 0,
+   "y": 9880,
+   "text": "7 · States and errors",
+   "kind": "title1",
+   "maxW": 1200,
+   "page": "mobile"
+  },
+  "m7": {
+   "x": 0,
+   "y": 12000,
+   "text": "8 · Phase 2: VAT, withholding agent, job + business",
+   "kind": "title1",
+   "maxW": 3680,
+   "page": "mobile"
+  },
+  "d0": {
+   "x": 0,
+   "y": -260,
+   "text": "1 · First launch and setup",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "desktop"
+  },
+  "d1": {
+   "x": 0,
+   "y": 1220,
+   "text": "2 · Home and your tax",
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "desktop"
+  },
+  "d2": {
+   "x": 0,
+   "y": 2800,
+   "text": "3 · Record what happened",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "desktop"
+  },
+  "d3": {
+   "x": 0,
+   "y": 4580,
+   "text": "4 · Stay compliant",
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "desktop"
+  },
+  "d4": {
+   "x": 0,
+   "y": 6060,
+   "text": "5 · File and keep records",
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "desktop"
+  },
+  "d5": {
+   "x": 0,
+   "y": 7640,
+   "text": "6 · Ask, settings, backup, app lock",
+   "kind": "title1",
+   "maxW": 6000,
+   "page": "desktop"
+  },
+  "d6": {
+   "x": 0,
+   "y": 9120,
+   "text": "7 · States and errors",
+   "kind": "title1",
+   "maxW": 1440,
+   "page": "desktop"
+  },
+  "d7": {
+   "x": 0,
+   "y": 10900,
+   "text": "8 · Phase 2: VAT, withholding agent, job + business",
+   "kind": "title1",
+   "maxW": 10560,
+   "page": "desktop"
+  },
+  "t-dev": {
+   "x": 0,
+   "y": -260,
+   "text": "Developer tool: rule pack editor (not shipped in the app)",
+   "kind": "title1",
+   "maxW": 1440,
+   "page": "devtools"
+  },
+  "m9": {
+   "x": 0,
+   "y": 13780,
+   "text": "9 · Phase 3: amendments, late payment, DST, payroll, BIR letters",
+   "kind": "title1",
+   "maxW": 3210,
+   "page": "mobile"
+  },
+  "d9": {
+   "x": 0,
+   "y": 12480,
+   "text": "9 · Phase 3: amendments, late payment, DST, payroll, BIR letters",
+   "kind": "title1",
+   "maxW": 10560,
+   "page": "desktop"
+  },
+  "m10": {
+   "x": 0,
+   "y": 15560,
+   "text": "10 · MVP additions: first run, annual return, sworn declaration, backup, books",
+   "kind": "title1",
+   "maxW": 2740,
+   "page": "mobile"
+  },
+  "d10": {
+   "x": 0,
+   "y": 14060,
+   "text": "10 · MVP additions: first run, annual return, sworn declaration, backup, books",
+   "kind": "title1",
+   "maxW": 9040,
+   "page": "desktop"
+  },
+  "m11": {
+   "x": 0,
+   "y": 17440,
+   "text": "11 · Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+   "kind": "title1",
+   "maxW": 3680,
+   "page": "mobile"
+  },
+  "d11": {
+   "x": 0,
+   "y": 15690,
+   "text": "11 · Phase 2 additions: withholding returns, marketplace, SLSP, 2316",
+   "kind": "title1",
+   "maxW": 12080,
+   "page": "desktop"
+  },
+  "m12": {
+   "x": 0,
+   "y": 19220,
+   "text": "12 · Details: search, rule updates, erase",
+   "kind": "title1",
+   "maxW": 1330,
+   "page": "mobile"
+  },
+  "d12": {
+   "x": 0,
+   "y": 17270,
+   "text": "12 · Details: search, rule updates, erase",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "desktop"
+  }
+ },
+ "designSystems": []
+}

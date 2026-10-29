@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mark as filed and paid</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+input::placeholder{color:#64748B}
+</style>
+</helmet>
+<div style="width: 390px; height: 980px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 12px 16px 28px; display: flex; flex-direction: column; gap: 14px">
+  <header style="display: flex; align-items: center; gap: 6px; margin-left: -4px">
+    <a href="FilingPrep.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div style="flex: 1; display: flex; flex-direction: column">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 800">Done filing?</h1>
+      <span style="font-size: 13px; color: #475569">Q3 2026 · 1701Q · ₱14,000</span>
+    </div>
+  </header>
+
+  <section style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+    <span style="font-size: 15px; font-weight: 800">1 · Filing</span>
+    <a href="MarkFiled.dc.html" style="display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 14px; border-radius: 12px; border: 1.5px dashed #94A3B8; text-decoration: none; color: #0F172A; font-size: 14px; font-weight: 700">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+      Upload BIR confirmation (email or screenshot)
+    </a>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="fdate" style="font-size: 13px; font-weight: 700">Date filed</label>
+        <input id="fdate" type="date" value="2026-11-10" style="height: 48px; box-sizing: border-box; padding: 0 10px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 14px; color: #0F172A; min-width: 0">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="fref" style="font-size: 13px; font-weight: 700">Reference no.</label>
+        <input id="fref" placeholder="From the email" style="height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 14px; color: #0F172A; min-width: 0">
+      </div>
+    </div>
+    <label style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.45; cursor: pointer">
+      <input type="checkbox" checked style="width: 20px; height: 20px; margin: 1px 0 0; accent-color: #1D4ED8">
+      <span>I used the same numbers shown in the app</span>
+    </label>
+  </section>
+
+  <section style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+    <span style="font-size: 15px; font-weight: 800">2 · Payment</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="pamt" style="font-size: 13px; font-weight: 700">Amount paid</label>
+        <input id="pamt" value="₱14,000.00" style="height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 14px; font-weight: 700; color: #0F172A; min-width: 0">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="pdate" style="font-size: 13px; font-weight: 700">Date paid</label>
+        <input id="pdate" type="date" value="2026-11-10" style="height: 48px; box-sizing: border-box; padding: 0 10px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 14px; color: #0F172A; min-width: 0">
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="chan" style="font-size: 13px; font-weight: 700">Paid through</label>
+      <select id="chan" style="height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 14px; color: #0F172A; background: #FFFFFF">
+        <option>Online bank or e-wallet</option>
+        <option>Bank counter</option>
+        <option>BIR office</option>
+      </select>
+    </div>
+    <a href="MarkFiled.dc.html" style="display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 14px; border-radius: 12px; border: 1.5px dashed #94A3B8; text-decoration: none; color: #0F172A; font-size: 14px; font-weight: 700">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
+      Upload payment receipt
+    </a>
+    <span style="display: flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; color: #15803D"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Matches the amount due</span>
+  </section>
+
+  <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E3E7EC">
+    <svg aria-hidden="true" style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span style="font-size: 13px; line-height: 1.45; color: #334155">After saving, Q3 is locked. Later changes become an amendment, with the original kept in your history.</span>
+  </div>
+
+  <a href="History.dc.html" style="margin-top: auto; display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 700; font-size: 16px; text-decoration: none">Mark Q3 as filed and paid</a>
+  <a href="Home.dc.html" style="align-self: center; font-size: 14px; font-weight: 700; text-decoration: none; padding: 6px">Only filed so far, I'll pay later</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

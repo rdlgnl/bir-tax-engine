@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Erase all data (desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+@media (max-width: 760px){.desk-nav{display:none}}
+.card{background:#FFFFFF;border-radius:22px;border:1px solid #E3E7EC;padding:6px 22px 10px;display:flex;flex-direction:column}
+.lbl{font-size:12px;font-weight:800;color:#475569;letter-spacing:0.4px;padding:8px 0 4px}
+.r{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px;font-size:15px;font-variant-numeric:tabular-nums;border-top:1px solid #EEF1F4}
+.r:first-of-type{border-top:0}
+.sub{font-size:13px;color:#475569;line-height:1.45}
+</style>
+</helmet>
+<div style="min-height: 1000px; box-sizing: border-box; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <div class="desk-nav" style="flex: 1 1 220px; max-width: 260px; min-width: 200px"><dc-import name="DeskNav" active="me" hint-size="100%,1000px"></dc-import></div>
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px">
+    <div style="max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+      <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <a href="DeskProfile.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FFFFFF; border: 1px solid #E3E7EC"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a>
+        <div style="flex: 1 1 320px; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Erase all data</h1><span style="font-size: 14px; color: #475569">Removes everything from this device</span></div>
+      </header>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px"><div style="display: flex; gap: 10px; align-items: flex-start; padding: 16px 18px; border-radius: 18px; background: #FDECEC; border: 1px solid #F5B5B5"><svg aria-hidden="true" style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg><span style="flex: 1; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 700; color: #7F1D1D">This can't be undone</span><span style="font-size: 14px; line-height: 1.5; color: #7F1D1D">There's no account and no copy on a server. Once erased, only a backup file can bring your data back.</span></span></div><section class="card"><span class="lbl">WHAT WILL BE ERASED</span><div class="r"><span style="">Records</span><span style="text-align: right; font-weight: 700">2024–2026 · 312 items</span></div><div class="r"><span style="">Documents</span><span style="text-align: right; font-weight: 700">COR, 41 certificates, 18 receipts</span></div><div class="r"><span style="">Filed returns and confirmations</span><span style="text-align: right; font-weight: 700">11</span></div><div class="r"><span style="">Settings, PIN and AI key</span><span style="text-align: right; font-weight: 700">All</span></div></section><div style="display: flex; flex-direction: column; gap: 6px"><label for="erTxt" style="font-size: 14px; font-weight: 700">Type ERASE to confirm</label><input id="erTxt" value="" style="height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1.5px solid #CBD2DA; font: inherit; font-size: 15px; font-weight: 500; color: #0F172A; min-width: 0"></div></div>
+        <aside style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 16px"><div style="display: flex; gap: 10px; align-items: flex-start; padding: 16px 18px; border-radius: 18px; background: #FFF7EB; border: 1px solid #F3D6A4"><svg aria-hidden="true" style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg><span style="flex: 1; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 700; color: #78350F">The BIR can ask for records for 5 years</span><span style="font-size: 14px; line-height: 1.5; color: #78350F">Keep a backup or export before erasing, especially for years you've filed.</span></span></div><section class="card"><span class="lbl">YOUR LAST BACKUP</span><div class="r"><span style="">When</span><span style="text-align: right; font-weight: 700">Today, 1:12 PM</span></div><div class="r"><span style="">File</span><span style="text-align: right; font-weight: 700">buwisbuddy-2026-10-28.bbk</span></div></section><div style="display: flex; gap: 10px; align-items: flex-start; padding: 16px 18px; border-radius: 18px; background: #EEF4FF; border: 1px solid #C9D7FB"><svg aria-hidden="true" style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg><span style="flex: 1; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 700; color: #1E3A8A">Selling or giving away this device?</span><span style="font-size: 14px; line-height: 1.5; color: #1E3A8A">Erase here, then also reset the phone or computer itself.</span></span></div><div style="display: flex; flex-direction: column; gap: 10px"><a href="DeskBackup.dc.html" style="display: flex; align-items: center; justify-content: center; height: 50px; padding: 0 22px; border-radius: 12px; border: 1.5px solid #CBD2DA; color: #0F172A; background: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none">Back up first</a><a href="DeskWelcome.dc.html" style="display: flex; align-items: center; justify-content: center; height: 50px; padding: 0 22px; border-radius: 12px; background: #B91C1C; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none">Erase everything</a></div></aside>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

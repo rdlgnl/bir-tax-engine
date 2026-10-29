@@ -1,0 +1,98 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * BuwisBuddy design tokens, taken from design/source/*.dc.html.
+ * The design is light-only, so there is no dark palette.
+ */
+:root {
+    --background: #f4f6f8;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: #1d4ed8;
+    --primary-foreground: #ffffff;
+    --secondary: #ffffff;
+    --secondary-foreground: #0f172a;
+    --muted: #f4f6f8;
+    --muted-foreground: #475569;
+    --accent: #e8eefd;
+    --accent-foreground: #1e3a8a;
+    --destructive: #b91c1c;
+    --border: #e3e7ec;
+    --input: #cbd2da;
+    --ring: #1d4ed8;
+    --radius: 0.75rem;
+
+    --ink: #0f172a;
+    --ink-foreground: #ffffff;
+    --divider: #eef1f4;
+    --selected: #f5f8ff;
+    --success: #15803d;
+    --success-soft: #e9f6ee;
+    --warning: #92400e;
+    --warning-soft: #fff7eb;
+    --warning-border: #f3c77a;
+    --highlight: #fde68a;
+}
+
+@theme inline {
+    --font-sans:
+        'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-ink: var(--ink);
+    --color-ink-foreground: var(--ink-foreground);
+    --color-divider: var(--divider);
+    --color-selected: var(--selected);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-warning: var(--warning);
+    --color-warning-soft: var(--warning-soft);
+    --color-warning-border: var(--warning-border);
+    --color-highlight: var(--highlight);
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-card: 22px;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-variant-numeric: tabular-nums;
+    }
+}

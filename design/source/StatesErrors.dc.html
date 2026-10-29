@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Errors and edge cases</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1640px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 20px 16px; display: flex; flex-direction: column; gap: 10px">
+  <h1 style="margin: 0 4px 6px; font-size: 20px; font-weight: 800">Errors and edge cases</h1>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">COR PHOTO TOO BLURRY</span>
+  <section style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 16px; font-weight: 800">We couldn't read this photo</span>
+    <span style="font-size: 13px; line-height: 1.5; color: #475569">Try flat, bright light with no glare, and fit all four corners in the frame.</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="OnbCorScan.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none">Retake</a>
+      <a href="OnbCorConfirm.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">Type it in</a>
+    </div>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">WRONG DOCUMENT</span>
+  <section style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+    <span style="font-size: 16px; font-weight: 800">This looks like a receipt, not a COR</span>
+    <span style="font-size: 13px; line-height: 1.5; color: #475569">Your COR (Form 2303) has your TIN, RDO and a "Tax Types" table. Want to save this receipt as an expense instead?</span>
+    <a href="TxExpense.dc.html" style="font-size: 13px; font-weight: 700; text-decoration: none; padding: 4px 0">Save as expense</a>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">FIELD ERROR</span>
+  <section style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+    <label for="errAmt" style="font-size: 14px; font-weight: 700">How much did you bill?</label>
+    <input id="errAmt" aria-invalid="true" aria-describedby="errAmtMsg" placeholder="0.00" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 2px solid #B91C1C; font: inherit; font-size: 18px; color: #0F172A">
+    <span id="errAmtMsg" style="font-size: 13px; font-weight: 600; color: #B91C1C">Enter the full amount before anything was deducted.</span>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">POSSIBLE DUPLICATE</span>
+  <section role="alertdialog" aria-label="Possible duplicate" style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 16px; font-weight: 800">Already recorded?</span>
+    <span style="font-size: 13px; line-height: 1.5; color: #475569">You saved ₱30,000 from Lumen Digital on Oct 20. Saving again would count it twice.</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="TxList.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none">Don't save</a>
+      <a href="TxList.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">It's a second payment</a>
+    </div>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">UNUSUAL AMOUNT</span>
+  <section role="alertdialog" aria-label="Check amount" style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 16px; font-weight: 800">₱300,000 is 10 times your usual</span>
+    <span style="font-size: 13px; line-height: 1.5; color: #475569">Just checking for an extra zero. This one payment would add ₱24,000 to your Q4 tax.</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="TxReceived.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">Fix amount</a>
+      <a href="TxList.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none">Yes, it's right</a>
+    </div>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">CHANGING A FILED QUARTER</span>
+  <section role="alertdialog" aria-label="Filed quarter" style="background: #FFFFFF; border-radius: 18px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 16px; font-weight: 800">Q2 is already filed</span>
+    <span style="font-size: 13px; line-height: 1.5; color: #475569">This June 28 payment changes Q2. We'll keep the original and create an amended return for you to file, showing exactly what's different.</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="TxList.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">Cancel</a>
+      <a href="Amend.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none">Create amendment</a>
+    </div>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">PASSED ₱3,000,000</span>
+  <section style="background: #FFFFFF; border-radius: 18px; border: 2px solid #B45309; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 16px; font-weight: 800">Your 2026 sales passed ₱3,000,000</span>
+    <span style="font-size: 13px; line-height: 1.5; color: #334155">The 8% option ends for all of 2026, so we're recomputing the year on graduated rates. You'll also need to register for VAT (Form 1905). We've added both to your to-do list.</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="Compare.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none">See the impact</a>
+      <a href="Assistant.dc.html" style="display: flex; align-items: center; justify-content: center; height: 46px; border-radius: 12px; border: 1.5px solid #CBD2DA; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">Ask what to do</a>
+    </div>
+  </section>
+
+  <span style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.6px; padding: 6px 4px 0">NO INTERNET (AI AND RULE UPDATES ONLY)</span>
+  <section role="alert" style="background: #FDECEC; border-radius: 18px; border: 1px solid #F5B5B5; padding: 14px 16px; display: flex; gap: 10px; align-items: flex-start">
+    <svg aria-hidden="true" style="flex: none; margin-top: 2px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.6a10 10 0 0 1 14 0"/><path d="M12 20h.01"/><path d="M3 3l18 18"/></svg>
+    <span style="flex: 1; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 14px; font-weight: 700; color: #7F1D1D">You're offline</span><span style="font-size: 13px; color: #7F1D1D">Everything else works and saves on this device. The assistant and rule-update check need the internet.</span><button type="button" style="align-self: flex-start; height: 40px; padding: 0 14px; margin-top: 4px; border-radius: 10px; border: 0; background: #B91C1C; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700">Try again</button></span>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1640}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

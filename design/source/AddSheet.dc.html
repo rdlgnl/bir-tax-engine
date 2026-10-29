@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>What happened?</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #475569; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif">
+  <a href="Home.dc.html" aria-label="Close" style="position: absolute; inset: 0; display: block"></a>
+  <div role="dialog" aria-label="What happened?" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 10px 20px 28px; display: flex; flex-direction: column; gap: 10px">
+    <div aria-hidden="true" style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #CBD2DA; margin-bottom: 6px"></div>
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <h1 style="margin: 0; font-size: 22px; font-weight: 800">What happened?</h1>
+      <a href="Home.dc.html" aria-label="Close" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-right: -8px">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+      </a>
+    </div>
+
+    <a href="TxReceived.dc.html" style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 16px; background: #F4F6F8; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: #E7F5EC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14"/><path d="M6 12l6 6 6-6"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">I received money</span><span style="font-size: 13px; color: #475569">A client or customer paid me</span></span>
+    </a>
+    <a href="TxInvoice.dc.html" style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 16px; background: #F4F6F8; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: #E8EEFD; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6"/><path d="M9 13h6"/><path d="M9 17h3"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">I issued an invoice</span><span style="font-size: 13px; color: #475569">I billed someone, paid or not</span></span>
+    </a>
+    <a href="TxWithheld.dc.html" style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 16px; background: #F4F6F8; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: #FEF3E2; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><circle cx="15" cy="17" r="1.5"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">A client withheld tax</span><span style="font-size: 13px; color: #475569">I got a Form 2307</span></span>
+    </a>
+    <a href="TxExpense.dc.html" style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 16px; background: #F4F6F8; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: #F1F5F9; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V6"/><path d="M6 12l6-6 6 6"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">I paid an expense</span><span style="font-size: 13px; color: #475569">Optional on the 8% option</span></span>
+    </a>
+    <a href="TxImport.dc.html" style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 16px; background: #F4F6F8; text-decoration: none; color: #0F172A">
+      <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: #F1F5F9; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 700">Something else</span><span style="font-size: 13px; color: #475569">Import payouts, refunds, other income</span></span>
+    </a>
+
+    <a href="TxWithheld.dc.html" style="margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; border-radius: 14px; border: 1.5px solid #CBD2DA; color: #0F172A; font-size: 15px; font-weight: 700; text-decoration: none">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      Snap a receipt or 2307 instead
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

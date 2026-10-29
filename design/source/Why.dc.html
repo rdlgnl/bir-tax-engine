@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Why is this my tax?</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1320px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; padding: 12px 16px 96px; display: flex; flex-direction: column; gap: 14px">
+  <header style="display: flex; align-items: center; gap: 6px">
+    <a href="Breakdown.dc.html" aria-label="Back to breakdown" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <span style="flex: 1; font-size: 18px; font-weight: 800">Why is this my tax?</span>
+  </header>
+
+  <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 14px; color: #475569">Q3 income tax due</span><span style="font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums">₱14,000</span></div>
+    <span style="font-size: 12px; font-weight: 800; color: #475569; letter-spacing: 0.4px; margin-top: 4px">HOW WE CALCULATED IT</span>
+    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-variant-numeric: tabular-nums">
+      <div style="display: flex; justify-content: space-between"><span>Gross receipts Jan–Sep</span><span>₱600,000</span></div>
+      <div style="display: flex; justify-content: space-between"><span>− first ₱250,000</span><span>₱250,000</span></div>
+      <div style="display: flex; justify-content: space-between"><span>× 8%</span><span style="font-weight: 700">₱28,000</span></div>
+      <div style="display: flex; justify-content: space-between"><span>− already paid</span><span>₱4,000</span></div>
+      <div style="display: flex; justify-content: space-between"><span>− withheld by clients</span><span>₱10,000</span></div>
+    </div>
+  </section>
+
+  <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+    <span style="font-size: 16px; font-weight: 800">Why 8%?</span>
+    <span style="font-size: 14px; color: #475569">Your profile shows:</span>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg><span style="flex: 1; font-size: 14px; font-weight: 600">Individual, self-employed</span><span style="font-size: 12px; color: #475569">your answers</span></div>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg><span style="flex: 1; font-size: 14px; font-weight: 600">Not VAT-registered</span><span style="font-size: 12px; color: #475569">your COR</span></div>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg><span style="flex: 1; font-size: 14px; font-weight: 600">₱600,000 so far, under the ₱3M limit</span><span style="font-size: 12px; color: #475569">transactions</span></div>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg><span style="flex: 1; font-size: 14px; font-weight: 600">You chose 8% on your Q1 return</span><span style="font-size: 12px; color: #475569">filed May 12</span></div>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6577" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg><span style="flex: 1; font-size: 14px; font-weight: 600">No salary income, so the ₱250,000 reduction applies</span></div>
+  </section>
+
+  <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 12px; font-weight: 800; color: #475569; letter-spacing: 0.4px">LEGAL BASIS</span>
+    <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 12px; background: #F4F6F8">
+      <span style="font-size: 14px; font-weight: 700">8% income tax, purely self-employed</span>
+      <span style="font-size: 13px; color: #334155">NIRC Sec. 24(A)(2)(b), as amended by RA 10963 (TRAIN) · RR 8-2018, Sec. 3 · RMO 23-2018</span>
+      <span style="font-size: 12px; color: #475569">Rule IT-8PCT-PURE v2 · In effect since Jan 1, 2018</span>
+      <span style="display: flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 700; color: #15803D"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>Reviewed by a tax professional</span>
+      <a href="https://dev.lawyerly.ph/laws/90318" style="font-size: 13px; font-weight: 700; margin-top: 4px; text-decoration: none; padding: 6px 0">Read the BIR source</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 12px; background: #F4F6F8">
+      <span style="font-size: 14px; font-weight: 700">Tax withheld by clients counts as paid</span>
+      <span style="font-size: 13px; color: #334155">NIRC Sec. 58 and 76 · RR 2-98 as amended · RMC 14-2025 (2307 must match the payor's list)</span>
+      <span style="font-size: 12px; color: #475569">Rule CWT-CREDIT v1</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 12px; background: #F4F6F8">
+      <span style="font-size: 14px; font-weight: 700">Due date: Nov 15, moved to Monday Nov 16</span>
+      <span style="font-size: 13px; color: #334155">NIRC Sec. 74 (quarterly returns) · weekend rule</span>
+      <span style="font-size: 12px; color: #475569">Rules DL-1701Q, DL-WEEKEND-HOLIDAY</span>
+    </div>
+  </section>
+
+  <details style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px">
+    <summary style="font-size: 15px; font-weight: 800; cursor: pointer">Rules we checked but didn't apply (2)</summary>
+    <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #334155">
+      <span><strong>Percentage tax 3%</strong>: skipped because you chose 8%, which replaces it.</span>
+      <span><strong>Graduated rates</strong>: skipped because you chose 8%.</span>
+    </div>
+  </details>
+
+  <section style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E3E7EC; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+    <span style="font-size: 12px; font-weight: 800; color: #475569; letter-spacing: 0.4px">WHAT COULD CHANGE THIS</span>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg><span style="font-size: 14px; line-height: 1.45">No 2307 yet from Acme Co. Without it, ₱1,000 of your credit may be disallowed.</span></div>
+    <div style="display: flex; gap: 10px; align-items: flex-start"><svg aria-hidden="true" style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/></svg><span style="font-size: 14px; line-height: 1.45">Passing ₱3,000,000 this year ends the 8% option for all of 2026.</span></div>
+    <a href="Compare.dc.html" style="font-size: 14px; font-weight: 700; text-decoration: none; padding: 6px 0">Try a what-if</a>
+  </section>
+
+  <a href="Assistant.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 52px; border-radius: 14px; background: #1D4ED8; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none">Ask a follow-up question</a>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0">
+    <dc-import name="TabBar" active="home" hint-size="390px,76px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1320}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
