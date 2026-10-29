@@ -2,8 +2,8 @@
 
 namespace App\Transactions\Requests;
 
-use App\Compliance\Models\Filing;
 use App\Compliance\Rules\NotInFiledQuarter;
+use App\Returns\Models\Filing;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;

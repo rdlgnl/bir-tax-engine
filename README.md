@@ -32,11 +32,12 @@ npm run types:check
 
 Business domains sit directly under `app/`, each with ordinary Laravel parts and its own `routes.php` (registered in `bootstrap/app.php`):
 
-| Domain             | Owns                                                                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app/Profiles`     | The tax profile and the setup wizard                                                                                                                    |
-| `app/Tax`          | The tax engine (`TaxCalculationService`), due dates (`FilingCalendar`), the "why" explanation, My tax and What if                                       |
-| `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview                                                                                       |
-| `app/Compliance`   | Filed returns (which lock a quarter), what's due next, the quarter checklist, 2307 certificates and matching, the deadline calendar and its .ics export |
+| Domain             | Owns                                                                                                              |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `app/Profiles`     | The tax profile and the setup wizard                                                                              |
+| `app/Tax`          | The tax engine (`TaxCalculationService`), due dates (`FilingCalendar`), the "why" explanation, My tax and What if |
+| `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview                                                 |
+| `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates and matching, the deadline calendar and its .ics export |
+| `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, and history      |
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.

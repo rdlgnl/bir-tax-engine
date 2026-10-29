@@ -2,10 +2,10 @@
 
 namespace App\Transactions\Controllers;
 
-use App\Compliance\Models\Filing;
 use App\Compliance\Rules\NotInFiledQuarter;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;

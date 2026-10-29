@@ -2,10 +2,10 @@
 
 namespace App\Profiles\Controllers;
 
-use App\Compliance\Models\Filing;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Profiles\Resources\TaxProfileResource;
+use App\Returns\Models\Filing;
 use App\Tax\Services\FilingCalendar;
 use Inertia\Inertia;
 use Inertia\Response;

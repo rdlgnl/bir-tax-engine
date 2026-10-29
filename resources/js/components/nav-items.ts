@@ -10,8 +10,9 @@ import {
     MessageCircleQuestion,
     UserRound,
 } from 'lucide-react';
-import { calendar, home, profile } from '@/routes';
+import { calendar, history, home, profile } from '@/routes';
 import { show as complianceShow } from '@/routes/compliance';
+import { index as returnsIndex } from '@/routes/returns';
 import { show as taxShow } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
 
@@ -45,8 +46,18 @@ export const navItems: NavItem[] = [
         href: calendar.url(),
         match: ['/calendar'],
     },
-    { label: 'File a return', icon: FileText, href: null, match: [] },
-    { label: 'History & reports', icon: History, href: null, match: [] },
+    {
+        label: 'File a return',
+        icon: FileText,
+        href: returnsIndex.url(),
+        match: ['/file'],
+    },
+    {
+        label: 'History & reports',
+        icon: History,
+        href: history.url(),
+        match: ['/history'],
+    },
     { label: 'Ask', icon: MessageCircleQuestion, href: null, match: [] },
     {
         label: 'Profile & settings',

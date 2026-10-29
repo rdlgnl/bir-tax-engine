@@ -2,13 +2,13 @@
 
 namespace App\Profiles\Requests;
 
-use App\Compliance\Models\Filing;
 use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
 use App\Profiles\Enums\SetupStep;
 use App\Profiles\Enums\WorkType;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use Illuminate\Contracts\Validation\ValidationRule;

@@ -2,9 +2,9 @@
 
 namespace App\Tax\Services;
 
-use App\Compliance\Models\Filing;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Transactions\Enums\CertificateStatus;

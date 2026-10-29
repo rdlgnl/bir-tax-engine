@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Compliance\Models\Filing;
+use App\Returns\Models\Filing;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

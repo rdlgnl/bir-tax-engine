@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
-import { MarkFiledDialog } from '@/components/mark-filed-dialog';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, minusPeso, peso, periodLabel } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { show as prepare } from '@/routes/returns';
 import { compare } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type { QuarterResult, YearResult } from '@/types';
@@ -131,15 +131,22 @@ export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
 
             <div className="mt-4 flex flex-wrap gap-2.5">
                 {payable && (
-                    <MarkFiledDialog
-                        year={year.year}
-                        quarter={quarter}
-                        trigger={
-                            <Button className="h-12 rounded-xl px-[18px] text-[15px] font-bold">
-                                Mark filed & paid
-                            </Button>
-                        }
-                    />
+                    <Button
+                        asChild
+                        className="h-12 rounded-xl px-[18px] text-[15px] font-bold"
+                    >
+                        <Link
+                            href={
+                                prepare([
+                                    year.year,
+                                    quarter.quarter,
+                                    quarter.form,
+                                ]).url
+                            }
+                        >
+                            Prepare {quarter.form}
+                        </Link>
+                    </Button>
                 )}
                 <Button
                     asChild

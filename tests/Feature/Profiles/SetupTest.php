@@ -1,7 +1,7 @@
 <?php
 
-use App\Compliance\Models\Filing;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia as Assert;
 

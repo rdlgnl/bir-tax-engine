@@ -2,7 +2,7 @@
 
 namespace App\Compliance\Rules;
 
-use App\Compliance\Models\Filing;
+use App\Returns\Models\Filing;
 use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;

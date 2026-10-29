@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Compliance\Requests;
+namespace App\Returns\Requests;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\ValidationRule;

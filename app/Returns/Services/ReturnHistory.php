@@ -1,0 +1,109 @@
+<?php
+
+namespace App\Returns\Services;
+
+use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
+use App\Tax\Enums\Regime;
+use App\Tax\Services\FilingCalendar;
+use App\Tax\Services\TaxCalculationService;
+use App\Transactions\Models\Transaction;
+use Carbon\CarbonImmutable;
+
+/**
+ * Every return a taxpayer has had to file, newest first: filed ones as they
+ * were filed, the rest as they compute today.
+ *
+ * @phpstan-type Entry array{
+ *     year: int,
+ *     quarter: int,
+ *     form: string,
+ *     title: string,
+ *     status: 'open'|'due'|'overdue'|'filed',
+ *     amount: float,
+ *     due_date: string,
+ *     filed_on: string|null,
+ *     paid_on: string|null,
+ * }
+ */
+class ReturnHistory
+{
+    public function __construct(
+        private TaxCalculationService $engine,
+        private FilingCalendar $calendar,
+    ) {}
+
+    /**
+     * The forms a taxpayer files for one period.
+     *
+     * @return list<string>
+     */
+    public function formsFor(TaxProfile $profile, int $quarter): array
+    {
+        $forms = [$this->calendar->incomeTaxForm($profile, $quarter)];
+
+        if ($profile->regime === Regime::Graduated && ! $profile->vat_registered) {
+            $forms[] = '2551Q';
+        }
+
+        return $forms;
+    }
+
+    public function filingFor(int $year, int $quarter, string $form): ?Filing
+    {
+        return Filing::query()->where('year', $year)->where('quarter', $quarter)->where('form', $form)->first();
+    }
+
+    /**
+     * @return list<Entry>
+     */
+    public function entries(TaxProfile $profile, CarbonImmutable $today): array
+    {
+        $first = Transaction::query()->min('occurred_on');
+        $firstYear = min($first ? CarbonImmutable::parse($first)->year : $today->year, $today->year);
+        $filings = Filing::query()->get()->keyBy(fn (Filing $f) => "{$f->year}-{$f->quarter}-{$f->form}");
+        $entries = [];
+
+        for ($year = $today->year; $year >= $firstYear; $year--) {
+            $result = $this->engine->forYear($profile, $year, $today);
+
+            foreach (array_reverse($result['quarters'], true) as $quarter => $figures) {
+                // Only periods that have started.
+                if (CarbonImmutable::create($year, $quarter * 3 - 2)->greaterThan($today)) {
+                    continue;
+                }
+
+                foreach ($this->formsFor($profile, $quarter) as $form) {
+                    $filing = $filings->get("{$year}-{$quarter}-{$form}");
+                    $percentageTax = $form === '2551Q';
+                    $amount = $filing?->amount_paid !== null
+                        ? (float) $filing->amount_paid
+                        : (float) ($percentageTax ? $figures['percentage_tax'] : $figures['due']);
+                    $dueDate = $percentageTax
+                        ? $this->calendar->percentageTaxDue($year, $quarter)->toDateString()
+                        : $figures['due_date'];
+
+                    $entries[] = [
+                        'year' => $year,
+                        'quarter' => $quarter,
+                        'form' => $form,
+                        'title' => ($quarter === 4 && ! $percentageTax ? 'Annual' : "Q{$quarter}").' · '
+                            .($percentageTax ? 'Percentage tax' : 'Income tax'),
+                        'status' => match (true) {
+                            $filing !== null => 'filed',
+                            $figures['status'] === 'open' => 'open',
+                            $today->toDateString() > $dueDate => 'overdue',
+                            default => 'due',
+                        },
+                        'amount' => $amount,
+                        'due_date' => $dueDate,
+                        'filed_on' => $filing?->filed_on->toDateString(),
+                        'paid_on' => $filing?->paid_on?->toDateString(),
+                    ];
+                }
+            }
+        }
+
+        return $entries;
+    }
+}

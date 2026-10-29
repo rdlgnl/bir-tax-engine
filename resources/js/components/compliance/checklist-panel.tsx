@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
 import { AlertTriangle, Check, Circle } from 'lucide-react';
-import { MarkFiledDialog } from '@/components/mark-filed-dialog';
 import { MarkPaidDialog } from '@/components/mark-paid-dialog';
 import { SectionCard } from '@/components/section-card';
 import { Progress } from '@/components/ui/progress';
+import { show as prepare } from '@/routes/returns';
 import { show as setupShow } from '@/routes/setup';
 import { show as taxShow } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
@@ -50,15 +50,14 @@ export function ChecklistPanel({
                 );
             case 'file':
                 return (
-                    <MarkFiledDialog
-                        year={year}
-                        quarter={quarter}
-                        trigger={
-                            <button type="button" className={actionClass}>
-                                Mark filed
-                            </button>
+                    <Link
+                        href={
+                            prepare([year, quarter.quarter, quarter.form]).url
                         }
-                    />
+                        className={actionClass}
+                    >
+                        Prepare
+                    </Link>
                 );
             case 'pay':
                 return checklist.filing ? (

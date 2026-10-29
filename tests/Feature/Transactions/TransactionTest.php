@@ -1,7 +1,7 @@
 <?php
 
-use App\Compliance\Models\Filing;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;

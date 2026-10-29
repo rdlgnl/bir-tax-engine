@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Compliance\Models\Filing;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
+use App\Returns\Services\ReturnForm;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
 /**
@@ -21,7 +23,7 @@ class DemoTaxpayerSeeder extends Seeder
      */
     public function run(): void
     {
-        TaxProfile::factory()->create([
+        $profile = TaxProfile::factory()->create([
             'full_name' => 'Juan Dela Cruz',
             'line_of_business' => 'Freelance graphic design',
             'city' => 'Quezon City',
@@ -81,7 +83,14 @@ class DemoTaxpayerSeeder extends Seeder
             'invoice_paid' => false,
         ]);
 
-        Filing::factory()->quarter(1, '2026-05-12', 0)->create();
-        Filing::factory()->quarter(2, '2026-08-14', 4_000)->create();
+        // Each filing freezes its figures, as marking a return filed does.
+        $returns = app(ReturnForm::class);
+
+        foreach ([[1, '2026-05-12', 0], [2, '2026-08-14', 4_000]] as [$quarter, $filedOn, $paid]) {
+            Filing::factory()->quarter($quarter, $filedOn, $paid)->create([
+                'reference_number' => "EBIR-2026-Q{$quarter}",
+                'snapshot' => $returns->snapshot($profile, 2026, $quarter, '1701Q', CarbonImmutable::parse($filedOn)),
+            ]);
+        }
     }
 }

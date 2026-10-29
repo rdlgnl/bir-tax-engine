@@ -10,6 +10,16 @@ export function peso(amount: number): string {
     return pesoFormat.format(Math.abs(amount)).replace('PHP', '₱');
 }
 
+const formFormat = new Intl.NumberFormat('en-PH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
+/** 200,000.00, the way BIR forms print amounts. */
+export function formAmount(amount: number): string {
+    return formFormat.format(amount);
+}
+
 /** −₱2,000 for credits, +₱2,400 for additions. Uses a true minus sign, as the design does. */
 export function signedPeso(amount: number): string {
     if (amount === 0) {

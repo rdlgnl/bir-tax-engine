@@ -2,9 +2,9 @@
 
 namespace App\Compliance\Services;
 
-use App\Compliance\Models\Filing;
 use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;

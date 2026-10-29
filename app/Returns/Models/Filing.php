@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Compliance\Models;
+namespace App\Returns\Models;
 
+use App\Returns\Services\ReturnForm;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\FilingFactory;
@@ -24,6 +25,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $amount_paid
  * @property CarbonImmutable|null $paid_on
  * @property string|null $payment_channel
+ * @property Snapshot|null $snapshot
+ *
+ * @phpstan-import-type Snapshot from ReturnForm
  */
 #[Fillable([
     'year',
@@ -34,6 +38,7 @@ use Illuminate\Database\Eloquent\Model;
     'amount_paid',
     'paid_on',
     'payment_channel',
+    'snapshot',
 ])]
 #[UseFactory(FilingFactory::class)]
 class Filing extends Model
@@ -54,6 +59,7 @@ class Filing extends Model
             'filed_on' => 'date',
             'amount_paid' => 'decimal:2',
             'paid_on' => 'date',
+            'snapshot' => 'array',
         ];
     }
 

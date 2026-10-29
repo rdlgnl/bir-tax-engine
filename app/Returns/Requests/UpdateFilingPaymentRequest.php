@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Compliance\Requests;
+namespace App\Returns\Requests;
 
-use App\Compliance\Models\Filing;
+use App\Returns\Models\Filing;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

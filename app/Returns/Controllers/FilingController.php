@@ -1,19 +1,27 @@
 <?php
 
-namespace App\Compliance\Controllers;
+namespace App\Returns\Controllers;
 
-use App\Compliance\Models\Filing;
-use App\Compliance\Requests\StoreFilingRequest;
-use App\Compliance\Requests\UpdateFilingPaymentRequest;
 use App\Http\Controllers\Controller;
+use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
+use App\Returns\Requests\StoreFilingRequest;
+use App\Returns\Requests\UpdateFilingPaymentRequest;
+use App\Returns\Services\ReturnForm;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
 class FilingController extends Controller
 {
-    public function store(StoreFilingRequest $request): RedirectResponse
+    public function store(StoreFilingRequest $request, ReturnForm $returns): RedirectResponse
     {
-        $filing = Filing::create($request->safe()->except('paid'));
+        $data = $request->safe()->except('paid');
+
+        // Freeze the figures as filed, so history never shifts under them.
+        $filing = Filing::create([
+            ...$data,
+            'snapshot' => $returns->snapshot(TaxProfile::current(), (int) $data['year'], (int) $data['quarter'], $data['form']),
+        ]);
 
         $what = $filing->quarter === 4 ? "Your {$filing->year} annual return" : "Q{$filing->quarter} {$filing->year}";
 

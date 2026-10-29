@@ -1,6 +1,6 @@
 <?php
 
-use App\Compliance\Models\Filing;
+use App\Returns\Models\Filing;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DemoTaxpayerSeeder;
 use Inertia\Testing\AssertableInertia as Assert;

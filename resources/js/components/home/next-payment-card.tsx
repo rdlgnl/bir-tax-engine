@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
-import { MarkFiledDialog } from '@/components/mark-filed-dialog';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso, plural, quarterMonths } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { show as prepare } from '@/routes/returns';
 import { show as taxShow } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type { NextPayment } from '@/types';
@@ -66,18 +66,23 @@ export function NextPaymentCard({ payment }: { payment: NextPayment }) {
                             See breakdown
                         </Link>
                     </Button>
-                    <MarkFiledDialog
-                        year={payment.year}
-                        quarter={quarter}
-                        trigger={
-                            <Button
-                                variant="outline"
-                                className="h-12 rounded-xl border-slate-500 bg-transparent px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-white"
-                            >
-                                {overdue ? 'Mark filed' : 'Mark filed & paid'}
-                            </Button>
-                        }
-                    />
+                    <Button
+                        asChild
+                        variant="outline"
+                        className="h-12 rounded-xl border-slate-500 bg-transparent px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-white"
+                    >
+                        <Link
+                            href={
+                                prepare([
+                                    payment.year,
+                                    quarter.quarter,
+                                    quarter.form,
+                                ]).url
+                            }
+                        >
+                            {overdue ? 'File now' : `Prepare ${quarter.form}`}
+                        </Link>
+                    </Button>
                 </div>
                 <Link
                     href={taxShow(quarter.quarter).url}

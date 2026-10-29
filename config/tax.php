@@ -54,6 +54,16 @@ return [
         'products' => 0.01,
     ],
 
+    // Alphanumeric tax codes (ATC) printed on the returns.
+    // REVIEW: check against the current 1701Q and 2551Q before relying on them.
+    'atc' => [
+        'income_tax' => [
+            'eight_percent' => ['business' => 'II015', 'profession' => 'II017', 'mixed' => 'II016'],
+            'graduated' => ['business' => 'II012', 'profession' => 'II014', 'mixed' => 'II013'],
+        ],
+        'percentage_tax' => 'PT010',
+    ],
+
     // A 2307 is due from the client within this many days after quarter end.
     'certificate_grace_days' => 20,
 

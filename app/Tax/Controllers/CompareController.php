@@ -2,10 +2,10 @@
 
 namespace App\Tax\Controllers;
 
-use App\Compliance\Models\Filing;
 use App\Http\Controllers\Controller;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Tax\Requests\CompareRequest;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;

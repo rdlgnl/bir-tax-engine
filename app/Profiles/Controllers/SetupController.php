@@ -2,12 +2,12 @@
 
 namespace App\Profiles\Controllers;
 
-use App\Compliance\Models\Filing;
 use App\Http\Controllers\Controller;
 use App\Profiles\Enums\SetupStep;
 use App\Profiles\Models\TaxProfile;
 use App\Profiles\Requests\UpdateSetupStepRequest;
 use App\Profiles\Resources\TaxProfileResource;
+use App\Returns\Models\Filing;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\TaxCalculationService;
 use Illuminate\Http\RedirectResponse;
