@@ -5,6 +5,7 @@ namespace App\Returns\Services;
 use App\Compliance\Models\Certificate;
 use App\Profiles\Models\TaxProfile;
 use App\Profiles\Resources\TaxProfileResource;
+use App\Returns\Forms\OfficialForms;
 use App\Returns\Models\Filing;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Enums\TransactionType;
@@ -12,7 +13,6 @@ use App\Transactions\Models\Transaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PdfDocument;
 use Carbon\CarbonImmutable;
-use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use ZipArchive;
@@ -23,8 +23,6 @@ use ZipArchive;
  * returns, and everything together in an encrypted ZIP.
  *
  * Every file says plainly that it comes from the taxpayer's own records.
- *
- * @phpstan-import-type Layout from ReturnForm
  */
 class RecordsExport
 {
@@ -32,15 +30,8 @@ class RecordsExport
         private TaxCalculationService $engine,
         private ReturnForm $returns,
         private ReturnHistory $history,
+        private OfficialForms $forms,
     ) {}
-
-    /**
-     * @param  Layout  $layout
-     */
-    public function returnDocument(array $layout, ?CarbonInterface $filedOn): PdfDocument
-    {
-        return Pdf::loadView('returns.pdf', ['layout' => $layout, 'filedOn' => $filedOn])->setPaper('a4');
-    }
 
     public function taxSummary(TaxProfile $profile, int $year): PdfDocument
     {
@@ -170,8 +161,7 @@ class RecordsExport
         }
 
         foreach (Filing::query()->where('year', $year)->get() as $filing) {
-            $layout = $this->returns->layout($this->returns->snapshotOf($filing, $profile));
-            $add("returns/{$filing->form}-{$year}-Q{$filing->quarter}.pdf", $this->returnDocument($layout, $filing->filed_on)->output());
+            $add("returns/{$filing->form}-{$year}-Q{$filing->quarter}.pdf", $this->forms->render($this->returns->snapshotOf($filing, $profile)));
         }
 
         foreach (Certificate::query()->where('year', $year)->whereNotNull('file_path')->get() as $certificate) {
@@ -203,10 +193,10 @@ class RecordsExport
             "tax-summary-{$year}.pdf              Income, tax and filings for the year",
             "income-and-withholding-{$year}.csv   Every payment, invoice and expense (opens in Excel)",
             'sawt/                                 2307 data per quarter, to enter into the BIR alphalist tool',
-            "returns/                              The {$filed} filed returns, as filed",
+            "returns/                              The {$filed} filed returns, as filed, on the BIR's own forms",
             '2307s/                                Certificates from clients, as received',
             '',
-            'Figures follow rule pack '.config('tax.version').'. Returns here are print-ready summaries, not the official BIR forms.',
+            'Figures follow rule pack '.config('tax.version').'. Returns are filled from these records and are not signed.',
         ])."\r\n";
     }
 

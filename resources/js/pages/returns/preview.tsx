@@ -8,17 +8,28 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { formatDate } from '@/lib/format';
 import { history } from '@/routes';
 import { pdf, show } from '@/routes/returns';
+import { show as setupShow } from '@/routes/setup';
 import type { ReturnLayout } from '@/types';
 
-type Props = { layout: ReturnLayout; filedOn: string | null };
+type Props = {
+    layout: ReturnLayout;
+    filedOn: string | null;
+    missingDetails: { label: string; step: 'about' | 'certificate' }[];
+};
 
-export default function ReturnPreview({ layout, filedOn }: Props) {
+export default function ReturnPreview({
+    layout,
+    filedOn,
+    missingDetails,
+}: Props) {
     const args: [number, number, string] = [
         layout.year,
         layout.quarter,
         layout.form,
     ];
     const [checks, setChecks] = useState({ identity: false, income: false });
+    // Only an unfiled return picks up profile changes.
+    const missing = filedOn ? [] : missingDetails;
     const back = filedOn
         ? history({
               query: {
@@ -47,7 +58,7 @@ export default function ReturnPreview({ layout, filedOn }: Props) {
                             Your filled {layout.form}
                         </h1>
                         <p className="text-[15px] text-muted-foreground">
-                            Print-ready summary · {layout.period}
+                            On the BIR's own form · {layout.period}
                             {filedOn
                                 ? ` · as filed ${formatDate(filedOn, 'long')}`
                                 : ' · from your records on this computer'}
@@ -86,10 +97,10 @@ export default function ReturnPreview({ layout, filedOn }: Props) {
                         <dl className="divide-y divide-divider text-sm">
                             <div className="flex justify-between gap-3 py-2">
                                 <dt className="text-muted-foreground">
-                                    Follows
+                                    Form version
                                 </dt>
                                 <dd className="text-right font-bold">
-                                    BIR Form {layout.form} wording
+                                    {layout.form} · {layout.edition}
                                 </dd>
                             </div>
                             <div className="flex justify-between gap-3 py-2">
@@ -97,7 +108,9 @@ export default function ReturnPreview({ layout, filedOn }: Props) {
                                     Fields filled
                                 </dt>
                                 <dd className="text-right font-bold">
-                                    All but your signature
+                                    {missing.length === 0
+                                        ? 'All but your signature'
+                                        : 'All but your signature and the details below'}
                                 </dd>
                             </div>
                             <div className="flex justify-between gap-3 py-2">
@@ -153,12 +166,43 @@ export default function ReturnPreview({ layout, filedOn }: Props) {
                         </SectionCard>
                     )}
 
+                    {missing.length > 0 && (
+                        <SectionCard>
+                            <h2 className="mb-1.5 text-lg font-extrabold">
+                                Not on the form yet
+                            </h2>
+                            <p className="text-[15px]">
+                                Your{' '}
+                                {missing
+                                    .map((detail) => detail.label)
+                                    .join(', ')}{' '}
+                                will print blank. Write them in, or{' '}
+                                <Link
+                                    href={
+                                        setupShow(
+                                            missing.some(
+                                                (detail) =>
+                                                    detail.step === 'about',
+                                            )
+                                                ? 'about'
+                                                : 'certificate',
+                                        ).url
+                                    }
+                                    className="font-bold text-primary underline-offset-4 hover:underline"
+                                >
+                                    add them to your profile
+                                </Link>
+                                .
+                            </p>
+                        </SectionCard>
+                    )}
+
                     <p className="flex items-start gap-2.5 rounded-2xl border border-[#C9D7FB] bg-selected px-4 py-3.5 text-sm text-accent-foreground">
                         <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-                        This summary isn't the official form. File through
-                        eBIRForms, or copy these values onto the official
-                        {` ${layout.form}`} and file it with your payment at a
-                        bank the BIR accredits.
+                        The download is the BIR's own {layout.form}, filled in.
+                        Print it at actual size on long bond paper (8.5 × 13
+                        in), sign it, and file it with your payment at a bank
+                        the BIR accredits, or copy the values into eBIRForms.
                     </p>
 
                     {!filedOn && (

@@ -24,9 +24,18 @@ use Illuminate\Support\Str;
  * @property WorkType|null $work_type
  * @property Profession|null $profession
  * @property string|null $full_name
+ * @property string|null $last_name
+ * @property string|null $first_name
+ * @property string|null $middle_name
+ * @property CarbonImmutable|null $birth_date
+ * @property string|null $email
+ * @property string|null $contact_number
+ * @property string|null $citizenship
  * @property string|null $trade_name
  * @property string|null $line_of_business
  * @property string|null $city
+ * @property string|null $registered_address
+ * @property string|null $zip_code
  * @property bool $bir_registered
  * @property string|null $tin
  * @property string|null $rdo_code
@@ -47,9 +56,18 @@ use Illuminate\Support\Str;
     'work_type',
     'profession',
     'full_name',
+    'last_name',
+    'first_name',
+    'middle_name',
+    'birth_date',
+    'email',
+    'contact_number',
+    'citizenship',
     'trade_name',
     'line_of_business',
     'city',
+    'registered_address',
+    'zip_code',
     'bir_registered',
     'tin',
     'rdo_code',
@@ -81,6 +99,7 @@ class TaxProfile extends Model
             'income_source' => IncomeSource::class,
             'work_type' => WorkType::class,
             'profession' => Profession::class,
+            'birth_date' => 'date',
             'bir_registered' => 'boolean',
             'registered_on' => 'date',
             'registered_income_tax' => 'boolean',
@@ -116,7 +135,7 @@ class TaxProfile extends Model
 
     public function firstName(): string
     {
-        return Str::of((string) $this->full_name)->trim()->before(' ')->value();
+        return $this->first_name ?: Str::of((string) $this->full_name)->trim()->before(' ')->value();
     }
 
     public function initials(): string

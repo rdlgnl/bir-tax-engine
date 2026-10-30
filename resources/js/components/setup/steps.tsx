@@ -164,12 +164,20 @@ function TextField({
     ...props
 }: StepProps & {
     name:
-        | 'full_name'
+        | 'first_name'
+        | 'middle_name'
+        | 'last_name'
+        | 'birth_date'
+        | 'email'
+        | 'contact_number'
+        | 'citizenship'
         | 'trade_name'
         | 'line_of_business'
         | 'city'
         | 'tin'
-        | 'rdo_code';
+        | 'rdo_code'
+        | 'registered_address'
+        | 'zip_code';
     label: string;
     optional?: boolean;
 } & Omit<React.ComponentProps<'input'>, 'form' | 'name'>) {
@@ -204,15 +212,30 @@ export function AboutStep({ form }: StepProps) {
         <>
             <Heading
                 title="A bit about you"
-                lead="We'll fill in the rest from your BIR certificate on the next step."
+                lead="Your name as the BIR has it. We'll fill in the rest from your BIR certificate on the next step."
             />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
                 <TextField
                     form={form}
-                    name="full_name"
-                    label="Your full name"
-                    autoComplete="name"
+                    name="first_name"
+                    label="First name"
+                    autoComplete="given-name"
                 />
+                <TextField
+                    form={form}
+                    name="middle_name"
+                    label="Middle name"
+                    optional
+                    autoComplete="additional-name"
+                />
+                <TextField
+                    form={form}
+                    name="last_name"
+                    label="Last name"
+                    autoComplete="family-name"
+                />
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <TextField
                     form={form}
                     name="trade_name"
@@ -233,6 +256,48 @@ export function AboutStep({ form }: StepProps) {
                     autoComplete="address-level2"
                 />
             </div>
+            <fieldset className="mt-6">
+                <legend className="mb-1 text-[15px] font-bold">
+                    For your BIR forms
+                </legend>
+                <p className="mb-3 text-[13px] text-muted-foreground">
+                    The returns ask for these. Skip any and write them in by
+                    hand.
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField
+                        form={form}
+                        name="birth_date"
+                        label="Date of birth"
+                        optional
+                        type="date"
+                        autoComplete="bday"
+                    />
+                    <TextField
+                        form={form}
+                        name="citizenship"
+                        label="Citizenship"
+                        optional
+                    />
+                    <TextField
+                        form={form}
+                        name="email"
+                        label="Email"
+                        optional
+                        type="email"
+                        autoComplete="email"
+                    />
+                    <TextField
+                        form={form}
+                        name="contact_number"
+                        label="Contact number"
+                        optional
+                        type="tel"
+                        placeholder="0917 123 4567"
+                        autoComplete="tel"
+                    />
+                </div>
+            </fieldset>
             {form.data.income_source !== 'employed' && (
                 <div className="mt-6 flex flex-col gap-2.5">
                     <span className="text-[15px] font-bold">
@@ -354,6 +419,24 @@ export function CertificateStep({ form }: StepProps) {
                     />
                     <FieldError message={form.errors.registered_on} />
                 </div>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_140px]">
+                <TextField
+                    form={form}
+                    name="registered_address"
+                    label="Registered address"
+                    optional
+                    autoComplete="street-address"
+                />
+                <TextField
+                    form={form}
+                    name="zip_code"
+                    label="ZIP code"
+                    optional
+                    inputMode="numeric"
+                    maxLength={4}
+                    autoComplete="postal-code"
+                />
             </div>
             <fieldset className="mt-6">
                 <legend className="mb-2.5 text-[15px] font-bold">

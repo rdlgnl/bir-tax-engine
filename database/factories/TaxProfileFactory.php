@@ -25,13 +25,24 @@ class TaxProfileFactory extends Factory
      */
     public function definition(): array
     {
+        $first = fake()->firstName();
+        $last = fake()->lastName();
+
         return [
             'income_source' => IncomeSource::Business,
             'work_type' => WorkType::Services,
             'profession' => Profession::None,
-            'full_name' => fake()->name(),
+            'full_name' => "{$first} {$last}",
+            'first_name' => $first,
+            'last_name' => $last,
+            'birth_date' => '1994-06-15',
+            'email' => fake()->safeEmail(),
+            'contact_number' => '09171234567',
+            'citizenship' => 'FILIPINO',
             'line_of_business' => 'Freelance graphic design',
             'city' => 'Quezon City',
+            'registered_address' => '12 Mabini St., Brgy. Malaya, Quezon City',
+            'zip_code' => '1101',
             'bir_registered' => true,
             'tin' => '123-456-789-000',
             'rdo_code' => '028',

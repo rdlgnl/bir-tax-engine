@@ -7,6 +7,7 @@ export type ReturnLine = {
 
 export type ReturnLayout = {
     form: string;
+    edition: string;
     title: string;
     year: number;
     quarter: number;

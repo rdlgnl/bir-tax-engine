@@ -25,9 +25,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $amount_paid
  * @property CarbonImmutable|null $paid_on
  * @property string|null $payment_channel
- * @property Snapshot|null $snapshot
+ * @property Snapshot|LegacySnapshot|null $snapshot
  *
  * @phpstan-import-type Snapshot from ReturnForm
+ * @phpstan-import-type LegacySnapshot from ReturnForm
  */
 #[Fillable([
     'year',
