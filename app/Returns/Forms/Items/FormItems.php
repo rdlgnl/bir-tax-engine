@@ -115,8 +115,8 @@ abstract class FormItems
     }
 
     /**
-     * "LAST NAME, FIRST NAME MIDDLE NAME", as the forms ask. Profiles from
-     * before the name was split only have the full name.
+     * "LAST NAME, FIRST NAME MIDDLE NAME", as the forms ask. A profile with
+     * a one-word name has no surname to put first.
      *
      * @param  Taxpayer  $taxpayer
      */
@@ -126,7 +126,7 @@ abstract class FormItems
             return $taxpayer['name'];
         }
 
-        return trim("{$taxpayer['last_name']}, {$taxpayer['first_name']} {$taxpayer['middle_name']}");
+        return Str::squish("{$taxpayer['last_name']}, {$taxpayer['first_name']} {$taxpayer['middle_name']}");
     }
 
     /**

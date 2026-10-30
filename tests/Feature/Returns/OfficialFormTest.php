@@ -192,3 +192,19 @@ test('the preview names details that would print blank, and where to add them', 
             ['label' => 'date of birth', 'step' => 'about'],
         ]));
 });
+
+test('a profile with only a full name still prints surname first, and setup suggests the split', function () {
+    $this->seed(DemoTaxpayerSeeder::class);
+    TaxProfile::current()->update(['full_name' => 'Juan Santos Dela Cruz', 'last_name' => null, 'first_name' => null, 'middle_name' => null]);
+
+    expect(formValues('1701Q', 2026, 3))->toMatchArray(['9' => 'DELA CRUZ, JUAN SANTOS', 'p2.last_name' => 'DELA CRUZ']);
+
+    $this->get('/file/2026/3/1701Q/form')->assertInertia(fn (Assert $page) => $page
+        ->where('layout.taxpayer.name', 'DELA CRUZ, JUAN SANTOS')
+        ->where('missingDetails', []));
+
+    $this->get('/setup/about')->assertInertia(fn (Assert $page) => $page
+        ->where('answers.last_name', 'Dela Cruz')
+        ->where('answers.first_name', 'Juan Santos')
+        ->where('answers.middle_name', null));
+});

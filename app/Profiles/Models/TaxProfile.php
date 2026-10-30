@@ -133,6 +133,53 @@ class TaxProfile extends Model
         return $this->income_source !== IncomeSource::Both;
     }
 
+    /**
+     * The name in the parts the BIR forms ask for. Profiles from before the
+     * name was asked in parts have only a full name, so it is split here:
+     * the surname is the last word, or starts at a prefix like "Dela" or
+     * "San"; everything before it is the first name. Getting the surname
+     * right is what matters, since the forms print "LAST, FIRST MIDDLE".
+     *
+     * @return array{last: string|null, first: string|null, middle: string|null}
+     */
+    public function nameParts(): array
+    {
+        if (filled($this->last_name)) {
+            return ['last' => $this->last_name, 'first' => $this->first_name, 'middle' => $this->middle_name];
+        }
+
+        $name = Str::squish((string) $this->full_name);
+
+        if (str_contains($name, ',')) {
+            [$last, $first] = array_map('trim', explode(',', $name, 2));
+
+            return ['last' => $last ?: null, 'first' => $first ?: null, 'middle' => null];
+        }
+
+        $words = $name === '' ? [] : explode(' ', $name);
+        $suffix = count($words) > 2 && preg_match('/^(jr|sr|i{2,3}|iv|v)\.?$/i', (string) end($words)) ? array_pop($words) : null;
+
+        if (count($words) < 2) {
+            return ['last' => null, 'first' => $name ?: null, 'middle' => null];
+        }
+
+        $prefixes = ['de', 'del', 'dela', 'della', 'delos', 'des', 'di', 'da', 'dos', 'san', 'sta', 'sta.', 'santa', 'sto', 'sto.', 'santo', 'van', 'von'];
+        $start = count($words) - 1;
+
+        for ($i = 1; $i < count($words) - 1; $i++) {
+            if (in_array(Str::lower($words[$i]), $prefixes, true)) {
+                $start = $i;
+                break;
+            }
+        }
+
+        return [
+            'last' => implode(' ', array_slice($words, $start)),
+            'first' => implode(' ', [...array_slice($words, 0, $start), ...($suffix ? [$suffix] : [])]),
+            'middle' => null,
+        ];
+    }
+
     public function firstName(): string
     {
         return $this->first_name ?: Str::of((string) $this->full_name)->trim()->before(' ')->value();

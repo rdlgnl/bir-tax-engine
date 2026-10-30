@@ -23,6 +23,7 @@ class SetupController extends Controller
     {
         $profile = TaxProfile::current() ?? new TaxProfile;
         $step ??= SetupStep::Income;
+        $name = $profile->nameParts();
 
         if (! $step->appliesTo($profile)) {
             return redirect()->route('setup.show', $step->next($profile));
@@ -46,9 +47,9 @@ class SetupController extends Controller
                 'income_source' => $profile->income_source?->value,
                 'work_type' => $profile->work_type?->value,
                 'profession' => $profile->profession?->value,
-                'first_name' => $profile->first_name,
-                'middle_name' => $profile->middle_name,
-                'last_name' => $profile->last_name,
+                'first_name' => $name['first'],
+                'middle_name' => $name['middle'],
+                'last_name' => $name['last'],
                 'birth_date' => $profile->birth_date?->toDateString(),
                 'email' => $profile->email,
                 'contact_number' => $profile->contact_number,
