@@ -25,6 +25,10 @@ class DemoTaxpayerSeeder extends Seeder
     {
         $profile = TaxProfile::factory()->create([
             'full_name' => 'Juan Dela Cruz',
+            'first_name' => 'Juan',
+            'middle_name' => 'Santos',
+            'last_name' => 'Dela Cruz',
+            'email' => 'juan@example.com',
             'line_of_business' => 'Freelance graphic design',
             'city' => 'Quezon City',
         ]);

@@ -5,7 +5,7 @@ namespace App\Returns\Controllers;
 use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
-use App\Returns\Services\RecordsExport;
+use App\Returns\Forms\OfficialForms;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
 use App\Tax\Services\FilingCalendar;
@@ -85,7 +85,7 @@ class FileReturnController extends Controller
         ]);
     }
 
-    public function preview(int $year, int $quarter, string $form): Response
+    public function preview(OfficialForms $forms, int $year, int $quarter, string $form): Response
     {
         $profile = $this->ensureForm($year, $quarter, $form);
         $filing = $this->history->filingFor($year, $quarter, $form);
@@ -94,19 +94,24 @@ class FileReturnController extends Controller
         return Inertia::render('returns/preview', [
             'layout' => $this->returns->layout($snapshot),
             'filedOn' => $filing?->filed_on->toDateString(),
+            'missingDetails' => $forms->missingDetails($snapshot),
         ]);
     }
 
-    public function pdf(Request $request, RecordsExport $export, int $year, int $quarter, string $form): HttpResponse
+    /**
+     * The return on the BIR's own form, filled in.
+     */
+    public function pdf(Request $request, OfficialForms $forms, int $year, int $quarter, string $form): HttpResponse
     {
         $profile = $this->ensureForm($year, $quarter, $form);
         $filing = $this->history->filingFor($year, $quarter, $form);
         $snapshot = $filing ? $this->returns->snapshotOf($filing, $profile) : $this->returns->snapshot($profile, $year, $quarter, $form);
-
-        $pdf = $export->returnDocument($this->returns->layout($snapshot), $filing?->filed_on);
         $name = "{$form}-{$year}-Q{$quarter}.pdf";
 
-        return $request->boolean('print') ? $pdf->stream($name) : $pdf->download($name);
+        return response($forms->render($snapshot), headers: [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => ($request->boolean('print') ? 'inline' : 'attachment')."; filename={$name}",
+        ]);
     }
 
     /**

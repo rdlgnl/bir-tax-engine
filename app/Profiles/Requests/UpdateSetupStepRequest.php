@@ -34,7 +34,13 @@ class UpdateSetupStepRequest extends FormRequest
                 'profession' => ['nullable', Rule::enum(Profession::class)],
             ],
             SetupStep::About => [
-                'full_name' => ['required', 'string', 'max:120'],
+                'first_name' => ['required', 'string', 'max:60'],
+                'middle_name' => ['nullable', 'string', 'max:60'],
+                'last_name' => ['required', 'string', 'max:60'],
+                'birth_date' => ['nullable', 'date', 'before:today'],
+                'email' => ['nullable', 'email', 'max:120'],
+                'contact_number' => ['nullable', 'regex:/^[\d\s()+-]{7,20}$/'],
+                'citizenship' => ['nullable', 'string', 'max:40'],
                 'trade_name' => ['nullable', 'string', 'max:120'],
                 'line_of_business' => ['nullable', 'string', 'max:120'],
                 'city' => ['nullable', 'string', 'max:80'],
@@ -43,6 +49,8 @@ class UpdateSetupStepRequest extends FormRequest
             SetupStep::Certificate => $this->profile()->bir_registered ? [
                 'tin' => ['required', 'regex:/^\d{3}-\d{3}-\d{3}-\d{3,5}$/'],
                 'rdo_code' => ['required', 'digits:3'],
+                'registered_address' => ['nullable', 'string', 'max:140'],
+                'zip_code' => ['nullable', 'digits:4'],
                 'registered_on' => ['nullable', 'date', 'before_or_equal:today'],
                 'registered_income_tax' => ['required', 'boolean'],
                 'registered_percentage_tax' => ['required', 'boolean'],
@@ -104,6 +112,8 @@ class UpdateSetupStepRequest extends FormRequest
         return [
             'tin.regex' => 'Enter the TIN as printed on your COR, like 123-456-789-000.',
             'rdo_code.digits' => 'The RDO code is the 3-digit number on your COR.',
+            'zip_code.digits' => 'The ZIP code is 4 digits.',
+            'contact_number.regex' => 'Enter a landline or mobile number, like 0917 123 4567.',
             'expected_income.required' => 'A rough guess is fine.',
         ];
     }

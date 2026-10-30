@@ -13,6 +13,7 @@ use App\Tax\Services\TaxCalculationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,6 +23,7 @@ class SetupController extends Controller
     {
         $profile = TaxProfile::current() ?? new TaxProfile;
         $step ??= SetupStep::Income;
+        $name = $profile->nameParts();
 
         if (! $step->appliesTo($profile)) {
             return redirect()->route('setup.show', $step->next($profile));
@@ -45,13 +47,21 @@ class SetupController extends Controller
                 'income_source' => $profile->income_source?->value,
                 'work_type' => $profile->work_type?->value,
                 'profession' => $profile->profession?->value,
-                'full_name' => $profile->full_name,
+                'first_name' => $name['first'],
+                'middle_name' => $name['middle'],
+                'last_name' => $name['last'],
+                'birth_date' => $profile->birth_date?->toDateString(),
+                'email' => $profile->email,
+                'contact_number' => $profile->contact_number,
+                'citizenship' => $profile->citizenship ?? 'Filipino',
                 'trade_name' => $profile->trade_name,
                 'line_of_business' => $profile->line_of_business,
                 'city' => $profile->city,
                 'bir_registered' => $profile->bir_registered ?? true,
                 'tin' => $profile->tin,
                 'rdo_code' => $profile->rdo_code,
+                'registered_address' => $profile->registered_address,
+                'zip_code' => $profile->zip_code,
                 'registered_on' => $profile->registered_on?->toDateString(),
                 'registered_income_tax' => $profile->registered_income_tax ?? true,
                 'registered_percentage_tax' => $profile->registered_percentage_tax ?? false,
@@ -74,6 +84,10 @@ class SetupController extends Controller
     {
         $profile = $request->profile();
         $profile->fill($request->validated());
+
+        if ($step === SetupStep::About) {
+            $profile->full_name = Str::squish("{$profile->first_name} {$profile->middle_name} {$profile->last_name}");
+        }
 
         if ($profile->regime === Regime::EightPercent) {
             $profile->deduction_method = null;

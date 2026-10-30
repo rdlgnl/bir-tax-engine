@@ -64,6 +64,17 @@ return [
         'percentage_tax' => 'PT010',
     ],
 
+    // The BIR's own forms the downloads are filled on. `template` names the
+    // PDF and its field map in resources/forms/bir; a new BIR edition is a new
+    // template (scripts/bir-forms/fetch.sh) and a new map. The income tax
+    // forms say "DO NOT enter Centavos", so their amounts are whole pesos.
+    'forms' => [
+        '1701Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701Q-2018-01', 'whole_pesos' => true],
+        '1701A' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701A-2018-01', 'whole_pesos' => true],
+        '1701' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701-2018-01', 'whole_pesos' => true],
+        '2551Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '2551Q-2018-01', 'whole_pesos' => false],
+    ],
+
     // A 2307 is due from the client within this many days after quarter end.
     'certificate_grace_days' => 20,
 

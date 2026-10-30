@@ -84,9 +84,9 @@ export function FormSheet({
                 </p>
             )}
             <p className="mt-4 border-t border-dashed pt-3 text-xs text-slate-600">
-                Yellow = filled by the app. This is a print-ready summary that
-                follows the form's wording, not the official form: copy the
-                values into eBIRForms or the official {layout.form}.
+                Yellow = filled by the app. This preview is simplified; the
+                downloaded PDF is the BIR's own {layout.form}, {layout.edition}{' '}
+                edition.
             </p>
         </article>
     );

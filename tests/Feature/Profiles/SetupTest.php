@@ -31,9 +31,14 @@ test('someone can answer every step and reach the dashboard', function () {
     $answers = [
         'income' => ['income_source' => 'business'],
         'work' => ['work_type' => 'services', 'profession' => 'none'],
-        'about' => ['full_name' => 'Juan Dela Cruz', 'bir_registered' => true],
+        'about' => [
+            'first_name' => 'Juan', 'middle_name' => 'Santos', 'last_name' => 'Dela Cruz',
+            'birth_date' => '1994-06-15', 'email' => 'juan@example.com', 'contact_number' => '0917 123 4567',
+            'citizenship' => 'Filipino', 'bir_registered' => true,
+        ],
         'certificate' => [
             'tin' => '123456789000', 'rdo_code' => '028', 'registered_on' => '2024-03-04',
+            'registered_address' => '12 Mabini St., Quezon City', 'zip_code' => '1101',
             'registered_income_tax' => true, 'registered_percentage_tax' => true,
             'vat_registered' => false, 'withholding_agent' => false,
         ],
@@ -52,6 +57,10 @@ test('someone can answer every step and reach the dashboard', function () {
 
     $profile = TaxProfile::current();
     expect($profile->isComplete())->toBeTrue()
+        ->and($profile->full_name)->toBe('Juan Santos Dela Cruz')
+        ->and($profile->last_name)->toBe('Dela Cruz')
+        ->and($profile->birth_date->toDateString())->toBe('1994-06-15')
+        ->and($profile->zip_code)->toBe('1101')
         ->and($profile->tin)->toBe('123-456-789-000')
         ->and($profile->regime->value)->toBe('eight_percent')
         ->and($profile->deduction_method)->toBeNull();
@@ -78,7 +87,7 @@ test('the expenses step only appears on graduated rates', function () {
 
 test('salaried people skip the business questions', function () {
     $this->put('/setup/income', ['income_source' => 'employed'])->assertRedirect(route('setup.show', 'about'));
-    $this->put('/setup/about', ['full_name' => 'Ana Reyes', 'bir_registered' => true])
+    $this->put('/setup/about', ['first_name' => 'Ana', 'last_name' => 'Reyes', 'bir_registered' => true])
         ->assertRedirect(route('setup.show', 'summary'));
     $this->post('/setup/complete')->assertRedirect(route('home'));
 });
@@ -90,8 +99,12 @@ test('each step validates its own answers', function (string $step, array $data,
 })->with([
     'no income source' => ['income', [], 'income_source'],
     'unknown income source' => ['income', ['income_source' => 'lottery'], 'income_source'],
-    'no name' => ['about', ['bir_registered' => true], 'full_name'],
+    'no first name' => ['about', ['last_name' => 'Reyes', 'bir_registered' => true], 'first_name'],
+    'no last name' => ['about', ['first_name' => 'Ana', 'bir_registered' => true], 'last_name'],
+    'birth date in the future' => ['about', ['first_name' => 'Ana', 'last_name' => 'Reyes', 'birth_date' => '2030-01-01', 'bir_registered' => true], 'birth_date'],
+    'malformed contact number' => ['about', ['first_name' => 'Ana', 'last_name' => 'Reyes', 'contact_number' => 'call me', 'bir_registered' => true], 'contact_number'],
     'malformed TIN' => ['certificate', ['tin' => '12-34', 'rdo_code' => '028', 'registered_income_tax' => true, 'registered_percentage_tax' => false, 'vat_registered' => false, 'withholding_agent' => false], 'tin'],
+    'ZIP code not 4 digits' => ['certificate', ['tin' => '123456789000', 'rdo_code' => '028', 'zip_code' => '11010', 'registered_income_tax' => true, 'registered_percentage_tax' => false, 'vat_registered' => false, 'withholding_agent' => false], 'zip_code'],
     'negative income' => ['estimate', ['expected_income' => -5], 'expected_income'],
 ]);
 

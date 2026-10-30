@@ -21,7 +21,37 @@ use Illuminate\Support\Str;
  *
  * @phpstan-import-type QuarterResult from TaxCalculationService
  *
+ * @phpstan-type Taxpayer array{
+ *     name: string,
+ *     tin: string|null,
+ *     rdo: string|null,
+ *     atc: string,
+ *     income: 'business'|'profession'|'mixed',
+ *     last_name: string|null,
+ *     first_name: string|null,
+ *     middle_name: string|null,
+ *     address: string|null,
+ *     zip: string|null,
+ *     birth_date: string|null,
+ *     email: string|null,
+ *     contact: string|null,
+ *     citizenship: string|null,
+ * }
  * @phpstan-type Snapshot array{
+ *     form: string,
+ *     year: int,
+ *     quarter: int,
+ *     regime: string|null,
+ *     deduction_method: string|null,
+ *     purely_self_employed: bool,
+ *     taxpayer: Taxpayer,
+ *     figures: QuarterResult,
+ *     previous_figures: QuarterResult|null,
+ *     rule_pack: string,
+ *     rules: list<string>,
+ *     taken_at: string,
+ * }
+ * @phpstan-type LegacySnapshot array{
  *     form: string,
  *     year: int,
  *     quarter: int,
@@ -37,6 +67,7 @@ use Illuminate\Support\Str;
  * @phpstan-type Line array{label: string, amount: float, kind: 'amount'|'subtract'|'total'}
  * @phpstan-type Layout array{
  *     form: string,
+ *     edition: string,
  *     title: string,
  *     year: int,
  *     quarter: int,
@@ -65,6 +96,7 @@ class ReturnForm
     public function snapshot(TaxProfile $profile, int $year, int $quarter, string $form, ?CarbonImmutable $today = null): array
     {
         $result = $this->engine->forYear($profile, $year, $today);
+        $name = $profile->nameParts();
         $eightPercent = $profile->regime === Regime::EightPercent;
         $income = match (true) {
             $profile->income_source === IncomeSource::Both => 'mixed',
@@ -80,14 +112,28 @@ class ReturnForm
             'deduction_method' => $profile->deduction_method?->value,
             'purely_self_employed' => $profile->isPurelySelfEmployed(),
             'taxpayer' => [
-                'name' => Str::upper(trim((string) $profile->full_name)),
+                // As the forms write it: "LAST, FIRST MIDDLE".
+                'name' => $name['last'] === null
+                    ? Str::upper(trim((string) $profile->full_name))
+                    : Str::upper(Str::squish("{$name['last']}, {$name['first']} {$name['middle']}")),
                 'tin' => $profile->tin,
                 'rdo' => $profile->rdo_code,
                 'atc' => $form === '2551Q'
                     ? config('tax.atc.percentage_tax')
                     : config('tax.atc.income_tax.'.($eightPercent ? 'eight_percent' : 'graduated').".{$income}"),
+                'income' => $income,
+                'last_name' => $this->upper($name['last']),
+                'first_name' => $this->upper($name['first']),
+                'middle_name' => $this->upper($name['middle']),
+                'address' => $this->upper($profile->registered_address),
+                'zip' => $profile->zip_code,
+                'birth_date' => $profile->birth_date?->toDateString(),
+                'email' => $this->upper($profile->email),
+                'contact' => $profile->contact_number,
+                'citizenship' => $this->upper($profile->citizenship),
             ],
             'figures' => $result['quarters'][$quarter],
+            'previous_figures' => $result['quarters'][$quarter - 1] ?? null,
             'rule_pack' => config('tax.version'),
             'rules' => $this->rulesUsed($profile, $form, $result['quarters'][$quarter]),
             'taken_at' => ($today ?? CarbonImmutable::now())->toIso8601String(),
@@ -102,7 +148,20 @@ class ReturnForm
      */
     public function snapshotOf(Filing $filing, TaxProfile $profile): array
     {
-        return $filing->snapshot ?? $this->snapshot($profile, $filing->year, $filing->quarter, $filing->form);
+        $now = $this->snapshot($profile, $filing->year, $filing->quarter, $filing->form);
+        $snapshot = $filing->snapshot;
+
+        if ($snapshot === null) {
+            return $now;
+        }
+
+        // Snapshots frozen before returns were filled on the official forms
+        // lack the details those forms ask for: take them from today's records.
+        return [
+            ...$snapshot,
+            'taxpayer' => $snapshot['taxpayer'] + $now['taxpayer'],
+            'previous_figures' => $snapshot['previous_figures'] ?? $now['previous_figures'],
+        ];
     }
 
     /**
@@ -117,6 +176,7 @@ class ReturnForm
 
         return [
             'form' => $snapshot['form'],
+            'edition' => config("tax.forms.{$snapshot['form']}.edition"),
             'title' => match (true) {
                 $percentageTax => 'Quarterly Percentage Tax Return',
                 $snapshot['quarter'] === 4 => 'Annual Income Tax Return',
@@ -133,7 +193,12 @@ class ReturnForm
                 $snapshot['deduction_method'] === DeductionMethod::Itemized->value => 'graduated rates, itemized deductions',
                 default => 'graduated rates, optional standard deduction',
             },
-            'taxpayer' => $snapshot['taxpayer'],
+            'taxpayer' => [
+                'name' => $snapshot['taxpayer']['name'],
+                'tin' => $snapshot['taxpayer']['tin'],
+                'rdo' => $snapshot['taxpayer']['rdo'],
+                'atc' => $snapshot['taxpayer']['atc'],
+            ],
             'lines' => $percentageTax ? $this->percentageTaxLines($f) : $this->incomeTaxLines($snapshot),
             'payable' => $payable,
             'overpayment' => $percentageTax ? 0.0 : $f['excess_credit'],
@@ -237,6 +302,11 @@ class ReturnForm
     private function line(string $label, float $amount, string $kind = 'amount'): array
     {
         return ['label' => $label, 'amount' => round($amount, 2), 'kind' => $kind];
+    }
+
+    private function upper(?string $value): ?string
+    {
+        return filled($value) ? Str::upper(trim((string) $value)) : null;
     }
 
     private function ordinal(int $quarter): string

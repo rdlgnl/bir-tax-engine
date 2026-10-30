@@ -25,7 +25,7 @@ test('the Q3 1701Q values match the design, top to bottom', function () {
         ->component('returns/show')
         ->where('layout.period', '2026 · 3rd')
         ->where('layout.method', '8% option')
-        ->where('layout.taxpayer', ['name' => 'JUAN DELA CRUZ', 'tin' => '123-456-789-000', 'rdo' => '028', 'atc' => 'II015'])
+        ->where('layout.taxpayer', ['name' => 'DELA CRUZ, JUAN SANTOS', 'tin' => '123-456-789-000', 'rdo' => '028', 'atc' => 'II015'])
         ->where('layout.lines', [
             ['label' => 'Sales/receipts, this quarter', 'amount' => 200000, 'kind' => 'amount'],
             ['label' => 'Sales/receipts, previous quarters', 'amount' => 400000, 'kind' => 'amount'],
