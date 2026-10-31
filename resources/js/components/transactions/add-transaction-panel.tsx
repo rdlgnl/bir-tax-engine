@@ -1,8 +1,9 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { ChoiceChips } from '@/components/choice-chips';
 import { CertificateChecklist } from '@/components/transactions/certificate-checklist';
 import { TransactionForm } from '@/components/transactions/transaction-form';
+import { importMethod } from '@/routes/transactions';
 import type { TransactionType, TransactionWithEffect } from '@/types';
 
 type Mode = TransactionType | 'certificate';
@@ -38,6 +39,17 @@ export function AddTransactionPanel({ editing = null, onDone }: Props) {
                         { value: 'certificate', label: 'Got a 2307' },
                     ]}
                 />
+            )}
+            {!editing && (
+                <p className="-mt-1 text-[13px] text-muted-foreground">
+                    Many at once?{' '}
+                    <Link
+                        href={importMethod().url}
+                        className="font-bold text-primary hover:underline"
+                    >
+                        Import a statement (CSV)
+                    </Link>
+                </p>
             )}
             {mode === 'certificate' ? (
                 <CertificateChecklist items={context.awaitingCertificates} />
