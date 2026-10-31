@@ -3,9 +3,11 @@
 namespace App\Transactions\Requests;
 
 use App\Compliance\Rules\NotInFiledQuarter;
+use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
+use App\Transactions\Enums\VatKind;
 use App\Transactions\Models\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,6 +35,9 @@ class SaveTransactionRequest extends FormRequest
             'category' => ['required_if:type,expense', 'nullable', Rule::enum(ExpenseCategory::class)],
             'has_valid_invoice' => ['boolean'],
             'description' => ['nullable', 'string', 'max:255'],
+            'vat_kind' => ['nullable', Rule::enum(VatKind::class)],
+            'vat_amount' => ['numeric', 'decimal:0,2', 'min:0', 'lt:amount'],
+            'counterparty_tin' => ['nullable', 'string', 'regex:/^\d{3}-?\d{3}-?\d{3}(-?\d{3,5})?$/'],
         ];
     }
 
@@ -85,6 +90,27 @@ class SaveTransactionRequest extends FormRequest
             'invoice_paid' => $type === TransactionType::Invoice && $this->boolean('invoice_paid'),
             'category' => $type === TransactionType::Expense ? $this->input('category') : null,
             'has_valid_invoice' => $type === TransactionType::Expense && $this->boolean('has_valid_invoice'),
+            // VAT only for a VAT-registered taxpayer: a kind for sales, an amount for both.
+            ...$this->vat($type),
         ]);
+    }
+
+    /**
+     * @return array{vat_kind: string|null, vat_amount: float|string, counterparty_tin: string|null}
+     */
+    private function vat(?TransactionType $type): array
+    {
+        if (! TaxProfile::current()?->vat_registered) {
+            return ['vat_kind' => null, 'vat_amount' => 0, 'counterparty_tin' => $this->input('counterparty_tin') ?: null];
+        }
+
+        $kind = $type === TransactionType::Expense ? null : ($this->input('vat_kind') ?: VatKind::Vatable->value);
+
+        return [
+            'vat_kind' => $kind,
+            // Zero-rated and exempt sales carry no VAT.
+            'vat_amount' => in_array($kind, [VatKind::ZeroRated->value, VatKind::Exempt->value], true) ? 0 : ($this->input('vat_amount') ?: 0),
+            'counterparty_tin' => $this->input('counterparty_tin') ?: null,
+        ];
     }
 }

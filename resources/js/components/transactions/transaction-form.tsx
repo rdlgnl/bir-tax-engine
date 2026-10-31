@@ -25,6 +25,7 @@ import type {
     TransactionFormContext,
     TransactionType,
     TransactionWithEffect,
+    VatKind,
 } from '@/types';
 
 const categories: { value: ExpenseCategory; label: string }[] = [
@@ -65,7 +66,18 @@ export function TransactionForm({
         category: editing?.category ?? '',
         has_valid_invoice: editing?.has_valid_invoice ?? false,
         description: editing?.description ?? '',
+        vat_kind: editing?.vat_kind ?? 'vatable',
+        vat_amount:
+            editing && editing.vat_amount > 0 ? String(editing.vat_amount) : '',
+        counterparty_tin: editing?.counterparty_tin ?? '',
     });
+    // VAT is 12% of the amount until the person types their own figure.
+    const [vatTouched, setVatTouched] = useState(
+        Boolean(editing && editing.vat_amount > 0),
+    );
+    const [showsVat, setShowsVat] = useState(
+        Boolean(editing && editing.vat_amount > 0),
+    );
     const [withheld, setWithheld] = useState<boolean>(
         editing ? editing.tax_withheld > 0 : false,
     );
@@ -79,6 +91,19 @@ export function TransactionForm({
 
     const asksWithholding =
         type === 'payment' || (type === 'invoice' && form.data.invoice_paid);
+    const vatRate = context.vatRate;
+    const vatApplies =
+        vatRate !== null &&
+        (type === 'expense' ? showsVat : form.data.vat_kind === 'vatable');
+    const autoVat =
+        vatRate === null
+            ? 0
+            : Math.round(Number(form.data.amount || 0) * vatRate * 100) / 100;
+    const vatAmount = !vatApplies
+        ? '0'
+        : vatTouched
+          ? form.data.vat_amount
+          : String(autoVat);
     const expected =
         Math.round(
             Number(form.data.amount || 0) * context.expectedWithholdingPercent,
@@ -101,6 +126,7 @@ export function TransactionForm({
         setConfirm(null);
         form.transform((data) => ({
             ...data,
+            vat_amount: vatAmount,
             tax_withheld: asksWithholding && withheld ? data.tax_withheld : '0',
             certificate_received_on:
                 asksWithholding && withheld
@@ -175,6 +201,12 @@ export function TransactionForm({
                         : type === 'invoice'
                           ? 'Invoice amount'
                           : 'How much?'}
+                    {vatRate !== null && (
+                        <span className="font-normal text-muted-foreground">
+                            {' '}
+                            (before VAT)
+                        </span>
+                    )}
                 </Label>
                 <MoneyInput
                     {...field('amount')}
@@ -191,6 +223,103 @@ export function TransactionForm({
                 )}
                 <FieldError id="tx-amount-error" message={form.errors.amount} />
             </div>
+
+            {vatRate !== null && (
+                <div className="flex flex-col gap-2 rounded-2xl bg-muted p-4">
+                    {type === 'expense' ? (
+                        <label className="flex items-center gap-3 text-sm font-bold">
+                            <Checkbox
+                                checked={showsVat}
+                                onCheckedChange={(checked) =>
+                                    setShowsVat(checked === true)
+                                }
+                            />
+                            The invoice shows VAT
+                        </label>
+                    ) : (
+                        <ChoiceChips<VatKind>
+                            label="VAT on this sale"
+                            variant="segmented"
+                            value={form.data.vat_kind}
+                            onChange={(value) =>
+                                form.setData('vat_kind', value)
+                            }
+                            options={[
+                                {
+                                    value: 'vatable',
+                                    label: `Vatable ${Math.round(vatRate * 100)}%`,
+                                },
+                                { value: 'zero_rated', label: 'Zero-rated' },
+                                { value: 'exempt', label: 'Exempt' },
+                            ]}
+                        />
+                    )}
+                    {vatApplies && (
+                        <div className="flex flex-col gap-1.5">
+                            <Label
+                                htmlFor="tx-vat_amount"
+                                className="text-sm font-bold"
+                            >
+                                VAT{' '}
+                                <span className="font-normal text-muted-foreground">
+                                    ({Math.round(vatRate * 100)}% unless the
+                                    invoice says otherwise)
+                                </span>
+                            </Label>
+                            <MoneyInput
+                                {...field('vat_amount')}
+                                value={vatAmount}
+                                onValueChange={(value) => {
+                                    setVatTouched(true);
+                                    form.setData('vat_amount', value);
+                                }}
+                                placeholder="0"
+                            />
+                            <p className="text-[13px] text-muted-foreground">
+                                Invoice total{' '}
+                                {peso(
+                                    Number(form.data.amount || 0) +
+                                        Number(vatAmount || 0),
+                                )}
+                                {type === 'expense' &&
+                                    !form.data.has_valid_invoice &&
+                                    ' · claimable only if the invoice is in your name'}
+                            </p>
+                            <FieldError
+                                id="tx-vat_amount-error"
+                                message={form.errors.vat_amount}
+                            />
+                        </div>
+                    )}
+                    <div className="flex flex-col gap-1.5">
+                        <Label
+                            htmlFor="tx-counterparty_tin"
+                            className="text-sm font-bold"
+                        >
+                            {type === 'expense' ? 'Supplier' : 'Client'}'s TIN{' '}
+                            <span className="font-normal text-muted-foreground">
+                                (optional, for your VAT lists)
+                            </span>
+                        </Label>
+                        <Input
+                            {...field('counterparty_tin')}
+                            value={form.data.counterparty_tin}
+                            onChange={(event) =>
+                                form.setData(
+                                    'counterparty_tin',
+                                    event.target.value,
+                                )
+                            }
+                            placeholder="000-000-000-000"
+                            className="h-11 rounded-xl bg-card"
+                        />
+                        <FieldError
+                            id="tx-counterparty_tin-error"
+                            message={form.errors.counterparty_tin}
+                        />
+                    </div>
+                </div>
+            )}
 
             {type === 'invoice' && (
                 <div className="flex flex-col gap-1.5">

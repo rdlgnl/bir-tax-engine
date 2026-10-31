@@ -4,6 +4,7 @@ import { ChecklistCard } from '@/components/home/checklist-card';
 import { NextPaymentCard } from '@/components/home/next-payment-card';
 import { QuarterCard } from '@/components/home/quarter-card';
 import { UpcomingCard } from '@/components/home/upcoming-card';
+import { VatCard } from '@/components/home/vat-card';
 import { Note } from '@/components/note';
 import { CardLink, SectionCard } from '@/components/section-card';
 import { TransactionTable } from '@/components/transactions/transaction-table';
@@ -17,6 +18,7 @@ import type {
     QuarterResult,
     TransactionWithEffect,
     Deadline,
+    VatQuarter,
     YearStatus,
 } from '@/types';
 
@@ -34,6 +36,7 @@ type Props = {
     backupReminder: { days_since: number | null } | null;
     unreadNotices: number;
     ruleUpdate: string | null;
+    vat: { current: VatQuarter; previous: VatQuarter; year: number } | null;
 };
 
 function greeting(): string {
@@ -60,6 +63,7 @@ export default function Home({
     backupReminder,
     unreadNotices,
     ruleUpdate,
+    vat,
 }: Props) {
     const { taxpayer } = usePage().props;
     const limitShare = Math.min(100, (yearGross / 3_000_000) * 100);
@@ -148,6 +152,13 @@ export default function Home({
                         />
                         <ChecklistCard checklist={checklist} quarter={focus} />
                     </>
+                )}
+                {vat && (
+                    <VatCard
+                        current={vat.current}
+                        previous={vat.previous}
+                        year={vat.year}
+                    />
                 )}
                 {/* Left column stacks the short cards; recent activity fills the rest. */}
                 <div className="flex flex-col gap-5">

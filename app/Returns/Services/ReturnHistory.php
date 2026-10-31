@@ -7,6 +7,7 @@ use App\Returns\Models\Filing;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\VatCalculator;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 
@@ -31,6 +32,7 @@ class ReturnHistory
     public function __construct(
         private TaxCalculationService $engine,
         private FilingCalendar $calendar,
+        private VatCalculator $vat,
     ) {}
 
     /**
@@ -44,6 +46,10 @@ class ReturnHistory
 
         if ($profile->regime === Regime::Graduated && ! $profile->vat_registered) {
             $forms[] = '2551Q';
+        }
+
+        if ($profile->vat_registered) {
+            $forms[] = '2550Q';
         }
 
         return $forms;
@@ -66,6 +72,7 @@ class ReturnHistory
 
         for ($year = $today->year; $year >= $firstYear; $year--) {
             $result = $this->engine->forYear($profile, $year, $today);
+            $vat = $profile->vat_registered ? $this->vat->forYear($year, $today) : [];
 
             foreach (array_reverse($result['quarters'], true) as $quarter => $figures) {
                 // Only periods that have started.
@@ -76,22 +83,33 @@ class ReturnHistory
                 foreach ($this->formsFor($profile, $quarter) as $form) {
                     $filing = $filings->get("{$year}-{$quarter}-{$form}");
                     $percentageTax = $form === '2551Q';
+                    $isVat = $form === '2550Q';
                     $amount = $filing?->amount_paid !== null
                         ? (float) $filing->amount_paid
-                        : (float) ($percentageTax ? $figures['percentage_tax'] : $figures['due']);
-                    $dueDate = $percentageTax
-                        ? $this->calendar->percentageTaxDue($year, $quarter)->toDateString()
-                        : $figures['due_date'];
+                        : (float) match (true) {
+                            $isVat => $vat[$quarter]['payable'],
+                            $percentageTax => $figures['percentage_tax'],
+                            default => $figures['due'],
+                        };
+                    $dueDate = match (true) {
+                        $isVat => $vat[$quarter]['due_date'],
+                        $percentageTax => $this->calendar->percentageTaxDue($year, $quarter)->toDateString(),
+                        default => $figures['due_date'],
+                    };
 
                     $entries[] = [
                         'year' => $year,
                         'quarter' => $quarter,
                         'form' => $form,
-                        'title' => ($quarter === 4 && ! $percentageTax ? 'Annual' : "Q{$quarter}").' · '
-                            .($percentageTax ? 'Percentage tax' : 'Income tax'),
+                        'title' => ($quarter === 4 && ! $percentageTax && ! $isVat ? 'Annual' : "Q{$quarter}").' · '
+                            .match (true) {
+                                $isVat => 'VAT',
+                                $percentageTax => 'Percentage tax',
+                                default => 'Income tax',
+                            },
                         'status' => match (true) {
                             $filing !== null => 'filed',
-                            $figures['status'] === 'open' => 'open',
+                            ($isVat ? $vat[$quarter]['status'] : $figures['status']) === 'open' => 'open',
                             $today->toDateString() > $dueDate => 'overdue',
                             default => 'due',
                         },

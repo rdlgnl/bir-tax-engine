@@ -73,9 +73,13 @@ class HandleInertiaRequests extends Middleware
 
         return [
             'regime' => $profile->regime?->value,
-            'expectedWithholdingPercent' => (int) round(100 * config(
-                $profile->work_type === WorkType::Products ? 'tax.expected_withholding.products' : 'tax.expected_withholding.services',
-            )),
+            'expectedWithholdingPercent' => (int) round(100 * config(match (true) {
+                $profile->work_type === WorkType::Products => 'tax.expected_withholding.products',
+                // VAT-registered professionals have 10% withheld, sworn declaration or not.
+                $profile->vat_registered => 'tax.expected_withholding.services_without_declaration',
+                default => 'tax.expected_withholding.services',
+            })),
+            'vatRate' => $profile->vat_registered ? (float) config('tax.vat.rate') : null,
             'recentCounterparties' => Transaction::query()
                 ->where('type', '!=', TransactionType::Expense)
                 ->latest('occurred_on')

@@ -55,6 +55,12 @@ return [
 
     'percentage_tax_rate' => 0.03,
 
+    // Value-added tax, for VAT-registered taxpayers. Amounts are kept net of
+    // VAT; only purchase invoices in the taxpayer's name can be claimed.
+    'vat' => [
+        'rate' => 0.12,
+    ],
+
     'micro_taxpayer_limit' => 3_000_000,
 
     // Summary Alphalist of Withholding Taxes, the file that goes with an
@@ -66,6 +72,18 @@ return [
         'branch_code' => '0000',
         // {tin} nine digits, {branch} four, {period} MMYYYY of the quarter's last month.
         'file_name' => '{tin}{branch}{period}{form}.DAT',
+    ],
+
+    // Summary List of Sales and Purchases, filed with each 2550Q, as the BIR's
+    // RELIEF data entry module writes it: a header line, then one line per
+    // customer or supplier. Purchases are counted as services, except
+    // equipment, as goods.
+    // REVIEW: check the layout and file names against the current RELIEF
+    // module before relying on them.
+    'slsp' => [
+        // {tin} nine digits, {kind} S or P, {period} MMYYYY of the quarter's last month.
+        'file_name' => '{tin}{kind}{period}.DAT',
+        'fiscal_month_end' => 12,
     ],
 
     // Books of accounts (NIRC Sec. 232 and 235, as amended by EOPT).
@@ -93,6 +111,8 @@ return [
             'graduated' => ['business' => 'II012', 'profession' => 'II014', 'mixed' => 'II013'],
         ],
         'percentage_tax' => 'PT010',
+        // REVIEW: the 2550Q's ATC for VAT on sale of services/goods.
+        'vat' => 'VT010',
     ],
 
     // The BIR's own forms the downloads are filled on. `template` names the
@@ -105,6 +125,7 @@ return [
         '1701A' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701A-2018-01', 'whole_pesos' => true],
         '1701' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701-2018-01', 'whole_pesos' => true],
         '2551Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '2551Q-2018-01', 'whole_pesos' => false],
+        '2550Q' => ['edition' => 'April 2024 (ENCS)', 'template' => '2550Q-2024-04', 'whole_pesos' => false],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
         '1900' => ['edition' => 'October 2025 (ENCS)', 'template' => '1900-2025-10', 'whole_pesos' => true],
@@ -120,6 +141,8 @@ return [
         'income_tax_annual' => [4, 15],
         // Percentage tax (2551Q): days after quarter end.
         'percentage_tax_days_after_quarter' => 25,
+        // Quarterly VAT (2550Q) and its SLSP: days after the quarter ends.
+        'vat_days_after_quarter' => 25,
         // Sworn declaration to clients: month and day of each year.
         'sworn_declaration' => [1, 15],
     ],
@@ -164,6 +187,12 @@ return [
     ],
 
     'rules' => [
+        'VAT-12PCT' => [
+            'version' => 1,
+            'title' => '12% VAT: output tax on sales less input tax on purchases',
+            'basis' => 'NIRC Sec. 106, 108, 110 as amended by RA 10963 and RA 11976 (EOPT) · RR 3-2024',
+            'effective' => '2024-04-27',
+        ],
         'IT-8PCT-PURE' => [
             'version' => 2,
             'title' => '8% income tax, purely self-employed',

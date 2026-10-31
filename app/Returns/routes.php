@@ -5,6 +5,7 @@ use App\Returns\Controllers\FilingController;
 use App\Returns\Controllers\HistoryController;
 use App\Returns\Controllers\ReportController;
 use App\Returns\Controllers\SawtController;
+use App\Returns\Controllers\SlspController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('setup.complete')->group(function () {
@@ -13,11 +14,19 @@ Route::middleware('setup.complete')->group(function () {
 
     Route::prefix('/file/{year}/{quarter}/{form}')
         ->whereNumber('year')
-        ->where(['quarter' => '[1-4]', 'form' => '1701Q|1701-MS|1701A|1701|2551Q'])
+        ->where(['quarter' => '[1-4]', 'form' => '1701Q|1701-MS|1701A|1701|2551Q|2550Q'])
         ->group(function () {
             Route::get('/', [FileReturnController::class, 'show'])->name('returns.show');
             Route::get('/form', [FileReturnController::class, 'preview'])->name('returns.preview');
             Route::get('/pdf', [FileReturnController::class, 'pdf'])->name('returns.pdf');
+        });
+
+    Route::prefix('/file/{year}/{quarter}/slsp')
+        ->whereNumber('year')
+        ->where(['quarter' => '[1-4]'])
+        ->group(function () {
+            Route::get('/', [SlspController::class, 'show'])->name('returns.slsp');
+            Route::get('/{kind}', [SlspController::class, 'export'])->where('kind', 'sales|purchases|csv')->name('returns.slsp.export');
         });
 
     Route::prefix('/file/{year}/{quarter}/sawt')

@@ -6,6 +6,7 @@ use App\Compliance\Models\Certificate;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
+use App\Transactions\Enums\VatKind;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\TransactionFactory;
@@ -26,6 +27,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $counterparty
  * @property string $amount
  * @property string $tax_withheld
+ * @property VatKind|null $vat_kind
+ * @property string $vat_amount
+ * @property string|null $counterparty_tin
  * @property CarbonImmutable|null $certificate_received_on
  * @property int|null $certificate_id
  * @property string|null $invoice_number
@@ -41,6 +45,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'counterparty',
     'amount',
     'tax_withheld',
+    'vat_kind',
+    'vat_amount',
+    'counterparty_tin',
     'certificate_received_on',
     'invoice_number',
     'invoice_paid',
@@ -61,6 +68,7 @@ class Transaction extends Model
      */
     protected $attributes = [
         'tax_withheld' => 0,
+        'vat_amount' => 0,
         'invoice_paid' => false,
         'has_valid_invoice' => false,
     ];
@@ -77,6 +85,8 @@ class Transaction extends Model
             'occurred_on' => 'date',
             'amount' => 'decimal:2',
             'tax_withheld' => 'decimal:2',
+            'vat_kind' => VatKind::class,
+            'vat_amount' => 'decimal:2',
             'certificate_received_on' => 'date',
             'invoice_paid' => 'boolean',
             'category' => ExpenseCategory::class,

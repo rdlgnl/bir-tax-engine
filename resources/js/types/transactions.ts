@@ -24,6 +24,9 @@ export type Transaction = {
     counterparty: string;
     amount: number;
     tax_withheld: number;
+    vat_kind: VatKind | null;
+    vat_amount: number;
+    counterparty_tin: string | null;
     certificate_status: CertificateStatus;
     certificate_received_on: string | null;
     invoice_number: string | null;
@@ -49,6 +52,9 @@ export type TransactionForm = {
     category: ExpenseCategory | '';
     has_valid_invoice: boolean;
     description: string;
+    vat_kind: VatKind;
+    vat_amount: string;
+    counterparty_tin: string;
 };
 
 /** App\Transactions\Controllers\TransactionPreviewController */
@@ -66,8 +72,12 @@ export type TransactionPreview = {
 };
 
 /** Shared as `transactionForm` by HandleInertiaRequests. */
+export type VatKind = 'vatable' | 'zero_rated' | 'exempt';
+
 export type TransactionFormContext = {
     regime: string | null;
+    /** The VAT rate for a VAT-registered taxpayer, else null. */
+    vatRate: number | null;
     expectedWithholdingPercent: number;
     recentCounterparties: string[];
     awaitingCertificates: Transaction[];
