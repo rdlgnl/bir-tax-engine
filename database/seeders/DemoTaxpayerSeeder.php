@@ -10,6 +10,7 @@ use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Juan, the sample taxpayer from the approved screens: a freelance designer
@@ -87,6 +88,9 @@ class DemoTaxpayerSeeder extends Seeder
             'invoice_number' => '0142',
             'invoice_paid' => false,
         ]);
+
+        // Juan recorded each one when it happened, not all today.
+        DB::table('transactions')->update(['created_at' => DB::raw('occurred_on'), 'updated_at' => DB::raw('occurred_on')]);
 
         // Each filing freezes its figures, as marking a return filed does.
         $returns = app(ReturnForm::class);

@@ -95,13 +95,14 @@ class LocalData
     }
 
     /**
-     * Removes every record, document and device setting.
+     * Removes every record, document, notification and device setting.
      */
     public function erase(): void
     {
         DB::transaction(function () {
             $this->clear();
             DB::table('app_settings')->delete();
+            DB::table('notices')->delete();
         });
 
         Storage::disk('local')->deleteDirectory(self::DOCUMENTS);

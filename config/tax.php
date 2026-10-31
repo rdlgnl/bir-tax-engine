@@ -23,6 +23,16 @@ return [
 
     'reviewed' => false,
 
+    // What each rule pack changed, newest first, for the "what changed" screen.
+    // Each: area (Rules, Deadline calendar, Forms), title, summary.
+    'changes' => [
+        '2026.10' => [
+            ['area' => 'Rules', 'title' => 'First rule pack', 'summary' => '8% option, graduated rates (2023 table), the 40% OSD, 3% percentage tax and the ₱3,000,000 limits.'],
+            ['area' => 'Deadline calendar', 'title' => 'Deadlines and holidays through 2027', 'summary' => 'Due dates that fall on weekends or holidays move to the next working day.'],
+            ['area' => 'Forms', 'title' => 'BIR forms', 'summary' => '1701Q, 1701-MS, 1701A, 1701 and 2551Q, with 1905 and 1900 for registration.'],
+        ],
+    ],
+
     'eight_percent' => [
         'rate' => 0.08,
         // Only purely self-employed individuals get this reduction.

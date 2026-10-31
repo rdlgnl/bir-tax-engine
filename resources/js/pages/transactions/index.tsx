@@ -1,4 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Lock, Plus, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { peso } from '@/lib/format';
-import { index } from '@/routes/transactions';
+import { index, search as findRecord } from '@/routes/transactions';
 import type { TransactionWithEffect } from '@/types';
 
 type Filters = {
@@ -151,16 +151,28 @@ export default function TransactionsIndex({
                         {filed && ` · ${filed} filed`}
                     </p>
                 </div>
-                <Button
-                    className="hidden h-11 rounded-xl px-5 text-[15px] font-bold lg:inline-flex xl:hidden"
-                    onClick={() => {
-                        setEditing(null);
-                        setSheetOpen(true);
-                    }}
-                >
-                    <Plus className="size-5" aria-hidden />
-                    Add transaction
-                </Button>
+                <div className="flex gap-2.5">
+                    <Button
+                        asChild
+                        variant="outline"
+                        className="h-11 rounded-xl px-5 text-[15px] font-bold"
+                    >
+                        <Link href={findRecord().url}>
+                            <Search className="size-4" aria-hidden />
+                            Find a record
+                        </Link>
+                    </Button>
+                    <Button
+                        className="hidden h-11 rounded-xl px-5 text-[15px] font-bold lg:inline-flex xl:hidden"
+                        onClick={() => {
+                            setEditing(null);
+                            setSheetOpen(true);
+                        }}
+                    >
+                        <Plus className="size-5" aria-hidden />
+                        Add transaction
+                    </Button>
+                </div>
             </header>
 
             {!wide && lockedMessage}

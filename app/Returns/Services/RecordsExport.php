@@ -57,9 +57,21 @@ class RecordsExport
      */
     public function incomeCsv(int $year): string
     {
+        return $this->transactionsCsv(Transaction::query()->forYear($year)->orderBy('occurred_on')->orderBy('id')->get());
+    }
+
+    /**
+     * The given transactions, one row each, as the income export lays them out.
+     *
+     * @param  iterable<Transaction>  $transactions
+     */
+    public function transactionsCsv(iterable $transactions): string
+    {
         $today = CarbonImmutable::now();
-        $rows = Transaction::query()->forYear($year)->orderBy('occurred_on')->orderBy('id')->get()
-            ->map(fn (Transaction $t) => [
+        $rows = [];
+
+        foreach ($transactions as $t) {
+            $rows[] = [
                 $t->occurred_on->toDateString(),
                 'Q'.$t->quarter(),
                 match ($t->type) {
@@ -75,7 +87,8 @@ class RecordsExport
                 $t->certificateStatus($today)->value,
                 (string) $t->certificate_received_on?->toDateString(),
                 $t->type === TransactionType::Expense ? ($t->has_valid_invoice ? 'yes' : 'no') : '',
-            ]);
+            ];
+        }
 
         return $this->csv([
             'Date', 'Quarter', 'Type', 'Client / payee', 'Invoice no.', 'Category / description',
