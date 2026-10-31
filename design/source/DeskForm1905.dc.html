@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your filled 1905 (desktop)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D4ED8}a:hover{color:#1E40AF}
+@media (max-width: 760px){.desk-nav{display:none}}
+.f{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1px solid #D6DAE0;font-size:13px;color:#334155}
+.v{font-family:'Courier New',monospace;font-weight:700;color:#0F172A;background:#FEF9C3;padding:0 3px}
+.sec{font-size:12px;font-weight:800;color:#475569}
+.blank{font-family:'Courier New',monospace;color:#94A3B8}
+</style>
+</helmet>
+<div style="min-height: 1100px; box-sizing: border-box; background: #F4F6F8; color: #0F172A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; display: flex; flex-wrap: wrap">
+  <div class="desk-nav" style="flex: 1 1 220px; max-width: 260px; min-width: 200px"><dc-import name="DeskNav" active="me" hint-size="100%,1000px"></dc-import></div>
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px">
+    <div style="max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+      <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <a href="DeskReg1905.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FFFFFF; border: 1px solid #E3E7EC"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a>
+        <div style="flex: 1 1 320px; display: flex; flex-direction: column"><h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Your filled 1905</h1><span style="font-size: 14px; color: #475569">Official BIR form · update registration · remove percentage tax · filled on this computer</span></div>
+        <a href="DeskForm1905.dc.html" style="display: flex; align-items: center; height: 46px; padding: 0 18px; border-radius: 12px; border: 1.5px solid #CBD2DA; background: #FFFFFF; color: #0F172A; font-size: 14px; font-weight: 700; text-decoration: none">Print</a>
+        <a href="DeskForm1905.dc.html" style="display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 12px; background: #1D4ED8; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>Download PDF</a>
+      </header>
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+        <section aria-label="Form preview" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border-radius: 6px; box-shadow: 0 8px 28px rgba(15,23,42,0.12); padding: 28px 30px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-bottom: 2px solid #0F172A; padding-bottom: 10px">
+            <span style="display: flex; flex-direction: column"><span style="font-size: 12px; color: #475569">Republic of the Philippines · Bureau of Internal Revenue</span><span style="font-size: 18px; font-weight: 800">Application for Registration Information Update/Correction/Cancellation</span></span>
+            <span style="flex: none; font-size: 14px; font-weight: 800; text-align: right">BIR Form No.<br>1905</span>
+          </div>
+          <span class="sec">PART I · TAXPAYER INFORMATION</span><div style="border: 1px solid #D6DAE0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));"><div class="f"><span>TIN · RDO code</span><span class="v">123-456-789-000 · 028</span></div><div class="f"><span>Taxpayer name</span><span class="v">DELA CRUZ, JUAN</span></div><div class="f" style="border-bottom: 0"><span>Taxpayer type</span><span class="v">Individual · self-employed</span></div></div><span class="sec">PART II · UPDATE REQUESTED</span><div style="border: 1px solid #D6DAE0;"><div class="f"><span>Transaction</span><span class="v">Update: tax type</span></div><div class="f"><span>Cancel tax type</span><span class="v">Percentage tax (2551Q)</span></div><div class="f"><span>Reason</span><span class="v">Availed 8% income tax rate for 2026</span></div><div class="f" style="border-bottom: 0; font-weight: 800"><span>Effective</span><span class="v">Taxable year 2026</span></div></div>
+          <div style="padding-top: 10px; font-size: 12px; color: #475569">Signature over printed name: ______________________</div>
+          <span style="font-size: 12px; color: #475569; border-top: 1px dashed #CBD2DA; padding-top: 10px">Yellow = filled by the app. This preview is simplified; the downloaded PDF is the BIR's own form. Version and field positions come from your rule pack.</span>
+        </section>
+        <aside style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; gap: 10px; align-items: flex-start; padding: 16px 18px; border-radius: 18px; background: #EEF4FF; border: 1px solid #C9D7FB"><svg aria-hidden="true" style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg><span style="font-size: 14px; line-height: 1.5; color: #1E3A8A">Removes percentage tax from your COR because you chose 8%. Some updates can be done online in ORUS; otherwise file at your RDO.</span></div>
+          <section aria-label="Check before you sign" style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px">
+            <h2 style="margin: 0; font-size: 17px; font-weight: 800">Check before you sign</h2>
+            <label style="display: flex; gap: 10px; align-items: center; font-size: 14px; cursor: pointer"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #1D4ED8">My COR is attached</label><label style="display: flex; gap: 10px; align-items: center; font-size: 14px; cursor: pointer"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #1D4ED8">My Q1 2026 1701Q (8% elected) is attached</label>
+            <span style="font-size: 13px; color: #92400E">Keep the BIR-received copy and your new COR. They answer letters about "unfiled" 2551Q returns.</span>
+          </section>
+          <section style="background: #FFFFFF; border-radius: 22px; border: 1px solid #E3E7EC; padding: 6px 20px">
+            <div style="display: flex; justify-content: space-between; gap: 10px; min-height: 48px; align-items: center; font-size: 14px"><span style="color: #475569">Form version</span><span style="font-weight: 700">[current, from rule pack]</span></div>
+            <div style="display: flex; justify-content: space-between; gap: 10px; min-height: 48px; align-items: center; font-size: 14px; border-top: 1px solid #EEF1F4"><span style="color: #475569">After approval</span><a href="DeskSetup.dc.html" style="font-weight: 700; text-decoration: none; text-align: right">Scan your new COR</a></div>
+          </section>
+          <a href="DeskProfile.dc.html" style="display: flex; align-items: center; justify-content: center; height: 50px; border-radius: 12px; border: 2px solid #1D4ED8; color: #1D4ED8; font-size: 15px; font-weight: 700; text-decoration: none">I've submitted it</a>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1107,6 +1107,204 @@
   "h": 1000
  },
  {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-01-FormGrad.png",
+  "title": "Filled 1701Q \u00b7 graduated + OSD",
+  "source": "source/FormGrad.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-02-Sawt.png",
+  "title": "SAWT export",
+  "source": "source/Sawt.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-03-Reg1905.png",
+  "title": "Update registration (1905)",
+  "source": "source/Reg1905.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-04-Form1905.png",
+  "title": "Filled 1905",
+  "source": "source/Form1905.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-05-Form1601C.png",
+  "title": "Filled 1601-C (monthly payroll)",
+  "source": "source/Form1601C.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-06-Form1604C.png",
+  "title": "Filled 1604-C (annual employees)",
+  "source": "source/Form1604C.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-07-LooseLeaf.png",
+  "title": "Register loose-leaf books",
+  "source": "source/LooseLeaf.dc.html",
+  "w": 390,
+  "h": 1240
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-08-CorpHome.png",
+  "title": "Corporation home",
+  "source": "source/CorpHome.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-09-CorpQuarter.png",
+  "title": "1702Q prep",
+  "source": "source/CorpQuarter.dc.html",
+  "w": 390,
+  "h": 1400
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-10-Form1702Q.png",
+  "title": "Filled 1702Q",
+  "source": "source/Form1702Q.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "mobile",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/mobile/13-11-Form1702RT.png",
+  "title": "Filled 1702-RT (annual)",
+  "source": "source/Form1702RT.dc.html",
+  "w": 390,
+  "h": 1300
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-01-DeskFormGrad.png",
+  "title": "Desktop \u00b7 Filled 1701Q \u00b7 graduated + OSD",
+  "source": "source/DeskFormGrad.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-02-DeskSawt.png",
+  "title": "Desktop \u00b7 SAWT export",
+  "source": "source/DeskSawt.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-03-DeskReg1905.png",
+  "title": "Desktop \u00b7 Update registration (1905)",
+  "source": "source/DeskReg1905.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-04-DeskForm1905.png",
+  "title": "Desktop \u00b7 Filled 1905",
+  "source": "source/DeskForm1905.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-05-DeskForm1601C.png",
+  "title": "Desktop \u00b7 Filled 1601-C (monthly payroll)",
+  "source": "source/DeskForm1601C.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-06-DeskForm1604C.png",
+  "title": "Desktop \u00b7 Filled 1604-C (annual employees)",
+  "source": "source/DeskForm1604C.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-07-DeskLooseLeaf.png",
+  "title": "Desktop \u00b7 Register loose-leaf books",
+  "source": "source/DeskLooseLeaf.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-08-DeskCorpHome.png",
+  "title": "Desktop \u00b7 Corporation home",
+  "source": "source/DeskCorpHome.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-09-DeskCorpQuarter.png",
+  "title": "Desktop \u00b7 1702Q prep",
+  "source": "source/DeskCorpQuarter.dc.html",
+  "w": 1440,
+  "h": 1050
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-10-DeskForm1702Q.png",
+  "title": "Desktop \u00b7 Filled 1702Q",
+  "source": "source/DeskForm1702Q.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
+  "page": "desktop",
+  "section": "13 \u00b7 Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+  "file": "screens/desktop/13-11-DeskForm1702RT.png",
+  "title": "Desktop \u00b7 Filled 1702-RT (annual)",
+  "source": "source/DeskForm1702RT.dc.html",
+  "w": 1440,
+  "h": 1100
+ },
+ {
   "page": "devtools",
   "section": "Developer tool: rule pack editor (not shipped in the app)",
   "file": "screens/developer/Developer tool: rule pack editor (not shipped in the app)-01-RuleAdmin.png",
