@@ -45,7 +45,7 @@ export function QuarterCard({ quarter, regime, vatRegistered }: Props) {
                     value={
                         <span className="text-muted-foreground">
                             {vatRegistered
-                                ? 'Coming in a later update'
+                                ? 'Quarterly 2550Q, see VAT'
                                 : 'Not registered'}
                         </span>
                     }

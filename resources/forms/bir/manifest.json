@@ -47,5 +47,12 @@
         "source": "https://bir-cdn.bir.gov.ph/BIR/pdf/1701-MS%20August%202024%20Fillable_01.pdf",
         "sha256": "802912a60607bdd437faf429105e0efbcbd862894825b0682ded188c8a1aa38c",
         "fetched": "2026-10-31"
+    },
+    "2550Q-2024-04": {
+        "form": "2550Q",
+        "edition": "April 2024 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/BIR/pdf/2550Q%20%20April%202024%20ENCS_Final.pdf",
+        "sha256": "18eb16925010fdda820cef958221ba2c0d073066efa93a898113e39b31135a25",
+        "fetched": "2026-10-31"
     }
 }

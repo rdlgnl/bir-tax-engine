@@ -44,6 +44,16 @@ class FilingCalendar
         return $this->nextWorkingDay($statutory);
     }
 
+    public function vatDue(int $year, int $quarter): CarbonImmutable
+    {
+        $statutory = CarbonImmutable::create($year, $quarter * 3)
+            ->endOfMonth()
+            ->startOfDay()
+            ->addDays(config('tax.deadlines.vat_days_after_quarter'));
+
+        return $this->nextWorkingDay($statutory);
+    }
+
     public function swornDeclarationDue(int $year): CarbonImmutable
     {
         [$month, $day] = config('tax.deadlines.sworn_declaration');

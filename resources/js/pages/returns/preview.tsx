@@ -33,9 +33,9 @@ export default function ReturnPreview({
         layout.quarter,
         layout.form,
     ];
-    const percentageTax = layout.form === '2551Q';
+    const incomeTax = !['2551Q', '2550Q'].includes(layout.form);
     const osd =
-        !percentageTax &&
+        incomeTax &&
         layout.regime === 'graduated' &&
         layout.deduction_method === 'osd';
     const toCheck: Check[] = [
@@ -45,11 +45,19 @@ export default function ReturnPreview({
             label: `All my ${layout.quarter === 4 ? layout.year : `Q${layout.quarter}`} income is recorded`,
         },
         { key: 'invoice', label: 'Sales are counted by invoice date' },
-        ...(!percentageTax
+        ...(incomeTax
             ? [
                   {
                       key: 'certificates',
                       label: "Every 2307 I'm claiming is in the app",
+                  },
+              ]
+            : []),
+        ...(layout.form === '2550Q'
+            ? [
+                  {
+                      key: 'purchases',
+                      label: 'Purchase invoices are addressed to me and show VAT',
                   },
               ]
             : []),
@@ -94,7 +102,7 @@ export default function ReturnPreview({
                     <div>
                         <h1 className="text-[28px] leading-tight font-extrabold tracking-tight sm:text-[30px]">
                             Your filled {layout.form}
-                            {!percentageTax &&
+                            {incomeTax &&
                                 layout.regime === 'graduated' &&
                                 ' (graduated)'}
                         </h1>

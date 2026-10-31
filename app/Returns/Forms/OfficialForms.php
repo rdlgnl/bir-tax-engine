@@ -6,6 +6,7 @@ use App\Returns\Forms\Items\Form1701AItems;
 use App\Returns\Forms\Items\Form1701Items;
 use App\Returns\Forms\Items\Form1701MSItems;
 use App\Returns\Forms\Items\Form1701QItems;
+use App\Returns\Forms\Items\Form2550QItems;
 use App\Returns\Forms\Items\Form2551QItems;
 use App\Returns\Forms\Items\FormItems;
 use App\Returns\Services\ReturnForm;
@@ -42,6 +43,7 @@ class OfficialForms
             '1701A' => new Form1701AItems,
             '1701' => new Form1701Items,
             '2551Q' => new Form2551QItems,
+            '2550Q' => new Form2550QItems,
             default => throw new LogicException("No official form for BIR Form {$snapshot['form']}."),
         };
 
@@ -58,7 +60,8 @@ class OfficialForms
     public function missingDetails(array $snapshot): array
     {
         $taxpayer = $snapshot['taxpayer'];
-        $percentageTax = $snapshot['form'] === '2551Q';
+        // The business tax returns don't ask for birth date or citizenship.
+        $percentageTax = in_array($snapshot['form'], ['2551Q', '2550Q'], true);
 
         $missing = [
             ['last, first and middle name', 'about', $taxpayer['last_name'] === null],

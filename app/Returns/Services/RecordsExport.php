@@ -203,6 +203,17 @@ class RecordsExport
     }
 
     /**
+     * A CSV that opens in Excel, for other parts of the app.
+     *
+     * @param  list<string>  $header
+     * @param  iterable<list<string|int|float>>  $rows
+     */
+    public function csvFile(array $header, iterable $rows): string
+    {
+        return $this->csv($header, $rows);
+    }
+
+    /**
      * @param  list<string>  $header
      * @param  iterable<array<int, string|int|float>>  $rows
      */

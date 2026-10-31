@@ -6,7 +6,7 @@ import { SectionCard } from '@/components/section-card';
 import { Step, StepList } from '@/components/step-list';
 import { formatDate, peso } from '@/lib/format';
 import { show as complianceShow } from '@/routes/compliance';
-import { preview, sawt, show } from '@/routes/returns';
+import { preview, sawt, show, slsp } from '@/routes/returns';
 import type { ReturnLayout } from '@/types';
 
 type Props = {
@@ -27,7 +27,7 @@ export default function ReturnShow({
     otherForms,
 }: Props) {
     const name =
-        layout.quarter === 4 && layout.form !== '2551Q'
+        layout.quarter === 4 && !['2551Q', '2550Q'].includes(layout.form)
             ? `${layout.year} annual`
             : `Q${layout.quarter}`;
     const args: [number, number, string] = [
@@ -84,7 +84,24 @@ export default function ReturnShow({
                             <Step n={2} title="Copy the values on the left">
                                 Then submit and keep the confirmation email.
                             </Step>
-                            {layout.form !== '2551Q' && (
+                            {layout.form === '2550Q' && (
+                                <Step
+                                    n={3}
+                                    title="Submit your sales and purchases list (SLSP)"
+                                >
+                                    <Link
+                                        href={
+                                            slsp([layout.year, layout.quarter])
+                                                .url
+                                        }
+                                        className="block font-bold text-primary hover:underline"
+                                    >
+                                        See and export the SLSP
+                                    </Link>
+                                    It backs the input VAT you claim.
+                                </Step>
+                            )}
+                            {!['2551Q', '2550Q'].includes(layout.form) && (
                                 <Step
                                     n={3}
                                     title="Attach your 2307 summary (SAWT)"

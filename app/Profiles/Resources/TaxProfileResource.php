@@ -64,7 +64,7 @@ class TaxProfileResource extends JsonResource
                 ['label' => 'Income tax', 'detail' => '3 quarterly + 1 annual return'],
                 ['label' => 'Percentage tax', 'detail' => $eightPercent ? 'Not needed on 8%' : 'Quarterly 2551Q, 3% of sales'],
                 ['label' => 'Tax withheld by clients', 'detail' => $this->clients_withhold === ClientsWithhold::No ? 'Not expected' : 'Credited automatically'],
-                ['label' => 'VAT', 'detail' => $this->vat_registered ? 'Registered · VAT returns come in a later update' : 'Not registered'],
+                ['label' => 'VAT', 'detail' => $this->vat_registered ? 'Quarterly 2550Q, 12% of sales less VAT on purchases' : 'Not registered'],
             ],
             'registration' => [
                 ['label' => 'Income tax', 'status' => $this->registered_income_tax ? 'Registered' : 'Not registered', 'note' => null],

@@ -87,12 +87,14 @@ class FileReturnController extends Controller
 
         return Inertia::render('returns/show', [
             'layout' => $layout,
-            'dueDate' => $form === '2551Q'
-                ? $calendar->percentageTaxDue($year, $quarter)->toDateString()
-                : $snapshot['figures']['due_date'],
+            'dueDate' => match ($form) {
+                '2551Q' => $calendar->percentageTaxDue($year, $quarter)->toDateString(),
+                '2550Q' => $calendar->vatDue($year, $quarter)->toDateString(),
+                default => $snapshot['figures']['due_date'],
+            },
             'periodEnded' => $today->greaterThan($periodEnd),
             'periodEnd' => $periodEnd->toDateString(),
-            'missingCertificates' => $form === '2551Q' ? [] : $obligations->checklist(
+            'missingCertificates' => in_array($form, ['2551Q', '2550Q'], true) ? [] : $obligations->checklist(
                 $profile, $year, $snapshot['figures'], $transactions, $today,
             )['missing_certificates'],
             'otherForms' => array_values(array_diff($this->history->formsFor($profile, $quarter), [$form])),

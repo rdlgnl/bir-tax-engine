@@ -8,6 +8,7 @@ use App\Returns\Models\Filing;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\VatCalculator;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -26,7 +27,7 @@ use Illuminate\Support\Str;
  *     date: string,
  *     statutory_date: string,
  *     title: string,
- *     kind: 'income_tax'|'percentage_tax'|'reminder'|'decision',
+ *     kind: 'income_tax'|'percentage_tax'|'vat'|'reminder'|'decision',
  *     status: 'open'|'due'|'overdue'|'filed'|'reminder',
  *     amount: float|null,
  *     note: string|null,
@@ -67,6 +68,7 @@ class TaxObligations
     public function __construct(
         private TaxCalculationService $engine,
         private FilingCalendar $calendar,
+        private VatCalculator $vat,
     ) {}
 
     /**
@@ -188,6 +190,26 @@ class TaxObligations
             );
         }
 
+        if ($profile->vat_registered) {
+            foreach ($this->vat->forYear($y) as $vat) {
+                if ($vat['status'] === 'filed' && ! $includeFiled) {
+                    continue;
+                }
+
+                $ended = $vat['status'] !== 'open';
+                $items[] = $this->deadline(
+                    date: $vat['due_date'],
+                    statutoryDate: $vat['due_date'],
+                    title: "Q{$vat['quarter']} 2550Q · VAT",
+                    kind: 'vat',
+                    status: $vat['status'],
+                    amount: $ended ? $vat['payable'] : null,
+                    note: $ended ? null : 'Estimate',
+                    href: route('returns.show', [$y, $vat['quarter'], '2550Q'], absolute: false),
+                );
+            }
+        }
+
         if ($profile->clients_withhold !== ClientsWithhold::No) {
             $date = $this->calendar->swornDeclarationDue($y + 1)->toDateString();
             $items[] = $this->deadline($date, $date, 'Sworn declarations to clients', 'reminder', 'reminder', null, 'Reminder',
@@ -219,7 +241,7 @@ class TaxObligations
     }
 
     /**
-     * @param  'income_tax'|'percentage_tax'|'reminder'|'decision'  $kind
+     * @param  'income_tax'|'percentage_tax'|'vat'|'reminder'|'decision'  $kind
      * @param  'open'|'due'|'overdue'|'filed'|'reminder'  $status
      * @param  'default'|'action'  $tone
      * @return Deadline

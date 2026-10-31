@@ -9,6 +9,7 @@ use App\Returns\Models\Filing;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\VatCalculator;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
@@ -37,6 +38,9 @@ use Illuminate\Support\Str;
  *     contact: string|null,
  *     citizenship: string|null,
  * }
+ *
+ * @phpstan-import-type VatQuarter from VatCalculator
+ *
  * @phpstan-type Snapshot array{
  *     form: string,
  *     year: int,
@@ -50,6 +54,7 @@ use Illuminate\Support\Str;
  *     rule_pack: string,
  *     rules: list<string>,
  *     taken_at: string,
+ *     vat?: VatQuarter,
  * }
  * @phpstan-type LegacySnapshot array{
  *     form: string,
@@ -86,7 +91,10 @@ class ReturnForm
 {
     public const INCOME_TAX_FORMS = ['1701Q', '1701-MS', '1701A', '1701'];
 
-    public function __construct(private TaxCalculationService $engine) {}
+    public function __construct(
+        private TaxCalculationService $engine,
+        private VatCalculator $vat,
+    ) {}
 
     /**
      * The return as it stands now, computed from current records.
@@ -118,9 +126,11 @@ class ReturnForm
                     : Str::upper(Str::squish("{$name['last']}, {$name['first']} {$name['middle']}")),
                 'tin' => $profile->tin,
                 'rdo' => $profile->rdo_code,
-                'atc' => $form === '2551Q'
-                    ? config('tax.atc.percentage_tax')
-                    : config('tax.atc.income_tax.'.($eightPercent ? 'eight_percent' : 'graduated').".{$income}"),
+                'atc' => match ($form) {
+                    '2551Q' => config('tax.atc.percentage_tax'),
+                    '2550Q' => config('tax.atc.vat'),
+                    default => config('tax.atc.income_tax.'.($eightPercent ? 'eight_percent' : 'graduated').".{$income}"),
+                },
                 'income' => $income,
                 'last_name' => $this->upper($name['last']),
                 'first_name' => $this->upper($name['first']),
@@ -137,7 +147,7 @@ class ReturnForm
             'rule_pack' => config('tax.version'),
             'rules' => $this->rulesUsed($profile, $form, $result['quarters'][$quarter]),
             'taken_at' => ($today ?? CarbonImmutable::now())->toIso8601String(),
-        ];
+        ] + ($form === '2550Q' ? ['vat' => $this->vat->forYear($year, $today)[$quarter]] : []);
     }
 
     /**
@@ -172,22 +182,29 @@ class ReturnForm
     {
         $f = $snapshot['figures'];
         $percentageTax = $snapshot['form'] === '2551Q';
-        $payable = $percentageTax ? (float) $f['percentage_tax'] : $f['due'];
+        $vat = $snapshot['vat'] ?? null;
+        $payable = match (true) {
+            $vat !== null => $vat['payable'],
+            $percentageTax => (float) $f['percentage_tax'],
+            default => $f['due'],
+        };
 
         return [
             'form' => $snapshot['form'],
             'edition' => config("tax.forms.{$snapshot['form']}.edition"),
             'title' => match (true) {
+                $vat !== null => 'Quarterly Value-Added Tax Return',
                 $percentageTax => 'Quarterly Percentage Tax Return',
                 $snapshot['quarter'] === 4 => 'Annual Income Tax Return',
                 default => 'Quarterly Income Tax Return',
             },
             'year' => $snapshot['year'],
             'quarter' => $snapshot['quarter'],
-            'period' => $snapshot['quarter'] === 4
+            'period' => $snapshot['quarter'] === 4 && $vat === null
                 ? (string) $snapshot['year']
                 : "{$snapshot['year']} · ".$this->ordinal($snapshot['quarter']),
             'method' => match (true) {
+                $vat !== null => '12% VAT',
                 $percentageTax => '3% percentage tax',
                 $snapshot['regime'] === Regime::EightPercent->value => '8% option',
                 $snapshot['deduction_method'] === DeductionMethod::Itemized->value => 'graduated rates, itemized deductions',
@@ -201,9 +218,17 @@ class ReturnForm
                 'rdo' => $snapshot['taxpayer']['rdo'],
                 'atc' => $snapshot['taxpayer']['atc'],
             ],
-            'lines' => $percentageTax ? $this->percentageTaxLines($f) : $this->incomeTaxLines($snapshot),
+            'lines' => match (true) {
+                $vat !== null => $this->vatLines($vat),
+                $percentageTax => $this->percentageTaxLines($f),
+                default => $this->incomeTaxLines($snapshot),
+            },
             'payable' => $payable,
-            'overpayment' => $percentageTax ? 0.0 : $f['excess_credit'],
+            'overpayment' => match (true) {
+                $vat !== null => $vat['excess'],
+                $percentageTax => 0.0,
+                default => $f['excess_credit'],
+            },
             'rule_pack' => $snapshot['rule_pack'],
             'rules' => $snapshot['rules'],
             'taken_at' => $snapshot['taken_at'],
@@ -275,6 +300,26 @@ class ReturnForm
     }
 
     /**
+     * The 2550Q's computation, as the taxpayer copies it into eBIRForms.
+     *
+     * @param  VatQuarter  $vat
+     * @return list<Line>
+     */
+    private function vatLines(array $vat): array
+    {
+        return array_values(array_filter([
+            $this->line('VATable sales', $vat['vatable_sales']),
+            $vat['zero_rated_sales'] > 0 ? $this->line('Zero-rated sales', $vat['zero_rated_sales']) : null,
+            $vat['exempt_sales'] > 0 ? $this->line('Exempt sales', $vat['exempt_sales']) : null,
+            $this->line('Output VAT (12%)', $vat['output_vat'], 'total'),
+            $vat['carried_over'] > 0 ? $this->line('Less: input VAT carried over from last quarter', $vat['carried_over'], 'subtract') : null,
+            $this->line('Domestic purchases', $vat['purchases']),
+            $this->line('Less: input VAT on purchases', $vat['input_vat'], 'subtract'),
+            $this->line($vat['excess'] > 0 ? 'Excess input VAT, carried over' : 'VAT payable', $vat['excess'] > 0 ? $vat['excess'] : $vat['payable'], 'total'),
+        ]));
+    }
+
+    /**
      * @param  QuarterResult  $quarter
      * @return list<string>
      */
@@ -282,6 +327,10 @@ class ReturnForm
     {
         if ($form === '2551Q') {
             return ['PT-3PCT v'.config('tax.rules.PT-3PCT.version')];
+        }
+
+        if ($form === '2550Q') {
+            return ['VAT-12PCT v'.config('tax.rules.VAT-12PCT.version')];
         }
 
         $ids = $profile->regime === Regime::EightPercent
