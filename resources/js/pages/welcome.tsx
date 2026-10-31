@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Bell, FileText, Lock, SquareCheck } from 'lucide-react';
 import { Brand } from '@/components/brand-mark';
 import { Button } from '@/components/ui/button';
+import { show as restore } from '@/routes/restore';
 import { show } from '@/routes/setup';
 
 const promises = [
@@ -50,6 +51,15 @@ export default function Welcome({ setupStarted }: { setupStarted: boolean }) {
                                     {setupStarted
                                         ? 'Continue setup'
                                         : 'Get started · about 2 minutes'}
+                                </Link>
+                            </Button>
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="h-14 rounded-xl px-7 text-base font-bold"
+                            >
+                                <Link href={restore().url}>
+                                    Restore a backup
                                 </Link>
                             </Button>
                         </div>

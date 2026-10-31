@@ -113,3 +113,27 @@ export function todayIso(): string {
 
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
+
+/** 52 MB, 840 KB */
+export function fileSize(bytes: number): string {
+    if (bytes >= 1_000_000) {
+        return `${Number((bytes / 1_000_000).toFixed(1))} MB`;
+    }
+
+    return `${Math.max(1, Math.round(bytes / 1_000))} KB`;
+}
+
+/** "Today, 1:12 PM" or "Oct 28, 2026, 1:12 PM", for a moment like a backup. */
+export function formatMoment(iso: string): string {
+    const date = new Date(iso);
+    const time = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+    }).format(date);
+
+    if (date.toDateString() === new Date().toDateString()) {
+        return `Today, ${time}`;
+    }
+
+    return `${new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date)}, ${time}`;
+}

@@ -3,7 +3,7 @@ import { SectionCard } from '@/components/section-card';
 import { ClassificationList } from '@/components/profile/classification-list';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
-import { registration } from '@/routes';
+import { data, registration } from '@/routes';
 import { show as setupShow } from '@/routes/setup';
 import { compare } from '@/routes/tax';
 import type { RulePack, TaxProfileSummary } from '@/types';
@@ -153,9 +153,18 @@ export default function ProfileShow({
                             Stored only on this computer. No account.
                         </p>
                         <p className="mt-2 text-sm text-muted-foreground">
-                            Backups, app lock and data export arrive in the next
-                            update.
+                            Back it up to move it or keep it safe. App lock
+                            comes in a later update.
                         </p>
+                        <Button
+                            asChild
+                            variant="outline"
+                            className="mt-3 rounded-xl"
+                        >
+                            <Link href={data().url}>
+                                Backup, restore and erase
+                            </Link>
+                        </Button>
                         <p className="mt-3 text-[13px] text-muted-foreground">
                             Rule pack {rulePack.version}
                             {rulePack.reviewed
