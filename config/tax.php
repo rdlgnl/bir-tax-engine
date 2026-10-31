@@ -47,12 +47,25 @@ return [
 
     'micro_taxpayer_limit' => 3_000_000,
 
+    // Summary Alphalist of Withholding Taxes, the file that goes with an
+    // income tax return claiming 2307 credits, in the layout of the BIR's
+    // alphalist data entry tool: one header, one line per payor, one control.
+    // REVIEW: check the layout and file name against the current alphalist
+    // data entry module before relying on them.
+    'sawt' => [
+        'branch_code' => '0000',
+        // {tin} nine digits, {branch} four, {period} MMYYYY of the quarter's last month.
+        'file_name' => '{tin}{branch}{period}{form}.DAT',
+    ],
+
     // Books of accounts (NIRC Sec. 232 and 235, as amended by EOPT).
     // REVIEW: confirm the sales level that requires computerized books
     // registration before relying on it.
     'books' => [
         'retention_years' => 5,
         'computerized_limit' => 3_000_000,
+        // Loose-leaf books are bound within this many days after year end (BIR Form 1900).
+        'bind_within_days' => 15,
     ],
 
     // Rates clients are expected to withhold, shown as hints only.
@@ -81,6 +94,9 @@ return [
         '1701A' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701A-2018-01', 'whole_pesos' => true],
         '1701' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701-2018-01', 'whole_pesos' => true],
         '2551Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '2551Q-2018-01', 'whole_pesos' => false],
+        // Registration forms: updating the COR, and the loose-leaf books permit.
+        '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
+        '1900' => ['edition' => 'October 2025 (ENCS)', 'template' => '1900-2025-10', 'whole_pesos' => true],
     ],
 
     // A 2307 is due from the client within this many days after quarter end.

@@ -72,7 +72,7 @@ export type TaxProfileSummary = {
     classification: { label: string; source: string }[];
     taxes: { label: string; detail: string }[];
     registration: { label: string; status: string; note: string | null }[];
-    todos: { label: string; detail: string | null }[];
+    todos: { label: string; detail: string | null; href?: string | null }[];
 };
 
 export type Taxpayer = {

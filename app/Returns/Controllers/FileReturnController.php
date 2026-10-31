@@ -95,6 +95,11 @@ class FileReturnController extends Controller
             'layout' => $this->returns->layout($snapshot),
             'filedOn' => $filing?->filed_on->toDateString(),
             'missingDetails' => $forms->missingDetails($snapshot),
+            // On graduated rates the 1701Q and the 2551Q go in together.
+            'alsoFile' => array_map(fn (string $other) => [
+                'form' => $other,
+                'payable' => $this->returns->layout($this->returns->snapshot($profile, $year, $quarter, $other))['payable'],
+            ], array_values(array_diff($this->history->formsFor($profile, $quarter), [$form]))),
         ]);
     }
 

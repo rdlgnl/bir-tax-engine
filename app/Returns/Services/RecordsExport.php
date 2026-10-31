@@ -31,6 +31,7 @@ class RecordsExport
         private ReturnForm $returns,
         private ReturnHistory $history,
         private OfficialForms $forms,
+        private Sawt $sawt,
     ) {}
 
     public function taxSummary(TaxProfile $profile, int $year): PdfDocument
@@ -84,37 +85,21 @@ class RecordsExport
 
     /**
      * Summary Alphalist of Withholding Taxes data for one quarter: one row
-     * per client who withheld tax. This is the data to enter into the BIR's
-     * alphalist tool, not its .dat file.
+     * per client who withheld tax, to read or enter by hand. The file the
+     * BIR takes is Sawt::dat().
      */
     public function sawtCsv(int $year, int $quarter): string
     {
-        $groups = Transaction::query()
-            ->forQuarter($year, $quarter)
-            ->where('tax_withheld', '>', 0)
-            ->with('certificate')
-            ->orderBy('counterparty')
-            ->get()
-            ->groupBy('counterparty');
-
-        $rows = [];
-
-        foreach ($groups as $client => $payments) {
-            $certificate = $payments->pluck('certificate')->filter()->first();
-            $income = round((float) $payments->sum('amount'), 2);
-            $withheld = round((float) $payments->sum('tax_withheld'), 2);
-
-            $rows[] = [
-                count($rows) + 1,
-                $certificate instanceof Certificate ? (string) $certificate->payor_tin : '',
-                $certificate instanceof Certificate ? $certificate->payor_name : (string) $client,
-                $certificate instanceof Certificate ? (string) $certificate->atc_code : '',
-                $income,
-                $income > 0 ? round($withheld / $income * 100, 2) : 0,
-                $withheld,
-                $certificate instanceof Certificate ? '2307 on file' : '2307 not on file',
-            ];
-        }
+        $rows = array_map(fn (array $row) => [
+            $row['seq'],
+            (string) $row['tin'],
+            $row['payor'],
+            (string) $row['atc'],
+            $row['income'],
+            $row['rate'],
+            $row['withheld'],
+            $row['certificate'] ? '2307 on file' : '2307 not on file',
+        ], $this->sawt->rows($year, $quarter));
 
         return $this->csv([
             'Seq no.', 'Payor TIN', 'Payor name', 'ATC', 'Income payment', 'Tax rate (%)', 'Tax withheld', '2307',
@@ -158,6 +143,10 @@ class RecordsExport
 
         foreach ($this->sawtQuarters($year) as $quarter) {
             $add("sawt/sawt-{$year}-Q{$quarter}.csv", $this->sawtCsv($year, $quarter));
+
+            if (($name = $this->sawt->fileName($profile, $year, $quarter)) !== null) {
+                $add("sawt/{$name}", $this->sawt->dat($profile, $year, $quarter));
+            }
         }
 
         foreach (Filing::query()->where('year', $year)->get() as $filing) {
@@ -192,7 +181,7 @@ class RecordsExport
             '',
             "tax-summary-{$year}.pdf              Income, tax and filings for the year",
             "income-and-withholding-{$year}.csv   Every payment, invoice and expense (opens in Excel)",
-            'sawt/                                 2307 data per quarter, to enter into the BIR alphalist tool',
+            'sawt/                                 2307 data per quarter: a CSV to read, and the .DAT file for the BIR',
             "returns/                              The {$filed} filed returns, as filed, on the BIR's own forms",
             '2307s/                                Certificates from clients, as received',
             '',

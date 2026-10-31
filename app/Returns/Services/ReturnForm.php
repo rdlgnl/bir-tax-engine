@@ -193,6 +193,8 @@ class ReturnForm
                 $snapshot['deduction_method'] === DeductionMethod::Itemized->value => 'graduated rates, itemized deductions',
                 default => 'graduated rates, optional standard deduction',
             },
+            'regime' => $snapshot['regime'],
+            'deduction_method' => $snapshot['deduction_method'],
             'taxpayer' => [
                 'name' => $snapshot['taxpayer']['name'],
                 'tin' => $snapshot['taxpayer']['tin'],

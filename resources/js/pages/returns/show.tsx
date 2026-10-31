@@ -3,9 +3,10 @@ import { AlertTriangle, Download } from 'lucide-react';
 import { MarkFiledForm } from '@/components/mark-filed-form';
 import { CopyValues } from '@/components/returns/copy-values';
 import { SectionCard } from '@/components/section-card';
+import { Step, StepList } from '@/components/step-list';
 import { formatDate, peso } from '@/lib/format';
 import { show as complianceShow } from '@/routes/compliance';
-import { preview, show } from '@/routes/returns';
+import { preview, sawt, show } from '@/routes/returns';
 import type { ReturnLayout } from '@/types';
 
 type Props = {
@@ -72,7 +73,7 @@ export default function ReturnShow({
                     </Link>
 
                     <SectionCard>
-                        <ol className="flex flex-col gap-4">
+                        <StepList>
                             <Step
                                 n={1}
                                 title={`Open ${layout.form} in eBIRForms`}
@@ -88,8 +89,15 @@ export default function ReturnShow({
                                     n={3}
                                     title="Attach your 2307 summary (SAWT)"
                                 >
-                                    The SAWT file comes with reports in the next
-                                    update.
+                                    <Link
+                                        href={
+                                            sawt([layout.year, layout.quarter])
+                                                .url
+                                        }
+                                        className="block font-bold text-primary hover:underline"
+                                    >
+                                        Download SAWT file
+                                    </Link>
                                     {missingCertificates.map((m) => (
                                         <span
                                             key={m.counterparty}
@@ -123,7 +131,7 @@ export default function ReturnShow({
                                 You can file and pay anywhere, not just at your
                                 RDO.
                             </Step>
-                        </ol>
+                        </StepList>
                         {otherForms.map((other) => (
                             <p
                                 key={other}
@@ -168,27 +176,5 @@ export default function ReturnShow({
                 </div>
             </div>
         </>
-    );
-}
-
-function Step({
-    n,
-    title,
-    children,
-}: {
-    n: number;
-    title: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <li className="flex gap-3">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ink text-xs font-extrabold text-ink-foreground">
-                {n}
-            </span>
-            <span className="text-sm">
-                <span className="block text-[15px] font-bold">{title}</span>
-                <span className="text-muted-foreground">{children}</span>
-            </span>
-        </li>
     );
 }

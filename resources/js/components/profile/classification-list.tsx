@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { Check } from 'lucide-react';
 import type { TaxProfileSummary } from '@/types';
 
@@ -54,9 +55,18 @@ export function ClassificationList({
                                 {index + 1}
                             </span>
                             <span>
-                                <span className="font-semibold">
-                                    {todo.label}
-                                </span>
+                                {todo.href ? (
+                                    <Link
+                                        href={todo.href}
+                                        className="font-semibold text-primary hover:underline"
+                                    >
+                                        {todo.label}
+                                    </Link>
+                                ) : (
+                                    <span className="font-semibold">
+                                        {todo.label}
+                                    </span>
+                                )}
                                 {todo.detail && (
                                     <span className="block text-[13px] text-muted-foreground">
                                         {todo.detail}

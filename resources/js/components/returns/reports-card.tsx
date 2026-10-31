@@ -15,7 +15,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { show as books } from '@/routes/books';
-import { income, packageMethod, sawt, summary } from '@/routes/reports';
+import { income, packageMethod, summary } from '@/routes/reports';
+import { sawt } from '@/routes/returns';
 import type { ReportYear } from '@/types';
 
 /** "Reports and exports": files made from the records, downloaded straight to this computer. */
@@ -74,14 +75,13 @@ export function ReportsCard({ reports }: { reports: ReportYear[] }) {
                     {current && current.sawt_quarters.length > 0 ? (
                         <p className="mt-1 flex flex-wrap gap-x-3 text-sm">
                             {current.sawt_quarters.map((q) => (
-                                <a
+                                <Link
                                     key={q}
                                     href={sawt([year, q]).url}
-                                    download
                                     className="font-bold text-primary hover:underline"
                                 >
                                     Q{q}
-                                </a>
+                                </Link>
                             ))}
                         </p>
                     ) : (
@@ -90,7 +90,7 @@ export function ReportsCard({ reports }: { reports: ReportYear[] }) {
                         </p>
                     )}
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        Data for the BIR alphalist tool
+                        Review and export the BIR data file
                     </p>
                 </li>
                 <li>

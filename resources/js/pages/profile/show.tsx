@@ -3,6 +3,7 @@ import { SectionCard } from '@/components/section-card';
 import { ClassificationList } from '@/components/profile/classification-list';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
+import { registration } from '@/routes';
 import { show as setupShow } from '@/routes/setup';
 import { compare } from '@/routes/tax';
 import type { RulePack, TaxProfileSummary } from '@/types';
@@ -125,15 +126,26 @@ export default function ProfileShow({
                                 </div>
                             ))}
                         </dl>
-                        <Button
-                            asChild
-                            variant="outline"
-                            className="mt-4 rounded-xl"
-                        >
-                            <Link href={setupShow('certificate').url}>
-                                Update COR details
-                            </Link>
-                        </Button>
+                        <div className="mt-4 flex flex-wrap gap-2.5">
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="rounded-xl"
+                            >
+                                <Link href={setupShow('certificate').url}>
+                                    Update COR details
+                                </Link>
+                            </Button>
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="rounded-xl"
+                            >
+                                <Link href={registration().url}>
+                                    Update with Form 1905
+                                </Link>
+                            </Button>
+                        </div>
                     </SectionCard>
 
                     <SectionCard title="Your data">

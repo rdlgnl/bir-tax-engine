@@ -4,7 +4,7 @@ import { MarkPaidDialog } from '@/components/mark-paid-dialog';
 import { SectionCard } from '@/components/section-card';
 import { Progress } from '@/components/ui/progress';
 import { show as prepare } from '@/routes/returns';
-import { show as setupShow } from '@/routes/setup';
+import { registration } from '@/routes';
 import { show as taxShow } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type { Checklist, ChecklistItem, QuarterResult } from '@/types';
@@ -113,7 +113,7 @@ export function ChecklistPanel({
                 <p className="mt-3 rounded-xl bg-muted px-3.5 py-3 text-sm">
                     Not blocking: your COR still lists percentage tax.{' '}
                     <Link
-                        href={setupShow('certificate').url}
+                        href={registration().url}
                         className="font-bold text-primary underline"
                     >
                         Update with Form 1905

@@ -12,7 +12,8 @@
 # Needs: curl, shasum, qpdf (brew install qpdf).
 #
 # Source: the "BIR Forms" page of www.bir.gov.ph, which lists these files
-# from https://bir-cms-ws.bir.gov.ph/api/pub/templates/{id}/datasets.
+# from https://bir-cms-ws.bir.gov.ph/api/pub/templates/{id}/datasets
+# (returns under 165 and 174; application forms like 1900 and 1905 under 157).
 
 set -euo pipefail
 
@@ -27,6 +28,8 @@ FORMS=(
     "1701A-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1701A%20Jan%202018%20v5%20with%20rates.pdf"
     "1701-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1701%20Jan%202018%20final%20with%20rates.pdf"
     "2551Q-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/2551Q%20Jan%202018%20ENCS%20final%20rev%203_copy.pdf"
+    "1905-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1905%20October%202025%20ENCS%20Final.pdf"
+    "1900-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1900%20October%202025%20ENCS%20Final.pdf"
 )
 
 fetched=$(date +%Y-%m-%d)
