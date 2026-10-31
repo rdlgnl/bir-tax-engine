@@ -7,7 +7,11 @@ void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     // Welcome and setup are full-screen; everything else sits in the app shell.
     layout: (name) =>
-        name === 'welcome' || name.startsWith('setup/') ? null : AppLayout,
+        name === 'welcome' ||
+        name === 'data/restore' ||
+        name.startsWith('setup/')
+            ? null
+            : AppLayout,
     progress: {
         color: '#1D4ED8',
     },

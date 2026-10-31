@@ -16,7 +16,7 @@ php artisan db:seed      # optional: Juan, the sample taxpayer from the design
 composer run dev         # or: php artisan serve + npm run dev
 ```
 
-The app is single-user and keeps no accounts: data stays in `database/database.sqlite` on this computer.
+The app is single-user and keeps no accounts: data stays in `database/database.sqlite` on this computer. Backups (`.bbk`, encrypted with a password you choose) go to `~/Documents/BuwisBuddy` unless you pick another folder under Your data; set `BACKUP_FOLDER` to change the default.
 
 ## Checks
 
@@ -40,6 +40,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 | `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates and matching, the deadline calendar and its .ics export                                                                                          |
 | `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, history, the SAWT and its BIR data file, and reports (tax summary, CSV exports, encrypted accountant ZIP) |
 | `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, their PDF, which months are copied, and registering loose-leaf books (filled Form 1900)                                           |
+| `app/Data`         | Your data: encrypted backups to a folder on this computer, restoring one (also before setup, for a new device), the monthly reminder, and erasing everything                                               |
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 

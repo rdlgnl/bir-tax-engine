@@ -4,10 +4,12 @@ import { ChecklistCard } from '@/components/home/checklist-card';
 import { NextPaymentCard } from '@/components/home/next-payment-card';
 import { QuarterCard } from '@/components/home/quarter-card';
 import { UpcomingCard } from '@/components/home/upcoming-card';
+import { Note } from '@/components/note';
 import { CardLink, SectionCard } from '@/components/section-card';
 import { TransactionTable } from '@/components/transactions/transaction-table';
 import { Button } from '@/components/ui/button';
-import { formatDate, peso } from '@/lib/format';
+import { formatDate, peso, plural } from '@/lib/format';
+import { backup } from '@/routes';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type {
     Checklist,
@@ -29,6 +31,7 @@ type Props = {
     checklist: Checklist;
     upcoming: Deadline[];
     recent: TransactionWithEffect[];
+    backupReminder: { days_since: number | null } | null;
 };
 
 function greeting(): string {
@@ -52,6 +55,7 @@ export default function Home({
     checklist,
     upcoming,
     recent,
+    backupReminder,
 }: Props) {
     const { taxpayer } = usePage().props;
     const limitShare = Math.min(100, (yearGross / 3_000_000) * 100);
@@ -79,6 +83,23 @@ export default function Home({
                     </Link>
                 </Button>
             </header>
+
+            {backupReminder && (
+                <div className="mb-5">
+                    <Note tone="warning" title="Back up your records">
+                        {backupReminder.days_since === null
+                            ? "You haven't backed up yet."
+                            : `Your last backup was ${plural(backupReminder.days_since, 'day')} ago.`}{' '}
+                        They live only on this computer.{' '}
+                        <Link
+                            href={backup().url}
+                            className="font-bold underline"
+                        >
+                            Back up now
+                        </Link>
+                    </Note>
+                </div>
+            )}
 
             <div className="grid gap-5 lg:grid-cols-3">
                 <NextPaymentCard payment={nextPayment} />
