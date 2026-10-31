@@ -51,9 +51,9 @@ class DemoTaxpayerSeeder extends Seeder
             ['2026-08-19', 'Acme Co.', 20_000, 1_000],
             ['2026-09-02', 'Studio Uno', 50_000],
             ['2026-09-23', 'Kape Collective', 30_000],
-            // Q4 so far.
-            ['2026-10-06', 'Studio Uno', 25_000],
-            ['2026-10-20', 'Lumen Digital', 30_000, 1_500],
+            // Q4 so far, with the invoice numbers the books screen shows.
+            ['2026-10-06', 'Studio Uno', 25_000, 0, null, '0140'],
+            ['2026-10-20', 'Lumen Digital', 30_000, 1_500, null, '0141'],
         ];
 
         foreach ($payments as $row) {
@@ -66,6 +66,7 @@ class DemoTaxpayerSeeder extends Seeder
                 'amount' => $amount,
                 'tax_withheld' => $row[3] ?? 0,
                 'certificate_received_on' => $row[4] ?? null,
+                'invoice_number' => $row[5] ?? null,
             ]);
         }
 

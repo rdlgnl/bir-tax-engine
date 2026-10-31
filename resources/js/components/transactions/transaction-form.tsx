@@ -265,6 +265,33 @@ export function TransactionForm({
                 />
             </div>
 
+            {type !== 'invoice' && (
+                <div className="flex flex-col gap-1.5">
+                    <Label
+                        htmlFor="tx-invoice_number"
+                        className="text-sm font-bold"
+                    >
+                        {type === 'payment' ? 'Invoice no.' : 'Receipt no.'}{' '}
+                        <span className="font-normal text-muted-foreground">
+                            (optional, for your books)
+                        </span>
+                    </Label>
+                    <Input
+                        {...field('invoice_number')}
+                        value={form.data.invoice_number}
+                        onChange={(event) =>
+                            form.setData('invoice_number', event.target.value)
+                        }
+                        autoComplete="off"
+                        className="h-11 rounded-xl bg-card"
+                    />
+                    <FieldError
+                        id="tx-invoice_number-error"
+                        message={form.errors.invoice_number}
+                    />
+                </div>
+            )}
+
             {type !== 'expense' &&
                 context.recentCounterparties.length > 0 &&
                 !editing && (

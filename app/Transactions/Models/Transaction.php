@@ -107,6 +107,18 @@ class Transaction extends Model
     }
 
     /**
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function forMonth(Builder $query, int $year, int $month): void
+    {
+        $start = CarbonImmutable::create($year, $month);
+
+        $query->where('occurred_on', '>=', $start->toDateString())
+            ->where('occurred_on', '<', $start->addMonth()->toDateString());
+    }
+
+    /**
      * @return BelongsTo<Certificate, $this>
      */
     public function certificate(): BelongsTo

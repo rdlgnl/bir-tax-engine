@@ -2,6 +2,7 @@
 
 namespace App\Profiles\Models;
 
+use App\Books\Enums\BooksType;
 use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
@@ -49,6 +50,7 @@ use Illuminate\Support\Str;
  * @property DeductionMethod|null $deduction_method
  * @property int|null $expected_expense_percent
  * @property ClientsWithhold|null $clients_withhold
+ * @property BooksType|null $books_type
  * @property CarbonImmutable|null $setup_completed_at
  */
 #[Fillable([
@@ -81,6 +83,7 @@ use Illuminate\Support\Str;
     'deduction_method',
     'expected_expense_percent',
     'clients_withhold',
+    'books_type',
 ])]
 #[UseFactory(TaxProfileFactory::class)]
 class TaxProfile extends Model
@@ -111,6 +114,7 @@ class TaxProfile extends Model
             'deduction_method' => DeductionMethod::class,
             'expected_expense_percent' => 'integer',
             'clients_withhold' => ClientsWithhold::class,
+            'books_type' => BooksType::class,
             'setup_completed_at' => 'datetime',
         ];
     }
