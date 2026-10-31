@@ -56,7 +56,7 @@ export const navItems: NavItem[] = [
         label: 'History & reports',
         icon: History,
         href: history.url(),
-        match: ['/history'],
+        match: ['/history', '/books'],
     },
     { label: 'Ask', icon: MessageCircleQuestion, href: null, match: [] },
     {

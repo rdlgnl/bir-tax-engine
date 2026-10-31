@@ -66,12 +66,13 @@ test('an invoice and an expense keep only their own fields', function () {
     expect($invoice->invoice_number)->toBe('0143')->and($invoice->category)->toBeNull();
 
     $this->post('/transactions', [
-        ...payment(), 'type' => 'expense', 'category' => 'software', 'has_valid_invoice' => true, 'invoice_number' => 'x',
+        ...payment(), 'type' => 'expense', 'category' => 'software', 'has_valid_invoice' => true, 'invoice_number' => 'OR-881',
     ])->assertSessionHasNoErrors();
 
+    // An expense keeps the supplier's receipt number, for the books.
     $expense = Transaction::query()->latest('id')->first();
     expect($expense->tax_withheld)->toBe('0.00')
-        ->and($expense->invoice_number)->toBeNull()
+        ->and($expense->invoice_number)->toBe('OR-881')
         ->and($expense->has_valid_invoice)->toBeTrue();
 });
 

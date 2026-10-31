@@ -39,6 +39,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 | `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview                                                                                                                     |
 | `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates and matching, the deadline calendar and its .ics export                                                                     |
 | `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, history, and reports (tax summary, CSV exports, SAWT data, encrypted accountant ZIP) |
+| `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, their PDF, and which months are copied                                                                       |
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 

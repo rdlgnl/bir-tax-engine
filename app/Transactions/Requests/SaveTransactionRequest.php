@@ -80,7 +80,8 @@ class SaveTransactionRequest extends FormRequest
         $this->merge([
             'tax_withheld' => $type === TransactionType::Expense ? 0 : ($this->input('tax_withheld') ?: 0),
             'certificate_received_on' => $type === TransactionType::Expense ? null : $this->input('certificate_received_on'),
-            'invoice_number' => $type === TransactionType::Invoice ? $this->input('invoice_number') : null,
+            // Every type keeps a number: the invoice issued, or the supplier's receipt for an expense.
+            'invoice_number' => $this->input('invoice_number') ?: null,
             'invoice_paid' => $type === TransactionType::Invoice && $this->boolean('invoice_paid'),
             'category' => $type === TransactionType::Expense ? $this->input('category') : null,
             'has_valid_invoice' => $type === TransactionType::Expense && $this->boolean('has_valid_invoice'),

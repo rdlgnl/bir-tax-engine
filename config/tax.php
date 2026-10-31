@@ -47,6 +47,14 @@ return [
 
     'micro_taxpayer_limit' => 3_000_000,
 
+    // Books of accounts (NIRC Sec. 232 and 235, as amended by EOPT).
+    // REVIEW: confirm the sales level that requires computerized books
+    // registration before relying on it.
+    'books' => [
+        'retention_years' => 5,
+        'computerized_limit' => 3_000_000,
+    ],
+
     // Rates clients are expected to withhold, shown as hints only.
     'expected_withholding' => [
         'services' => 0.05,

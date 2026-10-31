@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Lock } from 'lucide-react';
 import { useState } from 'react';
 import { ChoiceChips } from '@/components/choice-chips';
@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { show as books } from '@/routes/books';
 import { income, packageMethod, sawt, summary } from '@/routes/reports';
 import type { ReportYear } from '@/types';
 
@@ -92,14 +93,18 @@ export function ReportsCard({ reports }: { reports: ReportYear[] }) {
                         Data for the BIR alphalist tool
                     </p>
                 </li>
-                <li
-                    aria-disabled="true"
-                    className="rounded-2xl bg-muted/60 px-3.5 py-3 text-slate-400"
-                >
-                    <p className="text-[15px] font-bold">Books of accounts</p>
-                    <p className="text-[13px]">
-                        Journals · PDF · coming with books
-                    </p>
+                <li>
+                    <Link
+                        href={books().url}
+                        className="block h-full rounded-2xl bg-muted px-3.5 py-3 hover:bg-divider"
+                    >
+                        <span className="block text-[15px] font-bold">
+                            Books of accounts
+                        </span>
+                        <span className="text-[13px] text-muted-foreground">
+                            Monthly journals · PDF
+                        </span>
+                    </Link>
                 </li>
                 <li>
                     <button
