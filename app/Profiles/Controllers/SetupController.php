@@ -2,6 +2,7 @@
 
 namespace App\Profiles\Controllers;
 
+use App\Data\Models\Setting;
 use App\Http\Controllers\Controller;
 use App\Profiles\Enums\SetupStep;
 use App\Profiles\Models\TaxProfile;
@@ -116,7 +117,8 @@ class SetupController extends Controller
         $profile->setup_completed_at ??= now();
         $profile->save();
 
-        return redirect()->route('home');
+        // Once, after the first setup: offer the app lock and reminders.
+        return redirect()->route(Setting::get('first_run_done') ? 'home' : 'first-run');
     }
 
     private function summary(SetupStep $step, TaxProfile $profile): ?string

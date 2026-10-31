@@ -32,15 +32,15 @@ npm run types:check
 
 Business domains sit directly under `app/`, each with ordinary Laravel parts and its own `routes.php` (registered in `bootstrap/app.php`):
 
-| Domain             | Owns                                                                                                                                                                                                       |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app/Profiles`     | The tax profile, the setup wizard, and registration updates (filled Form 1905)                                                                                                                             |
-| `app/Tax`          | The tax engine (`TaxCalculationService`), due dates (`FilingCalendar`), the "why" explanation, My tax and What if                                                                                          |
-| `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview                                                                                                                                          |
-| `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates and matching, the deadline calendar and its .ics export                                                                                          |
-| `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, history, the SAWT and its BIR data file, and reports (tax summary, CSV exports, encrypted accountant ZIP) |
-| `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, their PDF, which months are copied, and registering loose-leaf books (filled Form 1900)                                           |
-| `app/Data`         | Your data: encrypted backups to a folder on this computer, restoring one (also before setup, for a new device), the monthly reminder, and erasing everything                                               |
+| Domain             | Owns                                                                                                                                                                                                           |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/Profiles`     | The tax profile, the setup wizard, and registration updates (filled Form 1905)                                                                                                                                 |
+| `app/Tax`          | The tax engine (`TaxCalculationService`), due dates (`FilingCalendar`), the "why" explanation, My tax and What if                                                                                              |
+| `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview                                                                                                                                              |
+| `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates and matching, the deadline calendar and its .ics export                                                                                              |
+| `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, history, the SAWT and its BIR data file, and reports (tax summary, CSV exports, encrypted accountant ZIP)     |
+| `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, their PDF, which months are copied, and registering loose-leaf books (filled Form 1900)                                               |
+| `app/Data`         | Your data: encrypted backups to a folder on this computer, restoring one (also before setup, for a new device), the monthly reminder, erasing everything, and the app lock (PIN, first-run offer, lock screen) |
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 

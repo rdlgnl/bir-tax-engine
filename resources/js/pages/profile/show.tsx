@@ -153,8 +153,8 @@ export default function ProfileShow({
                             Stored only on this computer. No account.
                         </p>
                         <p className="mt-2 text-sm text-muted-foreground">
-                            Back it up to move it or keep it safe. App lock
-                            comes in a later update.
+                            Back it up to move it or keep it safe, and lock the
+                            app with a PIN.
                         </p>
                         <Button
                             asChild
@@ -162,7 +162,7 @@ export default function ProfileShow({
                             className="mt-3 rounded-xl"
                         >
                             <Link href={data().url}>
-                                Backup, restore and erase
+                                Backup, app lock and erase
                             </Link>
                         </Button>
                         <p className="mt-3 text-[13px] text-muted-foreground">

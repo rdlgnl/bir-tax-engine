@@ -8,6 +8,8 @@ declare module '@inertiajs/core' {
             taxpayer: Taxpayer | null;
             nextDeadline: NextDeadline | null;
             transactionForm: TransactionFormContext | null;
+            appLock: { lock_after: number } | null;
+            reminders: boolean;
             [key: string]: unknown;
         };
         flashDataType: {

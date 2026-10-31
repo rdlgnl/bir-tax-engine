@@ -28,6 +28,7 @@ class UpdateDataSettingsRequest extends FormRequest
                 }
             }],
             'backup_reminder' => ['sometimes', 'boolean'],
+            'reminders' => ['sometimes', 'boolean'],
         ];
     }
 

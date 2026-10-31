@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Compliance\Services\TaxObligations;
+use App\Data\Models\Setting;
+use App\Data\Services\AppLock;
 use App\Profiles\Enums\WorkType;
 use App\Profiles\Models\TaxProfile;
 use App\Tax\Services\TaxCalculationService;
@@ -49,6 +51,9 @@ class HandleInertiaRequests extends Middleware
             'taxpayer' => fn () => $this->taxpayer(),
             'nextDeadline' => fn () => $this->nextDeadline(),
             'transactionForm' => fn () => $this->transactionForm(),
+            // For the browser: lock after time away, and deadline notifications.
+            'appLock' => fn () => app(AppLock::class)->enabled() ? ['lock_after' => app(AppLock::class)->lockAfter()] : null,
+            'reminders' => fn () => (bool) Setting::get('reminders', false),
         ];
     }
 
