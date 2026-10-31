@@ -85,7 +85,7 @@ class Filing extends Model
         return static::query()
             ->where('year', $date->year)
             ->where('quarter', $date->quarter)
-            ->whereIn('form', ['1701Q', '1701A', '1701'])
+            ->whereIn('form', ReturnForm::INCOME_TAX_FORMS)
             ->first();
     }
 }

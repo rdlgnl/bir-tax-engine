@@ -32,7 +32,7 @@ test('filed returns stay on the calendar as filed', function () {
 
 test('the next year shows last year’s annual return', function () {
     $this->get('/calendar?month=2027-04')->assertInertia(fn (Assert $page) => $page
-        ->where('deadlines.0.title', '2026 annual return (1701A)')
+        ->where('deadlines.0.title', '2026 annual return (1701-MS)')
         ->where('deadlines.0.date', '2027-04-15'));
 });
 

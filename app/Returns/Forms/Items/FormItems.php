@@ -120,7 +120,7 @@ abstract class FormItems
      *
      * @param  Taxpayer  $taxpayer
      */
-    private function fullName(array $taxpayer): string
+    protected function fullName(array $taxpayer): string
     {
         if ($taxpayer['last_name'] === null) {
             return $taxpayer['name'];

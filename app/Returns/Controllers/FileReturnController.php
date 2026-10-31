@@ -2,31 +2,41 @@
 
 namespace App\Returns\Controllers;
 
+use App\Compliance\Models\Certificate;
 use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\OfficialForms;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
+use App\Tax\Enums\Regime;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use ZipArchive;
 
 /**
  * Preparing a return: the values to copy into eBIRForms, the filled form to
  * print, and marking it filed.
+ *
+ * @phpstan-import-type Snapshot from ReturnForm
+ * @phpstan-import-type Layout from ReturnForm
  */
 class FileReturnController extends Controller
 {
     public function __construct(
         private ReturnForm $returns,
         private ReturnHistory $history,
+        private FilingCalendar $calendar,
     ) {}
 
     /**
@@ -71,6 +81,10 @@ class FileReturnController extends Controller
         $periodEnd = CarbonImmutable::create($year, $quarter * 3)->endOfMonth();
         $layout = $this->returns->layout($snapshot);
 
+        if ($quarter === 4 && $form === $calendar->incomeTaxForm($profile, 4)) {
+            return $this->annual($profile, $snapshot, $layout, $transactions, $today, $periodEnd);
+        }
+
         return Inertia::render('returns/show', [
             'layout' => $layout,
             'dueDate' => $form === '2551Q'
@@ -85,6 +99,78 @@ class FileReturnController extends Controller
         ]);
     }
 
+    /**
+     * The annual return: the year's figures in plain words, what is still to
+     * pay, and what to do with the 2307s. Before December ends it is an
+     * estimate from the records so far.
+     *
+     * @param  Snapshot  $snapshot
+     * @param  Layout  $layout
+     * @param  Collection<int, Transaction>  $transactions
+     */
+    private function annual(TaxProfile $profile, array $snapshot, array $layout, Collection $transactions, CarbonImmutable $today, CarbonImmutable $periodEnd): Response
+    {
+        $f = $snapshot['figures'];
+        $eightPercent = $snapshot['regime'] === Regime::EightPercent->value;
+
+        return Inertia::render('returns/annual', [
+            'layout' => $layout,
+            'dueDate' => $f['due_date'],
+            'periodEnded' => $today->greaterThan($periodEnd),
+            'periodEnd' => $periodEnd->toDateString(),
+            'eightPercent' => $eightPercent,
+            'figures' => [
+                'gross' => $f['gross'],
+                'less' => $eightPercent ? $f['exempt_amount'] : $f['deduction'],
+                'income_tax' => $f['income_tax'],
+                'prior_payments' => $f['prior_payments'],
+                'withheld' => $f['withheld'],
+                'payable' => $layout['payable'],
+                'overpayment' => $layout['overpayment'],
+            ],
+            // Every 2307 not in yet, late or not: each one is a credit the return can't claim without it.
+            'certificatesNotIn' => $transactions
+                ->filter(fn (Transaction $t) => (float) $t->tax_withheld > 0 && $t->certificate_received_on === null)
+                ->groupBy('counterparty')
+                ->map(fn (Collection $payments, string $client) => ['counterparty' => $client, 'withheld' => round((float) $payments->sum('tax_withheld'), 2)])
+                ->values()
+                ->all(),
+            'scans' => Certificate::query()->where('year', $snapshot['year'])->whereNotNull('file_path')->count(),
+            'alternativeForm' => $this->calendar->alternativeAnnualForm($profile),
+        ]);
+    }
+
+    /**
+     * The year's 2307 scans in one ZIP, to upload through the BIR's eAFS
+     * after filing the annual return.
+     */
+    public function eafs(int $year): BinaryFileResponse
+    {
+        abort_if($year < 2018 || $year > now()->year, 404);
+
+        $disk = Storage::disk('local');
+        $scans = Certificate::query()->where('year', $year)->whereNotNull('file_path')->orderBy('quarter')->orderBy('payor_name')->get()
+            ->filter(fn (Certificate $c) => $disk->exists((string) $c->file_path));
+
+        abort_if($scans->isEmpty(), 404);
+
+        $path = (string) tempnam(sys_get_temp_dir(), 'eafs-');
+        $zip = new ZipArchive;
+        $zip->open($path, ZipArchive::OVERWRITE);
+
+        foreach ($scans as $certificate) {
+            $extension = pathinfo((string) $certificate->original_filename, PATHINFO_EXTENSION) ?: pathinfo((string) $certificate->file_path, PATHINFO_EXTENSION);
+            $zip->addFromString(
+                sprintf('2307-%d-Q%d-%s-%d.%s', $year, $certificate->quarter, str($certificate->payor_name)->slug(), $certificate->id, $extension),
+                (string) $disk->get((string) $certificate->file_path),
+            );
+        }
+
+        $zip->close();
+
+        return response()->download($path, "2307s-{$year}-for-eafs.zip", ['Content-Type' => 'application/zip'])->deleteFileAfterSend();
+    }
+
     public function preview(OfficialForms $forms, int $year, int $quarter, string $form): Response
     {
         $profile = $this->ensureForm($year, $quarter, $form);
@@ -95,6 +181,9 @@ class FileReturnController extends Controller
             'layout' => $this->returns->layout($snapshot),
             'filedOn' => $filing?->filed_on->toDateString(),
             'missingDetails' => $forms->missingDetails($snapshot),
+            'alternativeForm' => $quarter === 4 && $form !== $this->calendar->alternativeAnnualForm($profile)
+                ? $this->calendar->alternativeAnnualForm($profile)
+                : null,
             // On graduated rates the 1701Q and the 2551Q go in together.
             'alsoFile' => array_map(fn (string $other) => [
                 'form' => $other,
@@ -120,14 +209,20 @@ class FileReturnController extends Controller
     }
 
     /**
-     * Only the forms this taxpayer actually files exist.
+     * Only the forms this taxpayer actually files exist, and for the annual
+     * return the older form the BIR still accepts.
      */
     private function ensureForm(int $year, int $quarter, string $form): TaxProfile
     {
         $profile = TaxProfile::current();
+        $forms = $this->history->formsFor($profile, $quarter);
+
+        if ($quarter === 4) {
+            $forms[] = $this->calendar->alternativeAnnualForm($profile);
+        }
 
         abort_unless(
-            in_array($form, $this->history->formsFor($profile, $quarter), true)
+            in_array($form, $forms, true)
                 && CarbonImmutable::create($year, $quarter * 3 - 2)->lessThanOrEqualTo(CarbonImmutable::now()),
             404,
         );

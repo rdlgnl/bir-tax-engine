@@ -6,6 +6,7 @@ use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Returns\Services\ReturnForm;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -30,7 +31,7 @@ class ComplianceController extends Controller
         $transactions = Transaction::query()->forYear($year)->orderBy('occurred_on')->get();
         $filedQuarters = array_values(Filing::query()
             ->where('year', $year)
-            ->whereIn('form', ['1701Q', '1701A', '1701'])
+            ->whereIn('form', ReturnForm::INCOME_TAX_FORMS)
             ->pluck('quarter')
             ->all());
 

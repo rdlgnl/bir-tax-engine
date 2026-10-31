@@ -50,8 +50,8 @@ test('the client’s TIN and tax code come from their 2307', function () {
 
 test('the fourth quarter goes with the annual return', function () {
     $this->get('/file/2026/4/sawt')->assertInertia(fn (Assert $page) => $page
-        ->where('form', '1701A')
-        ->where('fileName', '1234567890000122026'.'1701A.DAT'));
+        ->where('form', '1701-MS')
+        ->where('fileName', '1234567890000122026'.'1701-MS.DAT'));
 });
 
 test('without a TIN there is no file to export', function () {

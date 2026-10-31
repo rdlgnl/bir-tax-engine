@@ -16,6 +16,7 @@ type Props = {
     filedOn: string | null;
     missingDetails: { label: string; step: 'about' | 'certificate' }[];
     alsoFile: { form: string; payable: number }[];
+    alternativeForm: string | null;
 };
 
 type Check = { key: string; label: string };
@@ -25,6 +26,7 @@ export default function ReturnPreview({
     filedOn,
     missingDetails,
     alsoFile,
+    alternativeForm,
 }: Props) {
     const args: [number, number, string] = [
         layout.year,
@@ -43,6 +45,14 @@ export default function ReturnPreview({
             label: `All my ${layout.quarter === 4 ? layout.year : `Q${layout.quarter}`} income is recorded`,
         },
         { key: 'invoice', label: 'Sales are counted by invoice date' },
+        ...(!percentageTax
+            ? [
+                  {
+                      key: 'certificates',
+                      label: "Every 2307 I'm claiming is in the app",
+                  },
+              ]
+            : []),
         ...(osd
             ? [
                   {
@@ -180,6 +190,37 @@ export default function ReturnPreview({
                                     </dd>
                                 </div>
                             ))}
+                            {alternativeForm && (
+                                <div className="flex justify-between gap-3 py-2">
+                                    <dt className="text-muted-foreground">
+                                        Also accepted
+                                    </dt>
+                                    <dd className="text-right">
+                                        <Link
+                                            href={
+                                                preview([
+                                                    layout.year,
+                                                    4,
+                                                    alternativeForm,
+                                                ]).url
+                                            }
+                                            className="font-bold text-primary hover:underline"
+                                        >
+                                            {alternativeForm}
+                                        </Link>
+                                    </dd>
+                                </div>
+                            )}
+                            {layout.quarter === 4 && (
+                                <div className="flex justify-between gap-3 py-2">
+                                    <dt className="text-muted-foreground">
+                                        Upload after filing
+                                    </dt>
+                                    <dd className="text-right font-bold">
+                                        2307s through eAFS, within 15 days
+                                    </dd>
+                                </div>
+                            )}
                         </dl>
                     </SectionCard>
 

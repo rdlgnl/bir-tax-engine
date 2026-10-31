@@ -48,7 +48,7 @@ Books prints the two cash journals. The general journal and ledger, which loose-
 
 ## Official BIR forms
 
-Downloaded returns and registration forms are the BIR's own PDFs, filled in: 1701Q, 1701A, 1701 and 2551Q (January 2018 editions), and 1905 and 1900 (October 2025). The forms have no fillable fields, so `app/Returns/Forms/OfficialFormFiller` draws each value where its box sits on the page:
+Downloaded returns and registration forms are the BIR's own PDFs, filled in: 1701Q, 1701A, 1701 and 2551Q (January 2018 editions), 1701-MS (August 2024), and 1905 and 1900 (October 2025). The annual return is the 1701-MS for the purely self-employed (the 1701A or 1701 stays accepted), and the 1701 for mixed income, since the app keeps no record of salaries. The forms have no fillable fields, so `app/Returns/Forms/OfficialFormFiller` draws each value where its box sits on the page:
 
 - `resources/forms/bir/originals/` — the PDFs exactly as downloaded from bir.gov.ph (sources and checksums in `manifest.json`)
 - `resources/forms/bir/{form}-{edition}.pdf` — the same PDFs rewritten so the PDF library can read them

@@ -57,7 +57,7 @@ test('earlier quarters use the cumulative method and carry excess credit', funct
             'income_tax' => 12_000.0, 'withheld' => 8_000.0, 'due' => 4_000.0, 'status' => 'filed', 'filed_on' => '2026-08-14',
         ])
         ->and($year['quarters'][4])->toMatchArray([
-            'form' => '1701A', 'income_tax' => 35_600.0, 'prior_payments' => 18_000.0, 'withheld' => 11_500.0,
+            'form' => '1701-MS', 'income_tax' => 35_600.0, 'prior_payments' => 18_000.0, 'withheld' => 11_500.0,
             'due' => 6_100.0, 'due_date' => '2027-04-15', 'status' => 'open',
         ]);
 });

@@ -5,6 +5,7 @@ namespace App\Tax\Services;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Returns\Services\ReturnForm;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Transactions\Enums\CertificateStatus;
@@ -79,7 +80,7 @@ class TaxCalculationService
             $profile,
             $year,
             Transaction::query()->forYear($year)->orderBy('occurred_on')->orderBy('id')->get(),
-            Filing::query()->where('year', $year)->whereIn('form', ['1701Q', '1701A', '1701'])->get(),
+            Filing::query()->where('year', $year)->whereIn('form', ReturnForm::INCOME_TAX_FORMS)->get(),
             $today ?? CarbonImmutable::now(),
         );
     }

@@ -22,7 +22,7 @@ test('home shows Q3 as next to pay, as in the design', function () {
         ->where('checklist.missing_certificates.0.counterparty', 'Acme Co.')
         ->where('upcoming.0', [
             'date' => '2026-11-16', 'statutory_date' => '2026-11-15', 'title' => 'Q3 1701Q · file + pay',
-            'kind' => 'income_tax', 'status' => 'due', 'amount' => 14000, 'note' => null, 'tone' => 'default',
+            'kind' => 'income_tax', 'status' => 'due', 'amount' => 14000, 'note' => null, 'tone' => 'default', 'href' => null,
         ])
         ->where('upcoming.1.title', 'Sworn declarations to clients')
         ->where('nextDeadline', ['date' => '2026-11-16', 'form' => '1701Q', 'quarter' => 3, 'amount' => 14000])
@@ -57,7 +57,7 @@ test('last year’s annual return is due in the first months', function () {
     $this->get('/home')->assertInertia(fn (Assert $page) => $page
         ->where('nextPayment.state', 'due')
         ->where('nextPayment.year', 2026)
-        ->where('nextPayment.quarter.form', '1701A')
+        ->where('nextPayment.quarter.form', '1701-MS')
         ->where('nextPayment.quarter.due', 6100)
         ->where('nextPayment.quarter.due_date', '2027-04-15'));
 });

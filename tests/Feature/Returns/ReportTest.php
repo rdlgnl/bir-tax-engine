@@ -103,7 +103,7 @@ test('the accountant package is an encrypted ZIP of everything', function () {
         'sawt/12345678900000320261701Q.DAT',
         'sawt/12345678900000620261701Q.DAT',
         'sawt/12345678900000920261701Q.DAT',
-        'sawt/12345678900001220261701A.DAT',
+        'sawt/12345678900001220261701-MS.DAT',
         'returns/1701Q-2026-Q1.pdf',
         'returns/1701Q-2026-Q2.pdf',
     ])
