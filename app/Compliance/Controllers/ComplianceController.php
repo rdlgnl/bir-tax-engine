@@ -6,7 +6,6 @@ use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
-use App\Tax\Enums\Regime;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -41,7 +40,7 @@ class ComplianceController extends Controller
             'quarters' => array_values($result['quarters']),
             'checklist' => $obligations->checklist($profile, $year, $result['quarters'][$quarter], $transactions, $today),
             'certificates' => $obligations->certificates($transactions, $filedQuarters, $today),
-            'corOutdated' => $profile->regime === Regime::EightPercent && $profile->registered_percentage_tax,
+            'corOutdated' => $profile->corOutdated(),
         ]);
     }
 }

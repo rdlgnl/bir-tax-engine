@@ -5,9 +5,9 @@ import { FormSheet } from '@/components/returns/form-sheet';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate } from '@/lib/format';
+import { formatDate, peso } from '@/lib/format';
 import { history } from '@/routes';
-import { pdf, show } from '@/routes/returns';
+import { pdf, preview, show } from '@/routes/returns';
 import { show as setupShow } from '@/routes/setup';
 import type { ReturnLayout } from '@/types';
 
@@ -15,19 +15,47 @@ type Props = {
     layout: ReturnLayout;
     filedOn: string | null;
     missingDetails: { label: string; step: 'about' | 'certificate' }[];
+    alsoFile: { form: string; payable: number }[];
 };
+
+type Check = { key: string; label: string };
 
 export default function ReturnPreview({
     layout,
     filedOn,
     missingDetails,
+    alsoFile,
 }: Props) {
     const args: [number, number, string] = [
         layout.year,
         layout.quarter,
         layout.form,
     ];
-    const [checks, setChecks] = useState({ identity: false, income: false });
+    const percentageTax = layout.form === '2551Q';
+    const osd =
+        !percentageTax &&
+        layout.regime === 'graduated' &&
+        layout.deduction_method === 'osd';
+    const toCheck: Check[] = [
+        { key: 'identity', label: 'My name, TIN and RDO are right' },
+        {
+            key: 'income',
+            label: `All my ${layout.quarter === 4 ? layout.year : `Q${layout.quarter}`} income is recorded`,
+        },
+        { key: 'invoice', label: 'Sales are counted by invoice date' },
+        ...(osd
+            ? [
+                  {
+                      key: 'osd',
+                      label:
+                          layout.quarter === 1
+                              ? 'OSD is chosen on this return and stays for the year'
+                              : 'OSD was chosen on the Q1 return and stays for the year',
+                  },
+              ]
+            : []),
+    ];
+    const [checks, setChecks] = useState<Record<string, boolean>>({});
     // Only an unfiled return picks up profile changes.
     const missing = filedOn ? [] : missingDetails;
     const back = filedOn
@@ -56,6 +84,9 @@ export default function ReturnPreview({
                     <div>
                         <h1 className="text-[28px] leading-tight font-extrabold tracking-tight sm:text-[30px]">
                             Your filled {layout.form}
+                            {!percentageTax &&
+                                layout.regime === 'graduated' &&
+                                ' (graduated)'}
                         </h1>
                         <p className="text-[15px] text-muted-foreground">
                             On the BIR's own form · {layout.period}
@@ -121,6 +152,34 @@ export default function ReturnPreview({
                                     {layout.rule_pack}
                                 </dd>
                             </div>
+                            {alsoFile.map((other) => (
+                                <div
+                                    key={other.form}
+                                    className="flex justify-between gap-3 py-2"
+                                >
+                                    <dt className="text-muted-foreground">
+                                        Also file
+                                    </dt>
+                                    <dd className="text-right">
+                                        <Link
+                                            href={
+                                                preview([
+                                                    layout.year,
+                                                    layout.quarter,
+                                                    other.form,
+                                                ]).url
+                                            }
+                                            className="font-bold text-primary hover:underline"
+                                        >
+                                            {other.form}{' '}
+                                            {other.form === '2551Q'
+                                                ? 'percentage tax'
+                                                : 'income tax'}
+                                            , {peso(other.payable)}
+                                        </Link>
+                                    </dd>
+                                </div>
+                            ))}
                         </dl>
                     </SectionCard>
 
@@ -129,38 +188,28 @@ export default function ReturnPreview({
                             <h2 className="mb-3 text-lg font-extrabold">
                                 Check before you sign
                             </h2>
-                            <label className="flex items-center gap-3 py-1.5 text-[15px]">
-                                <Checkbox
-                                    checked={checks.identity}
-                                    onCheckedChange={(c) =>
-                                        setChecks({
-                                            ...checks,
-                                            identity: c === true,
-                                        })
-                                    }
-                                />
-                                My name, TIN and RDO are right
-                            </label>
-                            <label className="flex items-center gap-3 py-1.5 text-[15px]">
-                                <Checkbox
-                                    checked={checks.income}
-                                    onCheckedChange={(c) =>
-                                        setChecks({
-                                            ...checks,
-                                            income: c === true,
-                                        })
-                                    }
-                                />
-                                All my{' '}
-                                {layout.quarter === 4
-                                    ? layout.year
-                                    : `Q${layout.quarter}`}{' '}
-                                income is recorded
-                            </label>
-                            {layout.form === '2551Q' && (
-                                <p className="mt-2 text-[13px] text-muted-foreground">
-                                    Sales count by invoice date, not when you
-                                    were paid.
+                            {toCheck.map((check) => (
+                                <label
+                                    key={check.key}
+                                    className="flex items-center gap-3 py-1.5 text-[15px]"
+                                >
+                                    <Checkbox
+                                        checked={checks[check.key] ?? false}
+                                        onCheckedChange={(c) =>
+                                            setChecks({
+                                                ...checks,
+                                                [check.key]: c === true,
+                                            })
+                                        }
+                                    />
+                                    {check.label}
+                                </label>
+                            ))}
+                            {osd && (
+                                <p className="mt-2 text-[13px] text-warning">
+                                    OSD replaces all itemized expenses; receipts
+                                    aren't needed for the deduction, but books
+                                    are still required.
                                 </p>
                             )}
                         </SectionCard>

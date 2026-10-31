@@ -51,8 +51,9 @@ class OfficialFormFiller
         $marks = collect($this->marks($form, $values))->groupBy('page');
 
         for ($page = 1; $page <= $pages; $page++) {
-            $pdf->AddPage('P', self::PAGE);
-            $pdf->useTemplate($pdf->importPage($page));
+            $template = $pdf->importPage($page);
+            $pdf->AddPage('P', $this->pageSize($pdf, $template));
+            $pdf->useTemplate($template);
 
             foreach ($marks->get($page, []) as $mark) {
                 $pdf->SetFont('Helvetica', $mark['bold'] ? 'B' : '', $mark['size']);
@@ -96,6 +97,23 @@ class OfficialFormFiller
         }
 
         return $marks;
+    }
+
+    /**
+     * The size of an imported page. Most forms are long bond; a few, like
+     * the 1900, are legal size.
+     *
+     * @return array{float, float}
+     */
+    public function pageSize(Fpdi $pdf, string $template): array
+    {
+        $size = $pdf->getTemplateSize($template);
+
+        if (! is_array($size)) {
+            throw new LogicException("Page {$template} was not imported.");
+        }
+
+        return [(float) $size['width'], (float) $size['height']];
     }
 
     public function template(string $form): string

@@ -1153,6 +1153,204 @@
    "page": "desktop",
    "is_interactive": true
   },
+  "FormGrad.dc.html": {
+   "x": 0,
+   "y": 21260,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 1701Q · graduated + OSD",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Sawt.dc.html": {
+   "x": 470,
+   "y": 21260,
+   "w": 390,
+   "h": 1240,
+   "title": "SAWT export",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Reg1905.dc.html": {
+   "x": 940,
+   "y": 21260,
+   "w": 390,
+   "h": 1240,
+   "title": "Update registration (1905)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1905.dc.html": {
+   "x": 1410,
+   "y": 21260,
+   "w": 390,
+   "h": 1240,
+   "title": "Filled 1905",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1601C.dc.html": {
+   "x": 1880,
+   "y": 21260,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 1601-C (monthly payroll)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1604C.dc.html": {
+   "x": 2350,
+   "y": 21260,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 1604-C (annual employees)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "LooseLeaf.dc.html": {
+   "x": 2820,
+   "y": 21260,
+   "w": 390,
+   "h": 1240,
+   "title": "Register loose-leaf books",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "CorpHome.dc.html": {
+   "x": 3290,
+   "y": 21260,
+   "w": 390,
+   "h": 1400,
+   "title": "Corporation home",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "CorpQuarter.dc.html": {
+   "x": 3760,
+   "y": 21260,
+   "w": 390,
+   "h": 1400,
+   "title": "1702Q prep",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1702Q.dc.html": {
+   "x": 4230,
+   "y": 21260,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 1702Q",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "Form1702RT.dc.html": {
+   "x": 4700,
+   "y": 21260,
+   "w": 390,
+   "h": 1300,
+   "title": "Filled 1702-RT (annual)",
+   "page": "mobile",
+   "is_interactive": true
+  },
+  "DeskFormGrad.dc.html": {
+   "x": 0,
+   "y": 19060,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1701Q · graduated + OSD",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskSawt.dc.html": {
+   "x": 1520,
+   "y": 19060,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · SAWT export",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskReg1905.dc.html": {
+   "x": 3040,
+   "y": 19060,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · Update registration (1905)",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1905.dc.html": {
+   "x": 4560,
+   "y": 19060,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1905",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1601C.dc.html": {
+   "x": 6080,
+   "y": 19060,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1601-C (monthly payroll)",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1604C.dc.html": {
+   "x": 7600,
+   "y": 19060,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1604-C (annual employees)",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskLooseLeaf.dc.html": {
+   "x": 9120,
+   "y": 19060,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · Register loose-leaf books",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskCorpHome.dc.html": {
+   "x": 10640,
+   "y": 19060,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · Corporation home",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskCorpQuarter.dc.html": {
+   "x": 12160,
+   "y": 19060,
+   "w": 1440,
+   "h": 1050,
+   "title": "Desktop · 1702Q prep",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1702Q.dc.html": {
+   "x": 13680,
+   "y": 19060,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1702Q",
+   "page": "desktop",
+   "is_interactive": true
+  },
+  "DeskForm1702RT.dc.html": {
+   "x": 15200,
+   "y": 19060,
+   "w": 1440,
+   "h": 1100,
+   "title": "Desktop · Filled 1702-RT (annual)",
+   "page": "desktop",
+   "is_interactive": true
+  },
   "RuleAdmin.dc.html": {
    "x": 0,
    "y": 0,
@@ -1305,6 +1503,28 @@
   "DeskTxSearch.dc.html",
   "DeskRuleUpdate.dc.html",
   "DeskErase.dc.html",
+  "FormGrad.dc.html",
+  "Sawt.dc.html",
+  "Reg1905.dc.html",
+  "Form1905.dc.html",
+  "Form1601C.dc.html",
+  "Form1604C.dc.html",
+  "LooseLeaf.dc.html",
+  "CorpHome.dc.html",
+  "CorpQuarter.dc.html",
+  "Form1702Q.dc.html",
+  "Form1702RT.dc.html",
+  "DeskFormGrad.dc.html",
+  "DeskSawt.dc.html",
+  "DeskReg1905.dc.html",
+  "DeskForm1905.dc.html",
+  "DeskForm1601C.dc.html",
+  "DeskForm1604C.dc.html",
+  "DeskLooseLeaf.dc.html",
+  "DeskCorpHome.dc.html",
+  "DeskCorpQuarter.dc.html",
+  "DeskForm1702Q.dc.html",
+  "DeskForm1702RT.dc.html",
   "RuleAdmin.dc.html",
   "TabBar.dc.html",
   "DeskNav.dc.html"
@@ -1508,6 +1728,22 @@
    "text": "12 · Details: search, rule updates, erase",
    "kind": "title1",
    "maxW": 4480,
+   "page": "desktop"
+  },
+  "m13": {
+   "x": 0,
+   "y": 21000,
+   "text": "13 · Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+   "kind": "title1",
+   "maxW": 5090,
+   "page": "mobile"
+  },
+  "d13": {
+   "x": 0,
+   "y": 18800,
+   "text": "13 · Remaining forms: graduated 1701Q, SAWT, 1905, payroll returns, loose-leaf, corporations",
+   "kind": "title1",
+   "maxW": 16640,
    "page": "desktop"
   }
  },

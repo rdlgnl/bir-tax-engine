@@ -130,6 +130,15 @@ class TaxProfile extends Model
     }
 
     /**
+     * On 8%, percentage tax is replaced, but a COR that still lists it can
+     * bring BIR letters about "unfiled" 2551Q returns. Form 1905 removes it.
+     */
+    public function corOutdated(): bool
+    {
+        return $this->regime === Regime::EightPercent && $this->registered_percentage_tax;
+    }
+
+    /**
      * Only purely self-employed people get the ₱250,000 reduction on 8%.
      */
     public function isPurelySelfEmployed(): bool

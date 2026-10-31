@@ -13,6 +13,8 @@ export type ReturnLayout = {
     quarter: number;
     period: string;
     method: string;
+    regime: 'eight_percent' | 'graduated';
+    deduction_method: 'osd' | 'itemized' | null;
     taxpayer: {
         name: string;
         tin: string | null;
@@ -55,3 +57,14 @@ export type HistoryDetail = {
 };
 
 export type ReportYear = { year: number; sawt_quarters: number[] };
+
+export type SawtRow = {
+    seq: number;
+    payor: string;
+    tin: string | null;
+    atc: string | null;
+    income: number;
+    rate: number;
+    withheld: number;
+    certificate: boolean;
+};

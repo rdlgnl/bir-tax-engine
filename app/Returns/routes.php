@@ -4,6 +4,7 @@ use App\Returns\Controllers\FileReturnController;
 use App\Returns\Controllers\FilingController;
 use App\Returns\Controllers\HistoryController;
 use App\Returns\Controllers\ReportController;
+use App\Returns\Controllers\SawtController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('setup.complete')->group(function () {
@@ -16,6 +17,14 @@ Route::middleware('setup.complete')->group(function () {
             Route::get('/', [FileReturnController::class, 'show'])->name('returns.show');
             Route::get('/form', [FileReturnController::class, 'preview'])->name('returns.preview');
             Route::get('/pdf', [FileReturnController::class, 'pdf'])->name('returns.pdf');
+        });
+
+    Route::prefix('/file/{year}/{quarter}/sawt')
+        ->whereNumber('year')
+        ->where(['quarter' => '[1-4]'])
+        ->group(function () {
+            Route::get('/', [SawtController::class, 'show'])->name('returns.sawt');
+            Route::get('/export', [SawtController::class, 'export'])->name('returns.sawt.export');
         });
 
     Route::get('/history', HistoryController::class)->name('history');

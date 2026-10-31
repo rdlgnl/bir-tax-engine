@@ -69,7 +69,7 @@ class TaxProfileResource extends JsonResource
             'registration' => [
                 ['label' => 'Income tax', 'status' => $this->registered_income_tax ? 'Registered' : 'Not registered', 'note' => null],
                 ['label' => 'Percentage tax', 'status' => $this->registered_percentage_tax ? 'Registered' : 'Not registered',
-                    'note' => $eightPercent && $this->registered_percentage_tax ? 'Not needed on 8%. Update suggested' : null],
+                    'note' => $this->corOutdated() ? 'Not needed on 8%. Update suggested' : null],
                 ['label' => 'VAT', 'status' => $this->vat_registered ? 'Registered' : 'Not registered', 'note' => null],
             ],
             'todos' => array_values(array_filter([
@@ -77,8 +77,10 @@ class TaxProfileResource extends JsonResource
                 ! $this->bir_registered
                     ? ['label' => 'Register with the BIR', 'detail' => 'Form 1901, at your RDO or online']
                     : null,
-                $eightPercent && $this->registered_percentage_tax
-                    ? ['label' => 'Update your COR', 'detail' => 'Percentage tax is still listed (Form 1905)']
+                $this->corOutdated()
+                    ? ['label' => 'Update your COR', 'detail' => 'Percentage tax is still listed (Form 1905)',
+                        // The update page needs a finished setup.
+                        'href' => $this->isComplete() ? route('registration', absolute: false) : null]
                     : null,
             ])),
         ];

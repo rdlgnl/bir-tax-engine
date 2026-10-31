@@ -69,6 +69,26 @@ test('graduated taxpayers also file a 2551Q', function () {
         ->where('dueDate', '2026-10-26'));
 });
 
+test('each filled form points to the other return due with it', function () {
+    TaxProfile::factory()->graduated(DeductionMethod::Osd)->create(['profession' => 'cpa_lawyer']);
+    Transaction::factory()->on('2026-08-10')->create(['amount' => 200_000]);
+
+    // ₱200,000 less 40% is ₱120,000 taxable, under the ₱250,000 that graduated rates exempt.
+    $this->get('/file/2026/3/2551Q/form')->assertInertia(fn (Assert $page) => $page
+        ->where('alsoFile', [['form' => '1701Q', 'payable' => 0]]));
+
+    $this->get('/file/2026/3/1701Q/form')->assertInertia(fn (Assert $page) => $page
+        ->where('layout.regime', 'graduated')
+        ->where('layout.deduction_method', 'osd')
+        ->where('alsoFile', [['form' => '2551Q', 'payable' => 6000]]));
+});
+
+test('on 8% there is no other return to file', function () {
+    $this->seed(DemoTaxpayerSeeder::class);
+
+    $this->get('/file/2026/3/1701Q/form')->assertInertia(fn (Assert $page) => $page->where('alsoFile', []));
+});
+
 test('forms a taxpayer doesn’t file, or periods not started, don’t exist', function (string $url) {
     $this->seed(DemoTaxpayerSeeder::class);
 

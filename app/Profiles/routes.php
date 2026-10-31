@@ -1,6 +1,7 @@
 <?php
 
 use App\Profiles\Controllers\ProfileController;
+use App\Profiles\Controllers\RegistrationController;
 use App\Profiles\Controllers\SetupController;
 use App\Profiles\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -13,4 +14,6 @@ Route::put('/setup/{step}', [SetupController::class, 'update'])->name('setup.upd
 
 Route::middleware('setup.complete')->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile');
+    Route::get('/profile/registration', [RegistrationController::class, 'show'])->name('registration');
+    Route::get('/profile/registration/1905', [RegistrationController::class, 'form'])->name('registration.form');
 });

@@ -1,19 +1,14 @@
 import { Head, Link, router } from '@inertiajs/react';
-import {
-    AlertTriangle,
-    Check,
-    ChevronLeft,
-    ChevronRight,
-    Download,
-    Info,
-} from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { ChoiceChips } from '@/components/choice-chips';
+import { DownloadCard } from '@/components/download-card';
+import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso } from '@/lib/format';
 import { history } from '@/routes';
-import { copied, pdf, show, type } from '@/routes/books';
+import { copied, looseLeaf, pdf, show, type } from '@/routes/books';
 import type {
     BooksPeriod,
     BooksType,
@@ -167,24 +162,11 @@ export default function BooksShow({
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <a
+                    <DownloadCard
                         href={pdf(args).url}
-                        download
-                        className="flex items-center gap-4 rounded-card bg-ink p-5 text-ink-foreground hover:bg-slate-800"
-                    >
-                        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary">
-                            <Download className="size-5" aria-hidden />
-                        </span>
-                        <span>
-                            <span className="block text-lg font-extrabold">
-                                Download {month} books (PDF)
-                            </span>
-                            <span className="text-sm text-slate-300">
-                                Both journals, page-numbered, ready to copy or
-                                print.
-                            </span>
-                        </span>
-                    </a>
+                        title={`Download ${month} books (PDF)`}
+                        detail="Both journals, page-numbered, ready to copy or print."
+                    />
 
                     <Note title={`Keep them ${retentionYears} years`}>
                         Books and records must be kept for {retentionYears}{' '}
@@ -197,6 +179,18 @@ export default function BooksShow({
                         Computerized books then need a separate BIR permit.
                         We'll tell you before you get there.
                     </Note>
+                    {booksType === 'manual' && (
+                        <Note title="Prefer printing to copying?">
+                            Register loose-leaf books and print these journals
+                            instead.{' '}
+                            <Link
+                                href={looseLeaf().url}
+                                className="font-bold underline"
+                            >
+                                How
+                            </Link>
+                        </Note>
+                    )}
                     {regime === 'eight_percent' && (
                         <Note title="On 8%, expenses don't lower your tax">
                             Record them anyway: the books must be complete, and
@@ -336,34 +330,6 @@ function Journal({
                     </tfoot>
                 )}
             </table>
-        </div>
-    );
-}
-
-function Note({
-    title,
-    tone = 'info',
-    children,
-}: {
-    title: string;
-    tone?: 'info' | 'warning';
-    children: ReactNode;
-}) {
-    const Icon = tone === 'warning' ? AlertTriangle : Info;
-
-    return (
-        <div
-            className={
-                tone === 'warning'
-                    ? 'flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-soft px-4 py-3.5 text-sm text-warning'
-                    : 'flex items-start gap-2.5 rounded-2xl border border-[#C9D7FB] bg-selected px-4 py-3.5 text-sm text-accent-foreground'
-            }
-        >
-            <Icon className="mt-0.5 size-4 shrink-0" aria-hidden />
-            <p>
-                <span className="block text-[15px] font-bold">{title}</span>
-                {children}
-            </p>
         </div>
     );
 }
