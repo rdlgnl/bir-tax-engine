@@ -1,5 +1,6 @@
 <?php
 
+use App\Data\Middleware\EnsureAppIsUnlocked;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Profiles\Middleware\EnsureSetupIsComplete;
 use Illuminate\Foundation\Application;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
+            EnsureAppIsUnlocked::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);

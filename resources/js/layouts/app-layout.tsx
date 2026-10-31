@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -10,10 +11,16 @@ import {
     SheetDescription,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { useDeadlineReminders } from '@/hooks/use-deadline-reminders';
+import { useIdleLock } from '@/hooks/use-idle-lock';
 
 /** Sidebar on desktop, bottom tab bar with an "Add" sheet on phones. */
 export default function AppLayout({ children }: { children: ReactNode }) {
     const [adding, setAdding] = useState(false);
+    const { appLock, reminders, nextDeadline } = usePage().props;
+
+    useIdleLock(appLock?.lock_after ?? null);
+    useDeadlineReminders(reminders, nextDeadline);
 
     return (
         <div className="flex min-h-dvh bg-background">

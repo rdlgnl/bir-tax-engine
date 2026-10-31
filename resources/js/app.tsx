@@ -5,10 +5,9 @@ const appName = import.meta.env.VITE_APP_NAME || 'BuwisBuddy';
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    // Welcome and setup are full-screen; everything else sits in the app shell.
+    // Welcome, setup, the lock screen and restore are full-screen; everything else sits in the app shell.
     layout: (name) =>
-        name === 'welcome' ||
-        name === 'data/restore' ||
+        ['welcome', 'lock', 'data/restore'].includes(name) ||
         name.startsWith('setup/')
             ? null
             : AppLayout,

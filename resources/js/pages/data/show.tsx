@@ -1,4 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import { AppLockCard } from '@/components/data/app-lock-card';
 import { FieldError } from '@/components/field-error';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,8 @@ type Props = {
     lastBackup: (LastBackup & { days_since: number }) | null;
     remindMonthly: boolean;
     rulePack: { version: string; reviewed: boolean };
+    lock: { enabled: boolean; lock_after: number; options: number[] };
+    reminders: boolean;
 };
 
 export default function YourData({
@@ -24,6 +27,8 @@ export default function YourData({
     lastBackup,
     remindMonthly,
     rulePack,
+    lock,
+    reminders,
 }: Props) {
     const folderForm = useForm({ backup_folder: folder });
     const folderChanged = folderForm.data.backup_folder !== folder;
@@ -143,10 +148,11 @@ export default function YourData({
                         </p>
                     </SectionCard>
 
-                    <SectionCard title="Assistant (AI) and app lock">
+                    <AppLockCard lock={lock} reminders={reminders} />
+
+                    <SectionCard title="Assistant (AI)">
                         <p className="text-sm text-muted-foreground">
-                            Asking about your taxes and locking the app with a
-                            PIN come in a later update.
+                            Asking about your taxes comes in a later update.
                         </p>
                     </SectionCard>
 

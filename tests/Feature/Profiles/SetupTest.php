@@ -53,7 +53,7 @@ test('someone can answer every step and reach the dashboard', function () {
         $this->put("/setup/{$step}", $answers[$step])->assertRedirect(route('setup.show', $next[$i]));
     }
 
-    $this->post('/setup/complete')->assertRedirect(route('home'));
+    $this->post('/setup/complete')->assertRedirect(route('first-run'));
 
     $profile = TaxProfile::current();
     expect($profile->isComplete())->toBeTrue()
@@ -89,7 +89,7 @@ test('salaried people skip the business questions', function () {
     $this->put('/setup/income', ['income_source' => 'employed'])->assertRedirect(route('setup.show', 'about'));
     $this->put('/setup/about', ['first_name' => 'Ana', 'last_name' => 'Reyes', 'bir_registered' => true])
         ->assertRedirect(route('setup.show', 'summary'));
-    $this->post('/setup/complete')->assertRedirect(route('home'));
+    $this->post('/setup/complete')->assertRedirect(route('first-run'));
 });
 
 test('each step validates its own answers', function (string $step, array $data, string $field) {

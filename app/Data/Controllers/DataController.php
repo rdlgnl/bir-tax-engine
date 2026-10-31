@@ -4,6 +4,7 @@ namespace App\Data\Controllers;
 
 use App\Data\Models\Setting;
 use App\Data\Requests\UpdateDataSettingsRequest;
+use App\Data\Services\AppLock;
 use App\Data\Services\Backups;
 use App\Http\Controllers\Controller;
 use Carbon\CarbonImmutable;
@@ -17,7 +18,7 @@ use Inertia\Response;
  */
 class DataController extends Controller
 {
-    public function show(Backups $backups): Response
+    public function show(Backups $backups, AppLock $lock): Response
     {
         $today = CarbonImmutable::now();
         $last = $backups->last();
@@ -28,6 +29,8 @@ class DataController extends Controller
             'lastBackup' => $last ? [...$last, 'days_since' => (int) CarbonImmutable::parse($last['at'])->diffInDays($today)] : null,
             'remindMonthly' => $backups->remindMonthly(),
             'rulePack' => ['version' => config('tax.version'), 'reviewed' => config('tax.reviewed')],
+            'lock' => ['enabled' => $lock->enabled(), 'lock_after' => $lock->lockAfter(), 'options' => config('lock.after_options')],
+            'reminders' => (bool) Setting::get('reminders', false),
         ]);
     }
 
@@ -39,6 +42,10 @@ class DataController extends Controller
 
         if ($request->has('backup_reminder')) {
             Setting::put('backup_reminder', $request->boolean('backup_reminder'));
+        }
+
+        if ($request->has('reminders')) {
+            Setting::put('reminders', $request->boolean('reminders'));
         }
 
         return Inertia::flash('toast', 'Saved.')->back();
