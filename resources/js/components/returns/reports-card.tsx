@@ -90,7 +90,7 @@ export function ReportsCard({ reports }: { reports: ReportYear[] }) {
                         </p>
                     )}
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        Review and export the BIR data file
+                        Review, then export .DAT or CSV
                     </p>
                 </li>
                 <li>

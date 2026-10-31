@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, FileSpreadsheet } from 'lucide-react';
 import { DownloadCard } from '@/components/download-card';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { peso, quarterMonths } from '@/lib/format';
 import { profile } from '@/routes';
 import { show as complianceShow } from '@/routes/compliance';
+import { sawt as sawtCsv } from '@/routes/reports';
 import { show as prepare } from '@/routes/returns';
 import { exportMethod } from '@/routes/returns/sawt';
 import type { SawtRow } from '@/types';
@@ -31,6 +32,7 @@ export default function Sawt({
 }: Props) {
     const back = prepare([year, quarter, form]).url;
     const exportUrl = exportMethod([year, quarter]).url;
+    const csvUrl = sawtCsv([year, quarter]).url;
     const missing = rows.filter((row) => !row.certificate);
 
     return (
@@ -176,7 +178,7 @@ export default function Sawt({
                 <div className="flex flex-col gap-4">
                     <DownloadCard
                         href={exportUrl}
-                        title="Export SAWT file"
+                        title="Export SAWT file (.DAT)"
                         detail={
                             fileName
                                 ? `${fileName} · data file in the BIR's format, ready to submit with your return.`
@@ -194,6 +196,29 @@ export default function Sawt({
                                 Add it to your profile
                             </Link>
                         </Note>
+                    )}
+                    {rows.length > 0 && (
+                        <a
+                            href={csvUrl}
+                            download
+                            className="flex items-center gap-4 rounded-card border bg-card p-5 hover:bg-muted"
+                        >
+                            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted">
+                                <FileSpreadsheet
+                                    className="size-5 text-slate-700"
+                                    aria-hidden
+                                />
+                            </span>
+                            <span>
+                                <span className="block text-lg font-extrabold">
+                                    Download as CSV
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                    Opens in Excel, to check the figures or give
+                                    your accountant.
+                                </span>
+                            </span>
+                        </a>
                     )}
 
                     <SectionCard title="How to submit">
