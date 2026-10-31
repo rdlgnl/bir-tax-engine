@@ -9,6 +9,7 @@ use App\Data\Services\Backups;
 use App\Data\Services\InvalidBackup;
 use App\Data\Services\LocalData;
 use App\Http\Controllers\Controller;
+use App\Notices\Services\Notices;
 use App\Profiles\Models\TaxProfile;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -52,13 +53,15 @@ class BackupController extends Controller
         ]);
     }
 
-    public function store(StoreBackupRequest $request): RedirectResponse
+    public function store(StoreBackupRequest $request, Notices $notices): RedirectResponse
     {
         try {
             $backup = $this->backups->create($request->validated('password'), CarbonImmutable::now());
         } catch (RuntimeException $e) {
             return back()->withErrors(['folder' => $e->getMessage()]);
         }
+
+        $notices->record('backup', 'Backup saved', $backup['file'], route('data', absolute: false));
 
         return Inertia::flash('toast', "Backup saved: {$backup['file']}.")->back();
     }

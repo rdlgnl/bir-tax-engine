@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ExpenseCategory|null $category
  * @property bool $has_valid_invoice
  * @property string|null $description
+ * @property CarbonImmutable|null $created_at
  */
 #[Fillable([
     'type',

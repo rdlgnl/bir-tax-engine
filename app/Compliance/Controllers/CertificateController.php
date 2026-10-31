@@ -7,6 +7,7 @@ use App\Compliance\Requests\MatchCertificateRequest;
 use App\Compliance\Requests\StoreCertificateRequest;
 use App\Compliance\Services\CertificateMatcher;
 use App\Http\Controllers\Controller;
+use App\Notices\Services\Notices;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -77,7 +78,7 @@ class CertificateController extends Controller
         ]);
     }
 
-    public function store(StoreCertificateRequest $request, CertificateMatcher $matcher): RedirectResponse
+    public function store(StoreCertificateRequest $request, CertificateMatcher $matcher, Notices $notices): RedirectResponse
     {
         $file = $request->file('file');
         $path = $file?->store('certificates', 'local');
@@ -115,6 +116,13 @@ class CertificateController extends Controller
         }
 
         $peso = fn (float $amount) => '₱'.Number::format($amount, maxPrecision: 2);
+
+        $notices->record('certificate', match ($match['status']) {
+            'exact' => "2307 from {$certificate->payor_name} matched",
+            'partial' => "2307 from {$certificate->payor_name} doesn’t match your payments",
+            default => "2307 from {$certificate->payor_name} added",
+        }, "Q{$certificate->quarter} {$certificate->year} · {$peso((float) $certificate->tax_withheld)} withheld",
+            route('compliance.show', absolute: false));
 
         Inertia::flash('toast', match ($match['status']) {
             'exact' => "2307 from {$certificate->payor_name} saved. The {$peso((float) $certificate->tax_withheld)} credit is confirmed.",

@@ -4,24 +4,25 @@ namespace App\Transactions\Controllers;
 
 use App\Compliance\Rules\NotInFiledQuarter;
 use App\Http\Controllers\Controller;
+use App\Notices\Services\Notices;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Returns\Services\ReturnForm;
 use App\Tax\Services\TaxCalculationService;
-use App\Transactions\Enums\CertificateStatus;
+use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
 use App\Transactions\Requests\ListTransactionsRequest;
 use App\Transactions\Requests\SaveTransactionRequest;
 use App\Transactions\Resources\TransactionResource;
+use App\Transactions\Services\TransactionFilter;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TransactionController extends Controller
 {
-    public function index(ListTransactionsRequest $request, TaxCalculationService $engine): Response
+    public function index(ListTransactionsRequest $request, TaxCalculationService $engine, TransactionFilter $filter): Response
     {
         $profile = TaxProfile::current();
         $year = $request->integer('year', now()->year);
@@ -30,8 +31,7 @@ class TransactionController extends Controller
         $all = Transaction::query()->forYear($year)->orderBy('occurred_on')->orderBy('id')->get();
         $effects = $engine->transactionEffects($profile, $all);
 
-        $visible = $all
-            ->filter(fn (Transaction $t) => $this->matches($t, $filters))
+        $visible = $filter->apply($all, $filters, CarbonImmutable::now())
             ->sortBy([['occurred_on', 'desc'], ['id', 'desc']])
             ->values()
             ->map(fn (Transaction $t) => [...TransactionResource::make($t)->resolve(), 'tax_effect' => $effects[$t->id]]);
@@ -52,21 +52,23 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function store(SaveTransactionRequest $request): RedirectResponse
+    public function store(SaveTransactionRequest $request, Notices $notices): RedirectResponse
     {
-        Transaction::create($request->validated());
+        $transaction = new Transaction($request->validated());
+        $notices->trackEstimate($transaction->occurred_on->year, $transaction->quarter(), $this->because('After', $transaction), fn () => $transaction->save());
 
         return Inertia::flash('toast', 'Saved. Your tax is up to date.')->back();
     }
 
-    public function update(SaveTransactionRequest $request, Transaction $transaction): RedirectResponse
+    public function update(SaveTransactionRequest $request, Transaction $transaction, Notices $notices): RedirectResponse
     {
-        $transaction->update($request->validated());
+        $transaction->fill($request->validated());
+        $notices->trackEstimate($transaction->occurred_on->year, $transaction->quarter(), $this->because('After editing', $transaction), fn () => $transaction->save());
 
         return Inertia::flash('toast', 'Changes saved.')->back();
     }
 
-    public function destroy(Transaction $transaction): RedirectResponse
+    public function destroy(Transaction $transaction, Notices $notices): RedirectResponse
     {
         if (Filing::incomeTaxReturnCovering($transaction->occurred_on) !== null) {
             return back()->withErrors([
@@ -74,42 +76,23 @@ class TransactionController extends Controller
             ]);
         }
 
-        $transaction->delete();
+        $notices->trackEstimate($transaction->occurred_on->year, $transaction->quarter(), $this->because('After deleting', $transaction), fn () => $transaction->delete());
 
         return Inertia::flash('toast', 'Deleted.')->back();
     }
 
     /**
-     * @param  array{quarter?: int|string|null, type?: string|null, search?: string|null}  $filters
+     * "After Lumen Digital's payment", for the notice when the estimate moves.
      */
-    private function matches(Transaction $transaction, array $filters): bool
+    private function because(string $prefix, Transaction $transaction): string
     {
-        $quarter = $filters['quarter'] ?? null;
-        $type = $filters['type'] ?? null;
-        $search = trim((string) ($filters['search'] ?? ''));
+        $what = match ($transaction->type) {
+            TransactionType::Payment => 'payment',
+            TransactionType::Invoice => 'invoice '.$transaction->invoice_number,
+            TransactionType::Expense => 'expense',
+        };
 
-        if ($quarter !== null && $transaction->quarter() !== (int) $quarter) {
-            return false;
-        }
-
-        if ($type === 'withheld' && $transaction->certificateStatus(now()) === CertificateStatus::NotNeeded) {
-            return false;
-        }
-
-        if ($type !== null && $type !== 'withheld' && $transaction->type->value !== $type) {
-            return false;
-        }
-
-        if ($search === '') {
-            return true;
-        }
-
-        $number = (float) preg_replace('/[^\d.]/', '', $search);
-
-        return Str::contains($transaction->counterparty, $search, ignoreCase: true)
-            || Str::contains((string) $transaction->invoice_number, $search, ignoreCase: true)
-            || Str::contains((string) $transaction->description, $search, ignoreCase: true)
-            || ($number > 0 && (float) $transaction->amount === $number);
+        return "{$prefix} {$transaction->counterparty}’s {$what}";
     }
 
     /**

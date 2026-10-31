@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Bell, Plus } from 'lucide-react';
 import { ChecklistCard } from '@/components/home/checklist-card';
 import { NextPaymentCard } from '@/components/home/next-payment-card';
 import { QuarterCard } from '@/components/home/quarter-card';
@@ -9,7 +9,7 @@ import { CardLink, SectionCard } from '@/components/section-card';
 import { TransactionTable } from '@/components/transactions/transaction-table';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso, plural } from '@/lib/format';
-import { backup } from '@/routes';
+import { backup, notifications, rules } from '@/routes';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type {
     Checklist,
@@ -32,6 +32,8 @@ type Props = {
     upcoming: Deadline[];
     recent: TransactionWithEffect[];
     backupReminder: { days_since: number | null } | null;
+    unreadNotices: number;
+    ruleUpdate: string | null;
 };
 
 function greeting(): string {
@@ -56,6 +58,8 @@ export default function Home({
     upcoming,
     recent,
     backupReminder,
+    unreadNotices,
+    ruleUpdate,
 }: Props) {
     const { taxpayer } = usePage().props;
     const limitShare = Math.min(100, (yearGross / 3_000_000) * 100);
@@ -73,16 +77,48 @@ export default function Home({
                         {greeting()}, {taxpayer?.first_name}
                     </h1>
                 </div>
-                <Button
-                    asChild
-                    className="hidden h-11 rounded-xl px-5 text-[15px] font-bold lg:inline-flex"
-                >
-                    <Link href={transactionsIndex().url}>
-                        <Plus className="size-5" aria-hidden />
-                        Add transaction
+                <div className="flex items-center gap-2.5">
+                    <Link
+                        href={notifications().url}
+                        aria-label={
+                            unreadNotices > 0
+                                ? `Notifications, ${unreadNotices} new`
+                                : 'Notifications'
+                        }
+                        className="relative flex size-11 items-center justify-center rounded-xl border bg-card hover:bg-muted"
+                    >
+                        <Bell className="size-5" aria-hidden />
+                        {unreadNotices > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
+                                {unreadNotices}
+                            </span>
+                        )}
                     </Link>
-                </Button>
+                    <Button
+                        asChild
+                        className="hidden h-11 rounded-xl px-5 text-[15px] font-bold lg:inline-flex"
+                    >
+                        <Link href={transactionsIndex().url}>
+                            <Plus className="size-5" aria-hidden />
+                            Add transaction
+                        </Link>
+                    </Button>
+                </div>
             </header>
+
+            {ruleUpdate && (
+                <div className="mb-5">
+                    <Note title={`Rule pack ${ruleUpdate} installed`}>
+                        New BIR rules came with this update.{' '}
+                        <Link
+                            href={rules().url}
+                            className="font-bold underline"
+                        >
+                            See what changed
+                        </Link>
+                    </Note>
+                </div>
+            )}
 
             {backupReminder && (
                 <div className="mb-5">

@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { fileSize, plural } from '@/lib/format';
-import { backup, erase } from '@/routes';
+import { backup, erase, rules } from '@/routes';
 import { update } from '@/routes/data';
 import type { LastBackup } from '@/types';
 
@@ -146,6 +146,12 @@ export default function YourData({
                             New rules arrive with app updates; nothing about you
                             is sent anywhere.
                         </p>
+                        <Link
+                            href={rules().url}
+                            className="mt-2 inline-block text-sm font-bold text-primary hover:underline"
+                        >
+                            What's in this pack
+                        </Link>
                     </SectionCard>
 
                     <AppLockCard lock={lock} reminders={reminders} />

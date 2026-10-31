@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Compliance\Services\TaxObligations;
 use App\Data\Services\Backups;
+use App\Notices\Services\Notices;
 use App\Profiles\Models\TaxProfile;
+use App\Tax\Services\RulePacks;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
 use App\Transactions\Resources\TransactionResource;
@@ -17,7 +19,7 @@ use Inertia\Response;
  */
 class HomeController extends Controller
 {
-    public function __invoke(TaxCalculationService $engine, TaxObligations $obligations, Backups $backups): Response
+    public function __invoke(TaxCalculationService $engine, TaxObligations $obligations, Backups $backups, Notices $notices, RulePacks $packs): Response
     {
         $profile = TaxProfile::current();
         $today = CarbonImmutable::now();
@@ -28,6 +30,8 @@ class HomeController extends Controller
         $focus = $next['quarter'] !== null && $next['year'] === $today->year
             ? $next['quarter']
             : $year['quarters'][$today->quarter];
+
+        $packs->remember($profile, $today);
 
         $transactions = Transaction::query()->forYear($today->year)->orderBy('occurred_on')->orderBy('id')->get();
         $effects = $engine->transactionEffects($profile, $transactions);
@@ -49,6 +53,8 @@ class HomeController extends Controller
                 ->map(fn (Transaction $t) => [...TransactionResource::make($t)->resolve(), 'tax_effect' => $effects[$t->id]]),
             // The records exist only on this computer, so Home nudges a monthly backup.
             'backupReminder' => $backups->reminder($today),
+            'unreadNotices' => $notices->unreadCount($profile, $today),
+            'ruleUpdate' => $packs->pending() ? $packs->version() : null,
         ]);
     }
 }
