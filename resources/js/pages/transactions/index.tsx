@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Lock, Plus, Search } from 'lucide-react';
+import { Lock, Plus, Search, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { SectionCard } from '@/components/section-card';
 import { AddTransactionPanel } from '@/components/transactions/add-transaction-panel';
@@ -21,7 +21,11 @@ import {
 } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { peso } from '@/lib/format';
-import { index, search as findRecord } from '@/routes/transactions';
+import {
+    importMethod,
+    index,
+    search as findRecord,
+} from '@/routes/transactions';
 import type { TransactionWithEffect } from '@/types';
 
 type Filters = {
@@ -160,6 +164,16 @@ export default function TransactionsIndex({
                         <Link href={findRecord().url}>
                             <Search className="size-4" aria-hidden />
                             Find a record
+                        </Link>
+                    </Button>
+                    <Button
+                        asChild
+                        variant="outline"
+                        className="h-11 rounded-xl px-5 text-[15px] font-bold"
+                    >
+                        <Link href={importMethod().url}>
+                            <Upload className="size-4" aria-hidden />
+                            Import statement
                         </Link>
                     </Button>
                     <Button
