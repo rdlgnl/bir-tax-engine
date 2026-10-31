@@ -84,7 +84,7 @@ use Illuminate\Support\Str;
  */
 class ReturnForm
 {
-    public const INCOME_TAX_FORMS = ['1701Q', '1701A', '1701'];
+    public const INCOME_TAX_FORMS = ['1701Q', '1701-MS', '1701A', '1701'];
 
     public function __construct(private TaxCalculationService $engine) {}
 

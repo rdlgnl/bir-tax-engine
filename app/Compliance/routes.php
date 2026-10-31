@@ -3,6 +3,7 @@
 use App\Compliance\Controllers\CalendarController;
 use App\Compliance\Controllers\CertificateController;
 use App\Compliance\Controllers\ComplianceController;
+use App\Compliance\Controllers\SwornDeclarationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('setup.complete')->group(function () {
@@ -10,6 +11,9 @@ Route::middleware('setup.complete')->group(function () {
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/export', [CalendarController::class, 'export'])->name('calendar.export');
+
+    Route::get('/sworn/{year?}', [SwornDeclarationController::class, 'show'])->whereNumber('year')->name('sworn.show');
+    Route::get('/sworn/{year}/pdf/{client?}', [SwornDeclarationController::class, 'pdf'])->whereNumber('year')->where('client', '[a-z0-9-]+')->name('sworn.pdf');
 
     Route::get('/certificates/create', [CertificateController::class, 'create'])->name('certificates.create');
     Route::post('/certificates', [CertificateController::class, 'store'])->name('certificates.store');

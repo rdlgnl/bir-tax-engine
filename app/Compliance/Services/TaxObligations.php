@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
  *     amount: float|null,
  *     note: string|null,
  *     tone: 'default'|'action',
+ *     href: string|null,
  * }
  * @phpstan-type ChecklistItem array{
  *     key: string,
@@ -189,7 +190,8 @@ class TaxObligations
 
         if ($profile->clients_withhold !== ClientsWithhold::No) {
             $date = $this->calendar->swornDeclarationDue($y + 1)->toDateString();
-            $items[] = $this->deadline($date, $date, 'Sworn declarations to clients', 'reminder', 'reminder', null, 'Reminder');
+            $items[] = $this->deadline($date, $date, 'Sworn declarations to clients', 'reminder', 'reminder', null, 'Reminder',
+                href: route('sworn.show', $y, absolute: false));
         }
 
         $date = $this->calendar->incomeTaxDue($y + 1, 1)->toDateString();
@@ -231,6 +233,7 @@ class TaxObligations
         ?float $amount,
         ?string $note,
         string $tone = 'default',
+        ?string $href = null,
     ): array {
         return [
             'date' => $date,
@@ -241,6 +244,7 @@ class TaxObligations
             'amount' => $amount,
             'note' => $note,
             'tone' => $tone,
+            'href' => $href,
         ];
     }
 

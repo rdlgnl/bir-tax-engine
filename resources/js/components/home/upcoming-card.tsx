@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { CardLink, SectionCard } from '@/components/section-card';
 import { formatDate, peso } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,16 @@ export function UpcomingCard({ items }: { items: Deadline[] }) {
                             <span className="font-extrabold">
                                 {formatDate(item.date)}
                             </span>
-                            <span>{item.title}</span>
+                            {item.href ? (
+                                <Link
+                                    href={item.href}
+                                    className="font-semibold text-primary hover:underline"
+                                >
+                                    {item.title}
+                                </Link>
+                            ) : (
+                                <span>{item.title}</span>
+                            )}
                             <span
                                 className={cn(
                                     'text-right',

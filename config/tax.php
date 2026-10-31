@@ -91,6 +91,7 @@ return [
     // forms say "DO NOT enter Centavos", so their amounts are whole pesos.
     'forms' => [
         '1701Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701Q-2018-01', 'whole_pesos' => true],
+        '1701-MS' => ['edition' => 'August 2024 (ENCS)', 'template' => '1701-MS-2024-08', 'whole_pesos' => true],
         '1701A' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701A-2018-01', 'whole_pesos' => true],
         '1701' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701-2018-01', 'whole_pesos' => true],
         '2551Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '2551Q-2018-01', 'whole_pesos' => false],

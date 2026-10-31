@@ -40,5 +40,12 @@
         "source": "https://bir-cdn.bir.gov.ph/BIR/pdf/1900%20October%202025%20ENCS%20Final.pdf",
         "sha256": "c95bbbaa2c36120896c0503f9eae3500c1b0d64ff9909bf3a18df34d17a048a4",
         "fetched": "2026-10-31"
+    },
+    "1701-MS-2024-08": {
+        "form": "1701-MS",
+        "edition": "August 2024 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/BIR/pdf/1701-MS%20August%202024%20Fillable_01.pdf",
+        "sha256": "802912a60607bdd437faf429105e0efbcbd862894825b0682ded188c8a1aa38c",
+        "fetched": "2026-10-31"
     }
 }

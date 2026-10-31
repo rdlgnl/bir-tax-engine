@@ -135,6 +135,8 @@ export type Deadline = {
     amount: number | null;
     note: string | null;
     tone: 'default' | 'action';
+    /** Where to act on it, when the app has a page for that. */
+    href: string | null;
 };
 
 export type CertificateRow = {

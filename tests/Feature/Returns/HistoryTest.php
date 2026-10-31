@@ -16,7 +16,7 @@ test('history lists every return, newest first', function () {
         ->component('history/index')
         ->has('entries', 4)
         ->where('entries.0', [
-            'year' => 2026, 'quarter' => 4, 'form' => '1701A', 'title' => 'Annual · Income tax', 'status' => 'open',
+            'year' => 2026, 'quarter' => 4, 'form' => '1701-MS', 'title' => 'Annual · Income tax', 'status' => 'open',
             'amount' => 6100, 'due_date' => '2027-04-15', 'filed_on' => null, 'paid_on' => null,
         ])
         ->where('entries.1.status', 'due')

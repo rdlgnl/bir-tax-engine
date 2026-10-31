@@ -51,16 +51,32 @@ class FilingCalendar
         return $this->nextWorkingDay(CarbonImmutable::create($year, $month, $day));
     }
 
+    /**
+     * The return for a quarter. The annual return of the purely
+     * self-employed is the 1701-MS (micro and small taxpayers, below
+     * ₱20,000,000 in sales); a mixed-income earner files the 1701, which
+     * leaves room for the salary the app doesn't track.
+     */
     public function incomeTaxForm(TaxProfile $profile, int $quarter): string
     {
         if ($quarter < 4) {
             return '1701Q';
         }
 
-        $simpleAnnual = $profile->isPurelySelfEmployed()
-            && ($profile->regime === Regime::EightPercent || $profile->deduction_method === DeductionMethod::Osd);
+        return $profile->isPurelySelfEmployed() ? '1701-MS' : '1701';
+    }
 
-        return $simpleAnnual ? '1701A' : '1701';
+    /**
+     * The older annual form the BIR still accepts in place of the 1701-MS:
+     * the 1701A on 8% or OSD, the 1701 on itemized deductions.
+     */
+    public function alternativeAnnualForm(TaxProfile $profile): ?string
+    {
+        if (! $profile->isPurelySelfEmployed()) {
+            return null;
+        }
+
+        return $profile->regime === Regime::EightPercent || $profile->deduction_method === DeductionMethod::Osd ? '1701A' : '1701';
     }
 
     public function nextWorkingDay(CarbonImmutable $date): CarbonImmutable

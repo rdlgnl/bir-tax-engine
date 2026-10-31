@@ -37,7 +37,7 @@ test('every form in the rule pack has its BIR template, as downloaded, readable 
     expect($manifest[$template]['form'])->toBe($form)
         ->and($manifest[$template]['edition'])->toBe(config("tax.forms.{$form}.edition"))
         ->and(hash_file('sha256', resource_path("forms/bir/originals/{$template}.pdf")))->toBe($manifest[$template]['sha256'])
-        ->and(pageCount(file_get_contents($filler->template($form))))->toBe(['1701Q' => 2, '1701A' => 2, '1701' => 4, '2551Q' => 2, '1905' => 4, '1900' => 1][$form]);
+        ->and(pageCount(file_get_contents($filler->template($form))))->toBe(['1701Q' => 2, '1701-MS' => 2, '1701A' => 2, '1701' => 4, '2551Q' => 2, '1905' => 4, '1900' => 1][$form]);
 
     // The 1900 is legal size; the rest are long bond.
     $height = $form === '1900' ? 1008 : 936;
@@ -47,7 +47,7 @@ test('every form in the rule pack has its BIR template, as downloaded, readable 
             ->and($place['to'] ?? $place['x'])->toBeBetween($place['x'], 612, "item {$item}")
             ->and($place['y'])->toBeBetween(0, $height, "item {$item}");
     }
-})->with(['1701Q', '1701A', '1701', '2551Q', '1905', '1900']);
+})->with(['1701Q', '1701-MS', '1701A', '1701', '2551Q', '1905', '1900']);
 
 test('the Q3 1701Q on 8% fills every item the design shows', function () {
     $this->seed(DemoTaxpayerSeeder::class);
@@ -100,6 +100,35 @@ test('the annual 1701A takes the whole year', function () {
         '20A' => 35600, '21A' => 29500, '22A' => 6100, '29A' => 6100, '30' => 6100,
     ]);
 });
+
+test('the 1701-MS on 8% takes the whole year, as the design shows it', function () {
+    $this->seed(DemoTaxpayerSeeder::class);
+
+    expect(formValues('1701-MS', 2026, 4))->toMatchArray([
+        '1.month' => '12', '1.year' => '2026', '2.no' => true, '3.no' => true,
+        '6' => '123-456-789-000', '7' => '028', '8' => 'DELA CRUZ, JUAN SANTOS',
+        '11.business' => true, '12.eight_percent' => true, '12.graduated' => false, '18' => 'II015',
+        'iv.19' => 695000, 'iv.21' => 695000, 'iv.22' => 250000, 'iv.23' => 445000, 'iv.24' => 35600, 'iv.25' => 35600,
+        'v.2' => 18000, 'v.3' => 10000, 'v.4' => 1500, 'v.10' => 29500,
+        '22A' => 35600, '23A' => 35600, '24A' => 29500, '25A' => 6100, '27A' => 6100, '29A' => 6100, '30' => 6100,
+        'p2.tin' => '123456789', 'p2.last_name' => 'DELA CRUZ',
+    ]);
+});
+
+test('the 1701-MS on graduated rates uses the OSD or itemized lines', function (DeductionMethod $method, array $lines) {
+    TaxProfile::factory()->graduated($method)->create(['profession' => 'cpa_lawyer']);
+    Transaction::factory()->on('2026-03-10')->create(['amount' => 500_000]);
+    Transaction::factory()->on('2026-03-12')->expense(validInvoice: true)->create(['amount' => 100_000]);
+
+    $values = formValues('1701-MS', 2026, 4);
+
+    expect($values)->toMatchArray(['11.profession' => true, '12.graduated' => true, '18' => 'II014', 'iv.5' => 500000, 'iv.7' => 500000] + $lines)
+        ->and($values['iv.15'])->toBe($values['iv.12'])
+        ->and($values['22A'])->toBe($values['iv.18B']);
+})->with([
+    'OSD' => [DeductionMethod::Osd, ['17.osd' => true, 'iv.11' => 200000, 'iv.12' => 300000, 'iv.18B' => 7500]],
+    'itemized' => [DeductionMethod::Itemized, ['17.itemized' => true, 'iv.9' => 500000, 'iv.10A' => 100000, 'iv.10D' => 100000, 'iv.12' => 400000, 'iv.18B' => 22500]],
+]);
 
 test('a 1701 on itemized deductions fills Schedule 3.A and the credits on page 4', function () {
     TaxProfile::factory()->graduated(DeductionMethod::Itemized)->create(['income_source' => 'both']);

@@ -6,6 +6,7 @@ use App\Compliance\Rules\NotInFiledQuarter;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Returns\Services\ReturnForm;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;
@@ -118,7 +119,7 @@ class TransactionController extends Controller
     {
         return array_values(Filing::query()
             ->where('year', $year)
-            ->whereIn('form', ['1701Q', '1701A', '1701'])
+            ->whereIn('form', ReturnForm::INCOME_TAX_FORMS)
             ->pluck('quarter')
             ->map(fn ($quarter) => (int) $quarter)
             ->all());

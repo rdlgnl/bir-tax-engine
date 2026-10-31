@@ -4,6 +4,7 @@ namespace App\Returns\Forms;
 
 use App\Returns\Forms\Items\Form1701AItems;
 use App\Returns\Forms\Items\Form1701Items;
+use App\Returns\Forms\Items\Form1701MSItems;
 use App\Returns\Forms\Items\Form1701QItems;
 use App\Returns\Forms\Items\Form2551QItems;
 use App\Returns\Forms\Items\FormItems;
@@ -37,6 +38,7 @@ class OfficialForms
     {
         $items = match ($snapshot['form']) {
             '1701Q' => new Form1701QItems,
+            '1701-MS' => new Form1701MSItems,
             '1701A' => new Form1701AItems,
             '1701' => new Form1701Items,
             '2551Q' => new Form2551QItems,
