@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 21 of 75 done.
+Status: 22 of 76 done.
 
 ---
 
@@ -59,7 +59,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### C3 · Rule pack reviewed by a CPA
 
-- [ ] List every `REVIEW` comment in [config/tax.php](../config/tax.php) and the code (`grep -rn REVIEW app config`).
+- [x] List every rule the app applies, `REVIEW` comments included, for a CPA: [RULE-REVIEW.md](RULE-REVIEW.md) (each rule as applied, its value, basis and periods, a decision column, seven questions and a sign-off).
 - [ ] CPA reviews each one; record reviewer, date and source per rule.
 - [ ] Set `reviewed` per rule (not one flag for the whole pack); the app keeps saying "not yet reviewed" for any rule without sign-off.
 
@@ -108,6 +108,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - **Needs verification:** percentage tax under EOPT, and income tax for individuals on the cash method.
 
 **Done when:** a quarter's gross on the return equals the books' income for that quarter.
+**Waiting on:** Question Q1 in [RULE-REVIEW.md](RULE-REVIEW.md).
 
 ### H3 · Filing channel settled and the copy says it plainly
 
@@ -116,6 +117,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [ ] Rename "Download filled form" where it's a reference copy, not the filing.
 
 **Done when:** no screen implies a printed PDF is a filing where it isn't.
+**Waiting on:** Question Q2 in [RULE-REVIEW.md](RULE-REVIEW.md).
 
 ### H4 · History of changes to records
 
@@ -144,6 +146,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [ ] Show it on the annual return page ([returns/annual.tsx](../resources/js/pages/returns/annual.tsx)) and the checklist.
 
 **Done when:** a graduated filer above the threshold is told to attach audited statements.
+**Waiting on:** Question Q3 in [RULE-REVIEW.md](RULE-REVIEW.md).
 
 ### M3 · Payroll exemptions
 
@@ -160,6 +163,12 @@ Do not let anyone rely on the app for real filings until these are ticked:
     - NOLCO and the excess MCIT carry-forward
     - the 1% MCIT period, via C1
     - **Needs verification:** the quarterly 20% test, which today uses taxable income to date
+
+### M10 · Excess input VAT stops at year end
+- [ ] Carry the Q4 excess into the next year's Q1 (today the carry-over resets each January in [VatCalculator.php](../app/Tax/Services/VatCalculator.php)).
+
+**Basis (Confirmed):** NIRC Sec. 110(B), excess input tax carries over to the succeeding quarter or quarters. Row 2.7 of the rule review.
+**Tests:** Q4 excess shows as carried over in the next year's Q1; a year with no VAT purchases keeps the carry-over.
 
 ### M1 · Holidays beyond 2027
 
