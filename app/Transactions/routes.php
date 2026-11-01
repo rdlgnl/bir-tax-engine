@@ -1,5 +1,6 @@
 <?php
 
+use App\Transactions\Controllers\MarketplaceImportController;
 use App\Transactions\Controllers\TransactionCertificateController;
 use App\Transactions\Controllers\TransactionController;
 use App\Transactions\Controllers\TransactionImportController;
@@ -16,6 +17,11 @@ Route::middleware('setup.complete')->group(function () {
     Route::put('/transactions/import/columns', [TransactionImportController::class, 'columns'])->name('transactions.import.columns');
     Route::post('/transactions/import/confirm', [TransactionImportController::class, 'confirm'])->name('transactions.import.confirm');
     Route::delete('/transactions/import', [TransactionImportController::class, 'cancel'])->name('transactions.import.cancel');
+    Route::get('/transactions/import/marketplace', [MarketplaceImportController::class, 'show'])->name('transactions.marketplace');
+    Route::post('/transactions/import/marketplace', [MarketplaceImportController::class, 'upload'])->name('transactions.marketplace.upload');
+    Route::put('/transactions/import/marketplace/columns', [MarketplaceImportController::class, 'columns'])->name('transactions.marketplace.columns');
+    Route::post('/transactions/import/marketplace/confirm', [MarketplaceImportController::class, 'confirm'])->name('transactions.marketplace.confirm');
+    Route::delete('/transactions/import/marketplace', [MarketplaceImportController::class, 'cancel'])->name('transactions.marketplace.cancel');
     Route::put('/transactions/{transaction}/certificate', TransactionCertificateController::class)->name('transactions.certificate');
     Route::resource('transactions', TransactionController::class)->only(['index', 'store', 'update', 'destroy']);
 });
