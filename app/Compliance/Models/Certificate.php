@@ -3,6 +3,7 @@
 namespace App\Compliance\Models;
 
 use App\Transactions\Models\Transaction;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $atc_code
  * @property string|null $file_path
  * @property string|null $original_filename
+ * @property bool $linked_by_hand
+ * @property CarbonImmutable|null $created_at
  */
 #[Fillable([
     'payor_name',
@@ -45,6 +48,7 @@ class Certificate extends Model
             'quarter' => 'integer',
             'amount_paid' => 'decimal:2',
             'tax_withheld' => 'decimal:2',
+            'linked_by_hand' => 'boolean',
         ];
     }
 

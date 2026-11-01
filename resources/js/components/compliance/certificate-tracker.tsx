@@ -1,10 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { RequestEmail } from '@/components/compliance/request-email';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { create, file } from '@/routes/certificates';
+import { create, file, link } from '@/routes/certificates';
 import type { CertificateTracker as Tracker, QuarterResult } from '@/types';
 
 type Props = {
@@ -14,7 +14,10 @@ type Props = {
 };
 
 export function CertificateTracker({ year, tracker, quarters }: Props) {
-    const missing = tracker.rows.find((row) => row.status === 'missing');
+    // A client who sent a 2307 that doesn't match isn't asked for one again.
+    const missing = tracker.rows.find(
+        (row) => row.status === 'missing' && !row.unmatched,
+    );
     const filed = tracker.filed;
 
     return (
@@ -127,6 +130,30 @@ function RowStatus({ row }: { row: Tracker['rows'][number] }) {
                     </>
                 )}
             </span>
+        );
+    }
+
+    if (row.unmatched) {
+        const saved = row.unmatched;
+
+        return (
+            <button
+                type="button"
+                onClick={() => {
+                    if (
+                        window.confirm(
+                            `${row.counterparty}'s 2307 says ${peso(saved.tax_withheld)} withheld, but your payments show ${peso(row.amount)}. Link it to them anyway? The credit stays ${peso(row.amount)}; if the 2307 is wrong, ask ${row.counterparty} for a corrected one.`,
+                        )
+                    ) {
+                        router.post(link(saved.id).url, undefined, {
+                            preserveScroll: true,
+                        });
+                    }
+                }}
+                className="text-sm font-semibold text-warning hover:underline"
+            >
+                2307 says {peso(saved.tax_withheld)} · link
+            </button>
         );
     }
 
