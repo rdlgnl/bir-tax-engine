@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDate, peso, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { index } from '@/routes/transactions';
+import { index, marketplace } from '@/routes/transactions';
 import {
     cancel,
     columns as saveColumns,
@@ -75,10 +75,6 @@ const OTHER_THINGS: [string, string][] = [
     [
         'Other business income',
         'Selling old equipment, side commissions: record it as money received.',
-    ],
-    [
-        'I sell on an online marketplace',
-        'Payout reports import like a statement. Marketplace withholding comes in a later update.',
     ],
     [
         'I signed a loan',
@@ -418,6 +414,20 @@ export default function ImportStatement({
 
                 <SectionCard title="Other things that happened">
                     <ul className="grid gap-x-6 sm:grid-cols-2 xl:grid-cols-4">
+                        <li className="border-t border-divider py-3">
+                            <Link
+                                href={marketplace().url}
+                                className="block hover:underline"
+                            >
+                                <span className="block text-[15px] font-bold text-primary">
+                                    I sell on an online marketplace
+                                </span>
+                                <span className="text-[13px] text-muted-foreground">
+                                    Import the payout report: sales, fees and
+                                    the platform's withholding.
+                                </span>
+                            </Link>
+                        </li>
                         {OTHER_THINGS.map(([title, detail]) => (
                             <li
                                 key={title}

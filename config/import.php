@@ -36,6 +36,25 @@ return [
 
     'max_rows' => 5000,
 
+    // Online marketplace payout reports: a line per order. Sales are what the
+    // buyer paid; the platform's fees are an expense and its withholding a
+    // credit, confirmed by its 2307.
+    // REVIEW: the rate (1% of half the gross remittance) and the ₱500,000
+    // sworn-declaration threshold, against the current revenue regulations.
+    'marketplace' => [
+        'platforms' => ['Shopee', 'Lazada', 'TikTok Shop', 'Zalora'],
+        'withholding_rate' => 0.005,
+        'exempt_up_to' => 500_000,
+        'columns' => [
+            'date' => ['order date', 'order creation date', 'order created', 'created at', 'order time', 'date', 'transaction date', 'payout date', 'release date'],
+            'order' => ['order id', 'order no', 'order number', 'order sn', 'order', 'reference', 'reference number'],
+            'sales' => ['gross sales', 'gross amount', 'order amount', 'order total', 'total amount', 'buyer paid', 'amount paid by buyer', 'product price', 'subtotal', 'sales', 'revenue'],
+            'fees' => ['total fees', 'fees', 'fee', 'commission', 'commission fee', 'platform fee', 'transaction fee', 'service fee', 'payment fee'],
+            'withheld' => ['withholding tax', 'tax withheld', 'withheld', 'wht', 'withholding', 'cwt', 'creditable withholding tax'],
+            'payout' => ['payout id', 'payout', 'settlement id', 'release id', 'statement id'],
+        ],
+    ],
+
     // Words that only say what kind of company a client is.
     'company_words' => ['INC', 'INCORPORATED', 'CORP', 'CORPORATION', 'CO', 'COMPANY', 'LTD', 'LIMITED', 'LLC', 'OPC', 'THE'],
 

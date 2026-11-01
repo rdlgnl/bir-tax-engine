@@ -9,8 +9,6 @@ use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use SplFileObject;
-use Throwable;
 
 /**
  * Reading a bank, e-wallet or payout statement (CSV) and sorting its lines:
@@ -29,6 +27,8 @@ use Throwable;
  */
 class StatementImport
 {
+    public function __construct(private CsvFile $csv) {}
+
     private const COLUMNS = [
         'date' => ['date', 'transaction date', 'txn date', 'trans date', 'posting date', 'posted', 'date posted', 'value date', 'completed date'],
         'description' => ['description', 'transaction description', 'transaction details', 'details', 'particulars', 'narration', 'remarks', 'memo', 'reference', 'notes', 'note', 'name', 'payee', 'type'],
@@ -36,8 +36,6 @@ class StatementImport
         'credit' => ['credit', 'credits', 'credit amount', 'deposit', 'deposits', 'money in', 'cash in', 'in'],
         'debit' => ['debit', 'debits', 'debit amount', 'withdrawal', 'withdrawals', 'money out', 'cash out', 'out'],
     ];
-
-    private const DATE_FORMATS = ['Y-m-d', 'm/d/Y', 'm/d/y', 'n/j/Y', 'Y/m/d', 'd-M-Y', 'd-M-y', 'd M Y', 'M d, Y', 'M j, Y', 'F j, Y', 'd/m/Y', 'Y-m-d H:i:s', 'm/d/Y H:i', 'm/d/Y h:i A'];
 
     /**
      * The statement's columns, which of them hold the date, description and
@@ -48,7 +46,7 @@ class StatementImport
      */
     public function read(string $path, ?array $mapping = null): array
     {
-        $records = $this->records($path);
+        $records = $this->csv->records($path);
         [$headerAt, $guessed] = $this->findHeader($records);
         $columns = array_map(fn ($c) => trim((string) $c), $records[$headerAt] ?? []);
         $mapping ??= $guessed;
@@ -63,12 +61,12 @@ class StatementImport
             }
 
             $amount = $mapping['amount'] !== null
-                ? $this->money($record[$mapping['amount']] ?? '')
-                : (($this->money($record[$mapping['credit']] ?? '') ?? 0.0) - abs($this->money($record[$mapping['debit']] ?? '') ?? 0.0));
+                ? $this->csv->money($record[$mapping['amount']] ?? '')
+                : (($this->csv->money($record[$mapping['credit']] ?? '') ?? 0.0) - abs($this->csv->money($record[$mapping['debit']] ?? '') ?? 0.0));
 
             $lines[] = [
                 'line' => $i + 1,
-                'date' => $this->date((string) ($record[$mapping['date']] ?? '')),
+                'date' => $this->csv->date((string) ($record[$mapping['date']] ?? '')),
                 'description' => Str::squish((string) ($record[$mapping['description']] ?? '')),
                 'amount' => $amount,
             ];
@@ -274,37 +272,6 @@ class StatementImport
     }
 
     /**
-     * Every record of the file, with the delimiter it uses.
-     *
-     * @return list<list<string|null>>
-     */
-    private function records(string $path): array
-    {
-        $file = new SplFileObject($path);
-        // The delimiter is the one the opening lines use most; some start with a title line.
-        $opening = '';
-
-        for ($i = 0; $i < 10 && ! $file->eof(); $i++) {
-            $opening .= (string) $file->fgets();
-        }
-
-        $delimiter = collect([',', ';', "\t", '|'])->sortByDesc(fn ($d) => substr_count($opening, $d))->first();
-        $file->rewind();
-        $file->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::READ_AHEAD);
-        $file->setCsvControl($delimiter, '"', '');
-        $records = [];
-
-        foreach ($file as $record) {
-            if (is_array($record)) {
-                // Drop a byte-order mark from the first cell.
-                $records[] = array_map(fn ($v) => $v === null ? null : preg_replace('/^\x{FEFF}/u', '', $v), array_values($record));
-            }
-        }
-
-        return $records;
-    }
-
-    /**
      * The first of the opening lines whose cells read as column names.
      *
      * @param  list<list<string|null>>  $records
@@ -335,54 +302,6 @@ class StatementImport
         }
 
         return [0, $empty];
-    }
-
-    private function date(string $value): ?string
-    {
-        $value = trim($value);
-
-        if ($value === '') {
-            return null;
-        }
-
-        foreach (self::DATE_FORMATS as $format) {
-            try {
-                $date = CarbonImmutable::createFromFormat('!'.$format, $value);
-
-                if ($date !== null && $date->format($format) === $value) {
-                    return $date->toDateString();
-                }
-            } catch (Throwable) {
-                // Try the next format.
-            }
-        }
-
-        try {
-            return CarbonImmutable::parse($value)->toDateString();
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    /**
-     * "₱1,234.50", "(1,234.50)", "1,234.50 DR" and "-1234.5" as numbers.
-     */
-    private function money(?string $value): ?float
-    {
-        $value = Str::upper(trim((string) $value));
-
-        if ($value === '') {
-            return null;
-        }
-
-        $negative = str_starts_with($value, '-') || str_starts_with($value, '(') || str_ends_with($value, 'DR');
-        $digits = preg_replace('/[^\d.]/', '', $value);
-
-        if ($digits === null || $digits === '' || ! is_numeric($digits)) {
-            return null;
-        }
-
-        return ($negative ? -1 : 1) * round((float) $digits, 2);
     }
 
     private function normalise(string $value): string
