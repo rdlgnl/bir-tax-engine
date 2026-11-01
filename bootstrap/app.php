@@ -2,6 +2,7 @@
 
 use App\Data\Middleware\EnsureAppIsUnlocked;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RejectUnknownHosts;
 use App\Profiles\Middleware\EnsureSetupIsComplete;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -37,6 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'setup.complete' => EnsureSetupIsComplete::class,
         ]);
+
+        // Before anything else: requests addressed to another host get nothing.
+        $middleware->prepend(RejectUnknownHosts::class);
 
         $middleware->web(append: [
             EnsureAppIsUnlocked::class,
