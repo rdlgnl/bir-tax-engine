@@ -13,7 +13,7 @@ import {
     quarterMonths,
 } from '@/lib/format';
 import { profile, withholding } from '@/routes';
-import { certificate, qap } from '@/routes/withholding';
+import { annual, certificate, qap } from '@/routes/withholding';
 import { form as formPage, pdf } from '@/routes/withholding/quarter';
 import type { WithholdingAgentIdentity, WithholdingQuarter } from '@/types';
 
@@ -276,7 +276,13 @@ export default function WithholdingQuarterPage({
 
                     <Note title="At year end">
                         All {year} payees go on the annual 1604-E, due{' '}
-                        {formatDate(annualDue, 'long')}.
+                        {formatDate(annualDue, 'long')}.{' '}
+                        <Link
+                            href={annual(year).url}
+                            className="font-bold underline"
+                        >
+                            Preview
+                        </Link>
                     </Note>
 
                     {qapFile === null && (

@@ -233,8 +233,8 @@ class TaxObligations
     }
 
     /**
-     * A withholding agent's 0619-E for the first two months of each quarter
-     * and 1601-EQ for the quarter, once something was withheld.
+     * A withholding agent's 0619-E for the first two months of each quarter,
+     * 1601-EQ for the quarter and 1604-E for the year, once something was withheld.
      * REVIEW: whether a month or quarter with nothing withheld still needs a return.
      *
      * @return list<Deadline>
@@ -274,6 +274,21 @@ class TaxObligations
                 amount: $q['status'] === 'open' ? null : $q['still_due'],
                 note: $q['status'] === 'open' ? 'So far' : null,
                 href: route('withholding.quarter', [$year, $q['quarter']], absolute: false),
+            );
+        }
+
+        $annual = $this->agent->annual($year);
+
+        if ($annual['withheld'] > 0 && ($annual['status'] !== 'filed' || $includeFiled)) {
+            $items[] = $this->deadline(
+                date: $annual['due_date'],
+                statutoryDate: $annual['due_date'],
+                title: "{$year} 1604-E · list of payees",
+                kind: 'withholding',
+                status: $annual['status'],
+                amount: null,
+                note: 'No payment',
+                href: route('withholding.annual', $year, absolute: false),
             );
         }
 

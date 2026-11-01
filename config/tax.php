@@ -77,6 +77,9 @@ return [
         // alphalist layout: header, a line per payee, control line.
         // REVIEW: check the layout and file name against the current alphalist module.
         'qap_file_name' => '{tin}{branch}{period}1601EQ.DAT',
+        // The annual alphalist filed with the 1604-E, in the same layout, for the year to December 31.
+        // REVIEW: check the layout and file name against the current alphalist module.
+        'alphalist_file_name' => '{tin}{branch}1231{year}1604E.DAT',
     ],
 
     // Value-added tax, for VAT-registered taxpayers. Amounts are kept net of
@@ -153,6 +156,7 @@ return [
         // Withholding agent: monthly and quarterly remittance, the payee's certificate.
         '0619-E' => ['edition' => 'January 2018', 'template' => '0619-E-2018-01', 'whole_pesos' => false],
         '1601-EQ' => ['edition' => 'January 2019 (ENCS)', 'template' => '1601-EQ-2019-01', 'whole_pesos' => false],
+        '1604-E' => ['edition' => 'January 2018 (ENCS)', 'template' => '1604-E-2018-01', 'whole_pesos' => false],
         '2307' => ['edition' => 'January 2018 (ENCS)', 'template' => '2307-2018-01', 'whole_pesos' => false],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],

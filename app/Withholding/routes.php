@@ -6,6 +6,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('setup.complete')->prefix('/withholding')->group(function () {
     Route::get('/{year?}', [WithholdingController::class, 'index'])->whereNumber('year')->name('withholding');
 
+    Route::prefix('/{year}/annual')->whereNumber('year')->group(function () {
+        Route::get('/', [WithholdingController::class, 'annual'])->name('withholding.annual');
+        Route::get('/form', [WithholdingController::class, 'annualPreview'])->name('withholding.annual.form');
+        Route::get('/pdf', [WithholdingController::class, 'annualPdf'])->name('withholding.annual.pdf');
+        Route::get('/alphalist/{kind}', [WithholdingController::class, 'alphalist'])->where('kind', 'dat|csv')->name('withholding.alphalist');
+    });
+
     Route::prefix('/{year}/month/{month}')->whereNumber(['year', 'month'])->name('withholding.month')->group(function () {
         Route::get('/', [WithholdingController::class, 'month']);
         Route::get('/pdf', [WithholdingController::class, 'monthPdf'])->name('.pdf');

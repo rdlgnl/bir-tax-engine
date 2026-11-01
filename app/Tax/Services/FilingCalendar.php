@@ -71,6 +71,14 @@ class FilingCalendar
         return $this->nextWorkingDay(CarbonImmutable::create($year, $quarter * 3)->addMonthNoOverflow()->endOfMonth()->startOfDay());
     }
 
+    /**
+     * The 1604-E for a year: March 1 of the next year, or the next working day.
+     */
+    public function withholdingAnnualDue(int $year): CarbonImmutable
+    {
+        return $this->nextWorkingDay(CarbonImmutable::create($year + 1, 3, 1));
+    }
+
     public function swornDeclarationDue(int $year): CarbonImmutable
     {
         [$month, $day] = config('tax.deadlines.sworn_declaration');

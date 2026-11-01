@@ -225,7 +225,7 @@ test('the quarterly list of payees exports in the alphalist layout and as CSV', 
     expect($csv)->toContain('Payee,TIN,ATC')->toContain('Leo Bautista');
 });
 
-test('0619-E and 1601-EQ deadlines show on the calendar for a withholding agent', function () {
+test('0619-E, 1601-EQ and 1604-E deadlines show on the calendar for a withholding agent', function () {
     $profile = withholdingAgent();
     remitted(7, 1_500);
 
@@ -235,7 +235,8 @@ test('0619-E and 1601-EQ deadlines show on the calendar for a withholding agent'
         fn (array $item) => $item['kind'] === 'withholding',
     ));
 
-    expect(array_column($withholding, 'title'))->toBe(['August 0619-E · withholding', 'Q3 1601-EQ · withholding'])
+    expect(array_column($withholding, 'title'))->toBe(['August 0619-E · withholding', 'Q3 1601-EQ · withholding', '2026 1604-E · list of payees'])
         ->and($withholding[0])->toMatchArray(['status' => 'overdue', 'amount' => 3500.0, 'href' => '/withholding/2026/month/8'])
-        ->and($withholding[1])->toMatchArray(['amount' => 5000.0, 'href' => '/withholding/2026/quarter/3']);
+        ->and($withholding[1])->toMatchArray(['amount' => 5000.0, 'href' => '/withholding/2026/quarter/3'])
+        ->and($withholding[2])->toMatchArray(['date' => '2027-03-01', 'status' => 'open', 'amount' => null, 'href' => '/withholding/2026/annual']);
 });
