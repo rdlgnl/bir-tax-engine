@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One quarter of a corporation's books: that quarter's figures alone, not
- * the year to date, and its 1702Q once filed.
+ * the year to date, and its 1702Q once filed. The 4th quarter has no 1702Q:
+ * its row records the year's 1702-RT.
  *
  * @property int $id
  * @property int $corporation_id

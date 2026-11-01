@@ -1,14 +1,14 @@
 import { Head, Link } from '@inertiajs/react';
 import { ChevronLeft, Download, Printer } from 'lucide-react';
 import { useState } from 'react';
-import { MarkQuarterFiled } from '@/components/corporation/mark-quarter-filed';
+import { MarkCorporateFiled } from '@/components/corporation/mark-corporate-filed';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaperForm } from '@/components/withholding/paper-form';
 import { formAmount, formatDate } from '@/lib/format';
-import { edit, pdf, quarter as quarterPage } from '@/routes/corporation';
+import { edit, filed, pdf, quarter as quarterPage } from '@/routes/corporation';
 import type { CorporateQuarterTax, Corporation } from '@/types';
 
 type Props = {
@@ -283,7 +283,13 @@ export default function CorporationForm({
                             Marked filed on {formatDate(tax.filed_on, 'long')}.
                         </Note>
                     ) : (
-                        tax.status !== 'open' && <MarkQuarterFiled tax={tax} />
+                        tax.status !== 'open' && (
+                            <MarkCorporateFiled
+                                action={filed(route)}
+                                payable={tax.payable}
+                                form={`Q${tax.quarter} 1702Q`}
+                            />
+                        )
                     )}
                 </div>
             </div>

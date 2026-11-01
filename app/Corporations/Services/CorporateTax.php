@@ -53,6 +53,8 @@ use Illuminate\Support\Collection;
  *     quarters_entered: int,
  *     figures: Figures,
  *     withheld: float,
+ *     withheld_previous: float,
+ *     withheld_fourth_quarter: float,
  *     rate: float,
  *     small: bool,
  *     regular_tax: float,
@@ -60,10 +62,16 @@ use Illuminate\Support\Collection;
  *     mcit: float,
  *     uses: 'regular'|'mcit',
  *     tax_due: float,
+ *     paid_regular: float,
+ *     paid_mcit: float,
  *     quarterly_payments: float,
  *     credits: float,
  *     payable: float,
  *     due_date: string,
+ *     status: 'open'|'due'|'overdue'|'filed',
+ *     filed_on: string|null,
+ *     reference_number: string|null,
+ *     amount_paid: float|null,
  * }
  */
 class CorporateTax
@@ -144,6 +152,7 @@ class CorporateTax
     /**
      * The 1702-RT for a year. Until the 4th quarter is in the books, the
      * year is estimated from the quarters so far, as if the rest go the same.
+     * The 4th quarter has no 1702Q; its row records the 1702-RT once filed.
      *
      * @return AnnualEstimate|null
      */
@@ -165,11 +174,22 @@ class CorporateTax
 
         $figures = array_map(fn (float $amount) => round($amount * $factor, 2), $figures);
         $withheld = round($rows->sum(fn (CorporationQuarter $row) => (float) $row->withheld) * $factor, 2);
+        $withheldBefore = round($rows->filter(fn (CorporationQuarter $row) => $row->quarter < 4)->sum(fn (CorporationQuarter $row) => (float) $row->withheld), 2);
         $tax = $this->tax($corporation, $year, $figures['taxable_income'], $figures['gross_income']);
-        $payments = round(collect($this->quarters($corporation, $year))
-            ->filter(fn (array $quarter) => $quarter['has_figures'])
-            ->sum(fn (array $quarter) => $quarter['amount_paid'] ?? max(0.0, $quarter['payable'])), 2);
+        $paidRegular = $paidMcit = 0.0;
+
+        foreach ($this->quarters($corporation, $year) as $quarter) {
+            if ($quarter['has_figures']) {
+                $paid = $quarter['amount_paid'] ?? max(0.0, $quarter['payable']);
+                $quarter['uses'] === 'mcit' ? $paidMcit += $paid : $paidRegular += $paid;
+            }
+        }
+
+        $payments = round($paidRegular + $paidMcit, 2);
         $credits = round($payments + $withheld, 2);
+        $due = $this->calendar->incomeTaxDue($year, 4);
+        $fourth = $rows->get(4);
+        $today = CarbonImmutable::now();
 
         return [
             'year' => $year,
@@ -177,11 +197,24 @@ class CorporateTax
             'quarters_entered' => $rows->count(),
             'figures' => $figures,
             'withheld' => $withheld,
+            'withheld_previous' => $withheldBefore,
+            'withheld_fourth_quarter' => round($withheld - $withheldBefore, 2),
             ...$tax,
+            'paid_regular' => round($paidRegular, 2),
+            'paid_mcit' => round($paidMcit, 2),
             'quarterly_payments' => $payments,
             'credits' => $credits,
             'payable' => round($tax['tax_due'] - $credits, 2),
-            'due_date' => $this->calendar->incomeTaxDue($year, 4)->toDateString(),
+            'due_date' => $due->toDateString(),
+            'status' => match (true) {
+                $fourth?->filed_on !== null => 'filed',
+                $today->lessThanOrEqualTo($this->quarterEnd($year, 4)->endOfDay()) => 'open',
+                $today->greaterThan($due->endOfDay()) => 'overdue',
+                default => 'due',
+            },
+            'filed_on' => $fourth?->filed_on?->toDateString(),
+            'reference_number' => $fourth?->reference_number,
+            'amount_paid' => $fourth?->amount_paid !== null ? (float) $fourth->amount_paid : null,
         ];
     }
 

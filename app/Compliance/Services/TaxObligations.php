@@ -275,7 +275,7 @@ class TaxObligations
                 tone: 'action', href: route('letters.show', $letter, absolute: false));
         }
 
-        // The 1702Q of a corporation the taxpayer runs.
+        // The 1702Q and 1702-RT of a corporation the taxpayer runs.
         if (($corporation = Corporation::current()) !== null) {
             foreach ($this->corporations->quarters($corporation, $y) as $quarter) {
                 if ($quarter['status'] === 'filed' && ! $includeFiled) {
@@ -292,6 +292,21 @@ class TaxObligations
                     amount: $ended && $quarter['has_figures'] ? max(0.0, $quarter['payable']) : null,
                     note: $ended && ! $quarter['has_figures'] ? 'Enter figures' : ($ended ? null : 'Corporation'),
                     href: route('corporation.quarter', [$y, $quarter['quarter']], absolute: false),
+                );
+            }
+
+            $annual = $this->corporations->annual($corporation, $y);
+
+            if ($annual !== null && ($annual['status'] !== 'filed' || $includeFiled)) {
+                $items[] = $this->deadline(
+                    date: $annual['due_date'],
+                    statutoryDate: $this->calendar->incomeTaxStatutoryDate($y, 4)->toDateString(),
+                    title: "{$y} 1702-RT · {$corporation->name}",
+                    kind: 'income_tax',
+                    status: $annual['status'],
+                    amount: $annual['estimated'] ? null : max(0.0, $annual['payable']),
+                    note: $annual['estimated'] ? 'Estimate' : null,
+                    href: route('corporation.annual', $y, absolute: false),
                 );
             }
         }

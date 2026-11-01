@@ -7,22 +7,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { todayIso } from '@/lib/format';
-import { filed } from '@/routes/corporation';
-import type { CorporateQuarterTax } from '@/types';
+import type { RouteDefinition } from '@/wayfinder';
 
-/** "I've filed it": records the date, the reference and what was paid. */
-export function MarkQuarterFiled({
-    tax,
+/** "I've filed it": records a 1702Q or 1702-RT's date, reference and payment. */
+export function MarkCorporateFiled({
+    action,
+    payable,
+    form: formName,
     label = "I've filed it · mark as filed",
 }: {
-    tax: CorporateQuarterTax;
+    action: RouteDefinition<'post'>;
+    payable: number;
+    /** "Q3 1702Q", "2026 1702-RT" */
+    form: string;
     label?: string;
 }) {
     const [open, setOpen] = useState(false);
     const form = useForm({
         filed_on: todayIso(),
         reference_number: '',
-        amount_paid: String(Math.max(0, tax.payable)),
+        amount_paid: String(Math.max(0, payable)),
     });
 
     if (!open) {
@@ -42,7 +46,7 @@ export function MarkQuarterFiled({
                 noValidate
                 onSubmit={(event) => {
                     event.preventDefault();
-                    form.submit(filed([tax.year, tax.quarter]), {
+                    form.submit(action, {
                         preserveScroll: true,
                     });
                 }}
@@ -94,7 +98,7 @@ export function MarkQuarterFiled({
                     disabled={form.processing}
                     className="h-11 rounded-xl font-bold"
                 >
-                    Mark Q{tax.quarter} 1702Q filed
+                    Mark {formName} filed
                 </Button>
             </form>
         </SectionCard>

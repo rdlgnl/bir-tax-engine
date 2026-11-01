@@ -1,11 +1,15 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarClock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso, periodLabel } from '@/lib/format';
 import { calendar, home } from '@/routes';
-import { edit, quarter as quarterPage } from '@/routes/corporation';
+import {
+    annual as annualPage,
+    edit,
+    quarter as quarterPage,
+} from '@/routes/corporation';
 import type {
     CorporateAnnualEstimate,
     CorporateQuarterTax,
@@ -186,9 +190,12 @@ export default function CorporationShow({
                         {mcitNote.body}
                     </Note>
                     {annual && (
-                        <div className="flex items-center gap-4 rounded-card bg-ink p-5 text-ink-foreground">
+                        <Link
+                            href={annualPage(annual.year).url}
+                            className="flex items-center gap-4 rounded-card bg-ink p-5 text-ink-foreground hover:bg-slate-800"
+                        >
                             <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary">
-                                <CalendarClock className="size-5" aria-hidden />
+                                <Download className="size-5" aria-hidden />
                             </span>
                             <span>
                                 <span className="block text-lg font-extrabold">
@@ -197,13 +204,13 @@ export default function CorporationShow({
                                     (1702-RT)
                                 </span>
                                 <span className="text-sm text-slate-300">
-                                    {annual.payable >= 0
-                                        ? `${peso(annual.payable)} still to pay for ${annual.year}`
-                                        : `${peso(annual.payable)} overpaid for ${annual.year}`}
-                                    , due {formatDate(annual.due_date, 'long')}.
+                                    {annual.filed_on
+                                        ? `Filed ${formatDate(annual.filed_on, 'long')}`
+                                        : `${peso(annual.payable)} ${annual.payable >= 0 ? 'still to pay' : 'overpaid'} for ${annual.year}, due ${formatDate(annual.due_date, 'long')}`}
+                                    .
                                 </span>
                             </span>
-                        </div>
+                        </Link>
                     )}
                     <Button
                         asChild

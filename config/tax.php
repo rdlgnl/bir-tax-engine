@@ -207,6 +207,7 @@ return [
         '2307' => ['edition' => 'January 2018 (ENCS)', 'template' => '2307-2018-01', 'whole_pesos' => false],
         // A corporation the taxpayer runs.
         '1702Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '1702Q-2018-01', 'whole_pesos' => true],
+        '1702-RT' => ['edition' => 'January 2018 (ENCS)', 'template' => '1702-RT-2018-01', 'whole_pesos' => true],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
         '1900' => ['edition' => 'October 2025 (ENCS)', 'template' => '1900-2025-10', 'whole_pesos' => true],
