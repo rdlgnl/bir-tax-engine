@@ -4,8 +4,10 @@ namespace App\Compliance\Controllers;
 
 use App\Compliance\Models\Certificate;
 use App\Compliance\Requests\MatchCertificateRequest;
+use App\Compliance\Requests\ReadCertificateRequest;
 use App\Compliance\Requests\StoreCertificateRequest;
 use App\Compliance\Services\CertificateMatcher;
+use App\Compliance\Services\CertificateReader;
 use App\Http\Controllers\Controller;
 use App\Notices\Services\Notices;
 use App\Transactions\Models\Transaction;
@@ -76,6 +78,18 @@ class CertificateController extends Controller
                 'tax_withheld' => (float) $t->tax_withheld,
             ])->values(),
         ]);
+    }
+
+    /**
+     * Reads the chosen file's details for the taxpayer to check (design
+     * 3-02). The file is read where it was uploaded to and not kept; it's
+     * stored only when the certificate is saved.
+     */
+    public function read(ReadCertificateRequest $request, CertificateReader $reader): JsonResponse
+    {
+        $file = $request->file('file');
+
+        return response()->json($reader->read((string) $file?->getRealPath(), (string) $file?->getMimeType()));
     }
 
     public function store(StoreCertificateRequest $request, CertificateMatcher $matcher, Notices $notices): RedirectResponse

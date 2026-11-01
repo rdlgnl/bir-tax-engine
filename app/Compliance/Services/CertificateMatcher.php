@@ -48,7 +48,10 @@ class CertificateMatcher
         ];
     }
 
-    private function normalize(string $name): string
+    /**
+     * A name with punctuation and company suffixes set aside, for comparing.
+     */
+    public function normalize(string $name): string
     {
         $words = Str::of($name)->lower()->replaceMatches('/[^a-z0-9 ]+/', ' ')->squish()->explode(' ');
 
