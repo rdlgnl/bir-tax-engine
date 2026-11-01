@@ -38,7 +38,7 @@ export const navItems: NavItem[] = [
         label: 'Compliance & 2307s',
         icon: FileCheck2,
         href: complianceShow.url(),
-        match: ['/compliance', '/certificates'],
+        match: ['/compliance', '/certificates', '/letters'],
     },
     {
         label: 'Calendar',

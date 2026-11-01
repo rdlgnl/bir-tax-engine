@@ -3,6 +3,7 @@
 namespace App\Compliance\Services;
 
 use App\Compliance\Models\CompensationCertificate;
+use App\Letters\Models\Letter;
 use App\Loans\Models\Loan;
 use App\Loans\Services\LoanTax;
 use App\Payroll\Services\Payroll;
@@ -262,6 +263,13 @@ class TaxObligations
                     href: route('payroll.annual', $y, absolute: false),
                 );
             }
+        }
+
+        // Replying to a BIR letter, until it's dealt with.
+        foreach (Letter::query()->whereYear('reply_by', $y)->whereNull('resolved_on')->get() as $letter) {
+            $date = (string) $letter->reply_by?->toDateString();
+            $items[] = $this->deadline($date, $date, 'Reply to the BIR: '.lcfirst($letter->kindLabel()), 'reminder', 'reminder', null, 'Letter',
+                tone: 'action', href: route('letters.show', $letter, absolute: false));
         }
 
         // Form 2000 for each loan the taxpayer files the DST on themselves.
