@@ -157,6 +157,8 @@ export type CertificateRow = {
     expected_by: string;
     certificate_id: number | null;
     transaction_id: number;
+    /** A 2307 saved for the quarter whose amount differs from the payments. */
+    unmatched: { id: number; tax_withheld: number } | null;
 };
 
 export type CertificateTracker = {

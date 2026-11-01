@@ -21,6 +21,7 @@ Route::middleware('setup.complete')->group(function () {
     Route::post('/certificates/match', [CertificateController::class, 'match'])->name('certificates.match');
     Route::post('/certificates/read', [CertificateController::class, 'read'])->name('certificates.read');
     Route::get('/certificates/{certificate}/file', [CertificateController::class, 'file'])->name('certificates.file');
+    Route::post('/certificates/{certificate}/link', [CertificateController::class, 'link'])->name('certificates.link');
 
     Route::get('/2316/{year?}', [CompensationController::class, 'show'])->whereNumber('year')->name('compensation');
     Route::post('/2316/{year}', [CompensationController::class, 'store'])->whereNumber('year')->name('compensation.store');

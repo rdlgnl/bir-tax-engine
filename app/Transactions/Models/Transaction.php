@@ -3,6 +3,7 @@
 namespace App\Transactions\Models;
 
 use App\Compliance\Models\Certificate;
+use App\Compliance\Services\CertificateLinks;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
@@ -77,6 +78,16 @@ class Transaction extends Model
         'invoice_paid' => false,
         'has_valid_invoice' => false,
     ];
+
+    /**
+     * A 2307 follows its payments: however a payment is added, changed or
+     * deleted, the client's certificates for the quarter are checked again.
+     */
+    protected static function booted(): void
+    {
+        static::saved(fn (self $transaction) => app(CertificateLinks::class)->afterChange($transaction));
+        static::deleted(fn (self $transaction) => app(CertificateLinks::class)->afterChange($transaction));
+    }
 
     /**
      * Get the attributes that should be cast.

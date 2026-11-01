@@ -6,6 +6,7 @@ use App\Compliance\Models\Certificate;
 use App\Compliance\Requests\MatchCertificateRequest;
 use App\Compliance\Requests\ReadCertificateRequest;
 use App\Compliance\Requests\StoreCertificateRequest;
+use App\Compliance\Services\CertificateLinks;
 use App\Compliance\Services\CertificateMatcher;
 use App\Compliance\Services\CertificateReader;
 use App\Http\Controllers\Controller;
@@ -140,11 +141,24 @@ class CertificateController extends Controller
 
         Inertia::flash('toast', match ($match['status']) {
             'exact' => "2307 from {$certificate->payor_name} saved. The {$peso((float) $certificate->tax_withheld)} credit is confirmed.",
-            'partial' => "2307 saved, but your payments show {$peso($match['withheld'])} withheld. Check with {$certificate->payor_name}.",
+            'partial' => "2307 saved, but your payments show {$peso($match['withheld'])} withheld. Correct the payment, check with {$certificate->payor_name}, or link it anyway from Compliance.",
             default => '2307 saved. No matching payment yet: record the payment and we’ll match it.',
         });
 
         return redirect()->route('compliance.show', $certificate->year === now()->year ? $certificate->quarter : null);
+    }
+
+    /**
+     * Links a 2307 that doesn't match to the client's payments in its
+     * quarter, as the taxpayer decided. The credit is what the payments show.
+     */
+    public function link(Certificate $certificate, CertificateLinks $links): RedirectResponse
+    {
+        $count = $links->linkByHand($certificate);
+
+        return Inertia::flash('toast', $count > 0
+            ? "2307 from {$certificate->payor_name} linked to {$count} ".($count === 1 ? 'payment' : 'payments').'.'
+            : "No payment from {$certificate->payor_name} in Q{$certificate->quarter} to link it to.")->back();
     }
 
     public function file(Certificate $certificate): StreamedResponse

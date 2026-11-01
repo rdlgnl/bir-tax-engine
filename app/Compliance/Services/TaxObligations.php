@@ -2,6 +2,7 @@
 
 namespace App\Compliance\Services;
 
+use App\Compliance\Models\Certificate;
 use App\Compliance\Models\CompensationCertificate;
 use App\Corporations\Models\Corporation;
 use App\Corporations\Services\CorporateTax;
@@ -62,6 +63,7 @@ use Illuminate\Support\Str;
  *     expected_by: string,
  *     certificate_id: int|null,
  *     transaction_id: int,
+ *     unmatched: array{id: int, tax_withheld: float}|null,
  * }
  * @phpstan-type NextPayment array{
  *     state: 'empty'|'cannot_compute'|'due'|'overdue'|'clear'|'not_applicable',
@@ -82,6 +84,7 @@ class TaxObligations
         private LoanTax $loans,
         private Payroll $payroll,
         private CorporateTax $corporations,
+        private CertificateMatcher $matcher,
     ) {}
 
     /**
@@ -618,7 +621,27 @@ class TaxObligations
             'expected_by' => $first->occurred_on->lastOfQuarter()->addDays(config('tax.certificate_grace_days'))->toDateString(),
             'certificate_id' => $first->certificate_id,
             'transaction_id' => $first->id,
+            'unmatched' => $allReceived ? null : $this->unmatchedCertificate($first),
         ];
+    }
+
+    /**
+     * A 2307 saved for the client's quarter that covers none of its
+     * payments, because the amounts differ.
+     *
+     * @return array{id: int, tax_withheld: float}|null
+     */
+    private function unmatchedCertificate(Transaction $payment): ?array
+    {
+        $client = $this->matcher->normalize($payment->counterparty);
+        $certificate = Certificate::query()
+            ->where('year', $payment->occurred_on->year)
+            ->where('quarter', $payment->quarter())
+            ->doesntHave('transactions')
+            ->get()
+            ->first(fn (Certificate $c) => $this->matcher->normalize($c->payor_name) === $client);
+
+        return $certificate === null ? null : ['id' => $certificate->id, 'tax_withheld' => (float) $certificate->tax_withheld];
     }
 
     /**
