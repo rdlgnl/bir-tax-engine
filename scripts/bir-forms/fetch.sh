@@ -35,6 +35,7 @@ FORMS=(
     "0619-E-2018-01|January 2018|https://bir-cdn.bir.gov.ph/local/pdf/0619-E%20Jan%202018%20rev%20final.pdf"
     "1601-EQ-2019-01|January 2019 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1601-EQ%20January%202019%20ENCS%20final.pdf"
     "1604-E-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1604E%20Jan%202018%20ENCS%20Final2.pdf"
+    "2000-2018-01|January 2018|https://bir-cdn.bir.gov.ph/local/pdf/2000-DST%20Jan%202018%20final.pdf"
     "1905-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1905%20October%202025%20ENCS%20Final.pdf"
     "1900-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1900%20October%202025%20ENCS%20Final.pdf"
 )

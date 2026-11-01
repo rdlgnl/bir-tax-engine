@@ -90,6 +90,15 @@ return [
 
     'micro_taxpayer_limit' => 3_000_000,
 
+    // Documentary stamp tax on a loan (NIRC section 179, as TRAIN amended
+    // it): ₱1.50 for each ₱200 or fraction, a share of it for a term under
+    // a year. Filed on Form 2000 within 5 days after the month it was signed.
+    // REVIEW: the ATC, and prorating by months rather than days.
+    'dst' => [
+        'loan' => ['atc' => 'DS106', 'per' => 200, 'rate' => 1.50],
+        'due_days_after_month' => 5,
+    ],
+
     // Paying late (NIRC sections 248-249, as the Ease of Paying Taxes Act
     // changed them): a surcharge once, and interest a year on the unpaid tax
     // from the due date. Micro and small taxpayers (gross sales below
@@ -171,6 +180,7 @@ return [
         '0619-E' => ['edition' => 'January 2018', 'template' => '0619-E-2018-01', 'whole_pesos' => false],
         '1601-EQ' => ['edition' => 'January 2019 (ENCS)', 'template' => '1601-EQ-2019-01', 'whole_pesos' => false],
         '1604-E' => ['edition' => 'January 2018 (ENCS)', 'template' => '1604-E-2018-01', 'whole_pesos' => false],
+        '2000' => ['edition' => 'January 2018', 'template' => '2000-2018-01', 'whole_pesos' => false],
         '2307' => ['edition' => 'January 2018 (ENCS)', 'template' => '2307-2018-01', 'whole_pesos' => false],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
