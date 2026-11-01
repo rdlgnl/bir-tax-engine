@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Compliance\Models\CompensationCertificate;
 use App\Compliance\Services\TaxObligations;
+use App\Corporations\Models\Corporation;
+use App\Corporations\Services\CorporateTax;
 use App\Data\Services\Backups;
 use App\Notices\Services\Notices;
 use App\Profiles\Enums\IncomeSource;
@@ -23,7 +25,7 @@ use Inertia\Response;
  */
 class HomeController extends Controller
 {
-    public function __invoke(Amendments $amendments, TaxCalculationService $engine, TaxObligations $obligations, Backups $backups, Notices $notices, RulePacks $packs, VatCalculator $vatCalculator): Response
+    public function __invoke(Amendments $amendments, TaxCalculationService $engine, TaxObligations $obligations, Backups $backups, Notices $notices, RulePacks $packs, VatCalculator $vatCalculator, CorporateTax $corporateTax): Response
     {
         $profile = TaxProfile::current();
         $today = CarbonImmutable::now();
@@ -80,6 +82,22 @@ class HomeController extends Controller
                 $previous = $today->quarter === 1 ? $vatCalculator->forYear($today->year - 1, $today)[4] : $year[$today->quarter - 1];
 
                 return ['current' => $year[$today->quarter], 'previous' => $previous, 'year' => $today->year];
+            })() : null,
+            // A corporation the taxpayer runs, and its next 1702Q.
+            'corporation' => ($corporation = Corporation::current()) !== null ? (function () use ($corporation, $corporateTax, $today) {
+                $next = $corporateTax->nextQuarter($corporation, $today);
+                $tax = $next !== null ? $corporateTax->quarter($corporation, $today->year, $next) : null;
+
+                return [
+                    'name' => $corporation->name,
+                    'next' => $tax !== null ? [
+                        'quarter' => $tax['quarter'],
+                        'has_figures' => $tax['has_figures'],
+                        'payable' => $tax['payable'],
+                        'due_date' => $tax['due_date'],
+                        'status' => $tax['status'],
+                    ] : null,
+                ];
             })() : null,
         ]);
     }

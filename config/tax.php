@@ -99,6 +99,26 @@ return [
         'due_days_after_month' => 5,
     ],
 
+    // A corporation's income tax (NIRC section 27, as the CREATE Act changed
+    // it): 25%, or 20% when taxable income is ₱5,000,000 or less and total
+    // assets (excluding land) are ₱100,000,000 or less. From the 4th year
+    // after operations began, the tax is at least the MCIT, 2% of gross
+    // income. The quarterly 1702Q is due 60 days after each of the first
+    // three quarters. REVIEW: rates, thresholds, the MCIT start year, and
+    // testing the 20% rate on the taxable income to date each quarter. The
+    // CREATE Act's 1% MCIT (July 2020 to June 2023) isn't applied.
+    'corporation' => [
+        'rate' => 0.25,
+        'small_rate' => 0.20,
+        'small_taxable_income' => 5_000_000,
+        'small_total_assets' => 100_000_000,
+        'mcit_rate' => 0.02,
+        'mcit_from_year' => 4,
+        'osd_rate' => 0.40,
+        'quarterly_due_days' => 60,
+        'atc' => ['regular' => 'IC010', 'mcit' => 'IC055'],
+    ],
+
     // Paying late (NIRC sections 248-249, as the Ease of Paying Taxes Act
     // changed them): a surcharge once, and interest a year on the unpaid tax
     // from the due date. Micro and small taxpayers (gross sales below
@@ -185,6 +205,8 @@ return [
         '2316' => ['edition' => 'September 2021 (ENCS)', 'template' => '2316-2021-09', 'whole_pesos' => false],
         '1604-C' => ['edition' => 'January 2018', 'template' => '1604-C-2018-01', 'whole_pesos' => false],
         '2307' => ['edition' => 'January 2018 (ENCS)', 'template' => '2307-2018-01', 'whole_pesos' => false],
+        // A corporation the taxpayer runs.
+        '1702Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '1702Q-2018-01', 'whole_pesos' => true],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
         '1900' => ['edition' => 'October 2025 (ENCS)', 'template' => '1900-2025-10', 'whole_pesos' => true],

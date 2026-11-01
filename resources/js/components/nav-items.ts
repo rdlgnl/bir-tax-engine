@@ -26,7 +26,12 @@ export type NavItem = {
 };
 
 export const navItems: NavItem[] = [
-    { label: 'Home', icon: Home, href: home.url(), match: ['/home'] },
+    {
+        label: 'Home',
+        icon: Home,
+        href: home.url(),
+        match: ['/home', '/corporation'],
+    },
     {
         label: 'Transactions',
         icon: ListChecks,

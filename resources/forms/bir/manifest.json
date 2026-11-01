@@ -110,5 +110,12 @@
         "source": "https://bir-cdn.bir.gov.ph/local/pdf/1604-C%20Jan%202018%20Final.pdf",
         "sha256": "5239dd7f94bfc9d8a1b2e330e2da955bd5a0223762f41e95112d6b3822325dfd",
         "fetched": "2026-11-01"
+    },
+    "1702Q-2018-01": {
+        "form": "1702Q",
+        "edition": "January 2018 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/1702Q%202018ENCS%20final2.pdf",
+        "sha256": "589e22190b9211571cb8a0ba14c97c17dff250f3b8ee9f9e8f6cc3b37b1b1be4",
+        "fetched": "2026-11-01"
     }
 }
