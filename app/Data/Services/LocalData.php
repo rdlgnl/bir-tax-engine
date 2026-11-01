@@ -21,7 +21,7 @@ class LocalData
      * The taxpayer's tables, parents before the tables that point to them.
      * Device settings (app_settings) are not records and stay out of backups.
      */
-    public const TABLES = ['tax_profiles', 'certificates', 'transactions', 'filings', 'books_months', 'issued_certificates', 'compensation_certificates', 'loans'];
+    public const TABLES = ['tax_profiles', 'certificates', 'transactions', 'filings', 'books_months', 'issued_certificates', 'compensation_certificates', 'loans', 'employees'];
 
     /** Where documents live on the local disk. */
     public const DOCUMENTS = 'certificates';

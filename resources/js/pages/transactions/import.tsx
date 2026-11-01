@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDate, peso, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { payroll } from '@/routes';
 import { create as loansCreate } from '@/routes/loans';
 import { index, marketplace } from '@/routes/transactions';
 import {
@@ -76,10 +77,6 @@ const OTHER_THINGS: [string, string][] = [
     [
         'Other business income',
         'Selling old equipment, side commissions: record it as money received.',
-    ],
-    [
-        'I pay an employee',
-        'Withholding on salary and the 2316. Comes in a later update.',
     ],
     [
         'I got a letter from the BIR',
@@ -436,6 +433,20 @@ export default function ImportStatement({
                                 <span className="text-[13px] text-muted-foreground">
                                     Documentary stamp tax may be due on Form
                                     2000.
+                                </span>
+                            </Link>
+                        </li>
+                        <li className="border-t border-divider py-3">
+                            <Link
+                                href={payroll().url}
+                                className="block hover:underline"
+                            >
+                                <span className="block text-[15px] font-bold text-primary">
+                                    I pay an employee
+                                </span>
+                                <span className="text-[13px] text-muted-foreground">
+                                    Tax withheld on their pay, remitted monthly
+                                    on the 1601-C.
                                 </span>
                             </Link>
                         </li>

@@ -240,3 +240,15 @@ test('0619-E, 1601-EQ and 1604-E deadlines show on the calendar for a withholdin
         ->and($withholding[1])->toMatchArray(['amount' => 5000.0, 'href' => '/withholding/2026/quarter/3'])
         ->and($withholding[2])->toMatchArray(['date' => '2027-03-01', 'status' => 'open', 'amount' => null, 'href' => '/withholding/2026/annual']);
 });
+
+test('a month’s 0619-E can be filed once the month is over, before its quarter ends', function () {
+    withholdingAgent();
+    $this->travelTo(CarbonImmutable::parse('2026-11-08 10:00'));
+    $filing = [
+        'year' => 2026, 'quarter' => 4, 'month' => 10, 'form' => '0619-E', 'filed_on' => '2026-11-08',
+        'reference_number' => '', 'paid' => true, 'amount_paid' => '0', 'paid_on' => '2026-11-08', 'payment_channel' => 'online',
+    ];
+
+    $this->post('/filings', $filing)->assertSessionHasNoErrors();
+    $this->post('/filings', [...$filing, 'month' => 11])->assertSessionHasErrors('quarter');
+});

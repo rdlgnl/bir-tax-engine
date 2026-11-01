@@ -89,5 +89,12 @@
         "source": "https://bir-cdn.bir.gov.ph/local/pdf/2000-DST%20Jan%202018%20final.pdf",
         "sha256": "b18ce9d2380d216814f4410c2e132eebb02b93754f7ca0167311f368e100e79f",
         "fetched": "2026-11-01"
+    },
+    "1601-C-2018-01": {
+        "form": "1601-C",
+        "edition": "January 2018 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/1601C%20final%20Jan%202018%20with%20DPA.pdf",
+        "sha256": "c8faaa71015337a73b4ceb96bfb265c539589ab5e10eb27899bb81f87f417397",
+        "fetched": "2026-11-01"
     }
 }
