@@ -50,6 +50,7 @@ use Illuminate\Support\Collection;
  * }
  * @phpstan-type Salary array{
  *     employer: string|null,
+ *     employer_tin: string|null,
  *     gross: float,
  *     non_taxable: float,
  *     taxable: float,
@@ -165,6 +166,7 @@ class TaxCalculationService
 
                 $compensation = [
                     'employer' => $salary['employer'],
+                    'employer_tin' => $salary['employer_tin'],
                     'gross' => $salary['gross'],
                     'non_taxable' => $salary['non_taxable'],
                     'taxable' => $this->pesos($salaryTaxable),

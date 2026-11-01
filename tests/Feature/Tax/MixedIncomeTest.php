@@ -50,7 +50,7 @@ test('the annual return adds the salary and credits what the employer withheld',
 
     expect($q4)->toMatchArray(['income_tax' => 16000.0, 'prior_payments' => 13600.0, 'due' => 2400.0])
         ->and($q4['compensation'])->toBe([
-            'employer' => 'Northwind BPO Inc.', 'gross' => 600000.0, 'non_taxable' => 0.0,
+            'employer' => 'Northwind BPO Inc.', 'employer_tin' => null, 'gross' => 600000.0, 'non_taxable' => 0.0,
             'taxable' => 600000.0, 'tax' => 62500.0, 'withheld' => 62500.0, 'source' => 'estimate',
         ]);
 });

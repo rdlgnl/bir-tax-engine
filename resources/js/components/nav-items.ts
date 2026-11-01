@@ -63,7 +63,7 @@ export const navItems: NavItem[] = [
         label: 'Profile & settings',
         icon: UserRound,
         href: profile.url(),
-        match: ['/profile', '/data'],
+        match: ['/profile', '/data', '/2316'],
     },
 ];
 

@@ -69,6 +69,8 @@ class Form1701Items extends FormItems
             $values += [
                 'S1.1.taxpayer' => true,
                 'S1.1.employer' => $salary['employer'] !== null ? Str::upper($salary['employer']) : null,
+                // Nine digits and a five-digit branch code.
+                'S1.1.tin' => ($salary['employer_tin'] ?? null) !== null ? $this->tin14($salary['employer_tin']) : null,
                 'S1.1.compensation' => $compensation,
                 'S1.1.withheld' => $salaryWithheld,
                 'S1.3A.compensation' => $compensation,
@@ -131,5 +133,12 @@ class Form1701Items extends FormItems
             '31A' => $payable,
             '32' => $payable,
         ];
+    }
+
+    private function tin14(string $tin): string
+    {
+        $digits = (string) preg_replace('/\D/', '', $tin);
+
+        return substr($digits, 0, 9).str_pad(substr($digits, 9, 5), 5, '0', STR_PAD_LEFT);
     }
 }
