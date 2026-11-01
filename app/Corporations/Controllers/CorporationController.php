@@ -10,6 +10,7 @@ use App\Corporations\Requests\SaveQuarterRequest;
 use App\Corporations\Services\CorporateTax;
 use App\Http\Controllers\Controller;
 use App\Returns\Forms\Items\Form1702QItems;
+use App\Returns\Forms\Items\Form1702RTItems;
 use App\Returns\Forms\OfficialFormFiller;
 use App\Tax\Services\FilingCalendar;
 use Carbon\CarbonImmutable;
@@ -23,7 +24,8 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 /**
  * A corporation the taxpayer runs (design 13-08): its year so far from the
  * quarterly figures in its books, the 1702Q for each quarter (13-09) on the
- * BIR's own form (13-10), and the other returns it files.
+ * BIR's own form (13-10), the year's 1702-RT (13-11), and the other returns
+ * it files.
  */
 class CorporationController extends Controller
 {
@@ -41,13 +43,15 @@ class CorporationController extends Controller
         $quarters = $this->tax->quarters($corporation, $today->year);
         $next = $this->tax->nextQuarter($corporation, $today);
         $latest = collect($quarters)->filter(fn (array $quarter) => $quarter['has_figures'])->last();
+        $previous = $this->tax->annual($corporation, $today->year - 1);
 
         return Inertia::render('corporation/show', [
             'corporation' => $this->resource($corporation),
             'year' => $today->year,
             'next' => $next !== null ? $quarters[$next] : null,
             'soFar' => $latest,
-            'annual' => $this->tax->annual($corporation, $today->year),
+            // Last year's 1702-RT until it's filed, then this year's estimate.
+            'annual' => $previous !== null && $previous['status'] !== 'filed' ? $previous : $this->tax->annual($corporation, $today->year),
             'quarters' => array_values($quarters),
             'rateNote' => $this->rateNote($latest['small'] ?? null, $corporation),
             'mcitNote' => $this->mcitNote($corporation, $today->year),
@@ -135,6 +139,50 @@ class CorporationController extends Controller
         $row->forceFill($request->validated())->save();
 
         return Inertia::flash('toast', "Q{$quarter} 1702Q is marked filed.")->back();
+    }
+
+    /**
+     * The year's 1702-RT (design 13-11), estimated until the 4th quarter's
+     * figures are in.
+     */
+    public function annual(int $year): Response
+    {
+        $corporation = $this->corporation();
+        $annual = $this->tax->annual($corporation, $year);
+        abort_if($annual === null, 404);
+
+        return Inertia::render('corporation/annual', [
+            'corporation' => $this->resource($corporation),
+            'annual' => $annual,
+            'figures' => $this->row($corporation, $year, 4)?->only(['sales', 'cost_of_sales', 'other_income', 'deductions', 'withheld']),
+            'edition' => (string) config('tax.forms.1702-RT.edition'),
+            'mcitRate' => (float) config('tax.corporation.mcit_rate'),
+        ]);
+    }
+
+    public function annualPdf(Request $request, int $year, Form1702RTItems $items, OfficialFormFiller $filler): HttpResponse
+    {
+        $corporation = $this->corporation();
+        $annual = $this->tax->annual($corporation, $year);
+        abort_if($annual === null, 404);
+
+        return response($filler->render('1702-RT', $items->values($corporation, $annual)), headers: [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => ($request->boolean('print') ? 'inline' : 'attachment')."; filename=1702-RT-{$year}.pdf",
+        ]);
+    }
+
+    /**
+     * The 1702-RT is filed on the year's final figures, so the 4th
+     * quarter's have to be in.
+     */
+    public function annualFiled(MarkQuarterFiledRequest $request, int $year): RedirectResponse
+    {
+        $row = $this->row($this->corporation(), $year, 4);
+        abort_if($row === null, 404);
+        $row->forceFill($request->validated())->save();
+
+        return Inertia::flash('toast', "The {$year} 1702-RT is marked filed.")->back();
     }
 
     private function corporation(): Corporation

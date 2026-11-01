@@ -42,6 +42,7 @@ FORMS=(
     "1905-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1905%20October%202025%20ENCS%20Final.pdf"
     "1900-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1900%20October%202025%20ENCS%20Final.pdf"
     "1702Q-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1702Q%202018ENCS%20final2.pdf"
+    "1702-RT-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1702-RT%20Jan%202018%20ENCS%20Final%20v3.pdf"
 )
 
 fetched=$(date +%Y-%m-%d)

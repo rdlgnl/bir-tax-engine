@@ -67,10 +67,18 @@ export type CorporateAnnualEstimate = CorporateTaxRate & {
     quarters_entered: number;
     figures: CorporateFigures;
     withheld: number;
+    withheld_previous: number;
+    withheld_fourth_quarter: number;
+    paid_regular: number;
+    paid_mcit: number;
     quarterly_payments: number;
     credits: number;
     payable: number;
     due_date: string;
+    status: 'open' | 'due' | 'overdue' | 'filed';
+    filed_on: string | null;
+    reference_number: string | null;
+    amount_paid: number | null;
 };
 
 /** A quarter's figures as the books have them, for editing. */

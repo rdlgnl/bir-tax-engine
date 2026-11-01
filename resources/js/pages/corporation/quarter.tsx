@@ -1,16 +1,12 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Check, ChevronLeft, Download } from 'lucide-react';
-import { useState } from 'react';
-import { MarkQuarterFiled } from '@/components/corporation/mark-quarter-filed';
-import { FieldError } from '@/components/field-error';
-import { MoneyInput } from '@/components/money-input';
+import { FiguresForm } from '@/components/corporation/figures-form';
+import { MarkCorporateFiled } from '@/components/corporation/mark-corporate-filed';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { formatDate, minusPeso, peso, periodLabel } from '@/lib/format';
-import { form as formPage, show } from '@/routes/corporation';
-import { save } from '@/routes/corporation/quarter';
+import { filed, form as formPage, show } from '@/routes/corporation';
 import type {
     CorporateQuarterFigures,
     CorporateQuarterTax,
@@ -68,7 +64,8 @@ export default function CorporationQuarter({
                 <div className="flex flex-col gap-5">
                     {!tax.has_figures ? (
                         <FiguresForm
-                            tax={tax}
+                            year={tax.year}
+                            quarter={tax.quarter}
                             figures={figures}
                             osd={osd}
                             startOpen
@@ -209,7 +206,8 @@ export default function CorporationQuarter({
                             </SectionCard>
 
                             <FiguresForm
-                                tax={tax}
+                                year={tax.year}
+                                quarter={tax.quarter}
                                 figures={figures}
                                 osd={osd}
                             />
@@ -265,8 +263,10 @@ export default function CorporationQuarter({
                     ) : (
                         tax.has_figures &&
                         tax.status !== 'open' && (
-                            <MarkQuarterFiled
-                                tax={tax}
+                            <MarkCorporateFiled
+                                action={filed([tax.year, tax.quarter])}
+                                payable={tax.payable}
+                                form={`Q${tax.quarter} 1702Q`}
                                 label={`Mark Q${tax.quarter} filed`}
                             />
                         )
@@ -299,119 +299,5 @@ function Row({
                 {value}
             </dd>
         </div>
-    );
-}
-
-const FIELDS: {
-    key: keyof CorporateQuarterFigures;
-    label: string;
-    hint?: string;
-}[] = [
-    { key: 'sales', label: 'Sales, receipts and fees' },
-    { key: 'cost_of_sales', label: 'Cost of sales or services' },
-    {
-        key: 'other_income',
-        label: 'Other taxable income',
-        hint: 'Not income already taxed at source with a final tax',
-    },
-    { key: 'deductions', label: 'Deductions (operating expenses)' },
-    {
-        key: 'withheld',
-        label: 'Withheld by clients this quarter',
-        hint: 'The 2307s received for the quarter',
-    },
-];
-
-/** The quarter's own figures from the books, not the year to date. */
-function FiguresForm({
-    tax,
-    figures,
-    osd,
-    startOpen = false,
-}: {
-    tax: CorporateQuarterTax;
-    figures: CorporateQuarterFigures | null;
-    osd: boolean;
-    startOpen?: boolean;
-}) {
-    const [open, setOpen] = useState(startOpen);
-    const form = useForm<CorporateQuarterFigures>({
-        sales: figures?.sales ?? '',
-        cost_of_sales: figures?.cost_of_sales ?? '0',
-        other_income: figures?.other_income ?? '0',
-        deductions: figures?.deductions ?? '0',
-        withheld: figures?.withheld ?? '0',
-    });
-
-    if (!open) {
-        return (
-            <Button
-                variant="outline"
-                onClick={() => setOpen(true)}
-                className="h-11 self-start rounded-xl font-bold"
-            >
-                Edit Q{tax.quarter} figures
-            </Button>
-        );
-    }
-
-    return (
-        <SectionCard
-            title={`Q${tax.quarter} ${tax.year} figures from the books`}
-        >
-            <p className="mb-4 text-sm text-muted-foreground">
-                This quarter alone (
-                {['Jan–Mar', 'Apr–Jun', 'Jul–Sep'][tax.quarter - 1]}
-                ), as the corporation's books or accountant have them. The app
-                adds up the year to date.
-            </p>
-            <form
-                noValidate
-                onSubmit={(event) => {
-                    event.preventDefault();
-                    form.submit(save([tax.year, tax.quarter]), {
-                        preserveScroll: true,
-                        onSuccess: () => setOpen(startOpen),
-                    });
-                }}
-                className="grid gap-4 sm:grid-cols-2"
-            >
-                {FIELDS.filter(
-                    (field) => !(osd && field.key === 'deductions'),
-                ).map((field) => (
-                    <div key={field.key} className="flex flex-col gap-1.5">
-                        <Label htmlFor={field.key} className="font-bold">
-                            {field.label}
-                        </Label>
-                        <MoneyInput
-                            id={field.key}
-                            value={form.data[field.key]}
-                            onValueChange={(value) =>
-                                form.setData(field.key, value)
-                            }
-                        />
-                        {field.hint && (
-                            <span className="text-[13px] text-muted-foreground">
-                                {field.hint}
-                            </span>
-                        )}
-                        <FieldError message={form.errors[field.key]} />
-                    </div>
-                ))}
-                {osd && (
-                    <p className="text-sm text-muted-foreground sm:col-span-2">
-                        On the optional standard deduction, 40% of gross income
-                        is deducted in place of the expenses.
-                    </p>
-                )}
-                <Button
-                    type="submit"
-                    disabled={form.processing}
-                    className="h-11 rounded-xl font-bold sm:col-span-2"
-                >
-                    Save Q{tax.quarter} figures
-                </Button>
-            </form>
-        </SectionCard>
     );
 }

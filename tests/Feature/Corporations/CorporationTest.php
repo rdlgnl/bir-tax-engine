@@ -6,6 +6,7 @@ use App\Corporations\Services\CorporateTax;
 use App\Data\Services\LocalData;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\Items\Form1702QItems;
+use App\Returns\Forms\Items\Form1702RTItems;
 use App\Tax\Services\TaxCalculationService;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DemoTaxpayerSeeder;
@@ -125,7 +126,83 @@ test('the annual return is estimated as if Q4 goes like Q1 to Q3 (design 13-08)'
         'withheld' => 120_000.0,
         'payable' => 70_000.0,
         'due_date' => '2027-04-15',
-    ])->and($annual['figures'])->toMatchArray(['sales' => 12_000_000.0, 'gross_income' => 4_800_000.0, 'taxable_income' => 2_000_000.0]);
+    ])->and($annual['figures'])->toMatchArray(['sales' => 12_000_000.0, 'gross_income' => 4_800_000.0, 'taxable_income' => 2_000_000.0])
+        ->and($annual)->toMatchArray([
+            'paid_regular' => 210_000.0,
+            'paid_mcit' => 0.0,
+            'withheld_previous' => 90_000.0,
+            'withheld_fourth_quarter' => 30_000.0,
+            'status' => 'open',
+            'filed_on' => null,
+        ]);
+});
+
+test('the filled 1702-RT carries the year’s computation and credits (design 13-11)', function () {
+    $corporation = bayani();
+    $values = app(Form1702RTItems::class)->values($corporation, app(CorporateTax::class)->annual($corporation, 2026));
+
+    expect($values)->toMatchArray([
+        '2.year' => '26',
+        '3.no' => true,
+        'atc.code' => 'IC010',
+        '8.1' => 'BAYANI CREATIVE STUDIO INC.',
+        '13.itemized' => true,
+        '27' => 12_000_000,
+        '30' => 7_200_000,
+        '33' => 4_800_000,
+        '34' => 2_800_000,
+        '37' => 2_800_000,
+        '39' => 2_000_000,
+        '40' => '20',
+        '41' => 400_000,
+        '42' => 96_000,
+        '43' => 400_000,
+        '45' => 0,
+        '46' => 210_000,
+        '48' => 90_000,
+        '49' => 30_000,
+        '55' => 330_000,
+        '56' => 70_000,
+        '14' => 400_000,
+        '15' => 330_000,
+        '16' => 70_000,
+        '21' => 70_000,
+        's1.18' => 2_800_000,
+        'p4.name' => 'BAYANI CREATIVE STUDIO INC.',
+    ]);
+});
+
+test('after the year, Q4’s figures make the 1702-RT final, and it’s filed', function () {
+    bayani();
+    $this->travelTo(CarbonImmutable::parse('2027-02-01 10:00'));
+
+    $this->get('/corporation')->assertInertia(fn (Assert $page) => $page->where('annual.year', 2026)->where('annual.estimated', true)->where('annual.status', 'due'));
+    // Q4 has no 1702Q: the year's 1702-RT covers it.
+    $this->get('/corporation/2026/4')->assertMethodNotAllowed();
+    $this->post('/corporation/2026/annual/filed', ['filed_on' => '2027-02-01'])->assertNotFound();
+
+    $this->put('/corporation/2026/4', [
+        'sales' => 3_500_000, 'cost_of_sales' => 2_000_000, 'other_income' => 0, 'deductions' => 900_000, 'withheld' => 35_000,
+    ])->assertRedirect();
+
+    // Taxable ₱2,100,000 for the year: ₱420,000, less ₱210,000 paid and ₱125,000 withheld.
+    $this->get('/corporation/2026/annual')->assertInertia(fn (Assert $page) => $page
+        ->component('corporation/annual')
+        ->where('annual.estimated', false)
+        ->where('annual.figures.taxable_income', 2100000)
+        ->where('annual.payable', 85000)
+        ->where('figures.withheld', '35000.00'));
+    expect($this->get('/corporation/2026/annual/pdf')->assertOk()->getContent())->toStartWith('%PDF');
+
+    $profile = TaxProfile::current();
+    $deadlines = app(TaxObligations::class)->deadlines($profile, app(TaxCalculationService::class)->forYear($profile, 2026));
+    expect(collect($deadlines)->firstWhere('title', '2026 1702-RT · Bayani Creative Studio Inc.'))
+        ->toMatchArray(['date' => '2027-04-15', 'status' => 'due', 'amount' => 85000.0, 'href' => '/corporation/2026/annual']);
+
+    $this->post('/corporation/2026/annual/filed', ['filed_on' => '2027-02-01', 'amount_paid' => 85_000])->assertRedirect();
+
+    expect(app(CorporateTax::class)->annual(Corporation::current(), 2026))->toMatchArray(['status' => 'filed', 'amount_paid' => 85000.0]);
+    $this->get('/corporation')->assertInertia(fn (Assert $page) => $page->where('annual', null));
 });
 
 test('the filled 1702Q carries the quarter, the schedules and the credits (design 13-10)', function () {
