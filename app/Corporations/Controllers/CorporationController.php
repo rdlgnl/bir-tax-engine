@@ -55,7 +55,7 @@ class CorporationController extends Controller
             'quarters' => array_values($quarters),
             'rateNote' => $this->rateNote($latest['small'] ?? null, $corporation),
             'mcitNote' => $this->mcitNote($corporation, $today->year),
-            'mcitRate' => (float) config('tax.corporation.mcit_rate'),
+            'mcitRate' => $this->tax->mcitRate($today->year, $today->quarter),
             'alsoDue' => $this->alsoDue($corporation, $today),
         ]);
     }
@@ -95,13 +95,13 @@ class CorporationController extends Controller
             'corporation' => $this->resource($corporation),
             'tax' => $this->tax->quarter($corporation, $year, $quarter),
             'figures' => $this->row($corporation, $year, $quarter)?->only(['sales', 'cost_of_sales', 'other_income', 'deductions', 'withheld']),
-            'mcitRate' => (float) config('tax.corporation.mcit_rate'),
+            'mcitRate' => $this->tax->mcitRate($year, $quarter),
         ]);
     }
 
     public function saveQuarter(SaveQuarterRequest $request, int $year, int $quarter): RedirectResponse
     {
-        abort_if($year > CarbonImmutable::now()->year, 404);
+        abort_if($year > CarbonImmutable::now()->year || ! $this->tax->covers($year), 404);
         $corporation = $this->corporation();
         $corporation->quarters()->updateOrCreate(['year' => $year, 'quarter' => $quarter], $request->validated());
 
@@ -116,7 +116,7 @@ class CorporationController extends Controller
             'corporation' => $this->resource($corporation),
             'tax' => $this->tax->quarter($corporation, $year, $quarter),
             'edition' => (string) config('tax.forms.1702Q.edition'),
-            'mcitRate' => (float) config('tax.corporation.mcit_rate'),
+            'mcitRate' => $this->tax->mcitRate($year, $quarter),
             'annualDue' => $this->calendar->incomeTaxDue($year, 4)->toDateString(),
         ]);
     }
@@ -156,7 +156,7 @@ class CorporationController extends Controller
             'annual' => $annual,
             'figures' => $this->row($corporation, $year, 4)?->only(['sales', 'cost_of_sales', 'other_income', 'deductions', 'withheld']),
             'edition' => (string) config('tax.forms.1702-RT.edition'),
-            'mcitRate' => (float) config('tax.corporation.mcit_rate'),
+            'mcitRate' => $this->tax->mcitRate($year),
         ]);
     }
 
@@ -224,7 +224,7 @@ class CorporationController extends Controller
     private function mcitNote(Corporation $corporation, int $year): array
     {
         $from = $this->tax->mcitFrom($corporation);
-        $rate = round((float) config('tax.corporation.mcit_rate') * 100).'%';
+        $rate = round($this->tax->mcitRate($year) * 100).'%';
 
         if ($year < $from) {
             return [

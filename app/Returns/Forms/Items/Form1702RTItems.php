@@ -34,7 +34,8 @@ class Form1702RTItems extends CorporationFormItems
         $deductions = $osd ? $this->peso($grossIncome * (float) config('tax.corporation.osd_rate')) : $this->peso($f['deductions']);
         $taxable = $grossIncome - $deductions;
         $regular = $this->peso(max(0, $taxable) * $annual['rate']);
-        $mcit = $annual['mcit_applies'] ? $this->peso(max(0, $grossIncome) * (float) config('tax.corporation.mcit_rate')) : null;
+        // Each quarter at its own rate (1% until June 2023, then 2%).
+        $mcit = $annual['mcit_applies'] ? $this->peso($annual['mcit']) : null;
         $due = max($regular, $mcit ?? 0);
         $credits = [
             '45' => $this->peso($annual['paid_mcit']),

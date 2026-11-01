@@ -279,7 +279,7 @@ class TaxObligations
         }
 
         // The 1702Q and 1702-RT of a corporation the taxpayer runs.
-        if (($corporation = Corporation::current()) !== null) {
+        if (($corporation = Corporation::current()) !== null && $this->corporations->covers($y)) {
             foreach ($this->corporations->quarters($corporation, $y) as $quarter) {
                 if ($quarter['status'] === 'filed' && ! $includeFiled) {
                     continue;

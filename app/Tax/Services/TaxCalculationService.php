@@ -84,6 +84,7 @@ class TaxCalculationService
     public function __construct(
         private FilingCalendar $calendar,
         private Compensation $compensation,
+        private TaxRules $rules,
     ) {}
 
     /**
@@ -122,6 +123,8 @@ class TaxCalculationService
         ?array $salary = null,
     ): array {
         $today = $today->startOfDay();
+        // The year's own rules: a year the rule pack doesn't cover is refused.
+        $brackets = $this->rules->forYear($year)->brackets();
         $income = $transactions->filter(fn (Transaction $t) => $t->isIncome());
         $yearGross = $this->sumCents($income, 'amount');
 
@@ -147,7 +150,7 @@ class TaxCalculationService
             );
             $quarterGross = $this->sumCents($inQuarter->filter(fn (Transaction $t) => $t->isIncome()), 'amount');
 
-            $tax = $this->incomeTax($profile, $gross, $deductible);
+            $tax = $this->incomeTax($profile, $gross, $deductible, $brackets);
             $compensation = null;
             $salaryTax = 0;
             $salaryWithheld = 0;
@@ -157,11 +160,11 @@ class TaxCalculationService
             // what the employer withheld credited.
             if ($quarter === 4 && $salary !== null && $profile->regime !== null) {
                 $salaryTaxable = max(0, $this->cents($salary['gross']) - $this->cents($salary['non_taxable']));
-                $salaryTax = $this->graduated($salaryTaxable);
+                $salaryTax = $this->graduated($salaryTaxable, $brackets);
                 $salaryWithheld = $salary['withheld'] === null ? $salaryTax : $this->cents($salary['withheld']);
 
                 if ($profile->regime === Regime::Graduated) {
-                    $tax['tax'] = $this->stackedGraduated($salaryTaxable, $tax['taxable']);
+                    $tax['tax'] = $this->stackedGraduated($salaryTaxable, $tax['taxable'], $brackets);
                 }
 
                 $compensation = [
@@ -211,7 +214,7 @@ class TaxCalculationService
                 'due' => $this->pesos($due),
                 'excess_credit' => $this->pesos(max(0, $withheld + $salaryWithheld + $priorPaid - $tax['tax'] - $salaryTax)),
                 'percentage_tax' => $this->owesPercentageTax($profile)
-                    ? $this->pesos($this->rate($quarterGross, config('tax.percentage_tax_rate')))
+                    ? $this->pesos($this->rate($quarterGross, $this->rules->forQuarter($year, $quarter)->rate('percentage_tax_rate')))
                     : null,
                 'statutory_date' => $statutory->toDateString(),
                 'due_date' => $dueDate->toDateString(),
@@ -246,21 +249,28 @@ class TaxCalculationService
      */
     public function transactionEffects(TaxProfile $profile, Collection $transactions): array
     {
-        $gross = 0;
-        $deductible = 0;
-        $before = $this->totalTax($profile, 0, 0);
         $effects = [];
 
-        foreach ($transactions->sortBy([['occurred_on', 'asc'], ['id', 'asc']]) as $transaction) {
-            if ($transaction->isIncome()) {
-                $gross += $this->cents($transaction->amount);
-            } elseif ($transaction->has_valid_invoice) {
-                $deductible += $this->cents($transaction->amount);
-            }
+        // Each year on its own rules, from nothing.
+        foreach ($transactions->groupBy(fn (Transaction $t) => $t->occurred_on->year) as $year => $inYear) {
+            $brackets = $this->rules->forYear((int) $year)->brackets();
+            $gross = 0;
+            $deductible = 0;
+            $percentageTax = 0;
+            $before = $this->totalTax($profile, 0, 0, 0, $brackets);
 
-            $after = $this->totalTax($profile, $gross, $deductible);
-            $effects[$transaction->id] = $this->pesos($after - $before);
-            $before = $after;
+            foreach ($inYear->sortBy([['occurred_on', 'asc'], ['id', 'asc']]) as $transaction) {
+                if ($transaction->isIncome()) {
+                    $gross += $this->cents($transaction->amount);
+                    $percentageTax += $this->percentageTaxOn($transaction);
+                } elseif ($transaction->has_valid_invoice) {
+                    $deductible += $this->cents($transaction->amount);
+                }
+
+                $after = $this->totalTax($profile, $gross, $deductible, $percentageTax, $brackets);
+                $effects[$transaction->id] = $this->pesos($after - $before);
+                $before = $after;
+            }
         }
 
         return $effects;
@@ -275,14 +285,17 @@ class TaxCalculationService
     public function previewEffect(TaxProfile $profile, Collection $yearTransactions, Transaction $candidate): array
     {
         $others = $yearTransactions->reject(fn (Transaction $t) => $candidate->exists && $t->is($candidate));
-        $gross = $this->sumCents($others->filter(fn (Transaction $t) => $t->isIncome()), 'amount');
+        $income = $others->filter(fn (Transaction $t) => $t->isIncome());
+        $gross = $this->sumCents($income, 'amount');
         $deductible = $this->deductibleCents($others);
+        $percentageTax = (int) $income->sum(fn (Transaction $t) => $this->percentageTaxOn($t));
+        $brackets = $this->rules->forYear($candidate->occurred_on->year)->brackets();
 
         $amount = $this->cents($candidate->amount);
-        $before = $this->totalTax($profile, $gross, $deductible);
+        $before = $this->totalTax($profile, $gross, $deductible, $percentageTax, $brackets);
         $after = match (true) {
-            $candidate->isIncome() => $this->totalTax($profile, $gross + $amount, $deductible),
-            $candidate->has_valid_invoice => $this->totalTax($profile, $gross, $deductible + $amount),
+            $candidate->isIncome() => $this->totalTax($profile, $gross + $amount, $deductible, $percentageTax + $this->percentageTaxOn($candidate), $brackets),
+            $candidate->has_valid_invoice => $this->totalTax($profile, $gross, $deductible + $amount, $percentageTax, $brackets),
             default => $before,
         };
 
@@ -307,14 +320,17 @@ class TaxCalculationService
      *     savings: float,
      * }
      */
-    public function compare(float $income, int $expensePercent, ?float $salary = null): array
+    public function compare(float $income, int $expensePercent, ?float $salary = null, ?int $year = null): array
     {
+        // Planning is for this year unless said otherwise.
+        $rules = $this->rules->forYear($year ?? CarbonImmutable::now()->year);
+        $brackets = $rules->brackets();
         $gross = $this->cents($income);
         $expenses = $this->rate($gross, $expensePercent / 100);
         $salaryCents = $salary !== null ? $this->cents($salary) : 0;
         $overLimit = $gross > $this->cents(config('tax.eight_percent.gross_limit'));
         // Above the limit the taxpayer must register for VAT instead.
-        $percentageTax = $overLimit ? 0 : $this->rate($gross, config('tax.percentage_tax_rate'));
+        $percentageTax = $overLimit ? 0 : $this->rate($gross, $rules->rate('percentage_tax_rate'));
 
         $exempt = $salaryCents > 0 ? 0 : min($gross, $this->cents(config('tax.eight_percent.exempt_amount')));
         $osdTaxable = $gross - $this->rate($gross, config('tax.osd_rate'));
@@ -322,8 +338,8 @@ class TaxCalculationService
 
         $options = [
             $this->option('eight_percent', ! $overLimit, $exempt, $gross - $exempt, $this->rate($gross - $exempt, config('tax.eight_percent.rate')), 0),
-            $this->option('graduated_osd', true, 0, $osdTaxable, $this->stackedGraduated($salaryCents, $osdTaxable), $percentageTax),
-            $this->option('graduated_itemized', true, 0, $itemizedTaxable, $this->stackedGraduated($salaryCents, $itemizedTaxable), $percentageTax),
+            $this->option('graduated_osd', true, 0, $osdTaxable, $this->stackedGraduated($salaryCents, $osdTaxable, $brackets), $percentageTax),
+            $this->option('graduated_itemized', true, 0, $itemizedTaxable, $this->stackedGraduated($salaryCents, $itemizedTaxable, $brackets), $percentageTax),
         ];
 
         $ranked = collect($options)->where('available', true)->sortBy('total')->values();
@@ -341,17 +357,19 @@ class TaxCalculationService
     }
 
     /**
-     * Graduated tax on an annual taxable amount, in pesos.
+     * Graduated tax on an annual taxable amount, in pesos, on a year's table
+     * (this year's unless said otherwise).
      */
-    public function graduatedTax(float $taxable): float
+    public function graduatedTax(float $taxable, ?int $year = null): float
     {
-        return $this->pesos($this->graduated($this->cents($taxable)));
+        return $this->pesos($this->graduated($this->cents($taxable), $this->rules->forYear($year ?? CarbonImmutable::now()->year)->brackets()));
     }
 
     /**
+     * @param  list<array{int|float, int|float, float}>  $brackets
      * @return array{exempt: int, deduction: int, taxable: int, tax: int}
      */
-    private function incomeTax(TaxProfile $profile, int $gross, int $deductible): array
+    private function incomeTax(TaxProfile $profile, int $gross, int $deductible, array $brackets): array
     {
         if ($profile->income_source === IncomeSource::Employed || $profile->regime === null) {
             return ['exempt' => 0, 'deduction' => 0, 'taxable' => 0, 'tax' => 0];
@@ -380,20 +398,27 @@ class TaxCalculationService
             'exempt' => 0,
             'deduction' => $deduction,
             'taxable' => $taxable,
-            'tax' => $this->graduated($taxable),
+            'tax' => $this->graduated($taxable, $brackets),
         ];
     }
 
     /**
-     * Income tax plus any percentage tax for a year, in centavos.
+     * Income tax plus any percentage tax for a year, in centavos. Percentage
+     * tax is added up by the caller, each sale at its own quarter's rate.
+     *
+     * @param  list<array{int|float, int|float, float}>  $brackets
      */
-    private function totalTax(TaxProfile $profile, int $gross, int $deductible): int
+    private function totalTax(TaxProfile $profile, int $gross, int $deductible, int $percentageTax, array $brackets): int
     {
-        $percentageTax = $this->owesPercentageTax($profile)
-            ? $this->rate($gross, config('tax.percentage_tax_rate'))
-            : 0;
+        return $this->incomeTax($profile, $gross, $deductible, $brackets)['tax'] + ($this->owesPercentageTax($profile) ? $percentageTax : 0);
+    }
 
-        return $this->incomeTax($profile, $gross, $deductible)['tax'] + $percentageTax;
+    /**
+     * The percentage tax on one sale, at its quarter's rate, in centavos.
+     */
+    private function percentageTaxOn(Transaction $sale): int
+    {
+        return $this->rate($this->cents($sale->amount), $this->rules->forQuarter($sale->occurred_on->year, $sale->quarter())->rate('percentage_tax_rate'));
     }
 
     private function owesPercentageTax(TaxProfile $profile): bool
@@ -401,11 +426,14 @@ class TaxCalculationService
         return $profile->regime === Regime::Graduated && ! $profile->vat_registered;
     }
 
-    private function graduated(int $taxable): int
+    /**
+     * @param  list<array{int|float, int|float, float}>  $brackets
+     */
+    private function graduated(int $taxable, array $brackets): int
     {
         $tax = 0;
 
-        foreach (config('tax.graduated_brackets') as [$over, $base, $rate]) {
+        foreach ($brackets as [$over, $base, $rate]) {
             $overCents = $this->cents($over);
 
             if ($taxable > $overCents) {
@@ -420,9 +448,12 @@ class TaxCalculationService
      * Graduated tax on business income stacked on top of a salary, so the
      * salary's own tax (the same under every option) is left out.
      */
-    private function stackedGraduated(int $salary, int $taxable): int
+    /**
+     * @param  list<array{int|float, int|float, float}>  $brackets
+     */
+    private function stackedGraduated(int $salary, int $taxable, array $brackets): int
     {
-        return $this->graduated($salary + $taxable) - $this->graduated($salary);
+        return $this->graduated($salary + $taxable, $brackets) - $this->graduated($salary, $brackets);
     }
 
     /**

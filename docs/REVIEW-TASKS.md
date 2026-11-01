@@ -6,10 +6,10 @@ Tick an item in the same PR that fixes it, and link the PR.
 **How to read this**
 
 - **ID**: `C` critical, `H` high, `M` medium, `L` low.
-- **Basis**: *Confirmed* = settled law; *Needs verification* = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
+- **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 0 of 75 done.
+Status: 7 of 75 done.
 
 ---
 
@@ -17,7 +17,7 @@ Status: 0 of 75 done.
 
 Do not let anyone rely on the app for real filings until these are ticked:
 
-- [ ] C1 Tax rules follow the date they apply to
+- [x] C1 Tax rules follow the date they apply to
 - [ ] C2 Elections are kept per tax year
 - [ ] C3 Rule pack reviewed by a CPA
 - [ ] H1 A sale can't be counted twice
@@ -29,21 +29,24 @@ Do not let anyone rely on the app for real filings until these are ticked:
 ## Phase 1 — Critical fixes
 
 ### C1 · Tax rules follow the date they apply to
-- [ ] **Stop-gap:** refuse periods before the earliest encoded rules (transactions, returns, corporations). Today `occurred_on` has no lower bound ([SaveTransactionRequest.php](../app/Transactions/Requests/SaveTransactionRequest.php)).
-- [ ] Effective-dated rule files: `resources/rules/2018-01-01.php`, `2020-07-01.php`, `2023-01-01.php`, `2023-07-01.php`, each holding only what changed.
-- [ ] `RuleSet::for($date)` resolver; the engines take a `RuleSet` instead of calling `config('tax.*')`.
-- [ ] Percentage tax splits by date when a rate change falls inside a quarter.
-- [ ] Snapshots store the rule-set id (they already store `rule_pack`).
+
+- [x] **Stop-gap:** refuse periods before the earliest encoded rules: transactions, imports, letters and returns before 2018, corporations before 2021 (2020 straddles the CREATE change and isn't encoded).
+- [x] Effective-dated rules: the rule pack's `dated` section (`2018-01-01`, `2020-07-01`, `2021-01-01`, `2023-01-01`, `2023-07-01`), each holding only what changed. Kept in [config/tax.php](../config/tax.php) rather than separate files; A4 can split them.
+- [x] `TaxRules::on($date)` / `forYear()` / `forQuarter()` resolver returning a `RuleSet`; the engines, payroll, 2316, the 2551Q and 1702 forms and the explainer use it. No `config()` read of a dated rate remains.
+- [x] Percentage tax and MCIT take each quarter's rate (the changes fall on quarter starts); each sale's tax effect uses its own quarter.
+- [ ] Snapshots store the rule-set id. For now `rule_pack` plus the period identify the rules, but older packs aren't kept in code (see A3).
 
 **Why:** one set of rates (2023 graduated table, 3% percentage tax, 2% MCIT) is used for every year. `citations.*.effective` is only displayed ([TaxExplainer.php](../app/Tax/Services/TaxExplainer.php)).
 **Basis (Confirmed):**
+
 - RA 10963 (TRAIN): separate graduated tables for 2018–2022 and 2023 onwards.
 - RA 11534 (CREATE): percentage tax (NIRC Sec. 116) and MCIT at 1% from July 1, 2020 to June 30, 2023.
 
 **Tests:** 2022 graduated return; 2023 Q2 vs Q3 percentage tax; MCIT 2022; June 30 / July 1, 2023 boundary.
-**Done when:** the same inputs for 2022 and 2026 use their own tables, and a period with no rules is refused.
+**Done when:** the same inputs for 2022 and 2026 use their own tables, and a period with no rules is refused. ✔ [DatedRulesTest.php](../tests/Feature/Tax/DatedRulesTest.php)
 
 ### C2 · Elections are kept per tax year
+
 - [ ] `tax_years` table: `year`, `regime`, `deduction_method`, `vat_registered`, `registered_percentage_tax`, `elected_on`, `locked_at`.
 - [ ] Engine, amendments, late payment, annual return and letter checks read the year's row, not `TaxProfile`.
 - [ ] Setup and the "tax method locks" reminder write the year's row.
@@ -55,11 +58,13 @@ Do not let anyone rely on the app for real filings until these are ticked:
 **Done when:** changing this year's method leaves last year's figures unchanged.
 
 ### C3 · Rule pack reviewed by a CPA
+
 - [ ] List every `REVIEW` comment in [config/tax.php](../config/tax.php) and the code (`grep -rn REVIEW app config`).
 - [ ] CPA reviews each one; record reviewer, date and source per rule.
 - [ ] Set `reviewed` per rule (not one flag for the whole pack); the app keeps saying "not yet reviewed" for any rule without sign-off.
 
 **Includes:**
+
 - graduated table, 8% and OSD
 - percentage tax
 - VAT
@@ -81,6 +86,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 ## Phase 2 — Compliance corrections
 
 ### H1 · A sale can't be counted twice
+
 - [ ] A payment whose invoice number matches a recorded invoice settles that invoice (marks it paid) instead of adding income; or the form warns and offers to.
 - [ ] Unique invoice numbers for invoices (index plus validation message).
 - [ ] Statement and marketplace imports check for an existing invoice or payment.
@@ -90,18 +96,21 @@ Do not let anyone rely on the app for real filings until these are ticked:
 **Done when:** each sale counts once however it's entered.
 
 ### H2 · One income basis for returns and books
+
 - [ ] With a CPA, decide per tax type: invoice date (accrual) or cash received.
 - [ ] Make the engine and the books ([Journals.php](../app/Books/Services/Journals.php), [GeneralLedger.php](../app/Books/Services/GeneralLedger.php)) agree; if invoice date stays, add accounts receivable to the books.
 - [ ] Remove or correct the "Sales are counted by invoice date (EOPT)" copy to match.
 
 **Why:** an invoice unpaid at quarter end is on the 1701Q and 2551Q but not in the books.
 **Basis:**
+
 - Confirmed: VAT on services moved to gross sales under RA 11976 (EOPT).
 - **Needs verification:** percentage tax under EOPT, and income tax for individuals on the cash method.
 
 **Done when:** a quarter's gross on the return equals the books' income for that quarter.
 
 ### H3 · Filing channel settled and the copy says it plainly
+
 - [ ] **Needs verification:** which taxpayers must e-file (eBIRForms or eFPS) and whether a printed filled PDF is accepted for each form we produce (RR 9-2013 and later; EOPT "file anywhere").
 - [ ] Per form, say exactly how to file it. Where e-filing is required, add a "copy these into eBIRForms" checklist with item numbers.
 - [ ] Rename "Download filled form" where it's a reference copy, not the filing.
@@ -109,6 +118,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 **Done when:** no screen implies a printed PDF is a filing where it isn't.
 
 ### H4 · History of changes to records
+
 - [ ] Append-only `record_changes` table: model, record id, event, before and after (JSON), at, cause.
 - [ ] Model events on transactions, the profile, certificates, loans, employees, corporations and their quarters, letters and filings.
 - [ ] Editing or deleting in a filed quarter is shown as a change after filing, linking to the amendment.
@@ -119,6 +129,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 **Done when:** for any filed return you can list every record change made since.
 
 ### H5 · Host header check (DNS rebinding)
+
 - [ ] `$middleware->trustHosts(at: ['localhost', '127.0.0.1'])` in [bootstrap/app.php](../bootstrap/app.php) (plus the desktop app's origin later).
 
 **Why:** no login by design and any Host header accepted. A malicious site can rebind its domain to 127.0.0.1 and read the app's pages and downloads.
@@ -126,6 +137,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 **Done when:** that test passes.
 
 ### H6 · Financial statements on the annual return
+
 - [ ] Graduated filers: say financial statements are attached.
 - [ ] **Needs verification:** the CPA audit threshold (NIRC Sec. 232(A), likely gross annual sales above ₱3,000,000 after TRAIN). Put it in the rules.
 - [ ] Show it on the annual return page ([returns/annual.tsx](../resources/js/pages/returns/annual.tsx)) and the checklist.
@@ -133,20 +145,23 @@ Do not let anyone rely on the app for real filings until these are ticked:
 **Done when:** a graduated filer above the threshold is told to attach audited statements.
 
 ### M3 · Payroll exemptions
-- [ ] Model the ₱90,000 13th-month and other benefits exemption (NIRC Sec. 32(B)(7)(e), *Confirmed*).
+
+- [ ] Model the ₱90,000 13th-month and other benefits exemption (NIRC Sec. 32(B)(7)(e), _Confirmed_).
 - [ ] De minimis benefits, and contributions entered or computed rather than "pay after contributions".
 - [ ] **Needs verification:** our annualized method against the BIR withholding table.
 
 **Location:** [Payroll.php](../app/Payroll/Services/Payroll.php).
 
 ### M4 · Corporations: scope and gaps
+
 - [ ] Decide: launch, label as beta, or hide.
 - [ ] If kept:
-  - NOLCO and the excess MCIT carry-forward
-  - the 1% MCIT period, via C1
-  - **Needs verification:** the quarterly 20% test, which today uses taxable income to date
+    - NOLCO and the excess MCIT carry-forward
+    - the 1% MCIT period, via C1
+    - **Needs verification:** the quarterly 20% test, which today uses taxable income to date
 
 ### M1 · Holidays beyond 2027
+
 - [ ] Warn or refuse for years without a holiday list ([FilingCalendar.php](../app/Tax/Services/FilingCalendar.php)).
 - [ ] Yearly holiday update as part of the rule-pack process.
 
@@ -171,8 +186,8 @@ Add these tests (table-driven where possible):
 - [ ] Graduated taxable at ₱250,000 / ₱400,000 / ₱800,000 / ₱2,000,000 / ₱8,000,000 → each band's base tax
 - [ ] Zero income, expenses only → ₱0, never negative
 - [ ] Centavo rounding: amounts at x.005 → consistent with the forms' whole pesos
-- [ ] 2022 return → 2018–2022 table (or refused until C1)
-- [ ] 2023 Q2 vs Q3 percentage tax → 1% then 3%
+- [x] 2022 return → 2018–2022 table
+- [x] 2023 Q2 vs Q3 percentage tax → 1% then 3%
 - [ ] Regime switch between years → each year uses its own election
 - [ ] Invoice then its payment → counted once
 - [ ] Unpaid earlier quarter → shown as owed, not assumed paid (M7)

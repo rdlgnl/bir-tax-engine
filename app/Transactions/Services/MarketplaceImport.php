@@ -3,6 +3,7 @@
 namespace App\Transactions\Services;
 
 use App\Returns\Models\Filing;
+use App\Tax\Services\TaxRules;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -22,7 +23,7 @@ use Illuminate\Support\Str;
  */
 class MarketplaceImport
 {
-    public function __construct(private CsvFile $csv) {}
+    public function __construct(private CsvFile $csv, private TaxRules $rules) {}
 
     /**
      * The report's columns, which of them hold each figure, and every order.
@@ -75,7 +76,8 @@ class MarketplaceImport
         foreach ($orders as $order) {
             $status = match (true) {
                 $order['date'] === null || $order['sales'] === null || $order['sales'] <= 0
-                    || CarbonImmutable::parse($order['date'])->greaterThan($today) => 'invalid',
+                    || CarbonImmutable::parse($order['date'])->greaterThan($today)
+                    || CarbonImmutable::parse($order['date'])->lessThan($this->rules->firstDate()) => 'invalid',
                 $order['order'] !== '' ? $ids->has($order['order']) : $recorded->contains(
                     fn (Transaction $t) => $t->occurred_on->toDateString() === $order['date'] && abs((float) $t->amount - (float) $order['sales']) < 0.01,
                 ) => 'duplicate',

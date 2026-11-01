@@ -65,7 +65,7 @@ test('a backup is written to the backup folder, encrypted, and remembered', func
     $manifest = json_decode($zip->getFromName('manifest.json'), true);
 
     // What the file holds is readable without the password; the records aren't.
-    expect($manifest)->toMatchArray(['app' => 'BuwisBuddy', 'format' => 1, 'rule_pack' => '2026.10'])
+    expect($manifest)->toMatchArray(['app' => 'BuwisBuddy', 'format' => 1, 'rule_pack' => '2026.11'])
         ->and($manifest['summary'])->toBe(['records' => 18, 'first_year' => 2026, 'last_year' => 2026, 'certificates' => 1, 'documents' => 1, 'filings' => 2])
         ->and($zip->statName('data.json')['encryption_method'])->toBe(ZipArchive::EM_AES_256)
         ->and($zip->getFromName('data.json'))->toBeFalse()
@@ -213,5 +213,5 @@ test('Your data shows the last backup and the folder', function () {
         ->where('folder', DataController::display($this->folder))
         ->where('lastBackup.days_since', 3)
         ->where('remindMonthly', true)
-        ->where('rulePack', ['version' => '2026.10', 'reviewed' => false]));
+        ->where('rulePack', ['version' => '2026.11', 'reviewed' => false]));
 });

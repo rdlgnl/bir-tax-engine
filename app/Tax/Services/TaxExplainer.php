@@ -22,6 +22,8 @@ use Illuminate\Support\Number;
  */
 class TaxExplainer
 {
+    public function __construct(private TaxRules $taxRules) {}
+
     /**
      * @param  QuarterResult  $quarter
      * @param  Collection<int, Transaction>  $transactions  the year's transactions
@@ -38,8 +40,8 @@ class TaxExplainer
 
         return [
             'reasons' => $this->reasons($profile, $year, $quarter, $eightPercent),
-            'rules' => $this->rules($profile, $quarter, $eightPercent),
-            'skipped' => $this->skipped($eightPercent),
+            'rules' => $this->rules($profile, $year, $quarter, $eightPercent),
+            'skipped' => $this->skipped($year, $quarter['quarter'], $eightPercent),
             'warnings' => $this->warnings($year, $quarter, $transactions, $today, $eightPercent),
         ];
     }
@@ -101,11 +103,16 @@ class TaxExplainer
      * @param  QuarterResult  $quarter
      * @return list<Rule>
      */
-    private function rules(TaxProfile $profile, array $quarter, bool $eightPercent): array
+    private function rules(TaxProfile $profile, int $year, array $quarter, bool $eightPercent): array
     {
+        // The year's table and the quarter's percentage tax, as the engine used them.
         $ids = $eightPercent
             ? [$profile->isPurelySelfEmployed() ? 'IT-8PCT-PURE' : 'IT-8PCT-MIXED']
-            : ['IT-GRAD-2023', $profile->deduction_method === DeductionMethod::Itemized ? 'IT-ITEMIZED' : 'IT-OSD', 'PT-3PCT'];
+            : [
+                $this->taxRules->forYear($year)->ruleId('graduated'),
+                $profile->deduction_method === DeductionMethod::Itemized ? 'IT-ITEMIZED' : 'IT-OSD',
+                $this->taxRules->forQuarter($year, $quarter['quarter'])->ruleId('percentage_tax'),
+            ];
 
         $rules = array_map(fn (string $id) => $this->rule($id), $ids);
 
@@ -133,12 +140,14 @@ class TaxExplainer
     /**
      * @return list<array{id: string, title: string, reason: string}>
      */
-    private function skipped(bool $eightPercent): array
+    private function skipped(int $year, int $quarter, bool $eightPercent): array
     {
         if ($eightPercent) {
+            $percentageTax = $this->taxRules->forQuarter($year, $quarter);
+
             return [
-                ['id' => 'PT-3PCT', 'title' => 'Percentage tax 3%', 'reason' => 'skipped because you chose 8%, which replaces it.'],
-                ['id' => 'IT-GRAD-2023', 'title' => 'Graduated rates', 'reason' => 'skipped because you chose 8%.'],
+                ['id' => $percentageTax->ruleId('percentage_tax'), 'title' => 'Percentage tax '.round($percentageTax->rate('percentage_tax_rate') * 100).'%', 'reason' => 'skipped because you chose 8%, which replaces it.'],
+                ['id' => $this->taxRules->forYear($year)->ruleId('graduated'), 'title' => 'Graduated rates', 'reason' => 'skipped because you chose 8%.'],
             ];
         }
 
