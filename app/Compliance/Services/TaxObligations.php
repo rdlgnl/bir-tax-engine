@@ -95,6 +95,7 @@ class TaxObligations
      */
     public function nextPayment(TaxProfile $profile, array $year, CarbonImmutable $today): array
     {
+        $profile = $profile->forYear($year['year']);
         $result = [
             'state' => 'clear',
             'year' => $year['year'],
@@ -164,6 +165,7 @@ class TaxObligations
      */
     public function deadlines(TaxProfile $profile, array $year, bool $includeFiled = false): array
     {
+        $profile = $profile->forYear($year['year']);
         $y = $year['year'];
         $filedPercentageTax = Filing::query()->where('year', $y)->where('form', '2551Q')->pluck('quarter')->all();
         $items = [];
@@ -485,6 +487,7 @@ class TaxObligations
      */
     public function checklist(TaxProfile $profile, int $year, array $quarter, Collection $transactions, CarbonImmutable $today): array
     {
+        $profile = $profile->forYear($year);
         $inQuarter = $transactions->filter(fn (Transaction $t) => $t->quarter() === $quarter['quarter'] || $quarter['quarter'] === 4);
         $income = $inQuarter->filter(fn (Transaction $t) => $t->isIncome());
         $withheld = $inQuarter->filter(fn (Transaction $t) => (float) $t->tax_withheld > 0);

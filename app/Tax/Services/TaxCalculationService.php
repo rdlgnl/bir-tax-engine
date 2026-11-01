@@ -123,7 +123,9 @@ class TaxCalculationService
         ?array $salary = null,
     ): array {
         $today = $today->startOfDay();
-        // The year's own rules: a year the rule pack doesn't cover is refused.
+        // The year's own method and registrations, and its own rules: a year
+        // the rule pack doesn't cover is refused.
+        $profile = $profile->forYear($year);
         $brackets = $this->rules->forYear($year)->brackets();
         $income = $transactions->filter(fn (Transaction $t) => $t->isIncome());
         $yearGross = $this->sumCents($income, 'amount');
@@ -254,10 +256,11 @@ class TaxCalculationService
         // Each year on its own rules, from nothing.
         foreach ($transactions->groupBy(fn (Transaction $t) => $t->occurred_on->year) as $year => $inYear) {
             $brackets = $this->rules->forYear((int) $year)->brackets();
+            $taxpayer = $profile->forYear((int) $year);
             $gross = 0;
             $deductible = 0;
             $percentageTax = 0;
-            $before = $this->totalTax($profile, 0, 0, 0, $brackets);
+            $before = $this->totalTax($taxpayer, 0, 0, 0, $brackets);
 
             foreach ($inYear->sortBy([['occurred_on', 'asc'], ['id', 'asc']]) as $transaction) {
                 if ($transaction->isIncome()) {
@@ -267,7 +270,7 @@ class TaxCalculationService
                     $deductible += $this->cents($transaction->amount);
                 }
 
-                $after = $this->totalTax($profile, $gross, $deductible, $percentageTax, $brackets);
+                $after = $this->totalTax($taxpayer, $gross, $deductible, $percentageTax, $brackets);
                 $effects[$transaction->id] = $this->pesos($after - $before);
                 $before = $after;
             }
@@ -284,6 +287,7 @@ class TaxCalculationService
      */
     public function previewEffect(TaxProfile $profile, Collection $yearTransactions, Transaction $candidate): array
     {
+        $profile = $profile->forYear($candidate->occurred_on->year);
         $others = $yearTransactions->reject(fn (Transaction $t) => $candidate->exists && $t->is($candidate));
         $income = $others->filter(fn (Transaction $t) => $t->isIncome());
         $gross = $this->sumCents($income, 'amount');

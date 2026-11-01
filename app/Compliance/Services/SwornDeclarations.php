@@ -86,7 +86,7 @@ class SwornDeclarations
             'name' => Str::upper($name['last'] === null ? trim((string) $profile->full_name) : Str::squish("{$name['first']} {$name['middle']} {$name['last']}")),
             'tin' => $profile->tin,
             'rdo' => $profile->rdo_code,
-            'vat' => $profile->vat_registered,
+            'vat' => $profile->forYear($year)->vat_registered,
             'gross' => $gross,
             'over_limit' => $overLimit,
             'limit' => $limit,

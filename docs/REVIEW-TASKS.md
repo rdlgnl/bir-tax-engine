@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 7 of 75 done.
+Status: 13 of 75 done.
 
 ---
 
@@ -18,7 +18,7 @@ Status: 7 of 75 done.
 Do not let anyone rely on the app for real filings until these are ticked:
 
 - [x] C1 Tax rules follow the date they apply to
-- [ ] C2 Elections are kept per tax year
+- [x] C2 Elections are kept per tax year
 - [ ] C3 Rule pack reviewed by a CPA
 - [ ] H1 A sale can't be counted twice
 - [ ] H3 Filing channel settled and the copy says it plainly
@@ -47,15 +47,15 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### C2 · Elections are kept per tax year
 
-- [ ] `tax_years` table: `year`, `regime`, `deduction_method`, `vat_registered`, `registered_percentage_tax`, `elected_on`, `locked_at`.
-- [ ] Engine, amendments, late payment, annual return and letter checks read the year's row, not `TaxProfile`.
-- [ ] Setup and the "tax method locks" reminder write the year's row.
-- [ ] Migrate the current profile values into a row for each year with records.
+- [x] `tax_years` table: `year`, `regime`, `deduction_method`, `vat_registered`, `registered_percentage_tax` (a blank keeps the profile's value). No `elected_on`/`locked_at`: the Q1 filing is the lock, as before ([UpdateSetupStepRequest.php](../app/Profiles/Requests/UpdateSetupStepRequest.php)).
+- [x] `TaxProfile::forYear($year)`, a read-only copy with the year's values, used by the engine, return snapshots (so amendments, late payment and annual returns), deadlines and checklist, history, letter checks, SLSP and sworn declarations.
+- [x] Rows are written when a Q1 1701Q is filed, and when the method or a registration changes: every earlier year with records keeps the values it had. The current year follows the profile until its Q1 is filed.
+- [x] Migration records the method of every Q1 1701Q already filed. Years without one follow the profile until the next change freezes them.
 
 **Why:** [TaxCalculationService.php](../app/Tax/Services/TaxCalculationService.php) reads `$profile->regime` for any year. Switching from 8% to graduated rewrites past years and raises false amendment notices.
 **Basis (Confirmed):** the 8% election is made on the first quarterly return and holds for the year (NIRC Sec. 24(A)(2)(b); RR 8-2018).
 **Tests:** switch 8% → graduated across two years; amend the earlier year after switching; VAT registration starting mid-year.
-**Done when:** changing this year's method leaves last year's figures unchanged.
+**Done when:** changing this year's method leaves last year's figures unchanged. ✔ [TaxYearsTest.php](../tests/Feature/Profiles/TaxYearsTest.php)
 
 ### C3 · Rule pack reviewed by a CPA
 
@@ -188,7 +188,7 @@ Add these tests (table-driven where possible):
 - [ ] Centavo rounding: amounts at x.005 → consistent with the forms' whole pesos
 - [x] 2022 return → 2018–2022 table
 - [x] 2023 Q2 vs Q3 percentage tax → 1% then 3%
-- [ ] Regime switch between years → each year uses its own election
+- [x] Regime switch between years → each year uses its own election
 - [ ] Invoice then its payment → counted once
 - [ ] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
 - [ ] Engine total vs printed form total → within ₱1 (M2)

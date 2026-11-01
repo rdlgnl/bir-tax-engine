@@ -76,7 +76,8 @@ class ReturnHistory
 
         for ($year = $today->year; $year >= $firstYear; $year--) {
             $result = $this->engine->forYear($profile, $year, $today);
-            $vat = $profile->vat_registered ? $this->vat->forYear($year, $today) : [];
+            $taxpayer = $profile->forYear($year);
+            $vat = $taxpayer->vat_registered ? $this->vat->forYear($year, $today) : [];
 
             foreach (array_reverse($result['quarters'], true) as $quarter => $figures) {
                 // Only periods that have started.
@@ -84,7 +85,7 @@ class ReturnHistory
                     continue;
                 }
 
-                foreach ($this->formsFor($profile, $quarter) as $form) {
+                foreach ($this->formsFor($taxpayer, $quarter) as $form) {
                     $filing = $filings->get("{$year}-{$quarter}-{$form}");
                     $percentageTax = $form === '2551Q';
                     $isVat = $form === '2550Q';

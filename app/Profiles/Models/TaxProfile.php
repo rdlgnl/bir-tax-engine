@@ -7,8 +7,10 @@ use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
 use App\Profiles\Enums\WorkType;
+use App\Returns\Models\Filing;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
+use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Database\Factories\TaxProfileFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,6 +18,7 @@ use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use LogicException;
 
 /**
  * The taxpayer using this device. The app keeps exactly one.
@@ -95,6 +98,20 @@ class TaxProfile extends Model
     /** @use HasFactory<TaxProfileFactory> */
     use HasFactory;
 
+    /** The year a copy from forYear() stands for: it's read, never saved. */
+    public ?int $yearView = null;
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $profile) {
+            if ($profile->yearView !== null) {
+                throw new LogicException("This is the profile as it stood for {$profile->yearView}; save the profile itself.");
+            }
+        });
+
+        static::updating(fn (self $profile) => $profile->keepPastYears());
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -127,6 +144,59 @@ class TaxProfile extends Model
     public static function current(): ?self
     {
         return static::query()->oldest('id')->first();
+    }
+
+    /**
+     * The profile as it stood for a tax year: the method and registrations
+     * the year was taxed on, where they differ from today's. Read-only.
+     */
+    public function forYear(int $year): self
+    {
+        $kept = TaxYear::query()->where('year', $year)->first();
+
+        if ($kept === null) {
+            return $this;
+        }
+
+        $copy = clone $this;
+        $copy->yearView = $year;
+
+        foreach (TaxYear::ELECTIONS as $field) {
+            if ($kept->getRawOriginal($field) !== null) {
+                $copy->setAttribute($field, $kept->getAttribute($field));
+            }
+        }
+
+        return $copy;
+    }
+
+    /**
+     * Before the method or a registration changes, the years already
+     * recorded keep the values they were taxed on; the change applies from
+     * this year. (This year's method is locked once its Q1 return is filed.)
+     */
+    private function keepPastYears(): void
+    {
+        if (! $this->isDirty(TaxYear::ELECTIONS) || $this->getOriginal('regime') === null) {
+            return;
+        }
+
+        $first = collect([
+            Transaction::query()->min('occurred_on'),
+            Filing::query()->min('filed_on'),
+        ])->filter()->map(fn (string $date) => CarbonImmutable::parse($date)->year)->min();
+
+        for ($year = $first ?? CarbonImmutable::now()->year; $year < CarbonImmutable::now()->year; $year++) {
+            $kept = TaxYear::query()->firstOrNew(['year' => $year]);
+
+            foreach (TaxYear::ELECTIONS as $field) {
+                if ($kept->getRawOriginal($field) === null) {
+                    $kept->setAttribute($field, $this->getOriginal($field));
+                }
+            }
+
+            $kept->save();
+        }
     }
 
     public function isComplete(): bool

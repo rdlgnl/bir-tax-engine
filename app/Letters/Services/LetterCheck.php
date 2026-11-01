@@ -36,6 +36,9 @@ class LetterCheck
             return ['result' => 'none', 'title' => '', 'detail' => '', 'url' => null, 'documents' => []];
         }
 
+        // The registrations and method the letter's year was taxed on.
+        $profile = $profile->forYear($letter->year);
+
         return $checks === 'income' ? $this->income($letter, $profile) : $this->filing($letter, $profile);
     }
 
