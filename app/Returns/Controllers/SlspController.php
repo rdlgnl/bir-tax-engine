@@ -74,7 +74,7 @@ class SlspController extends Controller
      */
     private function ensure(int $year, int $quarter): TaxProfile
     {
-        $profile = TaxProfile::current();
+        $profile = TaxProfile::current()->forYear($year);
 
         abort_unless(
             $profile->vat_registered && $year >= 2018 && CarbonImmutable::create($year, $quarter * 3 - 2)->lessThanOrEqualTo(CarbonImmutable::now()),

@@ -10,6 +10,7 @@ use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\Penalties;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\TaxRules;
 use App\Tax\Services\VatCalculator;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
@@ -104,6 +105,7 @@ class ReturnForm
         private TaxCalculationService $engine,
         private VatCalculator $vat,
         private Penalties $penalties,
+        private TaxRules $rules,
     ) {}
 
     /**
@@ -113,6 +115,7 @@ class ReturnForm
      */
     public function snapshot(TaxProfile $profile, int $year, int $quarter, string $form, ?CarbonImmutable $today = null): array
     {
+        $profile = $profile->forYear($year);
         $result = $this->engine->forYear($profile, $year, $today);
         $name = $profile->nameParts();
         $eightPercent = $profile->regime === Regime::EightPercent;
@@ -155,7 +158,7 @@ class ReturnForm
             'figures' => $result['quarters'][$quarter],
             'previous_figures' => $result['quarters'][$quarter - 1] ?? null,
             'rule_pack' => config('tax.version'),
-            'rules' => $this->rulesUsed($profile, $form, $result['quarters'][$quarter]),
+            'rules' => $this->rulesUsed($profile, $year, $quarter, $form, $result['quarters'][$quarter]),
             'taken_at' => ($today ?? CarbonImmutable::now())->toIso8601String(),
             'penalties' => $this->latePenalties($result['quarters'][$quarter], $form, $result['gross'], $today ?? CarbonImmutable::now()),
             'amendment' => null,
@@ -412,10 +415,12 @@ class ReturnForm
      * @param  QuarterResult  $quarter
      * @return list<string>
      */
-    private function rulesUsed(TaxProfile $profile, string $form, array $quarter): array
+    private function rulesUsed(TaxProfile $profile, int $year, int $quarterNumber, string $form, array $quarter): array
     {
         if ($form === '2551Q') {
-            return ['PT-3PCT v'.config('tax.rules.PT-3PCT.version')];
+            $id = $this->rules->forQuarter($year, $quarterNumber)->ruleId('percentage_tax');
+
+            return ["{$id} v".config("tax.rules.{$id}.version")];
         }
 
         if ($form === '2550Q') {
@@ -424,7 +429,7 @@ class ReturnForm
 
         $ids = $profile->regime === Regime::EightPercent
             ? [$profile->isPurelySelfEmployed() ? 'IT-8PCT-PURE' : 'IT-8PCT-MIXED']
-            : ['IT-GRAD-2023', $profile->deduction_method === DeductionMethod::Itemized ? 'IT-ITEMIZED' : 'IT-OSD'];
+            : [$this->rules->forYear($year)->ruleId('graduated'), $profile->deduction_method === DeductionMethod::Itemized ? 'IT-ITEMIZED' : 'IT-OSD'];
 
         if ($quarter['withheld'] > 0) {
             $ids[] = 'CWT-CREDIT';

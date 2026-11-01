@@ -2,6 +2,7 @@
 
 namespace App\Returns\Models;
 
+use App\Profiles\Models\TaxYear;
 use App\Returns\Services\ReturnForm;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -50,6 +51,24 @@ class Filing extends Model
 {
     /** @use HasFactory<FilingFactory> */
     use HasFactory;
+
+    /**
+     * The Q1 income tax return elects the year's method: it's recorded
+     * for the year, so later changes to the profile don't reach it.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (self $filing) {
+            $snapshot = is_array($filing->snapshot) ? $filing->snapshot : [];
+
+            if ($filing->form === '1701Q' && (int) $filing->quarter === 1 && (int) $filing->amendment === 0 && isset($snapshot['regime'])) {
+                TaxYear::query()->updateOrCreate(['year' => $filing->year], [
+                    'regime' => $snapshot['regime'],
+                    'deduction_method' => $snapshot['deduction_method'] ?? null,
+                ]);
+            }
+        });
+    }
 
     /**
      * Get the attributes that should be cast.
