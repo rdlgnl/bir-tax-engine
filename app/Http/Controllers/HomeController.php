@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Compliance\Services\TaxObligations;
 use App\Data\Services\Backups;
 use App\Notices\Services\Notices;
+use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Tax\Services\RulePacks;
 use App\Tax\Services\TaxCalculationService;
@@ -46,6 +47,15 @@ class HomeController extends Controller
             'regime' => $profile->regime?->value,
             'vatRegistered' => $profile->vat_registered,
             'withholdingAgent' => $profile->withholding_agent,
+            // A job alongside the business: the salary's tax is the employer's until the annual return.
+            'job' => $profile->income_source === IncomeSource::Both ? [
+                'employer' => $profile->employer_name,
+                'monthly_salary' => $profile->monthly_salary !== null ? (float) $profile->monthly_salary : null,
+                'annual_salary' => $profile->monthly_salary !== null ? round((float) $profile->monthly_salary * 12, 2) : null,
+                'employer_withholds' => $profile->monthly_salary !== null ? $engine->graduatedTax((float) $profile->monthly_salary * 12) : null,
+                'annual_form' => $year['quarters'][4]['form'],
+                'annual_due' => $year['quarters'][4]['due_date'],
+            ] : null,
             'checklist' => $obligations->checklist($profile, $today->year, $focus, $transactions, $today),
             'upcoming' => $obligations->upcoming($profile, $year, $today),
             'recent' => $transactions

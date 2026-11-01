@@ -21,6 +21,8 @@ export type ReturnLayout = {
         rdo: string | null;
         atc: string;
     };
+    /** The taxpayer also has a job. */
+    with_salary: boolean;
     lines: ReturnLine[];
     payable: number;
     overpayment: number;

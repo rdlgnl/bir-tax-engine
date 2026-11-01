@@ -89,8 +89,8 @@ class FilingCalendar
     /**
      * The return for a quarter. The annual return of the purely
      * self-employed is the 1701-MS (micro and small taxpayers, below
-     * ₱20,000,000 in sales); a mixed-income earner files the 1701, which
-     * leaves room for the salary the app doesn't track.
+     * ₱20,000,000 in sales); someone with a salary as well files the 1701,
+     * which has room for every employer.
      */
     public function incomeTaxForm(TaxProfile $profile, int $quarter): string
     {
@@ -102,13 +102,14 @@ class FilingCalendar
     }
 
     /**
-     * The older annual form the BIR still accepts in place of the 1701-MS:
-     * the 1701A on 8% or OSD, the 1701 on itemized deductions.
+     * The other annual form the BIR accepts: in place of the 1701-MS, the
+     * older 1701A on 8% or OSD and the 1701 on itemized deductions; with a
+     * salary, the shorter 1701-MS for micro taxpayers in place of the 1701.
      */
     public function alternativeAnnualForm(TaxProfile $profile): ?string
     {
         if (! $profile->isPurelySelfEmployed()) {
-            return null;
+            return '1701-MS';
         }
 
         return $profile->regime === Regime::EightPercent || $profile->deduction_method === DeductionMethod::Osd ? '1701A' : '1701';

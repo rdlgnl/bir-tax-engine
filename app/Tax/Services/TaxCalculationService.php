@@ -46,6 +46,16 @@ use Illuminate\Support\Collection;
  *     filed_on: string|null,
  *     amount_paid: float|null,
  *     paid_on: string|null,
+ *     compensation: Salary|null,
+ * }
+ * @phpstan-type Salary array{
+ *     employer: string|null,
+ *     gross: float,
+ *     non_taxable: float,
+ *     taxable: float,
+ *     tax: float,
+ *     withheld: float,
+ *     source: string,
  * }
  * @phpstan-type YearResult array{
  *     year: int,
@@ -55,6 +65,9 @@ use Illuminate\Support\Collection;
  *     gross: float,
  *     quarters: array<int, QuarterResult>,
  * }
+ *
+ * @phpstan-import-type SalaryInput from Compensation
+ *
  * @phpstan-type CompareOption array{
  *     key: 'eight_percent'|'graduated_osd'|'graduated_itemized',
  *     available: bool,
@@ -67,7 +80,10 @@ use Illuminate\Support\Collection;
  */
 class TaxCalculationService
 {
-    public function __construct(private FilingCalendar $calendar) {}
+    public function __construct(
+        private FilingCalendar $calendar,
+        private Compensation $compensation,
+    ) {}
 
     /**
      * Compute a year from what is recorded.
@@ -82,6 +98,7 @@ class TaxCalculationService
             Transaction::query()->forYear($year)->orderBy('occurred_on')->orderBy('id')->get(),
             Filing::query()->where('year', $year)->whereIn('form', ReturnForm::INCOME_TAX_FORMS)->get(),
             $today ?? CarbonImmutable::now(),
+            $this->compensation->forYear($profile, $year),
         );
     }
 
@@ -92,6 +109,7 @@ class TaxCalculationService
      *
      * @param  Collection<int, Transaction>  $transactions
      * @param  Collection<int, Filing>  $filings
+     * @param  SalaryInput|null  $salary  a salary alongside the business, for the annual return
      * @return YearResult
      */
     public function computeYear(
@@ -100,6 +118,7 @@ class TaxCalculationService
         Collection $transactions,
         Collection $filings,
         CarbonImmutable $today,
+        ?array $salary = null,
     ): array {
         $today = $today->startOfDay();
         $income = $transactions->filter(fn (Transaction $t) => $t->isIncome());
@@ -128,7 +147,34 @@ class TaxCalculationService
             $quarterGross = $this->sumCents($inQuarter->filter(fn (Transaction $t) => $t->isIncome()), 'amount');
 
             $tax = $this->incomeTax($profile, $gross, $deductible);
-            $due = max(0, $tax['tax'] - $withheld - $priorPaid);
+            $compensation = null;
+            $salaryTax = 0;
+            $salaryWithheld = 0;
+
+            // The annual return adds a salary: taxed at graduated rates, with
+            // business income on graduated rates stacked on top of it, and
+            // what the employer withheld credited.
+            if ($quarter === 4 && $salary !== null && $profile->regime !== null) {
+                $salaryTaxable = max(0, $this->cents($salary['gross']) - $this->cents($salary['non_taxable']));
+                $salaryTax = $this->graduated($salaryTaxable);
+                $salaryWithheld = $salary['withheld'] === null ? $salaryTax : $this->cents($salary['withheld']);
+
+                if ($profile->regime === Regime::Graduated) {
+                    $tax['tax'] = $this->stackedGraduated($salaryTaxable, $tax['taxable']);
+                }
+
+                $compensation = [
+                    'employer' => $salary['employer'],
+                    'gross' => $salary['gross'],
+                    'non_taxable' => $salary['non_taxable'],
+                    'taxable' => $this->pesos($salaryTaxable),
+                    'tax' => $this->pesos($salaryTax),
+                    'withheld' => $this->pesos($salaryWithheld),
+                    'source' => $salary['source'],
+                ];
+            }
+
+            $due = max(0, $tax['tax'] + $salaryTax - $withheld - $salaryWithheld - $priorPaid);
 
             $form = $this->calendar->incomeTaxForm($profile, $quarter);
             $filing = $filings->first(fn (Filing $f) => $f->quarter === $quarter);
@@ -158,7 +204,7 @@ class TaxCalculationService
                 'withheld' => $this->pesos($withheld),
                 'withheld_unconfirmed' => $this->pesos($unconfirmed),
                 'due' => $this->pesos($due),
-                'excess_credit' => $this->pesos(max(0, $withheld + $priorPaid - $tax['tax'])),
+                'excess_credit' => $this->pesos(max(0, $withheld + $salaryWithheld + $priorPaid - $tax['tax'] - $salaryTax)),
                 'percentage_tax' => $this->owesPercentageTax($profile)
                     ? $this->pesos($this->rate($quarterGross, config('tax.percentage_tax_rate')))
                     : null,
@@ -170,6 +216,7 @@ class TaxCalculationService
                 'filed_on' => $filing?->filed_on->toDateString(),
                 'amount_paid' => $filing?->amount_paid !== null ? (float) $filing->amount_paid : null,
                 'paid_on' => $filing?->paid_on?->toDateString(),
+                'compensation' => $compensation,
             ];
 
             // What later quarters subtract: the payment made, or the amount owed.

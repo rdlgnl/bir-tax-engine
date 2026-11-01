@@ -22,6 +22,8 @@ use Illuminate\Support\Str;
  *
  * @property int $id
  * @property IncomeSource|null $income_source
+ * @property string|null $employer_name
+ * @property string|null $monthly_salary
  * @property WorkType|null $work_type
  * @property Profession|null $profession
  * @property string|null $full_name
@@ -55,6 +57,8 @@ use Illuminate\Support\Str;
  */
 #[Fillable([
     'income_source',
+    'employer_name',
+    'monthly_salary',
     'work_type',
     'profession',
     'full_name',
@@ -100,6 +104,7 @@ class TaxProfile extends Model
     {
         return [
             'income_source' => IncomeSource::class,
+            'monthly_salary' => 'decimal:2',
             'work_type' => WorkType::class,
             'profession' => Profession::class,
             'birth_date' => 'date',
