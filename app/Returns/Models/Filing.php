@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $year
  * @property int $quarter
+ * @property int $month
  * @property string $form
  * @property CarbonImmutable $filed_on
  * @property string|null $reference_number
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'year',
     'quarter',
+    'month',
     'form',
     'filed_on',
     'reference_number',
@@ -57,6 +59,7 @@ class Filing extends Model
         return [
             'year' => 'integer',
             'quarter' => 'integer',
+            'month' => 'integer',
             'filed_on' => 'date',
             'amount_paid' => 'decimal:2',
             'paid_on' => 'date',

@@ -47,6 +47,59 @@ abstract class ProfileFormItems
             : Str::upper(Str::squish("{$name['first']} {$name['middle']} {$name['last']}"));
     }
 
+    /**
+     * Text over two lines of the given width, broken between words.
+     *
+     * @return array{string, string}
+     */
+    protected function wrap(string $text, int $width): array
+    {
+        if (mb_strlen($text) <= $width) {
+            return [$text, ''];
+        }
+
+        $first = trim(mb_substr($text, 0, (int) mb_strrpos(mb_substr($text, 0, $width + 1), ' ')) ?: mb_substr($text, 0, $width));
+
+        return [$first, trim(mb_substr($text, mb_strlen($first)))];
+    }
+
+    /**
+     * The taxpayer's identity in the boxes most BIR forms share.
+     *
+     * @param  array{tin: array{string, string, string}, rdo: string, name: string, address?: array{string, int, string}, zip?: string, contact?: string, email?: string}  $items
+     * @return array<string, string|null>
+     */
+    protected function identity(TaxProfile $profile, array $items): array
+    {
+        [$tin1, $tin2, $tin3] = $this->tin($profile);
+        $values = [
+            $items['tin'][0] => $tin1,
+            $items['tin'][1] => $tin2,
+            $items['tin'][2] => $tin3,
+            $items['rdo'] => $profile->rdo_code,
+            $items['name'] => $this->name($profile),
+        ];
+
+        if (isset($items['address'])) {
+            [$first, $width, $second] = $items['address'];
+            [$values[$first], $values[$second]] = $this->wrap((string) $this->upper($profile->registered_address), $width);
+        }
+
+        if (isset($items['zip'])) {
+            $values[$items['zip']] = $profile->zip_code;
+        }
+
+        if (isset($items['contact'])) {
+            $values[$items['contact']] = preg_replace('/[^\d+]/', '', (string) $profile->contact_number) ?: null;
+        }
+
+        if (isset($items['email'])) {
+            $values[$items['email']] = $this->upper($profile->email);
+        }
+
+        return $values;
+    }
+
     protected function upper(?string $value): ?string
     {
         return $value === null ? null : Str::upper(trim($value));

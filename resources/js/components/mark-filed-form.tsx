@@ -15,6 +15,7 @@ type Channel = 'online' | 'bank' | 'bir_office';
 type FilingForm = {
     year: number;
     quarter: number;
+    month: number | null;
     form: string;
     filed_on: string;
     reference_number: string;
@@ -27,6 +28,8 @@ type FilingForm = {
 type Props = {
     year: number;
     quarter: number;
+    /** For a monthly form (0619-E). */
+    month?: number | null;
     form: string;
     amountDue: number;
 };
@@ -35,17 +38,23 @@ type Props = {
 export function MarkFiledForm({
     year,
     quarter,
+    month = null,
     form: formName,
     amountDue,
 }: Props) {
     const name =
-        quarter === 4 && formName !== '2551Q'
-            ? `the ${year} annual return`
-            : `Q${quarter}`;
+        month !== null
+            ? new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
+                  new Date(year, month - 1, 1),
+              )
+            : quarter === 4 && !['2551Q', '2550Q', '1601-EQ'].includes(formName)
+              ? `the ${year} annual return`
+              : `Q${quarter}`;
     const [sameNumbers, setSameNumbers] = useState(true);
     const form = useForm<FilingForm>({
         year,
         quarter,
+        month,
         form: formName,
         filed_on: todayIso(),
         reference_number: '',

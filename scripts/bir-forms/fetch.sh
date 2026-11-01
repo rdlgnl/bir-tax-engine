@@ -13,7 +13,8 @@
 #
 # Source: the "BIR Forms" page of www.bir.gov.ph, which lists these files
 # from https://bir-cms-ws.bir.gov.ph/api/pub/templates/{id}/datasets
-# (returns under 165 and 174; application forms like 1900 and 1905 under 157).
+# (returns under 165 and 174; withholding under 173; certificates under 162;
+# application forms like 1900 and 1905 under 157).
 
 set -euo pipefail
 
@@ -30,6 +31,9 @@ FORMS=(
     "2551Q-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/2551Q%20Jan%202018%20ENCS%20final%20rev%203_copy.pdf"
     "1701-MS-2024-08|August 2024 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1701-MS%20August%202024%20Fillable_01.pdf"
     "2550Q-2024-04|April 2024 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/2550Q%20%20April%202024%20ENCS_Final.pdf"
+    "2307-2018-01|January 2018 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/2307%20Jan%202018%20ENCS%20v3.pdf"
+    "0619-E-2018-01|January 2018|https://bir-cdn.bir.gov.ph/local/pdf/0619-E%20Jan%202018%20rev%20final.pdf"
+    "1601-EQ-2019-01|January 2019 (ENCS)|https://bir-cdn.bir.gov.ph/local/pdf/1601-EQ%20January%202019%20ENCS%20final.pdf"
     "1905-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1905%20October%202025%20ENCS%20Final.pdf"
     "1900-2025-10|October 2025 (ENCS)|https://bir-cdn.bir.gov.ph/BIR/pdf/1900%20October%202025%20ENCS%20Final.pdf"
 )

@@ -36,6 +36,7 @@ class CalibrateForm extends Command
                 'check' => true,
                 'amount' => 1234567.89,
                 'text' => 'DELA CRUZ',
+                'figure' => 1234567.89,
                 'comb' => str_repeat('8', $place['cells'] ?? 1),
             };
         }

@@ -83,6 +83,13 @@ export function quarterMonths(quarter: number): string {
     return `${monthName(quarter * 3 - 2)}–${monthName(quarter * 3)}`;
 }
 
+/** October */
+export function monthLong(month: number): string {
+    return new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
+        new Date(2000, month - 1, 1),
+    );
+}
+
 function monthName(month: number): string {
     return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(
         new Date(2000, month - 1, 1),

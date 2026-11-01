@@ -26,6 +26,9 @@ export type Transaction = {
     tax_withheld: number;
     vat_kind: VatKind | null;
     vat_amount: number;
+    /** Tax the taxpayer kept as a withholding agent, and its ATC. */
+    atc: string | null;
+    agent_withheld: number;
     counterparty_tin: string | null;
     certificate_status: CertificateStatus;
     certificate_received_on: string | null;
@@ -54,6 +57,8 @@ export type TransactionForm = {
     description: string;
     vat_kind: VatKind;
     vat_amount: string;
+    atc: string;
+    agent_withheld: string;
     counterparty_tin: string;
 };
 
@@ -81,4 +86,15 @@ export type TransactionFormContext = {
     expectedWithholdingPercent: number;
     recentCounterparties: string[];
     awaitingCertificates: Transaction[];
+    /** The ATCs to choose from when the taxpayer withholds on payments, else null. */
+    withholdingAtcs: WithholdingAtc[] | null;
+};
+
+export type WithholdingAtc = {
+    code: string;
+    kind: 'professional' | 'rent' | 'contractor';
+    payee: 'person' | 'company';
+    declaration: boolean | null;
+    rate: number;
+    label: string;
 };

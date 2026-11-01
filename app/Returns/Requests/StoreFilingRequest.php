@@ -25,8 +25,9 @@ class StoreFilingRequest extends FormRequest
             'quarter' => ['required', 'integer', 'between:1,4'],
             'form' => [
                 'required',
-                Rule::in([...ReturnForm::INCOME_TAX_FORMS, '2551Q', '2550Q']),
-                Rule::unique('filings')->where('year', $this->integer('year'))->where('quarter', $this->integer('quarter')),
+                Rule::in([...ReturnForm::INCOME_TAX_FORMS, '2551Q', '2550Q', '0619-E', '1601-EQ']),
+                Rule::unique('filings')->where('year', $this->integer('year'))->where('quarter', $this->integer('quarter'))
+                    ->where('month', $this->integer('month')),
                 // One income tax return per period, whichever annual form it was filed on.
                 function (string $attribute, mixed $value, Closure $fail) {
                     $income = in_array($value, ReturnForm::INCOME_TAX_FORMS, true);
@@ -37,6 +38,12 @@ class StoreFilingRequest extends FormRequest
                     }
                 },
             ],
+            // Only the monthly 0619-E has a month, the first or second of its quarter.
+            'month' => ['exclude_unless:form,0619-E', 'required', 'integer', 'between:1,12', function (string $attribute, mixed $value, Closure $fail) {
+                if ((int) ceil((int) $value / 3) !== $this->integer('quarter') || (int) $value % 3 === 0) {
+                    $fail('The 0619-E is for the first or second month of the quarter.');
+                }
+            }],
             'filed_on' => ['required', 'date', 'before_or_equal:today'],
             'reference_number' => ['nullable', 'string', 'max:60'],
             'paid' => ['required', 'boolean'],

@@ -55,6 +55,30 @@ return [
 
     'percentage_tax_rate' => 0.03,
 
+    // Withholding as an agent: the tax a taxpayer keeps from what they pay
+    // others and remits on 0619-E (monthly) and 1601-EQ (quarterly), with a
+    // 2307 for each payee. Each ATC: what it covers, the rate, and who it is
+    // for (a person or a company); professional fees to a person depend on
+    // their sworn declaration (RR 11-2018).
+    // REVIEW: check the codes and rates against the current RR before relying on them.
+    'withholding' => [
+        'atcs' => [
+            'WI010' => ['kind' => 'professional', 'payee' => 'person', 'declaration' => true, 'rate' => 0.05, 'label' => 'Professional fee, with sworn declaration'],
+            'WI011' => ['kind' => 'professional', 'payee' => 'person', 'declaration' => false, 'rate' => 0.10, 'label' => 'Professional fee, without sworn declaration'],
+            'WC010' => ['kind' => 'professional', 'payee' => 'company', 'declaration' => null, 'rate' => 0.10, 'label' => 'Professional fee to a company'],
+            'WI100' => ['kind' => 'rent', 'payee' => 'person', 'declaration' => null, 'rate' => 0.05, 'label' => 'Rent of real property'],
+            'WC100' => ['kind' => 'rent', 'payee' => 'company', 'declaration' => null, 'rate' => 0.05, 'label' => 'Rent of real property'],
+            'WI120' => ['kind' => 'contractor', 'payee' => 'person', 'declaration' => null, 'rate' => 0.02, 'label' => 'Contractor or services'],
+            'WC120' => ['kind' => 'contractor', 'payee' => 'company', 'declaration' => null, 'rate' => 0.02, 'label' => 'Contractor or services'],
+        ],
+        // 0619-E: day of the next month; 1601-EQ: last day of the month after the quarter.
+        'monthly_due_day' => 10,
+        // The quarterly list of payees (QAP) filed with the 1601-EQ, in the
+        // alphalist layout: header, a line per payee, control line.
+        // REVIEW: check the layout and file name against the current alphalist module.
+        'qap_file_name' => '{tin}{branch}{period}1601EQ.DAT',
+    ],
+
     // Value-added tax, for VAT-registered taxpayers. Amounts are kept net of
     // VAT; only purchase invoices in the taxpayer's name can be claimed.
     'vat' => [
@@ -126,6 +150,10 @@ return [
         '1701' => ['edition' => 'January 2018 (ENCS)', 'template' => '1701-2018-01', 'whole_pesos' => true],
         '2551Q' => ['edition' => 'January 2018 (ENCS)', 'template' => '2551Q-2018-01', 'whole_pesos' => false],
         '2550Q' => ['edition' => 'April 2024 (ENCS)', 'template' => '2550Q-2024-04', 'whole_pesos' => false],
+        // Withholding agent: monthly and quarterly remittance, the payee's certificate.
+        '0619-E' => ['edition' => 'January 2018', 'template' => '0619-E-2018-01', 'whole_pesos' => false],
+        '1601-EQ' => ['edition' => 'January 2019 (ENCS)', 'template' => '1601-EQ-2019-01', 'whole_pesos' => false],
+        '2307' => ['edition' => 'January 2018 (ENCS)', 'template' => '2307-2018-01', 'whole_pesos' => false],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
         '1900' => ['edition' => 'October 2025 (ENCS)', 'template' => '1900-2025-10', 'whole_pesos' => true],

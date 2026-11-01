@@ -42,19 +42,20 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 | `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, their PDF, which months are copied, and registering loose-leaf books (filled Form 1900)                                                        |
 | `app/Data`         | Your data: encrypted backups to a folder on this computer, restoring one (also before setup, for a new device), the monthly reminder, erasing everything, and the app lock (PIN, first-run offer, lock screen)          |
 | `app/Notices`      | Notifications: what needs attention now (worked out on the spot) and what happened (recorded as it happens)                                                                                                             |
+| `app/Withholding`  | The taxpayer as a withholding agent: tax kept from fees and rent they pay, the monthly 0619-E, the quarterly 1601-EQ with its list of payees (QAP data file), and the 2307 each payee is given                          |
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 
-Books prints the two cash journals. The general journal and ledger, which loose-leaf books also bind, aren't built yet.
+Books prints the two cash journals. The general journal and ledger, which loose-leaf books also bind, aren't built yet. Neither is the withholding agent's annual 1604-E with its alphalist.
 
 ## Official BIR forms
 
-Downloaded returns and registration forms are the BIR's own PDFs, filled in: 1701Q, 1701A, 1701 and 2551Q (January 2018 editions), 1701-MS (August 2024), 2550Q (April 2024), and 1905 and 1900 (October 2025). The annual return is the 1701-MS for the purely self-employed (the 1701A or 1701 stays accepted), and the 1701 for mixed income, since the app keeps no record of salaries. The forms have no fillable fields, so `app/Returns/Forms/OfficialFormFiller` draws each value where its box sits on the page:
+Downloaded returns and registration forms are the BIR's own PDFs, filled in: 1701Q, 1701A, 1701 and 2551Q (January 2018 editions), 1701-MS (August 2024), 2550Q (April 2024), 1905 and 1900 (October 2025), and for a withholding agent 0619-E and 2307 (January 2018) and 1601-EQ (January 2019). The annual return is the 1701-MS for the purely self-employed (the 1701A or 1701 stays accepted), and the 1701 for mixed income, since the app keeps no record of salaries. The forms have no fillable fields, so `app/Returns/Forms/OfficialFormFiller` draws each value where its box sits on the page:
 
 - `resources/forms/bir/originals/` — the PDFs exactly as downloaded from bir.gov.ph (sources and checksums in `manifest.json`)
 - `resources/forms/bir/{form}-{edition}.pdf` — the same PDFs rewritten so the PDF library can read them
 - `resources/forms/bir/{form}-{edition}.php` — the field map: where each item's box is, in points from the top-left of the page
-- `app/Returns/Forms/Items/` — which value goes in which item, from the return's figures (or the profile, for 1905 and 1900)
+- `app/Returns/Forms/Items/` — which value goes in which item, from the return's figures (or the profile, for 1905 and 1900, and the payments withheld on, for 0619-E, 1601-EQ and 2307)
 - `config/tax.php` → `forms` — the edition each form uses
 
 When the BIR revises a form:
@@ -63,4 +64,4 @@ When the BIR revises a form:
 2. Copy the old field map to the new edition's name and adjust it. `php artisan forms:calibrate 1701Q --grid` fills every box with sample values over a coordinate grid, written to `storage/app/private/forms-calibration/`.
 3. Point `config/tax.php` → `forms` at the new template, update the item builder if item numbers moved, and run the tests.
 
-Print the forms at actual size on 8.5 × 13 in (long bond) paper, except the 1900, which is 8.5 × 14 in (legal).
+Print the forms at actual size on 8.5 × 13 in (long bond) paper, except the 1900 and 2550Q, which are 8.5 × 14 in (legal), and the 0619-E, which is 8.5 × 11 in (letter).

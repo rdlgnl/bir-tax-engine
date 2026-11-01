@@ -11,6 +11,7 @@ use App\Tax\Services\TaxCalculationService;
 use App\Tax\Services\VatCalculator;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;
+use App\Withholding\Services\WithholdingAgent;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Number;
@@ -27,7 +28,7 @@ use Illuminate\Support\Str;
  *     date: string,
  *     statutory_date: string,
  *     title: string,
- *     kind: 'income_tax'|'percentage_tax'|'vat'|'reminder'|'decision',
+ *     kind: 'income_tax'|'percentage_tax'|'vat'|'withholding'|'reminder'|'decision',
  *     status: 'open'|'due'|'overdue'|'filed'|'reminder',
  *     amount: float|null,
  *     note: string|null,
@@ -69,6 +70,7 @@ class TaxObligations
         private TaxCalculationService $engine,
         private FilingCalendar $calendar,
         private VatCalculator $vat,
+        private WithholdingAgent $agent,
     ) {}
 
     /**
@@ -210,6 +212,12 @@ class TaxObligations
             }
         }
 
+        if ($profile->withholding_agent) {
+            foreach ($this->withholding($y, $includeFiled) as $item) {
+                $items[] = $item;
+            }
+        }
+
         if ($profile->clients_withhold !== ClientsWithhold::No) {
             $date = $this->calendar->swornDeclarationDue($y + 1)->toDateString();
             $items[] = $this->deadline($date, $date, 'Sworn declarations to clients', 'reminder', 'reminder', null, 'Reminder',
@@ -220,6 +228,54 @@ class TaxObligations
         $items[] = $this->deadline($date, $date, 'Q1 '.($y + 1).' · tax method locks', 'decision', 'reminder', null, 'Decide', 'action');
 
         usort($items, fn (array $a, array $b) => strcmp($a['date'], $b['date']));
+
+        return $items;
+    }
+
+    /**
+     * A withholding agent's 0619-E for the first two months of each quarter
+     * and 1601-EQ for the quarter, once something was withheld.
+     * REVIEW: whether a month or quarter with nothing withheld still needs a return.
+     *
+     * @return list<Deadline>
+     */
+    private function withholding(int $year, bool $includeFiled): array
+    {
+        $items = [];
+
+        foreach ($this->agent->year($year) as $q) {
+            foreach (array_slice($q['months'], 0, 2) as $m) {
+                if ($m['withheld'] <= 0 || $m['due_date'] === null || ($m['status'] === 'filed' && ! $includeFiled)) {
+                    continue;
+                }
+
+                $items[] = $this->deadline(
+                    date: $m['due_date'],
+                    statutoryDate: $m['due_date'],
+                    title: CarbonImmutable::create($year, $m['month'])->format('F').' 0619-E · withholding',
+                    kind: 'withholding',
+                    status: $m['status'],
+                    amount: $m['status'] === 'open' ? null : $m['withheld'],
+                    note: $m['status'] === 'open' ? 'So far' : null,
+                    href: route('withholding.month', [$year, $m['month']], absolute: false),
+                );
+            }
+
+            if ($q['withheld'] <= 0 || ($q['status'] === 'filed' && ! $includeFiled)) {
+                continue;
+            }
+
+            $items[] = $this->deadline(
+                date: $q['due_date'],
+                statutoryDate: $q['due_date'],
+                title: "Q{$q['quarter']} 1601-EQ · withholding",
+                kind: 'withholding',
+                status: $q['status'],
+                amount: $q['status'] === 'open' ? null : $q['still_due'],
+                note: $q['status'] === 'open' ? 'So far' : null,
+                href: route('withholding.quarter', [$year, $q['quarter']], absolute: false),
+            );
+        }
 
         return $items;
     }
@@ -241,7 +297,7 @@ class TaxObligations
     }
 
     /**
-     * @param  'income_tax'|'percentage_tax'|'vat'|'reminder'|'decision'  $kind
+     * @param  'income_tax'|'percentage_tax'|'vat'|'withholding'|'reminder'|'decision'  $kind
      * @param  'open'|'due'|'overdue'|'filed'|'reminder'  $status
      * @param  'default'|'action'  $tone
      * @return Deadline

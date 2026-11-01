@@ -54,5 +54,26 @@
         "source": "https://bir-cdn.bir.gov.ph/BIR/pdf/2550Q%20%20April%202024%20ENCS_Final.pdf",
         "sha256": "18eb16925010fdda820cef958221ba2c0d073066efa93a898113e39b31135a25",
         "fetched": "2026-10-31"
+    },
+    "2307-2018-01": {
+        "form": "2307",
+        "edition": "January 2018 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/2307%20Jan%202018%20ENCS%20v3.pdf",
+        "sha256": "eca9476c5f6346939b973e693d35d635f6dd82519b87092c717c21965b0b90f9",
+        "fetched": "2026-10-31"
+    },
+    "0619-E-2018-01": {
+        "form": "0619-E",
+        "edition": "January 2018",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/0619-E%20Jan%202018%20rev%20final.pdf",
+        "sha256": "0418160d63d4e6f68c34f2bad553273a5d148c3686d8562d338d35fcdd0c5215",
+        "fetched": "2026-10-31"
+    },
+    "1601-EQ-2019-01": {
+        "form": "1601-EQ",
+        "edition": "January 2019 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/1601-EQ%20January%202019%20ENCS%20final.pdf",
+        "sha256": "5277addc6778c96a53fde99b8664b1a5213fcea638dea06033c9acf22ee73c25",
+        "fetched": "2026-10-31"
     }
 }

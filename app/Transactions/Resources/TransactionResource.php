@@ -29,6 +29,8 @@ class TransactionResource extends JsonResource
             'vat_kind' => $this->vat_kind?->value,
             'vat_amount' => (float) $this->vat_amount,
             'counterparty_tin' => $this->counterparty_tin,
+            'atc' => $this->atc,
+            'agent_withheld' => (float) $this->agent_withheld,
             'certificate_status' => $this->certificateStatus(now())->value,
             'certificate_received_on' => $this->certificate_received_on?->toDateString(),
             'invoice_number' => $this->invoice_number,

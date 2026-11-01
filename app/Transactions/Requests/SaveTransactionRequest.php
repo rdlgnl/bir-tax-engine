@@ -38,6 +38,8 @@ class SaveTransactionRequest extends FormRequest
             'vat_kind' => ['nullable', Rule::enum(VatKind::class)],
             'vat_amount' => ['numeric', 'decimal:0,2', 'min:0', 'lt:amount'],
             'counterparty_tin' => ['nullable', 'string', 'regex:/^\d{3}-?\d{3}-?\d{3}(-?\d{3,5})?$/'],
+            'atc' => ['nullable', Rule::in(array_keys((array) config('tax.withholding.atcs')))],
+            'agent_withheld' => ['numeric', 'decimal:0,2', 'min:0', 'lt:amount'],
         ];
     }
 
@@ -92,7 +94,30 @@ class SaveTransactionRequest extends FormRequest
             'has_valid_invoice' => $type === TransactionType::Expense && $this->boolean('has_valid_invoice'),
             // VAT only for a VAT-registered taxpayer: a kind for sales, an amount for both.
             ...$this->vat($type),
+            ...$this->withholding($type),
         ]);
+    }
+
+    /**
+     * Tax kept from a payment, only for a withholding agent paying an expense.
+     * Without an amount typed, it is the ATC's rate on the payment.
+     *
+     * @return array{atc: string|null, agent_withheld: float|string}
+     */
+    private function withholding(?TransactionType $type): array
+    {
+        $atc = $this->input('atc') ?: null;
+
+        if ($type !== TransactionType::Expense || ! TaxProfile::current()?->withholding_agent || $atc === null) {
+            return ['atc' => null, 'agent_withheld' => 0];
+        }
+
+        $rate = (float) config("tax.withholding.atcs.{$atc}.rate", 0);
+
+        return [
+            'atc' => $atc,
+            'agent_withheld' => $this->input('agent_withheld') ?: round((float) $this->input('amount') * $rate, 2),
+        ];
     }
 
     /**

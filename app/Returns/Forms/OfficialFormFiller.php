@@ -15,7 +15,7 @@ use setasign\Fpdi\Fpdi;
  *
  * @phpstan-type Box array{
  *     page: int,
- *     type: 'text'|'comb'|'amount',
+ *     type: 'text'|'figure'|'comb'|'amount',
  *     x: float,
  *     to: float,
  *     y: float,
@@ -25,7 +25,8 @@ use setasign\Fpdi\Fpdi;
  * @phpstan-type Placement Box|array{page: int, type: 'check', x: float, y: float}
  * @phpstan-type Mark array{page: int, x: float, y: float, text: string, size: float, bold: bool}
  *
- * Placement types: `text` is written left-aligned from x to `to`; `comb`
+ * Placement types: `text` is written left-aligned from x to `to`; `figure`
+ * is an amount written right-aligned in an open cell, with centavos; `comb`
  * puts one character in each of `cells` boxes between x and `to`; `amount`
  * is a comb filled from the right, with `cents` the centavo boxes if the
  * form has them; `check` marks the box whose top-left corner is x, y. For
@@ -91,6 +92,7 @@ class OfficialFormFiller
             array_push($marks, ...match ($place['type']) {
                 'check' => [$this->mark($place['page'], $place['x'] + (self::CHECK_BOX - $this->width($pdf, 'X', 10, true)) / 2, $place['y'] + 9.4, 'X', 10, true)],
                 'text' => $this->text($pdf, $place, (string) $value),
+                'figure' => $this->figure($pdf, $place, (float) $value),
                 'comb' => $this->comb($pdf, $place, (string) $value),
                 'amount' => $this->amount($pdf, $place, (float) $value, $wholePesos),
             });
@@ -127,6 +129,20 @@ class OfficialFormFiller
     public function map(string $form): array
     {
         return require resource_path('forms/bir/'.config("tax.forms.{$form}.template").'.php');
+    }
+
+    /**
+     * An amount in an open table cell, as "40,000.00", against its right edge.
+     *
+     * @param  Box  $place
+     * @return list<Mark>
+     */
+    private function figure(Fpdi $pdf, array $place, float $value, float $size = 8.0): array
+    {
+        $text = number_format(abs($value), 2);
+        $text = $value < 0 ? "({$text})" : $text;
+
+        return [$this->mark($place['page'], $place['to'] - 2 - $this->width($pdf, $text, $size), $place['y'], $text, $size)];
     }
 
     /**
