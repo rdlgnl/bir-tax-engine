@@ -1,6 +1,8 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Bell, Plus } from 'lucide-react';
 import { ChecklistCard } from '@/components/home/checklist-card';
+import { CorporationCard } from '@/components/home/corporation-card';
+import type { HomeCorporation } from '@/components/home/corporation-card';
 import { JobCard } from '@/components/home/job-card';
 import { NextPaymentCard } from '@/components/home/next-payment-card';
 import { QuarterCard } from '@/components/home/quarter-card';
@@ -49,6 +51,7 @@ type Props = {
         extra: number;
     }[];
     vat: { current: VatQuarter; previous: VatQuarter; year: number } | null;
+    corporation: HomeCorporation | null;
 };
 
 function greeting(): string {
@@ -79,6 +82,7 @@ export default function Home({
     ruleUpdate,
     amendments,
     vat,
+    corporation,
 }: Props) {
     const { taxpayer } = usePage().props;
     const limitShare = Math.min(100, (yearGross / 3_000_000) * 100);
@@ -228,6 +232,7 @@ export default function Home({
                         year={vat.year}
                     />
                 )}
+                {corporation && <CorporationCard corporation={corporation} />}
                 {/* Left column stacks the short cards; recent activity fills the rest. */}
                 <div className="flex flex-col gap-5">
                     <UpcomingCard items={upcoming} />

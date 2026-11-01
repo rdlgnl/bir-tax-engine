@@ -3,6 +3,8 @@
 namespace App\Compliance\Services;
 
 use App\Compliance\Models\CompensationCertificate;
+use App\Corporations\Models\Corporation;
+use App\Corporations\Services\CorporateTax;
 use App\Letters\Models\Letter;
 use App\Loans\Models\Loan;
 use App\Loans\Services\LoanTax;
@@ -79,6 +81,7 @@ class TaxObligations
         private WithholdingAgent $agent,
         private LoanTax $loans,
         private Payroll $payroll,
+        private CorporateTax $corporations,
     ) {}
 
     /**
@@ -270,6 +273,27 @@ class TaxObligations
             $date = (string) $letter->reply_by?->toDateString();
             $items[] = $this->deadline($date, $date, 'Reply to the BIR: '.lcfirst($letter->kindLabel()), 'reminder', 'reminder', null, 'Letter',
                 tone: 'action', href: route('letters.show', $letter, absolute: false));
+        }
+
+        // The 1702Q of a corporation the taxpayer runs.
+        if (($corporation = Corporation::current()) !== null) {
+            foreach ($this->corporations->quarters($corporation, $y) as $quarter) {
+                if ($quarter['status'] === 'filed' && ! $includeFiled) {
+                    continue;
+                }
+
+                $ended = $quarter['status'] !== 'open';
+                $items[] = $this->deadline(
+                    date: $quarter['due_date'],
+                    statutoryDate: $quarter['statutory_date'],
+                    title: "Q{$quarter['quarter']} 1702Q · {$corporation->name}",
+                    kind: 'income_tax',
+                    status: $quarter['status'],
+                    amount: $ended && $quarter['has_figures'] ? max(0.0, $quarter['payable']) : null,
+                    note: $ended && ! $quarter['has_figures'] ? 'Enter figures' : ($ended ? null : 'Corporation'),
+                    href: route('corporation.quarter', [$y, $quarter['quarter']], absolute: false),
+                );
+            }
         }
 
         // Form 2000 for each loan the taxpayer files the DST on themselves.

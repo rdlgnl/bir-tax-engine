@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { formatDate, peso, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { payroll } from '@/routes';
+import { show as corporationShow } from '@/routes/corporation';
 import { create as lettersCreate } from '@/routes/letters';
 import { create as loansCreate } from '@/routes/loans';
 import { index, marketplace } from '@/routes/transactions';
@@ -458,6 +459,20 @@ export default function ImportStatement({
                                 <span className="text-[13px] text-muted-foreground">
                                     See what your records say, and what to send
                                     or bring.
+                                </span>
+                            </Link>
+                        </li>
+                        <li className="border-t border-divider py-3">
+                            <Link
+                                href={corporationShow().url}
+                                className="block hover:underline"
+                            >
+                                <span className="block text-[15px] font-bold text-primary">
+                                    I run a corporation
+                                </span>
+                                <span className="text-[13px] text-muted-foreground">
+                                    Its quarterly 1702Q, from the figures in its
+                                    books.
                                 </span>
                             </Link>
                         </li>
