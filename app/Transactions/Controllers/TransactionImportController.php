@@ -57,6 +57,7 @@ class TransactionImportController extends Controller
                 'clients' => count(array_unique(array_column($imports, 'client'))),
                 'ignored' => $count('ignore'),
                 'duplicates' => $count('duplicate'),
+                'settles' => $count('settles'),
                 'answers' => $count('answer'),
                 'filed' => $count('filed'),
                 'invalid' => $count('invalid'),
@@ -113,10 +114,11 @@ class TransactionImportController extends Controller
                 "From {$meta['name']}", route('transactions.index', absolute: false));
         }
 
-        Inertia::flash('toast', $result['imported'] === 0
+        Inertia::flash('toast', trim(($result['imported'] === 0 && $result['settled'] === 0
             ? 'Nothing new to import.'
-            : sprintf('Imported %d %s. Your tax is up to date.', $result['imported'], $result['imported'] === 1 ? 'payment' : 'payments')
-                .($result['skipped'] > 0 ? " {$result['skipped']} in a filed quarter were left out." : ''));
+            : ($result['imported'] > 0 ? sprintf('Imported %d %s. Your tax is up to date.', $result['imported'], $result['imported'] === 1 ? 'payment' : 'payments') : ''))
+                .($result['settled'] > 0 ? sprintf(' %d %s marked paid.', $result['settled'], $result['settled'] === 1 ? 'invoice' : 'invoices') : '')
+                .($result['skipped'] > 0 ? " {$result['skipped']} in a filed quarter were left out." : '')));
 
         return redirect()->route('transactions.index');
     }

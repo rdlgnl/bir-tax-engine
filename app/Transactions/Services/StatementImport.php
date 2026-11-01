@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
  * @phpstan-type Mapping array{date: int|null, description: int|null, amount: int|null, credit: int|null, debit: int|null}
  * @phpstan-type Line array{line: int, date: string|null, description: string, amount: float|null}
  * @phpstan-type Statement array{columns: list<string>, mapping: Mapping, lines: list<Line>, matched: bool}
- * @phpstan-type Row array{index: int, date: string|null, description: string, received: float, status: 'import'|'ignore'|'duplicate'|'answer'|'filed'|'invalid', client: string|null, amount: float, withheld: float, reason: string}
+ * @phpstan-type Row array{index: int, date: string|null, description: string, received: float, status: 'import'|'settles'|'ignore'|'duplicate'|'answer'|'filed'|'invalid', client: string|null, amount: float, withheld: float, reason: string, invoice?: int}
  */
 class StatementImport
 {
@@ -88,6 +88,8 @@ class StatementImport
         $income = Transaction::query()->where('type', '!=', TransactionType::Expense)->get();
         $window = (int) config('import.duplicate_window_days');
         $rows = [];
+        // Invoices an earlier line of this statement already pays.
+        $settling = [];
 
         foreach ($lines as $index => $line) {
             $received = (float) ($line['amount'] ?? 0);
@@ -148,6 +150,18 @@ class StatementImport
                 continue;
             }
 
+            // Money for an invoice already recorded settles it: the sale counts on the invoice's date.
+            $invoice = $this->unpaidInvoice($client, $received, $date, $income, $settling);
+
+            if ($invoice !== null) {
+                $settling[] = $invoice->id;
+                $rows[] = [...$row, 'status' => 'settles', 'client' => $invoice->counterparty, 'amount' => (float) $invoice->amount,
+                    'withheld' => round(max(0.0, (float) $invoice->amount - $received), 2), 'invoice' => $invoice->id,
+                    'reason' => "Pays invoice {$invoice->invoice_number} of {$invoice->occurred_on->format('M j')}"];
+
+                continue;
+            }
+
             if (Filing::incomeTaxReturnCovering($date) !== null) {
                 $rows[] = [...$row, 'status' => 'filed', 'client' => $client, 'reason' => 'Its quarter is already filed'];
 
@@ -168,17 +182,32 @@ class StatementImport
      *
      * @param  list<Row>  $rows
      * @param  array<int, array{kind: string, client?: string|null}>  $answers
-     * @return array{imported: int, total: float, skipped: int}
+     * @return array{imported: int, settled: int, total: float, skipped: int}
      */
     public function import(array $rows, array $answers, CarbonImmutable $today): array
     {
         $income = Transaction::query()->where('type', '!=', TransactionType::Expense)->get();
         $imported = 0;
+        $settled = 0;
         $skipped = 0;
         $total = 0.0;
 
         foreach ($rows as $row) {
             $answer = $answers[$row['index']] ?? null;
+
+            if ($row['status'] === 'settles' && isset($row['invoice'])) {
+                $invoice = Transaction::query()->whereKey($row['invoice'])->where('type', TransactionType::Invoice)->where('invoice_paid', false)->first();
+
+                if ($invoice !== null) {
+                    $invoice->update([
+                        'invoice_paid' => true,
+                        'tax_withheld' => (float) $invoice->tax_withheld > 0 ? $invoice->tax_withheld : $row['withheld'],
+                    ]);
+                    $settled++;
+                }
+
+                continue;
+            }
 
             if ($row['status'] === 'answer' && ($answer['kind'] ?? null) === 'payment' && filled($answer['client'] ?? null)) {
                 $client = Str::squish((string) $answer['client']);
@@ -209,7 +238,30 @@ class StatementImport
             $total += $row['amount'];
         }
 
-        return ['imported' => $imported, 'total' => round($total, 2), 'skipped' => $skipped];
+        return ['imported' => $imported, 'settled' => $settled, 'total' => round($total, 2), 'skipped' => $skipped];
+    }
+
+    /**
+     * An unpaid invoice from the client this money pays: the full amount,
+     * or the amount less what the client plausibly withheld (up to 15%),
+     * issued in the six months before.
+     *
+     * @param  Collection<int, Transaction>  $income
+     * @param  list<int>  $taken  invoices already paid by other lines
+     */
+    private function unpaidInvoice(string $client, float $received, CarbonImmutable $date, Collection $income, array $taken): ?Transaction
+    {
+        return $income
+            ->filter(fn (Transaction $t) => $t->type === TransactionType::Invoice
+                && ! $t->invoice_paid
+                && ! in_array($t->id, $taken, true)
+                && $this->normalise($t->counterparty) === $this->normalise($client)
+                && $t->occurred_on->lessThanOrEqualTo($date)
+                && $t->occurred_on->greaterThanOrEqualTo($date->subMonths(6))
+                && $received <= (float) $t->amount + 0.005
+                && (float) $t->amount - $received <= (float) $t->amount * 0.15 + 0.005)
+            ->sortBy('occurred_on')
+            ->first();
     }
 
     /**
