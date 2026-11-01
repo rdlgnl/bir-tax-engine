@@ -302,13 +302,18 @@ export default function BooksGeneral({
                     />
                     <Note title="On a cash basis">
                         Like the cash journals: money that came in or went out,
-                        and taxes paid with returns you marked paid. An unpaid
-                        invoice waits until it's paid.
+                        taxes paid with returns you marked paid, and the tax
+                        withheld from salaries. An unpaid invoice waits until
+                        it's paid.
                     </Note>
-                    <Note tone="warning" title="Balances start on January 1">
-                        Last year's cash and other balances aren't carried over.
-                        Bring them forward by hand on the first page of the
-                        year, or ask your bookkeeper.
+                    <Note
+                        tone="warning"
+                        title="Balances start with your first records"
+                    >
+                        They carry from year to year, the year's income and
+                        expenses closing into owner's capital. Money you had
+                        before your first record in the app isn't known: add it
+                        by hand, or ask your bookkeeper.
                     </Note>
                     {booksType === 'loose_leaf' ? (
                         <Note title="Bind them with the cash journals">

@@ -45,6 +45,14 @@
         Keep books and records for {{ config('tax.books.retention_years') }} years after the return they support is filed.
     </div>
 
+    @php
+        // VAT and withholding columns only in months that have them.
+        $vat = $totals['vat'] > 0;
+        $inputVat = $totals['disbursed_vat'] > 0;
+        $agentWithheld = $totals['disbursed_withheld'] > 0;
+        $paidColumn = $inputVat || $agentWithheld;
+    @endphp
+
     <h2>CASH RECEIPTS JOURNAL (PHP)</h2>
     <table>
         <thead>
@@ -53,6 +61,7 @@
                 <th>Received from</th>
                 <th>Invoice</th>
                 <th class="num">Amount</th>
+                @if ($vat)<th class="num">VAT</th>@endif
                 <th class="num">Withheld</th>
                 <th class="num">Received</th>
             </tr>
@@ -64,15 +73,17 @@
                     <td>{{ $row['counterparty'] }}</td>
                     <td>{{ $row['invoice_number'] ?? '—' }}</td>
                     <td class="num">{{ number_format($row['amount'], 2) }}</td>
+                    @if ($vat)<td class="num">{{ number_format($row['vat'], 2) }}</td>@endif
                     <td class="num">{{ number_format($row['withheld'], 2) }}</td>
                     <td class="num">{{ number_format($row['received'], 2) }}</td>
                 </tr>
             @empty
-                <tr class="empty"><td colspan="6">No money received this month.</td></tr>
+                <tr class="empty"><td colspan="{{ $vat ? 7 : 6 }}">No money received this month.</td></tr>
             @endforelse
             <tr class="total">
                 <td colspan="3">Total</td>
                 <td class="num">{{ number_format($totals['amount'], 2) }}</td>
+                @if ($vat)<td class="num">{{ number_format($totals['vat'], 2) }}</td>@endif
                 <td class="num">{{ number_format($totals['withheld'], 2) }}</td>
                 <td class="num">{{ number_format($totals['received'], 2) }}</td>
             </tr>
@@ -88,6 +99,9 @@
                 <th>Receipt</th>
                 <th>For</th>
                 <th class="num">Amount</th>
+                @if ($inputVat)<th class="num">VAT</th>@endif
+                @if ($agentWithheld)<th class="num">Withheld</th>@endif
+                @if ($paidColumn)<th class="num">Paid</th>@endif
             </tr>
         </thead>
         <tbody>
@@ -98,13 +112,19 @@
                     <td>{{ $row['receipt_number'] ?? '—' }}</td>
                     <td>{{ $row['category'] ?? '—' }}</td>
                     <td class="num">{{ number_format($row['amount'], 2) }}</td>
+                    @if ($inputVat)<td class="num">{{ number_format($row['vat'], 2) }}</td>@endif
+                    @if ($agentWithheld)<td class="num">{{ number_format($row['withheld'], 2) }}</td>@endif
+                    @if ($paidColumn)<td class="num">{{ number_format($row['paid'], 2) }}</td>@endif
                 </tr>
             @empty
-                <tr class="empty"><td colspan="5">No expenses recorded this month.</td></tr>
+                <tr class="empty"><td colspan="{{ 5 + (int) $inputVat + (int) $agentWithheld + (int) $paidColumn }}">No expenses recorded this month.</td></tr>
             @endforelse
             <tr class="total">
                 <td colspan="4">Total</td>
                 <td class="num">{{ number_format($totals['disbursed'], 2) }}</td>
+                @if ($inputVat)<td class="num">{{ number_format($totals['disbursed_vat'], 2) }}</td>@endif
+                @if ($agentWithheld)<td class="num">{{ number_format($totals['disbursed_withheld'], 2) }}</td>@endif
+                @if ($paidColumn)<td class="num">{{ number_format($totals['paid'], 2) }}</td>@endif
             </tr>
         </tbody>
     </table>

@@ -8,6 +8,7 @@ export type CashReceipt = {
     counterparty: string;
     invoice_number: string | null;
     amount: number;
+    vat: number;
     withheld: number;
     received: number;
 };
@@ -19,13 +20,20 @@ export type CashDisbursement = {
     receipt_number: string | null;
     category: string | null;
     amount: number;
+    vat: number;
+    withheld: number;
+    paid: number;
 };
 
 export type JournalTotals = {
     amount: number;
+    vat: number;
     withheld: number;
     received: number;
     disbursed: number;
+    disbursed_vat: number;
+    disbursed_withheld: number;
+    paid: number;
 };
 
 /** App\Books\Services\GeneralLedger */

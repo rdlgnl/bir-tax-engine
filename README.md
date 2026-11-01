@@ -50,7 +50,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 
-Books prints the two cash journals and the general journal and ledger, on a cash basis. The ledger's balances start on January 1 each year; last year's are brought forward by hand.
+Books prints the two cash journals and the general journal and ledger, on a cash basis. The ledger's balances carry over from the first records in the app, each year's income and expenses closing into owner's capital; money held before the first record is added by hand.
 
 ## Official BIR forms
 
