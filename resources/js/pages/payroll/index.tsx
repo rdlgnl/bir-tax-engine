@@ -4,7 +4,7 @@ import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, monthLong, peso } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { month as monthPage } from '@/routes/payroll';
+import { annual, certificate, month as monthPage } from '@/routes/payroll';
 import { create } from '@/routes/payroll/employees';
 import { employee as employeePage } from '@/routes/payroll';
 import type { Employee, EmployeeYear, RemittanceMonth } from '@/types';
@@ -127,6 +127,60 @@ export default function Payroll({ year, employees, months }: Props) {
                         </ul>
                     )}
                 </SectionCard>
+
+                {months.length > 0 && (
+                    <SectionCard title="Year end">
+                        <ul className="divide-y divide-divider">
+                            <li>
+                                <Link
+                                    href={annual(year).url}
+                                    className="flex items-center justify-between gap-3 py-3 hover:bg-muted/50"
+                                >
+                                    <span>
+                                        <span className="block text-[15px] font-bold">
+                                            Annual list of employees
+                                        </span>
+                                        <span className="text-sm text-muted-foreground">
+                                            Form 1604-C · by January 31
+                                        </span>
+                                    </span>
+                                    <ChevronRight
+                                        className="size-4 text-muted-foreground"
+                                        aria-hidden
+                                    />
+                                </Link>
+                            </li>
+                            {employees
+                                .filter((e) => e.year.months.length > 0)
+                                .map((e) => (
+                                    <li key={e.id}>
+                                        <Link
+                                            href={certificate([e.id, year]).url}
+                                            className="flex items-center justify-between gap-3 py-3 hover:bg-muted/50"
+                                        >
+                                            <span>
+                                                <span className="block text-[15px] font-bold">
+                                                    {e.first_name}'s 2316
+                                                </span>
+                                                <span className="text-sm text-muted-foreground">
+                                                    {peso(e.year.pay)} paid ·{' '}
+                                                    {peso(
+                                                        e.year.withheld -
+                                                            e.year.refund,
+                                                    )}{' '}
+                                                    tax withheld
+                                                </span>
+                                            </span>
+                                            <ChevronRight
+                                                className="size-4 text-muted-foreground"
+                                                aria-hidden
+                                            />
+                                        </Link>
+                                    </li>
+                                ))}
+                        </ul>
+                    </SectionCard>
+                )}
             </div>
         </>
     );

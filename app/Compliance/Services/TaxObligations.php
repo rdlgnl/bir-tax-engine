@@ -237,6 +237,33 @@ class TaxObligations
             );
         }
 
+        // At year end: a 2316 for each employee and the 1604-C, both by January 31.
+        $payroll = $this->payroll->annual($y);
+
+        if ($payroll['months'] !== []) {
+            $ungiven = array_filter($payroll['employees'], fn (array $e) => $e['given_on'] === null);
+
+            if ($ungiven !== []) {
+                $items[] = $this->deadline($payroll['due_date'], $payroll['due_date'],
+                    count($ungiven) === 1 ? 'Give '.reset($ungiven)['name'].' their 2316' : 'Give your employees their 2316s',
+                    'reminder', 'reminder', null, 'Reminder',
+                    href: route('payroll', $y, absolute: false));
+            }
+
+            if ($payroll['status'] !== 'filed' || $includeFiled) {
+                $items[] = $this->deadline(
+                    date: $payroll['due_date'],
+                    statutoryDate: $payroll['due_date'],
+                    title: "{$y} 1604-C · list of employees",
+                    kind: 'withholding',
+                    status: $payroll['status'],
+                    amount: null,
+                    note: 'No payment',
+                    href: route('payroll.annual', $y, absolute: false),
+                );
+            }
+        }
+
         // Form 2000 for each loan the taxpayer files the DST on themselves.
         foreach (Loan::query()->whereYear('signed_on', $y)->where('lender_kind', 'person')->get() as $loan) {
             $dst = $this->loans->for($loan);

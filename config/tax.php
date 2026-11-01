@@ -182,6 +182,8 @@ return [
         '1604-E' => ['edition' => 'January 2018 (ENCS)', 'template' => '1604-E-2018-01', 'whole_pesos' => false],
         '2000' => ['edition' => 'January 2018', 'template' => '2000-2018-01', 'whole_pesos' => false],
         '1601-C' => ['edition' => 'January 2018 (ENCS)', 'template' => '1601-C-2018-01', 'whole_pesos' => false],
+        '2316' => ['edition' => 'September 2021 (ENCS)', 'template' => '2316-2021-09', 'whole_pesos' => false],
+        '1604-C' => ['edition' => 'January 2018', 'template' => '1604-C-2018-01', 'whole_pesos' => false],
         '2307' => ['edition' => 'January 2018 (ENCS)', 'template' => '2307-2018-01', 'whole_pesos' => false],
         // Registration forms: updating the COR, and the loose-leaf books permit.
         '1905' => ['edition' => 'October 2025 (ENCS)', 'template' => '1905-2025-10', 'whole_pesos' => true],
