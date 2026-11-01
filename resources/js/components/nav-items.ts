@@ -31,7 +31,7 @@ export const navItems: NavItem[] = [
         label: 'Transactions',
         icon: ListChecks,
         href: transactionsIndex.url(),
-        match: ['/transactions', '/loans'],
+        match: ['/transactions', '/loans', '/payroll'],
     },
     { label: 'My tax', icon: BarChart3, href: taxShow.url(), match: ['/tax'] },
     {

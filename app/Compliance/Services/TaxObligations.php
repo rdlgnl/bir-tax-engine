@@ -5,6 +5,7 @@ namespace App\Compliance\Services;
 use App\Compliance\Models\CompensationCertificate;
 use App\Loans\Models\Loan;
 use App\Loans\Services\LoanTax;
+use App\Payroll\Services\Payroll;
 use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
@@ -76,6 +77,7 @@ class TaxObligations
         private VatCalculator $vat,
         private WithholdingAgent $agent,
         private LoanTax $loans,
+        private Payroll $payroll,
     ) {}
 
     /**
@@ -215,6 +217,24 @@ class TaxObligations
                     href: route('returns.show', [$y, $vat['quarter'], '2550Q'], absolute: false),
                 );
             }
+        }
+
+        // The 1601-C each month someone is employed, even when nothing was withheld.
+        foreach ($this->payroll->year($y) as $month) {
+            if ($month['status'] === 'filed' && ! $includeFiled) {
+                continue;
+            }
+
+            $items[] = $this->deadline(
+                date: $month['due_date'],
+                statutoryDate: $month['due_date'],
+                title: CarbonImmutable::create($y, $month['month'])->format('F').' 1601-C · tax on salaries',
+                kind: 'withholding',
+                status: $month['status'],
+                amount: $month['status'] === 'open' ? null : $month['withheld'],
+                note: $month['status'] === 'open' ? 'So far' : null,
+                href: route('payroll.month', [$y, $month['month']], absolute: false),
+            );
         }
 
         // Form 2000 for each loan the taxpayer files the DST on themselves.
