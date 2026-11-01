@@ -2,6 +2,7 @@
 
 namespace App\Letters\Requests;
 
+use App\Tax\Services\TaxRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -18,7 +19,7 @@ class StoreLetterRequest extends FormRequest
             'dated_on' => ['nullable', 'date', 'before_or_equal:today'],
             'office' => ['nullable', 'string', 'max:120'],
             'form' => ['nullable', Rule::in((array) config('letters.forms'))],
-            'year' => ['nullable', 'integer', 'between:2010,2100'],
+            'year' => ['nullable', 'integer', 'between:'.app(TaxRules::class)->firstDate()->year.',2100'],
             'quarter' => ['nullable', 'integer', 'between:1,4'],
             'month' => ['nullable', 'integer', 'between:1,12'],
             'reply_by' => ['nullable', 'date'],

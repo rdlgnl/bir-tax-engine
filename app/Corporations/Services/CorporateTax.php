@@ -5,6 +5,7 @@ namespace App\Corporations\Services;
 use App\Corporations\Models\Corporation;
 use App\Corporations\Models\CorporationQuarter;
 use App\Tax\Services\FilingCalendar;
+use App\Tax\Services\TaxRules;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
@@ -76,7 +77,7 @@ use Illuminate\Support\Collection;
  */
 class CorporateTax
 {
-    public function __construct(private FilingCalendar $calendar) {}
+    public function __construct(private FilingCalendar $calendar, private TaxRules $rules) {}
 
     /**
      * @return QuarterTax
@@ -106,7 +107,7 @@ class CorporateTax
             $previousTaxable = $toDate['taxable_income'];
             $toDate = $this->add($toDate, $thisQuarter);
             $grossByQuarter[] = $thisQuarter['gross_income'];
-            $tax = $this->tax($corporation, $year, $toDate['taxable_income'], $toDate['gross_income']);
+            $tax = $this->tax($corporation, $year, $toDate['taxable_income'], $grossByQuarter);
             $withheld = (float) ($row->withheld ?? 0);
             $credits = round($paidRegular + $paidMcit + $withheldBefore + $withheld, 2);
             $statutory = $this->quarterStatutoryDate($year, $q);
@@ -172,10 +173,13 @@ class CorporateTax
             $figures = $this->add($figures, $this->figures($row, $corporation));
         }
 
+        // Each quarter's gross income, the missing ones as the average of those entered.
+        $entered = $rows->map(fn (CorporationQuarter $row) => $this->figures($row, $corporation)['gross_income']);
+        $grossByQuarter = array_map(fn (int $q) => $entered->get($q, round($entered->avg() ?? 0.0, 2)), [1, 2, 3, 4]);
         $figures = array_map(fn (float $amount) => round($amount * $factor, 2), $figures);
         $withheld = round($rows->sum(fn (CorporationQuarter $row) => (float) $row->withheld) * $factor, 2);
         $withheldBefore = round($rows->filter(fn (CorporationQuarter $row) => $row->quarter < 4)->sum(fn (CorporationQuarter $row) => (float) $row->withheld), 2);
-        $tax = $this->tax($corporation, $year, $figures['taxable_income'], $figures['gross_income']);
+        $tax = $this->tax($corporation, $year, $figures['taxable_income'], $grossByQuarter);
         $paidRegular = $paidMcit = 0.0;
 
         foreach ($this->quarters($corporation, $year) as $quarter) {
@@ -239,6 +243,22 @@ class CorporateTax
      * The year MCIT first applies: the 4th taxable year after the year
      * operations began.
      */
+    /**
+     * Whether the rule pack has corporate rates for the whole of a year.
+     */
+    public function covers(int $year): bool
+    {
+        return $this->rules->covers($year) && $this->rules->forQuarter($year, 1)->has('corporation.rate');
+    }
+
+    /**
+     * The MCIT rate in force for a quarter, or for the year's last quarter.
+     */
+    public function mcitRate(int $year, int $quarter = 4): float
+    {
+        return $this->rules->forQuarter($year, $quarter)->rate('corporation.mcit_rate');
+    }
+
     public function mcitFrom(Corporation $corporation): int
     {
         return $corporation->operations_began + (int) config('tax.corporation.mcit_from_year');
@@ -276,16 +296,28 @@ class CorporateTax
     }
 
     /**
+     * The regular tax on the year's rates, and the MCIT on each quarter's
+     * gross income at that quarter's rate (1% until June 2023, then 2%).
+     * REVIEW: the MCIT for 2023, split by quarter.
+     *
+     * @param  list<float>  $grossByQuarter
      * @return Tax
      */
-    private function tax(Corporation $corporation, int $year, float $taxableIncome, float $grossIncome): array
+    private function tax(Corporation $corporation, int $year, float $taxableIncome, array $grossByQuarter): array
     {
+        $rules = $this->rules->forYear($year);
         $small = $taxableIncome <= (float) config('tax.corporation.small_taxable_income')
             && (float) $corporation->total_assets <= (float) config('tax.corporation.small_total_assets');
-        $rate = (float) config($small ? 'tax.corporation.small_rate' : 'tax.corporation.rate');
+        $rate = $rules->rate($small ? 'corporation.small_rate' : 'corporation.rate');
         $regular = round(max(0.0, $taxableIncome) * $rate, 2);
         $mcitApplies = $year >= $this->mcitFrom($corporation);
-        $mcit = $mcitApplies ? round(max(0.0, $grossIncome) * (float) config('tax.corporation.mcit_rate'), 2) : 0.0;
+        $mcit = 0.0;
+
+        foreach ($mcitApplies ? $grossByQuarter : [] as $i => $gross) {
+            $mcit += $gross * $this->rules->forQuarter($year, $i + 1)->rate('corporation.mcit_rate');
+        }
+
+        $mcit = round(max(0.0, $mcit), 2);
 
         return [
             'rate' => $rate,

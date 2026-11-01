@@ -34,7 +34,8 @@ class Form1702QItems extends CorporationFormItems
         $taxable = $sales - $cost + $other - $deductions + $previous;
         $regular = $this->peso(max(0, $taxable) * $tax['rate']);
         $gross = array_map(fn (float $amount) => $this->peso($amount), $tax['gross_by_quarter']);
-        $mcit = $tax['mcit_applies'] ? $this->peso(array_sum($gross) * (float) config('tax.corporation.mcit_rate')) : null;
+        // Each quarter at its own rate, so not always the printed 2% of the total.
+        $mcit = $tax['mcit_applies'] ? $this->peso($tax['mcit']) : null;
         $due = max($regular, $mcit ?? 0);
         $credits = [
             's4.2' => $this->peso($tax['paid_regular']),

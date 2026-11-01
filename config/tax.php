@@ -19,13 +19,16 @@
 
 return [
 
-    'version' => '2026.10',
+    'version' => '2026.11',
 
     'reviewed' => false,
 
     // What each rule pack changed, newest first, for the "what changed" screen.
     // Each: area (Rules, Deadline calendar, Forms), title, summary.
     'changes' => [
+        '2026.11' => [
+            ['area' => 'Rules', 'title' => 'Each year on its own rules', 'summary' => 'Years before 2023 use the 2018–2022 graduated table, percentage tax is 1% from July 2020 to June 2023, and corporations follow the CREATE rates and MCIT of each quarter. Years before 2018 (2021 for corporations) aren\'t computed.'],
+        ],
         '2026.10' => [
             ['area' => 'Rules', 'title' => 'First rule pack', 'summary' => '8% option, graduated rates (2023 table), the 40% OSD, 3% percentage tax and the ₱3,000,000 limits.'],
             ['area' => 'Deadline calendar', 'title' => 'Deadlines and holidays through 2027', 'summary' => 'Due dates that fall on weekends or holidays move to the next working day.'],
@@ -41,19 +44,59 @@ return [
         'gross_limit' => 3_000_000,
     ],
 
-    // Annual table for 2023 onwards: [over, base tax, rate on the excess].
-    'graduated_brackets' => [
-        [0, 0, 0.00],
-        [250_000, 0, 0.15],
-        [400_000, 22_500, 0.20],
-        [800_000, 102_500, 0.25],
-        [2_000_000, 402_500, 0.30],
-        [8_000_000, 2_202_500, 0.35],
-    ],
-
     'osd_rate' => 0.40,
 
-    'percentage_tax_rate' => 0.03,
+    // Rules that changed over the years, by the date each took effect. A
+    // period uses every entry on or before it (App\Tax\Services\TaxRules):
+    // a year's income tax its last day, a quarter's percentage tax and MCIT
+    // its first day. A period before the first entry has no rules and the
+    // app refuses it, as it does corporations before 2021. `rule_ids` name
+    // the rules the explanations cite.
+    // Graduated tables: [over, base tax, rate on the excess], per year.
+    'dated' => [
+        // RA 10963 (TRAIN): the table for 2018 to 2022, and 3% percentage tax.
+        '2018-01-01' => [
+            'graduated_brackets' => [
+                [0, 0, 0.00],
+                [250_000, 0, 0.20],
+                [400_000, 30_000, 0.25],
+                [800_000, 130_000, 0.30],
+                [2_000_000, 490_000, 0.32],
+                [8_000_000, 2_410_000, 0.35],
+            ],
+            'percentage_tax_rate' => 0.03,
+            'rule_ids' => ['graduated' => 'IT-GRAD-2018', 'percentage_tax' => 'PT-3PCT-2018'],
+        ],
+        // RA 11534 (CREATE): 1% percentage tax from July 1, 2020 to June 30, 2023.
+        '2020-07-01' => [
+            'percentage_tax_rate' => 0.01,
+            'rule_ids' => ['percentage_tax' => 'PT-1PCT'],
+        ],
+        // RA 11534 (CREATE) for corporations, from the first full year the
+        // app supports: 2020 straddles the change and isn't encoded.
+        // REVIEW: the 1% MCIT for July 2020 to June 2023.
+        '2021-01-01' => [
+            'corporation' => ['rate' => 0.25, 'small_rate' => 0.20, 'mcit_rate' => 0.01],
+        ],
+        // RA 10963 (TRAIN): the table for 2023 onwards.
+        '2023-01-01' => [
+            'graduated_brackets' => [
+                [0, 0, 0.00],
+                [250_000, 0, 0.15],
+                [400_000, 22_500, 0.20],
+                [800_000, 102_500, 0.25],
+                [2_000_000, 402_500, 0.30],
+                [8_000_000, 2_202_500, 0.35],
+            ],
+            'rule_ids' => ['graduated' => 'IT-GRAD-2023'],
+        ],
+        // The CREATE relief ended: 3% percentage tax and 2% MCIT again.
+        '2023-07-01' => [
+            'percentage_tax_rate' => 0.03,
+            'corporation' => ['mcit_rate' => 0.02],
+            'rule_ids' => ['percentage_tax' => 'PT-3PCT'],
+        ],
+    ],
 
     // Withholding as an agent: the tax a taxpayer keeps from what they pay
     // others and remits on 0619-E (monthly) and 1601-EQ (quarterly), with a
@@ -100,19 +143,16 @@ return [
     ],
 
     // A corporation's income tax (NIRC section 27, as the CREATE Act changed
-    // it): 25%, or 20% when taxable income is ₱5,000,000 or less and total
-    // assets (excluding land) are ₱100,000,000 or less. From the 4th year
-    // after operations began, the tax is at least the MCIT, 2% of gross
-    // income. The quarterly 1702Q is due 60 days after each of the first
-    // three quarters. REVIEW: rates, thresholds, the MCIT start year, and
-    // testing the 20% rate on the taxable income to date each quarter. The
-    // CREATE Act's 1% MCIT (July 2020 to June 2023) isn't applied.
+    // it): the regular rate, or the lower rate when taxable income is
+    // ₱5,000,000 or less and total assets (excluding land) are ₱100,000,000
+    // or less. From the 4th year after operations began, the tax is at least
+    // the MCIT on gross income. The rates are in `dated`. The quarterly 1702Q
+    // is due 60 days after each of the first three quarters. REVIEW: rates,
+    // thresholds, the MCIT start year, and testing the lower rate on the
+    // taxable income to date each quarter.
     'corporation' => [
-        'rate' => 0.25,
-        'small_rate' => 0.20,
         'small_taxable_income' => 5_000_000,
         'small_total_assets' => 100_000_000,
-        'mcit_rate' => 0.02,
         'mcit_from_year' => 4,
         'osd_rate' => 0.40,
         'quarterly_due_days' => 60,
@@ -287,6 +327,12 @@ return [
             'basis' => 'NIRC Sec. 24(A)(2)(c)(2) · RR 8-2018 Sec. 2(B)',
             'effective' => '2018-01-01',
         ],
+        'IT-GRAD-2018' => [
+            'version' => 1,
+            'title' => 'Graduated income tax rates',
+            'basis' => 'NIRC Sec. 24(A)(2)(a) as amended by RA 10963, table for 2018 to 2022',
+            'effective' => '2018-01-01',
+        ],
         'IT-GRAD-2023' => [
             'version' => 1,
             'title' => 'Graduated income tax rates',
@@ -304,6 +350,18 @@ return [
             'title' => 'Itemized deductions, backed by invoices in your name',
             'basis' => 'NIRC Sec. 34(A) to (K)',
             'effective' => '2018-01-01',
+        ],
+        'PT-3PCT-2018' => [
+            'version' => 1,
+            'title' => 'Percentage tax, 3% of quarterly gross sales',
+            'basis' => 'NIRC Sec. 116 as amended by RA 10963',
+            'effective' => '2018-01-01',
+        ],
+        'PT-1PCT' => [
+            'version' => 1,
+            'title' => 'Percentage tax, 1% of quarterly gross sales',
+            'basis' => 'NIRC Sec. 116 as amended by RA 11534 (CREATE), July 1, 2020 to June 30, 2023',
+            'effective' => '2020-07-01',
         ],
         'PT-3PCT' => [
             'version' => 1,

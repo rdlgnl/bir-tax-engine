@@ -4,6 +4,7 @@ namespace App\Transactions\Requests;
 
 use App\Compliance\Rules\NotInClosedYear;
 use App\Profiles\Models\TaxProfile;
+use App\Tax\Services\TaxRules;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Enums\VatKind;
@@ -24,7 +25,7 @@ class SaveTransactionRequest extends FormRequest
     {
         return [
             'type' => ['required', Rule::enum(TransactionType::class)],
-            'occurred_on' => ['required', 'date', 'before_or_equal:today', new NotInClosedYear],
+            'occurred_on' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:'.app(TaxRules::class)->firstDate()->toDateString(), new NotInClosedYear],
             'counterparty' => ['required', 'string', 'max:120'],
             'amount' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:999999999.99'],
             'tax_withheld' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'lt:amount'],
@@ -69,6 +70,7 @@ class SaveTransactionRequest extends FormRequest
             'amount.gt' => 'Enter the full amount before anything was deducted.',
             'tax_withheld.lt' => 'Tax withheld must be less than the amount billed.',
             'occurred_on.before_or_equal' => 'Record things once they have happened.',
+            'occurred_on.after_or_equal' => 'BuwisBuddy\'s tax rules start in '.app(TaxRules::class)->firstDate()->year.'. Ask your accountant about earlier years.',
             'counterparty.required' => 'Who was it from or to?',
             'invoice_number.required_if' => 'Copy the number printed on the invoice.',
             'category.required_if' => 'Pick what it was for.',

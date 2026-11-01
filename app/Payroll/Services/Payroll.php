@@ -31,11 +31,12 @@ class Payroll
     ) {}
 
     /**
-     * Tax withheld on one month's pay, before the year-end adjustment.
+     * Tax withheld on one month's pay, before the year-end adjustment, on
+     * the year's table (this year's unless said otherwise).
      */
-    public function monthlyWithholding(float $pay): float
+    public function monthlyWithholding(float $pay, ?int $year = null): float
     {
-        return round($this->engine->graduatedTax($pay * 12) / 12, 2);
+        return round($this->engine->graduatedTax($pay * 12, $year) / 12, 2);
     }
 
     /**
@@ -47,14 +48,14 @@ class Payroll
     {
         $worked = array_values(array_filter(range(1, 12), fn (int $m) => $employee->workedIn($year, $m)));
         $pay = (float) $employee->monthly_pay;
-        $annualTax = $this->engine->graduatedTax($pay * count($worked));
+        $annualTax = $this->engine->graduatedTax($pay * count($worked), $year);
         $months = [];
         $withheld = 0.0;
         $refund = 0.0;
 
         foreach ($worked as $i => $month) {
             $last = $i === count($worked) - 1;
-            $tax = $this->monthlyWithholding($pay);
+            $tax = $this->monthlyWithholding($pay, $year);
 
             if ($last) {
                 // The year-end adjustment: withhold what's still owed, or refund the excess.

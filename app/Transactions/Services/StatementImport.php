@@ -4,6 +4,7 @@ namespace App\Transactions\Services;
 
 use App\Compliance\Models\Certificate;
 use App\Returns\Models\Filing;
+use App\Tax\Services\TaxRules;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -27,7 +28,7 @@ use Illuminate\Support\Str;
  */
 class StatementImport
 {
-    public function __construct(private CsvFile $csv) {}
+    public function __construct(private CsvFile $csv, private TaxRules $rules) {}
 
     private const COLUMNS = [
         'date' => ['date', 'transaction date', 'txn date', 'trans date', 'posting date', 'posted', 'date posted', 'value date', 'completed date'],
@@ -111,6 +112,12 @@ class StatementImport
 
             if ($date->greaterThan($today)) {
                 $rows[] = [...$row, 'status' => 'invalid', 'reason' => 'Dated in the future'];
+
+                continue;
+            }
+
+            if ($date->lessThan($this->rules->firstDate())) {
+                $rows[] = [...$row, 'status' => 'invalid', 'reason' => 'Before '.$this->rules->firstDate()->year.', when the app\'s tax rules start'];
 
                 continue;
             }

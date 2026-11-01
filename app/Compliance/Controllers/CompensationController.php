@@ -32,7 +32,7 @@ class CompensationController extends Controller
         $figures = fn (float $gross, float $nonTaxable, float $withheld) => [
             'taxable' => round($gross - $nonTaxable, 2),
             'withheld' => $withheld,
-            'tax' => $engine->graduatedTax($gross - $nonTaxable),
+            'tax' => $engine->graduatedTax($gross - $nonTaxable, $year),
         ];
 
         return Inertia::render('compliance/compensation', [
@@ -46,7 +46,7 @@ class CompensationController extends Controller
                 'tax_withheld' => (float) $certificate->tax_withheld,
                 'original_filename' => $certificate->original_filename,
             ],
-            'estimate' => $estimate === null ? null : $figures($estimate['gross'], 0.0, $engine->graduatedTax($estimate['gross'])),
+            'estimate' => $estimate === null ? null : $figures($estimate['gross'], 0.0, $engine->graduatedTax($estimate['gross'], $year)),
             'actual' => $certificate === null ? null : $figures(
                 (float) $certificate->gross_compensation,
                 (float) $certificate->non_taxable_compensation,

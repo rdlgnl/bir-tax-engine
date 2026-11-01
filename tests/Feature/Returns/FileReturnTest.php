@@ -137,6 +137,6 @@ test('marking a return filed freezes its figures', function () {
     $snapshot = Filing::query()->where('quarter', 3)->sole()->snapshot;
 
     expect($snapshot['figures']['due'])->toBe(14000)
-        ->and($snapshot['rule_pack'])->toBe('2026.10')
+        ->and($snapshot['rule_pack'])->toBe('2026.11')
         ->and($snapshot['rules'])->toBe(['IT-8PCT-PURE v2', 'CWT-CREDIT v1', 'DL-1701Q v1']);
 });

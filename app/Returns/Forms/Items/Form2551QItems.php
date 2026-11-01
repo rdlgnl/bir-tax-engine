@@ -2,6 +2,8 @@
 
 namespace App\Returns\Forms\Items;
 
+use App\Tax\Services\TaxRules;
+
 /**
  * BIR Form 2551Q: the quarterly percentage tax return, in pesos and
  * centavos. Only taxpayers on graduated rates who aren't VAT-registered
@@ -16,7 +18,8 @@ class Form2551QItems extends FormItems
         $f = $snapshot['figures'];
         $sales = round($f['quarter_gross'], 2);
         $tax = round((float) $f['percentage_tax'], 2);
-        $rate = (string) round(config('tax.percentage_tax_rate') * 100);
+        // The quarter's own rate: 1% from July 2020 to June 2023, 3% otherwise.
+        $rate = (string) round(app(TaxRules::class)->forQuarter($snapshot['year'], $snapshot['quarter'])->rate('percentage_tax_rate') * 100);
 
         $values = $this->identity($taxpayer, [
             'tin' => ['tin.1', 'tin.2', 'tin.3'],
