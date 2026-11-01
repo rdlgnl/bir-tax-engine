@@ -1,12 +1,13 @@
 import { Head, Link } from '@inertiajs/react';
 import { AlertTriangle, Download } from 'lucide-react';
 import { MarkFiledForm } from '@/components/mark-filed-form';
+import { Note } from '@/components/note';
 import { CopyValues } from '@/components/returns/copy-values';
 import { SectionCard } from '@/components/section-card';
 import { Step, StepList } from '@/components/step-list';
 import { formatDate, peso } from '@/lib/format';
 import { show as complianceShow } from '@/routes/compliance';
-import { preview, sawt, show, slsp } from '@/routes/returns';
+import { late, preview, sawt, show, slsp } from '@/routes/returns';
 import type { ReturnLayout } from '@/types';
 
 type Props = {
@@ -49,6 +50,25 @@ export default function ReturnShow({
                     {formatDate(dueDate, 'short')} · {peso(layout.payable)}
                 </p>
             </header>
+
+            {layout.penalties && (
+                <div className="mb-5">
+                    <Note tone="danger" title="This return is late">
+                        Paying today adds {peso(layout.penalties.total)} in
+                        surcharge and interest, so {peso(layout.total_payable)}{' '}
+                        in all.{' '}
+                        <Link
+                            href={
+                                late([layout.year, layout.quarter, layout.form])
+                                    .url
+                            }
+                            className="font-bold underline"
+                        >
+                            See the estimate
+                        </Link>
+                    </Note>
+                </div>
+            )}
 
             <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
                 <CopyValues layout={layout} />
@@ -180,7 +200,7 @@ export default function ReturnShow({
                                 year={layout.year}
                                 quarter={layout.quarter}
                                 form={layout.form}
-                                amountDue={layout.payable}
+                                amountDue={layout.total_payable}
                             />
                         ) : (
                             <p className="text-sm text-muted-foreground">

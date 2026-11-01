@@ -25,6 +25,10 @@ export type ReturnLayout = {
     with_salary: boolean;
     lines: ReturnLine[];
     payable: number;
+    /** Surcharge and interest for a return past its due date, else null. */
+    penalties: Penalty | null;
+    /** The tax payable plus any penalties. */
+    total_payable: number;
     overpayment: number;
     rule_pack: string;
     rules: string[];
@@ -69,4 +73,17 @@ export type SawtRow = {
     rate: number;
     withheld: number;
     certificate: boolean;
+};
+
+/** App\Tax\Services\Penalties */
+export type Penalty = {
+    surcharge: number;
+    surcharge_rate: number;
+    interest: number;
+    interest_rate: number;
+    days: number;
+    compromise: number;
+    total: number;
+    due_date: string;
+    pay_on: string;
 };

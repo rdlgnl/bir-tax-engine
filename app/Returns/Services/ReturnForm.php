@@ -8,6 +8,7 @@ use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
+use App\Tax\Services\Penalties;
 use App\Tax\Services\TaxCalculationService;
 use App\Tax\Services\VatCalculator;
 use Carbon\CarbonImmutable;
@@ -21,6 +22,7 @@ use Illuminate\Support\Str;
  * the one frozen when they were marked filed, so they never change.
  *
  * @phpstan-import-type QuarterResult from TaxCalculationService
+ * @phpstan-import-type Penalty from Penalties
  *
  * @phpstan-type Taxpayer array{
  *     name: string,
@@ -54,6 +56,7 @@ use Illuminate\Support\Str;
  *     rule_pack: string,
  *     rules: list<string>,
  *     taken_at: string,
+ *     penalties: Penalty|null,
  *     vat?: VatQuarter,
  * }
  * @phpstan-type LegacySnapshot array{
@@ -82,6 +85,8 @@ use Illuminate\Support\Str;
  *     with_salary: bool,
  *     lines: list<Line>,
  *     payable: float,
+ *     penalties: Penalty|null,
+ *     total_payable: float,
  *     overpayment: float,
  *     rule_pack: string,
  *     rules: list<string>,
@@ -95,6 +100,7 @@ class ReturnForm
     public function __construct(
         private TaxCalculationService $engine,
         private VatCalculator $vat,
+        private Penalties $penalties,
     ) {}
 
     /**
@@ -148,7 +154,24 @@ class ReturnForm
             'rule_pack' => config('tax.version'),
             'rules' => $this->rulesUsed($profile, $form, $result['quarters'][$quarter]),
             'taken_at' => ($today ?? CarbonImmutable::now())->toIso8601String(),
+            'penalties' => $this->latePenalties($result['quarters'][$quarter], $form, $result['gross'], $today ?? CarbonImmutable::now()),
         ] + ($form === '2550Q' ? ['vat' => $this->vat->forYear($year, $today)[$quarter]] : []);
+    }
+
+    /**
+     * What an income tax return filed today adds for being late: a surcharge
+     * and interest on the tax payable, from the due date.
+     *
+     * @param  QuarterResult  $figures
+     * @return Penalty|null
+     */
+    private function latePenalties(array $figures, string $form, float $yearGross, CarbonImmutable $today): ?array
+    {
+        if (in_array($form, ['2551Q', '2550Q'], true) || $figures['status'] !== 'overdue' || $figures['due'] <= 0) {
+            return null;
+        }
+
+        return $this->penalties->late($figures['due'], CarbonImmutable::parse($figures['due_date']), $today, $yearGross);
     }
 
     /**
@@ -173,6 +196,7 @@ class ReturnForm
             'taxpayer' => $snapshot['taxpayer'] + $now['taxpayer'],
             // Returns filed before salaries were recorded had none.
             'figures' => $snapshot['figures'] + ['compensation' => null],
+            'penalties' => $snapshot['penalties'] ?? null,
             'previous_figures' => $snapshot['previous_figures'] ?? $now['previous_figures'],
         ];
     }
@@ -228,6 +252,8 @@ class ReturnForm
                 default => $this->incomeTaxLines($snapshot),
             },
             'payable' => $payable,
+            'penalties' => $snapshot['penalties'],
+            'total_payable' => round($payable + ($snapshot['penalties']['total'] ?? 0.0), 2),
             'overpayment' => match (true) {
                 $vat !== null => $vat['excess'],
                 $percentageTax => 0.0,
@@ -302,6 +328,12 @@ class ReturnForm
             ? $this->line('Overpayment', $f['excess_credit'], 'total')
             : $this->line('Tax payable', $f['due'], 'total');
 
+        if (($penalty = $snapshot['penalties']) !== null) {
+            $lines[] = $this->line(sprintf('Add: surcharge (%s%%)', $this->percent($penalty['surcharge_rate'])), $penalty['surcharge']);
+            $lines[] = $this->line(sprintf('Add: interest (%s%% a year, %d %s)', $this->percent($penalty['interest_rate']), $penalty['days'], $penalty['days'] === 1 ? 'day' : 'days'), $penalty['interest']);
+            $lines[] = $this->line('Total amount payable', $f['due'] + $penalty['total'], 'total');
+        }
+
         return $lines;
     }
 
@@ -366,6 +398,11 @@ class ReturnForm
         $ids[] = 'DL-1701Q';
 
         return array_map(fn (string $id) => "{$id} v".config("tax.rules.{$id}.version"), $ids);
+    }
+
+    private function percent(float $rate): string
+    {
+        return rtrim(rtrim(number_format($rate * 100, 1), '0'), '.');
     }
 
     /**

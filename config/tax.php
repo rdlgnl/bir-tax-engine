@@ -90,6 +90,20 @@ return [
 
     'micro_taxpayer_limit' => 3_000_000,
 
+    // Paying late (NIRC sections 248-249, as the Ease of Paying Taxes Act
+    // changed them): a surcharge once, and interest a year on the unpaid tax
+    // from the due date. Micro and small taxpayers (gross sales below
+    // ₱20,000,000) pay a lower surcharge and half the interest. A compromise
+    // penalty may be added by the BIR and isn't estimated.
+    // REVIEW: rates and the threshold against the current regulations.
+    'penalties' => [
+        'surcharge' => 0.25,
+        'interest' => 0.12,
+        'reduced_surcharge' => 0.10,
+        'reduced_interest' => 0.06,
+        'reduced_below' => 20_000_000,
+    ],
+
     // Summary Alphalist of Withholding Taxes, the file that goes with an
     // income tax return claiming 2307 credits, in the layout of the BIR's
     // alphalist data entry tool: one header, one line per payor, one control.

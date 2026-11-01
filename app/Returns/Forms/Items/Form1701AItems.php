@@ -71,6 +71,7 @@ class Form1701AItems extends FormItems
         $withheldNow = $this->peso($f['quarter_withheld']);
         $credits = $paid + $withheldBefore + $withheldNow;
         $payable = $taxDue - $credits;
+        [$surcharge, $interest, $penalties] = $this->penalties($snapshot);
 
         return $values + [
             '58A' => $paid,
@@ -82,9 +83,11 @@ class Form1701AItems extends FormItems
             '21A' => $credits,
             '22A' => $payable,
             '24A' => $payable,
-            '28A' => 0,
-            '29A' => $payable,
-            '30' => $payable,
+            '25A' => $surcharge,
+            '26A' => $interest,
+            '28A' => $penalties,
+            '29A' => $payable + $penalties,
+            '30' => $payable + $penalties,
         ];
     }
 }
