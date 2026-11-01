@@ -5,6 +5,7 @@ import { SectionCard } from '@/components/section-card';
 import { formatDate, monthLong, peso, todayIso } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import {
+    annual,
     month as monthPage,
     quarter as quarterPage,
 } from '@/routes/withholding';
@@ -328,7 +329,13 @@ export default function WithholdingIndex({
                         {formatDate(annualDue, 'long')}
                         {filedQuarters.length < 4 &&
                             ', once every quarter is filed'}
-                        .
+                        .{' '}
+                        <Link
+                            href={annual(year).url}
+                            className="font-bold underline"
+                        >
+                            See the list
+                        </Link>
                     </Note>
                 </div>
             </div>

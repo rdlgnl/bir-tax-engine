@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\Items\Form0619EItems;
 use App\Returns\Forms\Items\Form1601EQItems;
+use App\Returns\Forms\Items\Form1604EItems;
 use App\Returns\Forms\Items\Form2307Items;
 use App\Returns\Forms\OfficialFormFiller;
 use App\Returns\Services\RecordsExport;
@@ -55,7 +56,7 @@ class WithholdingController extends Controller
             'year' => $year,
             'quarters' => array_values($quarters),
             'payees' => array_values($payees),
-            'annualDue' => $this->calendar->nextWorkingDay(CarbonImmutable::create($year + 1, 3, 1))->toDateString(),
+            'annualDue' => $this->calendar->withholdingAnnualDue($year)->toDateString(),
         ]);
     }
 
@@ -92,7 +93,7 @@ class WithholdingController extends Controller
             'year' => $year,
             ...$this->agent->year($year)[$quarter],
             'qapFile' => $qap->fileName(TaxProfile::current(), $year, $quarter),
-            'annualDue' => $this->calendar->nextWorkingDay(CarbonImmutable::create($year + 1, 3, 1))->toDateString(),
+            'annualDue' => $this->calendar->withholdingAnnualDue($year)->toDateString(),
             'agent' => $this->identity(),
         ]);
     }
@@ -133,6 +134,63 @@ class WithholdingController extends Controller
         $name = $qap->fileName($profile, $year, $quarter) ?? abort(404);
 
         return response($qap->dat($profile, $year, $q), headers: [
+            'Content-Type' => 'text/plain; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$name}\"",
+        ]);
+    }
+
+    /**
+     * The year's list of payees, for the 1604-E (design 11-04).
+     */
+    public function annual(int $year, Qap $qap): Response
+    {
+        $this->ensure($year);
+
+        return Inertia::render('withholding/annual', [
+            ...$this->agent->annual($year),
+            'alphalistFile' => $qap->annualFileName(TaxProfile::current(), $year),
+            'agent' => $this->identity(),
+        ]);
+    }
+
+    /**
+     * The filled 1604-E (design 11-05): a draft until the year ends.
+     */
+    public function annualPreview(int $year): Response
+    {
+        $this->ensure($year);
+
+        return Inertia::render('withholding/annual-form', [
+            ...$this->agent->annual($year),
+            'agent' => $this->identity(),
+            'edition' => (string) config('tax.forms.1604-E.edition'),
+        ]);
+    }
+
+    public function annualPdf(int $year, Form1604EItems $items): HttpResponse
+    {
+        $this->ensure($year);
+
+        return $this->pdf('1604-E', $items->values(TaxProfile::current(), $this->agent->annual($year)), "1604-E-{$year}.pdf");
+    }
+
+    public function alphalist(int $year, string $kind, Qap $qap, RecordsExport $export): HttpResponse
+    {
+        $this->ensure($year);
+        $profile = TaxProfile::current();
+        $annual = $this->agent->annual($year);
+
+        if ($kind === 'csv') {
+            return response($export->csvFile(['Payee', 'TIN', 'ATC', 'Rate', 'Income paid', 'Tax withheld'],
+                array_map(fn (array $p) => [$p['name'], (string) $p['tin'], $p['atc'], $p['rate'] * 100, $p['income'], $p['withheld']], $annual['payees'])), headers: [
+                    'Content-Type' => 'text/csv; charset=utf-8',
+                    'Content-Disposition' => "attachment; filename=\"alphalist-{$year}.csv\"",
+                ]);
+        }
+
+        $name = $qap->annualFileName($profile, $year) ?? abort(404);
+
+        return response($qap->annualDat($profile, $annual), headers: [
             'Content-Type' => 'text/plain; charset=utf-8',
             'Content-Disposition' => "attachment; filename=\"{$name}\"",
         ]);

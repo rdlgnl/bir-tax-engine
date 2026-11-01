@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
  * @phpstan-type Payee array{key: string, name: string, tin: string|null, atc: string, income: float, withheld: float, months: array{float, float, float}, given_on: string|null}
  * @phpstan-type AtcRow array{atc: string, label: string, rate: float, base: float, withheld: float}
  * @phpstan-type Quarter array{quarter: int, months: list<Month>, withheld: float, remitted: float, still_due: float, atcs: list<AtcRow>, payees: list<Payee>, due_date: string, status: Status, filed_on: string|null}
+ * @phpstan-type AnnualPayee array{key: string, name: string, tin: string|null, atc: string, rate: float, income: float, withheld: float, quarters: list<array{quarter: int, given_on: string|null}>}
+ * @phpstan-type Annual array{year: int, quarters: list<Quarter>, payees: list<AnnualPayee>, income: float, withheld: float, remitted: float, still_due: float, due_date: string, status: Status, filed_on: string|null}
  */
 class WithholdingAgent
 {
@@ -90,6 +92,67 @@ class WithholdingAgent
         }
 
         return $quarters;
+    }
+
+    /**
+     * The year for the 1604-E: each quarter, and a line per payee and ATC,
+     * as the alphalist lists them. A quarter counts as remitted in full
+     * once its 1601-EQ is filed; before that, only its remitted months.
+     *
+     * @return Annual
+     */
+    public function annual(int $year, ?CarbonImmutable $today = null): array
+    {
+        $today ??= CarbonImmutable::now();
+        $quarters = array_values($this->year($year, $today));
+        $atcs = (array) config('tax.withholding.atcs');
+        $lines = [];
+
+        foreach ($this->payments($year)->groupBy(fn (Transaction $t) => $t->counterparty."\0".$t->atc) as $group) {
+            $first = $group->first();
+            $name = (string) $first?->counterparty;
+            $key = self::key($name);
+            $given = [];
+
+            foreach ($quarters as $q) {
+                foreach ($q['payees'] as $payee) {
+                    if ($payee['key'] === $key) {
+                        $given[] = ['quarter' => $q['quarter'], 'given_on' => $payee['given_on']];
+                    }
+                }
+            }
+
+            $lines[] = [
+                'key' => $key,
+                'name' => $name,
+                'tin' => $group->pluck('counterparty_tin')->filter()->last(),
+                'atc' => (string) $first?->atc,
+                'rate' => (float) ($atcs[(string) $first?->atc]['rate'] ?? 0),
+                'income' => $this->sum($group, 'amount'),
+                'withheld' => $this->sum($group, 'agent_withheld'),
+                'quarters' => $given,
+            ];
+        }
+
+        usort($lines, fn (array $a, array $b) => [$a['name'], $a['atc']] <=> [$b['name'], $b['atc']]);
+
+        $withheld = round(array_sum(array_column($quarters, 'withheld')), 2);
+        $remitted = round(array_sum(array_map(fn (array $q) => $q['status'] === 'filed' ? $q['withheld'] : $q['remitted'], $quarters)), 2);
+        $filing = Filing::query()->where('year', $year)->where('form', '1604-E')->first();
+        $due = $this->calendar->withholdingAnnualDue($year);
+
+        return [
+            'year' => $year,
+            'quarters' => $quarters,
+            'payees' => $lines,
+            'income' => round(array_sum(array_column($lines, 'income')), 2),
+            'withheld' => $withheld,
+            'remitted' => $remitted,
+            'still_due' => round(max(0.0, $withheld - $remitted), 2),
+            'due_date' => $due->toDateString(),
+            'status' => $this->status($filing, CarbonImmutable::create($year)->endOfYear(), $due, $today),
+            'filed_on' => $filing?->filed_on->toDateString(),
+        ];
     }
 
     /**

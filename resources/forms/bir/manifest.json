@@ -75,5 +75,12 @@
         "source": "https://bir-cdn.bir.gov.ph/local/pdf/1601-EQ%20January%202019%20ENCS%20final.pdf",
         "sha256": "5277addc6778c96a53fde99b8664b1a5213fcea638dea06033c9acf22ee73c25",
         "fetched": "2026-10-31"
+    },
+    "1604-E-2018-01": {
+        "form": "1604-E",
+        "edition": "January 2018 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/1604E%20Jan%202018%20ENCS%20Final2.pdf",
+        "sha256": "1db203442630c74ff4c95b509e204f542c5ba8fb1bd812440793e314ce709876",
+        "fetched": "2026-11-01"
     }
 }

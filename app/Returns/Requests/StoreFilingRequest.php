@@ -25,7 +25,7 @@ class StoreFilingRequest extends FormRequest
             'quarter' => ['required', 'integer', 'between:1,4'],
             'form' => [
                 'required',
-                Rule::in([...ReturnForm::INCOME_TAX_FORMS, '2551Q', '2550Q', '0619-E', '1601-EQ']),
+                Rule::in([...ReturnForm::INCOME_TAX_FORMS, '2551Q', '2550Q', '0619-E', '1601-EQ', '1604-E']),
                 Rule::unique('filings')->where('year', $this->integer('year'))->where('quarter', $this->integer('quarter'))
                     ->where('month', $this->integer('month')),
                 // One income tax return per period, whichever annual form it was filed on.

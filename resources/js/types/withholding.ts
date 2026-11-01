@@ -59,3 +59,29 @@ export type WithholdingAgentIdentity = {
     rdo: string | null;
     address: string | null;
 };
+
+/** A line of the annual alphalist: a payee under one ATC. */
+export type WithholdingAnnualPayee = {
+    key: string;
+    name: string;
+    tin: string | null;
+    atc: string;
+    rate: number;
+    income: number;
+    withheld: number;
+    quarters: { quarter: number; given_on: string | null }[];
+};
+
+/** App\Withholding\Services\WithholdingAgent::annual, for the 1604-E. */
+export type WithholdingAnnual = {
+    year: number;
+    quarters: WithholdingQuarter[];
+    payees: WithholdingAnnualPayee[];
+    income: number;
+    withheld: number;
+    remitted: number;
+    still_due: number;
+    due_date: string;
+    status: WithholdingQuarter['status'];
+    filed_on: string | null;
+};
