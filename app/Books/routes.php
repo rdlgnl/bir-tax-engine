@@ -12,6 +12,8 @@ Route::middleware('setup.complete')->prefix('/books')->name('books.')->group(fun
     Route::prefix('/{year}/{month}')->whereNumber(['year', 'month'])->group(function () {
         Route::post('/copied', [BooksController::class, 'copied'])->name('copied');
         Route::get('/pdf', [BooksController::class, 'pdf'])->name('pdf');
+        Route::get('/general', [BooksController::class, 'general'])->name('general');
+        Route::get('/general/pdf', [BooksController::class, 'generalPdf'])->name('general.pdf');
     });
 
     Route::get('/{year?}/{month?}', [BooksController::class, 'show'])->whereNumber(['year', 'month'])->name('show');

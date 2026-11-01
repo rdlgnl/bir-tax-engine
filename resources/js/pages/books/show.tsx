@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { MonthLink } from '@/components/books/month-link';
 import { ChoiceChips } from '@/components/choice-chips';
 import { DownloadCard } from '@/components/download-card';
 import { Note } from '@/components/note';
@@ -8,7 +9,7 @@ import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso } from '@/lib/format';
 import { history } from '@/routes';
-import { copied, looseLeaf, pdf, show, type } from '@/routes/books';
+import { copied, general, looseLeaf, pdf, show, type } from '@/routes/books';
 import type {
     BooksPeriod,
     BooksType,
@@ -74,10 +75,18 @@ export default function BooksShow({
                     </p>
                 </div>
                 <nav aria-label="Month" className="flex gap-1.5">
-                    <MonthLink to={previous} label="Previous month">
+                    <MonthLink
+                        to={previous}
+                        href={(to) => show([to.year, to.month]).url}
+                        label="Previous month"
+                    >
                         <ChevronLeft className="size-4" aria-hidden />
                     </MonthLink>
-                    <MonthLink to={next} label="Next month">
+                    <MonthLink
+                        to={next}
+                        href={(to) => show([to.year, to.month]).url}
+                        label="Next month"
+                    >
                         <ChevronRight className="size-4" aria-hidden />
                     </MonthLink>
                 </nav>
@@ -167,6 +176,24 @@ export default function BooksShow({
                         title={`Download ${month} books (PDF)`}
                         detail="Both journals, page-numbered, ready to copy or print."
                     />
+                    <Link
+                        href={general(args).url}
+                        className="flex items-center justify-between gap-3 rounded-card border bg-card p-5 hover:bg-muted"
+                    >
+                        <span>
+                            <span className="block text-[15px] font-extrabold">
+                                General journal and ledger
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                                {month}'s entries in double entry, posted to
+                                each account
+                            </span>
+                        </span>
+                        <ChevronRight
+                            className="size-4 text-muted-foreground"
+                            aria-hidden
+                        />
+                    </Link>
 
                     <Note title={`Keep them ${retentionYears} years`}>
                         Books and records must be kept for {retentionYears}{' '}
@@ -229,41 +256,6 @@ export default function BooksShow({
                 </div>
             </div>
         </>
-    );
-}
-
-function MonthLink({
-    to,
-    label,
-    children,
-}: {
-    to: BooksPeriod | null;
-    label: string;
-    children: ReactNode;
-}) {
-    const className =
-        'flex size-10 items-center justify-center rounded-xl border bg-card';
-
-    if (!to) {
-        return (
-            <span
-                aria-disabled="true"
-                aria-label={label}
-                className={`${className} text-slate-300`}
-            >
-                {children}
-            </span>
-        );
-    }
-
-    return (
-        <Link
-            href={show([to.year, to.month]).url}
-            aria-label={label}
-            className={`${className} hover:bg-muted`}
-        >
-            {children}
-        </Link>
     );
 }
 

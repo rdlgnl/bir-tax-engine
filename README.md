@@ -39,7 +39,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 | `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview, finding records (search, quick filters, export), importing payments from bank, e-wallet and payout statements (CSV), and importing marketplace payout reports (sales, fees, platform withholding)                  |
 | `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates and matching, the 2316 from an employer, the deadline calendar and its .ics export                                                                                                                                          |
 | `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, amending a filed 1701Q, paying late (surcharge and interest), history, the SAWT and SLSP with their BIR data files, and reports (tax summary, CSV exports, encrypted accountant ZIP) |
-| `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, their PDF, which months are copied, and registering loose-leaf books (filled Form 1900)                                                                                                                      |
+| `app/Books`        | Books of accounts: the monthly cash receipts and disbursements journals, the general journal and ledger, their PDFs, which months are copied, and registering loose-leaf books (filled Form 1900)                                                                                     |
 | `app/Data`         | Your data: encrypted backups to a folder on this computer, restoring one (also before setup, for a new device), the monthly reminder, erasing everything, and the app lock (PIN, first-run offer, lock screen)                                                                        |
 | `app/Notices`      | Notifications: what needs attention now (worked out on the spot) and what happened (recorded as it happens)                                                                                                                                                                           |
 | `app/Loans`        | Loans the taxpayer signed: the documentary stamp tax on each, when Form 2000 is due (unless a bank files it), and the filled form                                                                                                                                                     |
@@ -50,7 +50,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 
-Books prints the two cash journals. The general journal and ledger, which loose-leaf books also bind, aren't built yet.
+Books prints the two cash journals and the general journal and ledger, on a cash basis. The ledger's balances start on January 1 each year; last year's are brought forward by hand.
 
 ## Official BIR forms
 

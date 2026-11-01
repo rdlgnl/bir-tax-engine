@@ -16,7 +16,7 @@ test('the loose-leaf page gives the steps and the rules from the rule pack', fun
     $this->get('/books/loose-leaf')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('books/loose-leaf')
         ->where('booksType', 'manual')
-        ->where('books', ['CASH RECEIPTS JOURNAL', 'CASH DISBURSEMENTS JOURNAL'])
+        ->where('books', ['CASH RECEIPTS JOURNAL', 'CASH DISBURSEMENTS JOURNAL', 'GENERAL JOURNAL', 'GENERAL LEDGER'])
         ->where('bindWithinDays', 15)
         ->where('retentionYears', 5)
         ->where('edition', 'October 2025 (ENCS)'));
@@ -31,6 +31,7 @@ test('the filled 1900 asks for loose-leaf books of accounts, from the profile', 
         '7.tin' => '123-456-789', '7.branch' => '00000',
         '8.books' => true,
         '9A.1' => 'CASH RECEIPTS JOURNAL', '9A.2' => 'CASH DISBURSEMENTS JOURNAL',
+        '9A.3' => 'GENERAL JOURNAL', '9A.4' => 'GENERAL LEDGER',
         '10' => 'JUAN SANTOS DELA CRUZ',
     ])
         ->and(app(OfficialFormFiller::class)->marks('1900', $values))->not->toBeEmpty();
