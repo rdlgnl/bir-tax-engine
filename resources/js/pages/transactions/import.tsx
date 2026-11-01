@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { formatDate, peso, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { payroll } from '@/routes';
+import { create as lettersCreate } from '@/routes/letters';
 import { create as loansCreate } from '@/routes/loans';
 import { index, marketplace } from '@/routes/transactions';
 import {
@@ -77,10 +78,6 @@ const OTHER_THINGS: [string, string][] = [
     [
         'Other business income',
         'Selling old equipment, side commissions: record it as money received.',
-    ],
-    [
-        'I got a letter from the BIR',
-        'Reading it in plain words comes in a later update.',
     ],
     ['Bank interest', 'Already taxed 20% by the bank. Nothing to do.'],
     ['Gift or money from family', 'Not business income. Nothing to record.'],
@@ -447,6 +444,20 @@ export default function ImportStatement({
                                 <span className="text-[13px] text-muted-foreground">
                                     Tax withheld on their pay, remitted monthly
                                     on the 1601-C.
+                                </span>
+                            </Link>
+                        </li>
+                        <li className="border-t border-divider py-3">
+                            <Link
+                                href={lettersCreate().url}
+                                className="block hover:underline"
+                            >
+                                <span className="block text-[15px] font-bold text-primary">
+                                    I got a letter from the BIR
+                                </span>
+                                <span className="text-[13px] text-muted-foreground">
+                                    See what your records say, and what to send
+                                    or bring.
                                 </span>
                             </Link>
                         </li>

@@ -8,3 +8,4 @@ export type * from './vat';
 export type * from './withholding';
 export type * from './loans';
 export type * from './payroll';
+export type * from './letters';

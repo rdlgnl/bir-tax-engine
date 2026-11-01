@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Everything the app keeps about the taxpayer on this device: the rows of
- * its tables, and the documents (2307 and 2316 scans) on the local disk.
+ * its tables, and the documents (2307 and 2316 scans, BIR letters) on the local disk.
  *
  * @phpstan-type Summary array{records: int, first_year: int|null, last_year: int|null, certificates: int, documents: int, filings: int}
  */
@@ -21,7 +21,7 @@ class LocalData
      * The taxpayer's tables, parents before the tables that point to them.
      * Device settings (app_settings) are not records and stay out of backups.
      */
-    public const TABLES = ['tax_profiles', 'certificates', 'transactions', 'filings', 'books_months', 'issued_certificates', 'compensation_certificates', 'loans', 'employees', 'employee_certificates'];
+    public const TABLES = ['tax_profiles', 'certificates', 'transactions', 'filings', 'books_months', 'issued_certificates', 'compensation_certificates', 'loans', 'employees', 'employee_certificates', 'bir_letters'];
 
     /** Where documents live on the local disk. */
     public const DOCUMENTS = 'certificates';
