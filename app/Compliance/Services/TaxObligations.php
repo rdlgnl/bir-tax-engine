@@ -2,7 +2,9 @@
 
 namespace App\Compliance\Services;
 
+use App\Compliance\Models\CompensationCertificate;
 use App\Profiles\Enums\ClientsWithhold;
+use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Tax\Enums\Regime;
@@ -216,6 +218,13 @@ class TaxObligations
             foreach ($this->withholding($y, $includeFiled) as $item) {
                 $items[] = $item;
             }
+        }
+
+        // A job alongside the business: the employer's 2316 is due to the taxpayer by January 31.
+        if ($profile->income_source === IncomeSource::Both && ! CompensationCertificate::query()->where('year', $y)->exists()) {
+            $date = CarbonImmutable::create($y + 1, 1, 31)->toDateString();
+            $items[] = $this->deadline($date, $date, 'Get your 2316'.($profile->employer_name ? " from {$profile->employer_name}" : ''), 'reminder', 'reminder', null, 'Reminder',
+                href: route('compensation', $y, absolute: false));
         }
 
         if ($profile->clients_withhold !== ClientsWithhold::No) {

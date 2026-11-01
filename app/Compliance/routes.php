@@ -2,6 +2,7 @@
 
 use App\Compliance\Controllers\CalendarController;
 use App\Compliance\Controllers\CertificateController;
+use App\Compliance\Controllers\CompensationController;
 use App\Compliance\Controllers\ComplianceController;
 use App\Compliance\Controllers\SwornDeclarationController;
 use Illuminate\Support\Facades\Route;
@@ -19,4 +20,8 @@ Route::middleware('setup.complete')->group(function () {
     Route::post('/certificates', [CertificateController::class, 'store'])->name('certificates.store');
     Route::post('/certificates/match', [CertificateController::class, 'match'])->name('certificates.match');
     Route::get('/certificates/{certificate}/file', [CertificateController::class, 'file'])->name('certificates.file');
+
+    Route::get('/2316/{year?}', [CompensationController::class, 'show'])->whereNumber('year')->name('compensation');
+    Route::post('/2316/{year}', [CompensationController::class, 'store'])->whereNumber('year')->name('compensation.store');
+    Route::get('/2316/{year}/file', [CompensationController::class, 'file'])->whereNumber('year')->name('compensation.file');
 });

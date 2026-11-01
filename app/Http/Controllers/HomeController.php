@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Compliance\Models\CompensationCertificate;
 use App\Compliance\Services\TaxObligations;
 use App\Data\Services\Backups;
 use App\Notices\Services\Notices;
@@ -54,6 +55,7 @@ class HomeController extends Controller
                 'annual_salary' => $profile->monthly_salary !== null ? round((float) $profile->monthly_salary * 12, 2) : null,
                 'employer_withholds' => $profile->monthly_salary !== null ? $engine->graduatedTax((float) $profile->monthly_salary * 12) : null,
                 'annual_form' => $year['quarters'][4]['form'],
+                'has_2316' => CompensationCertificate::query()->where('year', $today->year)->exists(),
                 'annual_due' => $year['quarters'][4]['due_date'],
             ] : null,
             'checklist' => $obligations->checklist($profile, $today->year, $focus, $transactions, $today),

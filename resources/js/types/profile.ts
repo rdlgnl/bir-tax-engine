@@ -99,4 +99,6 @@ export type HomeJob = {
     employer_withholds: number | null;
     annual_form: string;
     annual_due: string;
+    /** This year's 2316 is in. */
+    has_2316: boolean;
 };

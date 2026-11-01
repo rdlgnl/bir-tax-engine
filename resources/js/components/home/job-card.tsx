@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { FieldError } from '@/components/field-error';
 import { MoneyInput } from '@/components/money-input';
 import { SectionCard } from '@/components/section-card';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { peso } from '@/lib/format';
+import { compensation } from '@/routes';
 import { job as updateJob } from '@/routes/profile';
 import type { HomeJob } from '@/types';
 
@@ -91,6 +92,17 @@ export function JobCard({ job, year }: { job: HomeJob; year: number }) {
                 Nothing to pay on your salary now. It's taxed at graduated rates
                 and reconciled in your annual return.
             </p>
+            <Button
+                asChild
+                variant="outline"
+                className="mt-4 h-11 rounded-xl font-bold"
+            >
+                <Link href={compensation(year).url}>
+                    {job.has_2316
+                        ? `Your ${year} 2316`
+                        : 'Upload 2316 (by Jan 31)'}
+                </Link>
+            </Button>
         </SectionCard>
     );
 }
