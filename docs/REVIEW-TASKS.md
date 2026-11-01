@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 13 of 75 done.
+Status: 16 of 75 done.
 
 ---
 
@@ -22,7 +22,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [ ] C3 Rule pack reviewed by a CPA
 - [ ] H1 A sale can't be counted twice
 - [ ] H3 Filing channel settled and the copy says it plainly
-- [ ] H5 Host header check (DNS rebinding)
+- [x] H5 Host header check (DNS rebinding)
 
 ---
 
@@ -130,11 +130,12 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### H5 · Host header check (DNS rebinding)
 
-- [ ] `$middleware->trustHosts(at: ['localhost', '127.0.0.1'])` in [bootstrap/app.php](../bootstrap/app.php) (plus the desktop app's origin later).
+- [x] [RejectUnknownHosts](../app/Http/Middleware/RejectUnknownHosts.php), first in the global stack: only `localhost`, `127.0.0.1`, `[::1]` and the `APP_URL` host are answered; anything else gets a bare 400 with no data. Laravel's `trustHosts()` was not enough: it stands down in the local environment. Add the desktop app's origin when it's packaged.
 
 **Why:** no login by design and any Host header accepted. A malicious site can rebind its domain to 127.0.0.1 and read the app's pages and downloads.
 **Tests:** a request with `Host: evil.example` is rejected; localhost still works.
-**Done when:** that test passes.
+**Done when:** that test passes. ✔ [HostTest.php](../tests/Feature/Security/HostTest.php)
+**Found on the way:** error pages are rendered with the app's shared data (the taxpayer's name and figures), so a rejected host must not reach them; it doesn't.
 
 ### H6 · Financial statements on the annual return
 
@@ -192,7 +193,7 @@ Add these tests (table-driven where possible):
 - [ ] Invoice then its payment → counted once
 - [ ] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
 - [ ] Engine total vs printed form total → within ₱1 (M2)
-- [ ] Host header `evil.example` → rejected
+- [x] Host header `evil.example` → rejected
 - [ ] CPA reference cases → a small set of worked returns as the acceptance suite
 
 ---
