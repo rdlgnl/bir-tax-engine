@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 16 of 75 done.
+Status: 21 of 75 done.
 
 ---
 
@@ -20,7 +20,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [x] C1 Tax rules follow the date they apply to
 - [x] C2 Elections are kept per tax year
 - [ ] C3 Rule pack reviewed by a CPA
-- [ ] H1 A sale can't be counted twice
+- [x] H1 A sale can't be counted twice
 - [ ] H3 Filing channel settled and the copy says it plainly
 - [x] H5 Host header check (DNS rebinding)
 
@@ -87,13 +87,13 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### H1 · A sale can't be counted twice
 
-- [ ] A payment whose invoice number matches a recorded invoice settles that invoice (marks it paid) instead of adding income; or the form warns and offers to.
-- [ ] Unique invoice numbers for invoices (index plus validation message).
-- [ ] Statement and marketplace imports check for an existing invoice or payment.
+- [x] A payment whose invoice number matches a recorded unpaid invoice of the same amount settles that invoice (marks it paid, keeps the withholding) instead of adding income. A different amount, an invoice already paid, or an edited payment is turned back with what to do instead.
+- [x] Unique invoice numbers for invoices: validation message plus a partial unique index (`WHERE type = 'invoice'`). Payments may still quote the invoice they pay.
+- [x] Statement import: a credit from a client matching an unpaid invoice (full amount, or less up to 15% withheld, issued in the six months before) shows "Pays invoice 0142" and marks it paid. Marketplace orders aren't invoiced; their existing duplicate check stays.
 
 **Why:** invoices count as income on their date and payments count too ([Transaction::isIncome](../app/Transactions/Models/Transaction.php)); nothing links them.
 **Tests:** invoice then payment with the same number; duplicate invoice number; import of an already-invoiced payment.
-**Done when:** each sale counts once however it's entered.
+**Done when:** each sale counts once however it's entered. ✔ [InvoicePaymentsTest.php](../tests/Feature/Transactions/InvoicePaymentsTest.php)
 
 ### H2 · One income basis for returns and books
 
@@ -190,7 +190,7 @@ Add these tests (table-driven where possible):
 - [x] 2022 return → 2018–2022 table
 - [x] 2023 Q2 vs Q3 percentage tax → 1% then 3%
 - [x] Regime switch between years → each year uses its own election
-- [ ] Invoice then its payment → counted once
+- [x] Invoice then its payment → counted once
 - [ ] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
 - [ ] Engine total vs printed form total → within ₱1 (M2)
 - [x] Host header `evil.example` → rejected

@@ -40,7 +40,7 @@ test('a statement’s lines are sorted, and payments matched to clients', functi
         ->where('statement.lines', 8)
         ->where('summary', [
             'payments' => 2, 'total' => 61200, 'clients' => 2, 'ignored' => 2,
-            'duplicates' => 1, 'answers' => 1, 'filed' => 1, 'invalid' => 1,
+            'duplicates' => 1, 'settles' => 0, 'answers' => 1, 'filed' => 1, 'invalid' => 1,
         ])
         ->where('rows.0.status', 'duplicate')
         ->where('rows.0.client', 'Lumen Digital')

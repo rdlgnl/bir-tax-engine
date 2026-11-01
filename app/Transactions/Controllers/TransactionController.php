@@ -56,6 +56,18 @@ class TransactionController extends Controller
 
     public function store(SaveTransactionRequest $request, Notices $notices): RedirectResponse
     {
+        // A payment for a recorded invoice settles it: the sale already counts on the invoice's date.
+        if (($invoice = $request->paidInvoice()) !== null) {
+            $withheld = (float) $request->validated('tax_withheld');
+            $invoice->update([
+                'invoice_paid' => true,
+                'tax_withheld' => $withheld > 0 ? $withheld : $invoice->tax_withheld,
+                'certificate_received_on' => $request->validated('certificate_received_on') ?? $invoice->certificate_received_on,
+            ]);
+
+            return Inertia::flash('toast', "Invoice {$invoice->invoice_number} marked paid. The sale already counts on its date, so nothing was added.")->back();
+        }
+
         $transaction = new Transaction($request->validated());
         $notices->trackEstimate($transaction->occurred_on->year, $transaction->quarter(), $this->because('After', $transaction), fn () => $transaction->save());
 

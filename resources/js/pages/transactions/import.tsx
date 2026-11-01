@@ -22,6 +22,7 @@ import {
 
 type Status =
     | 'import'
+    | 'settles'
     | 'ignore'
     | 'duplicate'
     | 'answer'
@@ -62,6 +63,7 @@ type Props = {
         clients: number;
         ignored: number;
         duplicates: number;
+        settles: number;
         answers: number;
         filed: number;
         invalid: number;
@@ -86,6 +88,7 @@ const OTHER_THINGS: [string, string][] = [
 
 const statusLabels: Record<Status, string> = {
     import: 'Import',
+    settles: 'Marks invoice paid',
     answer: 'Waiting',
     duplicate: 'Already recorded',
     ignore: 'Ignore',
@@ -224,9 +227,14 @@ export default function ImportStatement({
                                         label="Already recorded"
                                         value={`${summary.duplicates} skipped`}
                                         detail={
-                                            summary.filed > 0
-                                                ? `${summary.filed} in filed quarters left out`
-                                                : undefined
+                                            [
+                                                summary.settles > 0 &&
+                                                    `${plural(summary.settles, 'invoice')} to mark paid`,
+                                                summary.filed > 0 &&
+                                                    `${summary.filed} in filed quarters left out`,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' · ') || undefined
                                         }
                                     />
                                     <Tile
@@ -620,15 +628,17 @@ function ImportRow({ row, answer }: { row: Row; answer?: Answer }) {
             <td className="px-1.5 py-2.5 uppercase">{row.description}</td>
             <td className="px-1.5 py-2.5">
                 {status === 'import' ||
+                status === 'settles' ||
                 status === 'duplicate' ||
                 status === 'filed' ? (
                     <span>
                         <span className="font-bold">{row.client}</span>
-                        {row.reason && status === 'import' && (
-                            <span className="block text-xs text-muted-foreground">
-                                {row.reason}
-                            </span>
-                        )}
+                        {row.reason &&
+                            (status === 'import' || status === 'settles') && (
+                                <span className="block text-xs text-muted-foreground">
+                                    {row.reason}
+                                </span>
+                            )}
                     </span>
                 ) : status === 'answer' ? (
                     <span className="font-bold text-warning">
@@ -656,9 +666,10 @@ function ImportRow({ row, answer }: { row: Row; answer?: Answer }) {
             <td
                 className={cn(
                     'px-1.5 py-2.5 whitespace-nowrap',
-                    status === 'import' && 'font-bold text-success',
+                    (status === 'import' || status === 'settles') &&
+                        'font-bold text-success',
                     status === 'answer' && 'font-bold text-warning',
-                    !['import', 'answer'].includes(status) &&
+                    !['import', 'settles', 'answer'].includes(status) &&
                         'text-muted-foreground',
                 )}
             >

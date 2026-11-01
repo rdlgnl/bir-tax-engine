@@ -30,7 +30,13 @@ class SaveTransactionRequest extends FormRequest
             'amount' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:999999999.99'],
             'tax_withheld' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'lt:amount'],
             'certificate_received_on' => ['nullable', 'date', 'before_or_equal:today'],
-            'invoice_number' => ['required_if:type,invoice', 'nullable', 'string', 'max:40'],
+            'invoice_number' => [
+                'required_if:type,invoice', 'nullable', 'string', 'max:40',
+                // Each invoice number is used once: a second one would count the sale twice.
+                ...($this->input('type') === TransactionType::Invoice->value
+                    ? [Rule::unique('transactions', 'invoice_number')->where('type', TransactionType::Invoice->value)->ignore($this->route('transaction'))]
+                    : []),
+            ],
             'invoice_paid' => ['boolean'],
             'category' => ['required_if:type,expense', 'nullable', Rule::enum(ExpenseCategory::class)],
             'has_valid_invoice' => ['boolean'],
@@ -55,7 +61,37 @@ class SaveTransactionRequest extends FormRequest
             if ($existing instanceof Transaction && NotInClosedYear::closes($existing->occurred_on)) {
                 $validator->errors()->add('occurred_on', NotInClosedYear::message($existing->occurred_on));
             }
+
+            // A payment for a recorded invoice: that sale already counts on the invoice's date.
+            $invoice = $this->paidInvoice();
+
+            if ($invoice === null) {
+                return;
+            }
+
+            $number = $invoice->invoice_number;
+
+            if ($invoice->invoice_paid) {
+                $validator->errors()->add('invoice_number', "Invoice {$number} is already recorded as paid, so this payment would count the sale twice.");
+            } elseif ($existing instanceof Transaction || abs((float) $invoice->amount - (float) $this->input('amount')) >= 0.01) {
+                $validator->errors()->add('invoice_number', 'Invoice '.$number.' is recorded for ₱'.number_format((float) $invoice->amount, 2).'. Mark that invoice paid (or edit it) instead, so the sale counts once.');
+            }
         }];
+    }
+
+    /**
+     * The recorded invoice this payment pays, by its invoice number: saving
+     * the payment marks that invoice paid instead of adding income again.
+     */
+    public function paidInvoice(): ?Transaction
+    {
+        $number = trim((string) $this->input('invoice_number'));
+
+        if ($this->input('type') !== TransactionType::Payment->value || $number === '') {
+            return null;
+        }
+
+        return Transaction::query()->where('type', TransactionType::Invoice)->where('invoice_number', $number)->first();
     }
 
     /**
@@ -73,6 +109,7 @@ class SaveTransactionRequest extends FormRequest
             'occurred_on.after_or_equal' => 'BuwisBuddy\'s tax rules start in '.app(TaxRules::class)->firstDate()->year.'. Ask your accountant about earlier years.',
             'counterparty.required' => 'Who was it from or to?',
             'invoice_number.required_if' => 'Copy the number printed on the invoice.',
+            'invoice_number.unique' => 'An invoice with this number is already recorded.',
             'category.required_if' => 'Pick what it was for.',
         ];
     }
