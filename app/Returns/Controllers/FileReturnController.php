@@ -11,6 +11,7 @@ use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\FilingCalendar;
+use App\Tax\Services\Penalties;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -171,6 +172,27 @@ class FileReturnController extends Controller
         $zip->close();
 
         return response()->download($path, "2307s-{$year}-for-eafs.zip", ['Content-Type' => 'application/zip'])->deleteFileAfterSend();
+    }
+
+    /**
+     * Paying late (design 9-02): what the surcharge and interest add if paid
+     * today, and what each further week adds. Only for an income tax return
+     * past its due date and not yet filed.
+     */
+    public function late(Penalties $penalties, TaxCalculationService $engine, int $year, int $quarter, string $form): Response|RedirectResponse
+    {
+        $profile = $this->ensureForm($year, $quarter, $form);
+        $snapshot = $this->returns->snapshot($profile, $year, $quarter, $form);
+
+        if ($snapshot['penalties'] === null || $this->history->filingFor($year, $quarter, $form) !== null) {
+            return redirect()->route('returns.show', [$year, $quarter, $form]);
+        }
+
+        return Inertia::render('returns/late', [
+            'layout' => $this->returns->layout($snapshot),
+            'dueDate' => $snapshot['figures']['due_date'],
+            'weekly' => $penalties->weeklyInterest($snapshot['figures']['due'], $engine->forYear($profile, $year)['gross']),
+        ]);
     }
 
     public function preview(OfficialForms $forms, int $year, int $quarter, string $form): Response

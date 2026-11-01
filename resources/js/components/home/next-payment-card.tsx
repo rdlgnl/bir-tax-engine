@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso, plural, quarterMonths } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { show as prepare } from '@/routes/returns';
+import { late, show as prepare } from '@/routes/returns';
 import { show as taxShow } from '@/routes/tax';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type { NextPayment } from '@/types';
@@ -39,10 +39,9 @@ export function NextPaymentCard({ payment }: { payment: NextPayment }) {
                 <p className="mt-3 text-[15px] text-slate-200">
                     {overdue ? (
                         <>
-                            Was due {formatDate(quarter.due_date, 'short')}. As
-                            a micro taxpayer, the late surcharge is 10% instead
-                            of 25%, plus interest at the reduced rate. Filing
-                            today keeps it small.
+                            Was due {formatDate(quarter.due_date, 'short')}.
+                            Paying late adds a surcharge once and interest for
+                            each day; filing today keeps it small.
                         </>
                     ) : (
                         <>
@@ -62,8 +61,18 @@ export function NextPaymentCard({ payment }: { payment: NextPayment }) {
                         asChild
                         className="h-12 rounded-xl bg-white px-3 text-sm font-bold text-ink hover:bg-slate-100"
                     >
-                        <Link href={taxShow(quarter.quarter).url}>
-                            See breakdown
+                        <Link
+                            href={
+                                overdue
+                                    ? late([
+                                          payment.year,
+                                          quarter.quarter,
+                                          quarter.form,
+                                      ]).url
+                                    : taxShow(quarter.quarter).url
+                            }
+                        >
+                            {overdue ? 'What it adds' : 'See breakdown'}
                         </Link>
                     </Button>
                     <Button

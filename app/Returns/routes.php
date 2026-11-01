@@ -19,6 +19,7 @@ Route::middleware('setup.complete')->group(function () {
             Route::get('/', [FileReturnController::class, 'show'])->name('returns.show');
             Route::get('/form', [FileReturnController::class, 'preview'])->name('returns.preview');
             Route::get('/pdf', [FileReturnController::class, 'pdf'])->name('returns.pdf');
+            Route::get('/late', [FileReturnController::class, 'late'])->name('returns.late');
         });
 
     Route::prefix('/file/{year}/{quarter}/slsp')

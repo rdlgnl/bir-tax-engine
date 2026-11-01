@@ -107,6 +107,27 @@ abstract class FormItems
     }
 
     /**
+     * The surcharge, interest and their total for a late return, in whole
+     * pesos; all zero when it's on time.
+     *
+     * @param  Snapshot  $snapshot
+     * @return array{int, int, int}
+     */
+    protected function penalties(array $snapshot): array
+    {
+        $penalty = $snapshot['penalties'] ?? null;
+
+        if ($penalty === null) {
+            return [0, 0, 0];
+        }
+
+        $surcharge = $this->peso($penalty['surcharge']);
+        $interest = $this->peso($penalty['interest']);
+
+        return [$surcharge, $interest, $surcharge + $interest];
+    }
+
+    /**
      * Whole pesos: 49 centavos or less drop, 50 or more round up.
      */
     protected function peso(float $amount): int
