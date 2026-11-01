@@ -53,6 +53,12 @@ export default function BooksShow({
 }: Props) {
     const month = monthName(period);
     const args = [period.year, period.month] as [number, number];
+    // VAT and withholding columns only in months that have them.
+    const vat = totals.vat > 0;
+    const inputVat = totals.disbursed_vat > 0;
+    const withheld = totals.disbursed_withheld > 0;
+    // Cash paid differs from the expense once either applies.
+    const paidColumn = inputVat || withheld;
 
     return (
         <>
@@ -128,6 +134,7 @@ export default function BooksShow({
                                 'Date',
                                 'Received from',
                                 'Invoice',
+                                ...(vat ? ['VAT'] : []),
                                 'Withheld',
                                 'Received',
                             ]}
@@ -136,12 +143,14 @@ export default function BooksShow({
                                 formatDate(r.occurred_on),
                                 r.counterparty,
                                 r.invoice_number ?? '—',
+                                ...(vat ? [peso(r.vat)] : []),
                                 peso(r.withheld),
                                 <strong key="received">
                                     {peso(r.received)}
                                 </strong>,
                             ])}
                             total={[
+                                ...(vat ? [peso(totals.vat)] : []),
                                 peso(totals.withheld),
                                 peso(totals.received),
                             ]}
@@ -156,6 +165,9 @@ export default function BooksShow({
                                 'Receipt',
                                 'For',
                                 'Amount',
+                                ...(inputVat ? ['VAT'] : []),
+                                ...(withheld ? ['Withheld'] : []),
+                                ...(paidColumn ? ['Paid'] : []),
                             ]}
                             empty="No expenses recorded this month."
                             rows={disbursements.map((d) => [
@@ -163,9 +175,33 @@ export default function BooksShow({
                                 d.counterparty,
                                 d.receipt_number ?? '—',
                                 d.category ?? '—',
-                                <strong key="amount">{peso(d.amount)}</strong>,
+                                paidColumn ? (
+                                    peso(d.amount)
+                                ) : (
+                                    <strong key="amount">
+                                        {peso(d.amount)}
+                                    </strong>
+                                ),
+                                ...(inputVat ? [peso(d.vat)] : []),
+                                ...(withheld ? [peso(d.withheld)] : []),
+                                ...(paidColumn
+                                    ? [
+                                          <strong key="paid">
+                                              {peso(d.paid)}
+                                          </strong>,
+                                      ]
+                                    : []),
                             ])}
-                            total={[peso(totals.disbursed)]}
+                            total={[
+                                peso(totals.disbursed),
+                                ...(inputVat
+                                    ? [peso(totals.disbursed_vat)]
+                                    : []),
+                                ...(withheld
+                                    ? [peso(totals.disbursed_withheld)]
+                                    : []),
+                                ...(paidColumn ? [peso(totals.paid)] : []),
+                            ]}
                         />
                     </SectionCard>
                 </div>

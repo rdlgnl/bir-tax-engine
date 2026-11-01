@@ -1,6 +1,9 @@
 <?php
 
 use App\Books\Services\GeneralLedger;
+use App\Books\Services\Journals;
+use App\Loans\Models\Loan;
+use App\Payroll\Models\Employee;
 use App\Returns\Models\Filing;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\VatKind;
@@ -84,4 +87,53 @@ test('the general journal and ledger page and PDF', function () {
         ->and($response->headers->get('content-disposition'))->toContain('general-journal-ledger-2026-10.pdf');
 
     $this->get('/books/2026/11/general')->assertNotFound();
+});
+
+test('the cash journals count VAT and the taxpayer’s withholding in the cash, as the general journal does', function () {
+    Transaction::factory()->on('2026-10-05')->create(['counterparty' => 'Big Client', 'amount' => 100_000, 'tax_withheld' => 2_000, 'vat_kind' => VatKind::Vatable, 'vat_amount' => 12_000]);
+    Transaction::factory()->expense()->on('2026-10-06')->create(['counterparty' => 'Ana Reyes', 'category' => ExpenseCategory::Person, 'amount' => 20_000, 'vat_amount' => 0, 'agent_withheld' => 2_000]);
+
+    $journals = app(Journals::class)->forMonth(2026, 10);
+    $receipt = collect($journals['receipts'])->firstWhere('counterparty', 'Big Client');
+    $payment = collect($journals['disbursements'])->firstWhere('counterparty', 'Ana Reyes');
+    $cash = collect(app(GeneralLedger::class)->ledger(2026, 10)['accounts'])->firstWhere('code', 101);
+
+    expect($receipt)->toMatchArray(['amount' => 100000.0, 'vat' => 12000.0, 'withheld' => 2000.0, 'received' => 110000.0])
+        ->and($payment)->toMatchArray(['amount' => 20000.0, 'withheld' => 2000.0, 'paid' => 18000.0])
+        ->and($cash['debits'])->toBe($journals['totals']['received'])
+        ->and($cash['credits'])->toBe($journals['totals']['paid']);
+});
+
+test('tax withheld from salaries is owed until the 1601-C pays it, and a loan’s Form 2000 is a tax paid', function () {
+    Employee::query()->create(['first_name' => 'Joy', 'last_name' => 'Ramos', 'monthly_pay' => 30_000, 'started_on' => '2026-09-01']);
+    Filing::factory()->create(['year' => 2026, 'quarter' => 3, 'month' => 9, 'form' => '1601-C', 'filed_on' => '2026-10-09', 'paid_on' => '2026-10-09', 'amount_paid' => 1_375]);
+    $loan = Loan::query()->create(['signed_on' => '2026-09-03', 'amount' => 100_000, 'lender' => 'Tito Ben', 'lender_kind' => 'person', 'term_months' => 12]);
+    $loan->forceFill(['filed_on' => '2026-10-05', 'amount_paid' => 750])->save();
+
+    $september = collect(app(GeneralLedger::class)->journal(2026, 9))->keyBy('description');
+    $october = collect(app(GeneralLedger::class)->journal(2026, 10))->keyBy('description');
+
+    // October isn't over, so its salaries' tax isn't booked yet.
+    expect(lines($september['Tax withheld from September salaries']))->toBe([[101, 1375.0, 0.0], [202, 0.0, 1375.0]])
+        ->and(lines($october['1601-C paid · September 2026']))->toBe([[202, 1375.0, 0.0], [101, 0.0, 1375.0]])
+        ->and(lines($october['Form 2000 paid · DST on the loan from Tito Ben']))->toBe([[520, 750.0, 0.0], [101, 0.0, 750.0]])
+        ->and($october->keys())->not->toContain('Tax withheld from October salaries')
+        ->and(collect(app(GeneralLedger::class)->ledger(2026, 10)['accounts'])->firstWhere('code', 202)['closing'])->toBe(0.0);
+});
+
+test('balances carry into the new year, the year’s income and expenses closed into owner’s capital', function () {
+    Transaction::factory()->on('2025-12-10')->create(['counterparty' => 'Old Client', 'amount' => 10_000, 'tax_withheld' => 500]);
+    Transaction::factory()->expense()->on('2025-12-12')->create(['counterparty' => 'Converge ICT', 'amount' => 4_000]);
+
+    $accounts = collect(app(GeneralLedger::class)->ledger(2026, 1)['accounts'])->keyBy('code');
+
+    expect($accounts[101]['opening'])->toBe(5500.0)
+        ->and($accounts[105]['opening'])->toBe(500.0)
+        ->and($accounts[301]['opening'])->toBe(6000.0)
+        ->and($accounts->has(510) ? $accounts[510]['opening'] : 0.0)->toBe(0.0);
+
+    // What the books hold balances what they owe and the owner's share.
+    $debits = $accounts->filter(fn (array $a) => GeneralLedger::ACCOUNTS[$a['code']][1] === 'debit')->sum('opening');
+    $credits = $accounts->filter(fn (array $a) => GeneralLedger::ACCOUNTS[$a['code']][1] === 'credit')->sum('opening');
+    expect(round($debits, 2))->toBe(round($credits, 2));
 });

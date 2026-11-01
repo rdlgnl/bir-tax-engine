@@ -2,7 +2,10 @@
 
 namespace App\Books\Services;
 
+use App\Loans\Models\Loan;
+use App\Payroll\Services\Payroll;
 use App\Returns\Models\Filing;
+use App\Tax\Services\DocumentaryStampTax;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
@@ -12,13 +15,18 @@ use Illuminate\Support\Str;
 /**
  * The general journal and general ledger, which loose-leaf books bind
  * with the cash journals. Every receipt and expense is a double entry, on
- * the same cash basis as the cash journals; so is each tax payment the
- * filings record. The ledger posts the entries to each account.
+ * the same cash basis as the cash journals; so is each tax paid with a
+ * return or a loan's Form 2000, and the tax withheld from salaries. The
+ * ledger posts the entries to each account.
  *
  * Amounts are kept net of VAT, so VAT on a sale or purchase goes to VAT
- * payable and the cash includes it. Balances start on January 1: last
- * year's balances of cash and the other real accounts aren't tracked.
- * REVIEW: the chart of accounts, and income tax paid as owner's drawings.
+ * payable and the cash includes it. Salaries are recorded as expenses at
+ * their full pay, so the tax withheld from them is cash kept and owed.
+ * Balances carry over from the first records in the app; at each year end
+ * income, expenses and drawings close into owner's capital. Money held
+ * before the first record isn't known, so it's added by hand.
+ * REVIEW: the chart of accounts, income tax paid as owner's drawings, and
+ * the payroll withholding entries.
  *
  * @phpstan-type Line array{account: int, debit: float, credit: float}
  * @phpstan-type Entry array{ref: string, date: string, description: string, lines: list<Line>}
@@ -34,7 +42,9 @@ class GeneralLedger
         101 => ['Cash', 'debit'],
         105 => ['Creditable withholding tax', 'debit'],
         201 => ['Withholding tax payable', 'credit'],
+        202 => ['Withholding tax payable on compensation', 'credit'],
         205 => ['VAT payable', 'credit'],
+        301 => ["Owner's capital", 'credit'],
         302 => ["Owner's drawings", 'debit'],
         401 => ['Service income', 'credit'],
         510 => ['Internet and phone', 'debit'],
@@ -61,6 +71,14 @@ class GeneralLedger
     private const INCOME_TAX_FORMS = ['1701Q', '1701', '1701A', '1701-MS'];
 
     private const WITHHOLDING_FORMS = ['0619-E', '1601-EQ'];
+
+    /** Accounts from here on are the year's: they close into owner's capital. */
+    private const FIRST_NOMINAL = 302;
+
+    /** @var array<int, list<array{month: int, withheld: float, refund: float}>> payroll months by year */
+    private array $payroll = [];
+
+    public function __construct(private Payroll $payrollService, private DocumentaryStampTax $dst) {}
 
     /**
      * The month's general journal, in date order.
@@ -94,6 +112,22 @@ class GeneralLedger
             }
         }
 
+        $loans = Loan::query()
+            ->where('lender_kind', 'person')
+            ->whereYear('filed_on', $year)
+            ->whereMonth('filed_on', $month)
+            ->where('amount_paid', '>', 0)
+            ->orderBy('filed_on')
+            ->get();
+
+        foreach ($loans as $loan) {
+            $entries[] = $this->stampTax($loan);
+        }
+
+        if (($entry = $this->payrollWithholding($year, $month)) !== null) {
+            $entries[] = $entry;
+        }
+
         usort($entries, fn (array $a, array $b) => strcmp($a['date'], $b['date']));
 
         foreach ($entries as $i => $entry) {
@@ -104,22 +138,14 @@ class GeneralLedger
     }
 
     /**
-     * Each account's postings for the month, with its balance from
-     * January 1 before and after.
+     * Each account's postings for the month, with its balance before and
+     * after.
      *
      * @return array{accounts: list<Account>, debits: float, credits: float}
      */
     public function ledger(int $year, int $month): array
     {
-        $opening = [];
-
-        for ($m = 1; $m < $month; $m++) {
-            foreach ($this->journal($year, $m) as $entry) {
-                foreach ($entry['lines'] as $line) {
-                    $opening[$line['account']] = ($opening[$line['account']] ?? 0.0) + $this->signed($line);
-                }
-            }
-        }
+        $opening = $this->balancesBefore($year, $month);
 
         $postings = [];
 
@@ -162,6 +188,45 @@ class GeneralLedger
         }
 
         return ['accounts' => $accounts, 'debits' => round($debits, 2), 'credits' => round($credits, 2)];
+    }
+
+    /**
+     * Every account's balance at the start of a month, from the first
+     * records in the app. Each year end closes the year's income, expenses
+     * and drawings into owner's capital.
+     *
+     * @return array<int, float>
+     */
+    private function balancesBefore(int $year, int $month): array
+    {
+        $balances = [];
+        $first = collect([
+            Transaction::query()->min('occurred_on'),
+            Filing::query()->whereNotNull('paid_on')->min('paid_on'),
+            Loan::query()->whereNotNull('filed_on')->min('filed_on'),
+        ])->filter()->map(fn (string $date) => CarbonImmutable::parse($date)->year)->min();
+
+        for ($y = $first ?? $year; $y <= $year; $y++) {
+            for ($m = 1; $m <= ($y < $year ? 12 : $month - 1); $m++) {
+                foreach ($this->journal($y, $m) as $entry) {
+                    foreach ($entry['lines'] as $line) {
+                        $balances[$line['account']] = ($balances[$line['account']] ?? 0.0) + $this->signed($line);
+                    }
+                }
+            }
+
+            if ($y < $year) {
+                foreach ($balances as $code => $balance) {
+                    if ($code >= self::FIRST_NOMINAL) {
+                        // Income adds to capital; expenses and drawings take from it.
+                        $balances[301] = ($balances[301] ?? 0.0) + (self::ACCOUNTS[$code][1] === 'credit' ? $balance : -$balance);
+                        unset($balances[$code]);
+                    }
+                }
+            }
+        }
+
+        return $balances;
     }
 
     /**
@@ -219,6 +284,7 @@ class GeneralLedger
             $filing->form === '2550Q' => 205,
             in_array($filing->form, self::INCOME_TAX_FORMS, true) => 302,
             in_array($filing->form, self::WITHHOLDING_FORMS, true) => 201,
+            $filing->form === '1601-C' => 202,
             default => null,
         };
 
@@ -237,6 +303,55 @@ class GeneralLedger
             $this->debit(521, round($paid - $tax, 2)),
             $this->credit(101, $paid),
         ]);
+    }
+
+    /**
+     * Form 2000 the taxpayer paid on a loan: the stamp tax is a business
+     * tax, any penalty apart. A bank that files it takes it from the loan.
+     *
+     * @return Entry
+     */
+    private function stampTax(Loan $loan): array
+    {
+        $paid = (float) $loan->amount_paid;
+        $tax = min($paid, $this->dst->onLoan((float) $loan->amount, $loan->term_months));
+
+        return $this->entry((string) $loan->filed_on?->toDateString(), "Form 2000 paid · DST on the loan from {$loan->lender}", [
+            $this->debit(520, $tax),
+            $this->debit(521, round($paid - $tax, 2)),
+            $this->credit(101, $paid),
+        ]);
+    }
+
+    /**
+     * The tax withheld from a month's salaries, once the month is over:
+     * kept from the pay and owed with the 1601-C. A year-end refund to the
+     * employees comes off it.
+     *
+     * @return Entry|null
+     */
+    private function payrollWithholding(int $year, int $month): ?array
+    {
+        $end = CarbonImmutable::create($year, $month)->endOfMonth();
+
+        if ($end->isFuture()) {
+            return null;
+        }
+
+        $this->payroll[$year] ??= array_map(
+            fn (array $m) => ['month' => $m['month'], 'withheld' => $m['withheld'], 'refund' => $m['refund']],
+            $this->payrollService->year($year),
+        );
+        $row = collect($this->payroll[$year])->firstWhere('month', $month);
+        $net = $row !== null ? round($row['withheld'] - $row['refund'], 2) : 0.0;
+
+        if ($net === 0.0) {
+            return null;
+        }
+
+        return $this->entry($end->toDateString(), "Tax withheld from {$end->format('F')} salaries", $net > 0
+            ? [$this->debit(101, $net), $this->credit(202, $net)]
+            : [$this->debit(202, -$net), $this->credit(101, -$net)]);
     }
 
     /**

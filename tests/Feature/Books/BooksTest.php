@@ -34,7 +34,7 @@ test('October’s journals match the design', function () {
         ->where('disbursements.0.counterparty', 'Converge ICT')
         ->where('disbursements.0.category', 'Internet & phone')
         ->where('disbursements.0.amount', 3500)
-        ->where('totals', ['amount' => 55000, 'withheld' => 1500, 'received' => 53500, 'disbursed' => 3500]));
+        ->where('totals', ['amount' => 55000, 'vat' => 0, 'withheld' => 1500, 'received' => 53500, 'disbursed' => 3500, 'disbursed_vat' => 0, 'disbursed_withheld' => 0, 'paid' => 3500]));
 });
 
 test('the books open on the current month', function () {

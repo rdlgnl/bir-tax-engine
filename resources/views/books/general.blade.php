@@ -40,8 +40,8 @@
     </table>
 
     <div class="notice">
-        On a cash basis, like the cash journals: money received and paid, and taxes paid with returns.
-        Balances start on January 1; bring last year's balances forward by hand on the first page of the year.
+        On a cash basis, like the cash journals: money received and paid, taxes paid with returns, and the tax withheld from salaries.
+        Balances carry over from the first records in the app, the year's income and expenses closing into owner's capital; money held before then is added by hand.
     </div>
 
     <h2>GENERAL JOURNAL (PHP)</h2>
