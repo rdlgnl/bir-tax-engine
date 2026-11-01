@@ -54,6 +54,23 @@ class FilingCalendar
         return $this->nextWorkingDay($statutory);
     }
 
+    /**
+     * 0619-E: the withholding of the first two months of a quarter, by the
+     * 10th of the month after.
+     */
+    public function withholdingMonthlyDue(int $year, int $month): CarbonImmutable
+    {
+        return $this->nextWorkingDay(CarbonImmutable::create($year, $month)->addMonth()->day((int) config('tax.withholding.monthly_due_day')));
+    }
+
+    /**
+     * 1601-EQ: the quarter's return, by the last day of the month after it.
+     */
+    public function withholdingQuarterlyDue(int $year, int $quarter): CarbonImmutable
+    {
+        return $this->nextWorkingDay(CarbonImmutable::create($year, $quarter * 3)->addMonthNoOverflow()->endOfMonth()->startOfDay());
+    }
+
     public function swornDeclarationDue(int $year): CarbonImmutable
     {
         [$month, $day] = config('tax.deadlines.sworn_declaration');

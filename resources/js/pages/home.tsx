@@ -30,6 +30,7 @@ type Props = {
     yearGross: number;
     regime: string | null;
     vatRegistered: boolean;
+    withholdingAgent: boolean;
     checklist: Checklist;
     upcoming: Deadline[];
     recent: TransactionWithEffect[];
@@ -57,6 +58,7 @@ export default function Home({
     yearGross,
     regime,
     vatRegistered,
+    withholdingAgent,
     checklist,
     upcoming,
     recent,
@@ -149,6 +151,7 @@ export default function Home({
                             quarter={focus}
                             regime={regime}
                             vatRegistered={vatRegistered}
+                            withholdingAgent={withholdingAgent}
                         />
                         <ChecklistCard checklist={checklist} quarter={focus} />
                     </>

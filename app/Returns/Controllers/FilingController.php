@@ -9,6 +9,7 @@ use App\Returns\Models\Filing;
 use App\Returns\Requests\StoreFilingRequest;
 use App\Returns\Requests\UpdateFilingPaymentRequest;
 use App\Returns\Services\ReturnForm;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
@@ -18,14 +19,23 @@ class FilingController extends Controller
     {
         $data = $request->safe()->except('paid');
 
+        $withholding = in_array($data['form'], ['0619-E', '1601-EQ'], true);
+
         // Freeze the figures as filed, so history never shifts under them.
         $filing = Filing::create([
             ...$data,
-            'snapshot' => $returns->snapshot(TaxProfile::current(), (int) $data['year'], (int) $data['quarter'], $data['form']),
+            'snapshot' => $withholding ? null : $returns->snapshot(TaxProfile::current(), (int) $data['year'], (int) $data['quarter'], $data['form']),
         ]);
 
-        $what = $filing->quarter === 4 ? "Your {$filing->year} annual return" : "Q{$filing->quarter} {$filing->year}";
-        $notices->record('filing', $this->noticeTitle($filing), null, route('history', ['year' => $filing->year, 'quarter' => $filing->quarter, 'form' => $filing->form], absolute: false));
+        $what = match (true) {
+            $filing->form === '0619-E' => CarbonImmutable::create($filing->year, $filing->month)->format('F').' withholding',
+            $filing->form === '1601-EQ' => "Q{$filing->quarter} withholding",
+            $filing->quarter === 4 && ! in_array($filing->form, ['2551Q', '2550Q'], true) => "Your {$filing->year} annual return",
+            default => "Q{$filing->quarter} {$filing->year}",
+        };
+        $notices->record('filing', $this->noticeTitle($filing), null, $withholding
+            ? route('withholding', $filing->year, absolute: false)
+            : route('history', ['year' => $filing->year, 'quarter' => $filing->quarter, 'form' => $filing->form], absolute: false));
 
         return Inertia::flash('toast', "{$what} is marked filed".($filing->isPaid() ? ' and paid' : '').'. Later changes become an amendment.')
             ->back();
@@ -44,7 +54,11 @@ class FilingController extends Controller
      */
     private function noticeTitle(Filing $filing): string
     {
-        $what = $filing->quarter === 4 ? "{$filing->year} annual return" : "Q{$filing->quarter} {$filing->form}";
+        $what = match (true) {
+            $filing->form === '0619-E' => CarbonImmutable::create($filing->year, $filing->month)->format('F Y').' 0619-E',
+            $filing->quarter === 4 && in_array($filing->form, ReturnForm::INCOME_TAX_FORMS, true) => "{$filing->year} annual return",
+            default => "Q{$filing->quarter} {$filing->form}",
+        };
 
         return $filing->isPaid()
             ? "{$what} filed and paid · ₱".number_format((float) $filing->amount_paid)

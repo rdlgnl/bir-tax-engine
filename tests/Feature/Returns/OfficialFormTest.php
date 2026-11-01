@@ -37,17 +37,21 @@ test('every form in the rule pack has its BIR template, as downloaded, readable 
     expect($manifest[$template]['form'])->toBe($form)
         ->and($manifest[$template]['edition'])->toBe(config("tax.forms.{$form}.edition"))
         ->and(hash_file('sha256', resource_path("forms/bir/originals/{$template}.pdf")))->toBe($manifest[$template]['sha256'])
-        ->and(pageCount(file_get_contents($filler->template($form))))->toBe(['1701Q' => 2, '1701-MS' => 2, '1701A' => 2, '1701' => 4, '2551Q' => 2, '2550Q' => 2, '1905' => 4, '1900' => 1][$form]);
+        ->and(pageCount(file_get_contents($filler->template($form))))->toBe(['1701Q' => 2, '1701-MS' => 2, '1701A' => 2, '1701' => 4, '2551Q' => 2, '2550Q' => 2, '1905' => 4, '1900' => 1, '0619-E' => 1, '1601-EQ' => 2, '2307' => 2][$form]);
 
-    // The 1900 is legal size; the rest are long bond.
-    $height = in_array($form, ['1900', '2550Q'], true) ? 1008 : 936;
+    // The 1900 and 2550Q are legal size, the 0619-E letter; the rest are long bond.
+    $height = match ($form) {
+        '1900', '2550Q' => 1008,
+        '0619-E' => 792,
+        default => 936,
+    };
 
     foreach ($filler->map($form) as $item => $place) {
         expect($place['x'])->toBeBetween(0, 612, "item {$item}")
             ->and($place['to'] ?? $place['x'])->toBeBetween($place['x'], 612, "item {$item}")
             ->and($place['y'])->toBeBetween(0, $height, "item {$item}");
     }
-})->with(['1701Q', '1701-MS', '1701A', '1701', '2551Q', '2550Q', '1905', '1900']);
+})->with(['1701Q', '1701-MS', '1701A', '1701', '2551Q', '2550Q', '1905', '1900', '0619-E', '1601-EQ', '2307']);
 
 test('the Q3 1701Q on 8% fills every item the design shows', function () {
     $this->seed(DemoTaxpayerSeeder::class);

@@ -130,7 +130,13 @@ export type Deadline = {
     date: string;
     statutory_date: string;
     title: string;
-    kind: 'income_tax' | 'percentage_tax' | 'vat' | 'reminder' | 'decision';
+    kind:
+        | 'income_tax'
+        | 'percentage_tax'
+        | 'vat'
+        | 'withholding'
+        | 'reminder'
+        | 'decision';
     status: 'open' | 'due' | 'overdue' | 'filed' | 'reminder';
     amount: number | null;
     note: string | null;

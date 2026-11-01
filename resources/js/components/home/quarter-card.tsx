@@ -1,15 +1,23 @@
+import { Link } from '@inertiajs/react';
 import { minusPeso, peso } from '@/lib/format';
 import { SectionCard } from '@/components/section-card';
+import { withholding } from '@/routes';
 import type { QuarterResult } from '@/types';
 
 type Props = {
     quarter: QuarterResult;
     regime: string | null;
     vatRegistered: boolean;
+    withholdingAgent: boolean;
 };
 
 /** "This quarter · Q3": every tax and where it stands. */
-export function QuarterCard({ quarter, regime, vatRegistered }: Props) {
+export function QuarterCard({
+    quarter,
+    regime,
+    vatRegistered,
+    withholdingAgent,
+}: Props) {
     const eightPercent = regime === 'eight_percent';
     const name = quarter.quarter === 4 ? 'Annual' : `Q${quarter.quarter}`;
 
@@ -50,6 +58,19 @@ export function QuarterCard({ quarter, regime, vatRegistered }: Props) {
                         </span>
                     }
                 />
+                {withholdingAgent && (
+                    <Row
+                        label="Withheld from payees"
+                        value={
+                            <Link
+                                href={withholding().url}
+                                className="font-bold text-primary hover:underline"
+                            >
+                                0619-E, 1601-EQ, 2307s
+                            </Link>
+                        }
+                    />
+                )}
                 <Row
                     label="Withheld by clients"
                     value={

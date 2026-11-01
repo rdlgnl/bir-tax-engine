@@ -50,7 +50,7 @@ export const navItems: NavItem[] = [
         label: 'File a return',
         icon: FileText,
         href: returnsIndex.url(),
-        match: ['/file'],
+        match: ['/file', '/withholding'],
     },
     {
         label: 'History & reports',

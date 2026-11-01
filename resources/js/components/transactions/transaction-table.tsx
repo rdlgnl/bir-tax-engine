@@ -178,9 +178,18 @@ export function TransactionTable({
                                             : peso(t.amount)}
                                     </td>
                                     <td className="py-3 pr-3 text-right whitespace-nowrap">
-                                        {t.tax_withheld > 0
-                                            ? peso(t.tax_withheld)
-                                            : '—'}
+                                        {t.tax_withheld > 0 ? (
+                                            peso(t.tax_withheld)
+                                        ) : t.agent_withheld > 0 ? (
+                                            // Kept from a payee, to remit as their withholding agent.
+                                            <span
+                                                title={`Kept and sent to the BIR · ${t.atc}`}
+                                            >
+                                                {peso(t.agent_withheld)}
+                                            </span>
+                                        ) : (
+                                            '—'
+                                        )}
                                     </td>
                                     <td
                                         className={cn(

@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { ChoiceChips } from '@/components/choice-chips';
 import { FieldError } from '@/components/field-error';
 import { MoneyInput } from '@/components/money-input';
+import {
+    AgentWithholding,
+    agentWithheld,
+} from '@/components/transactions/agent-withholding';
 import { PreviewBox } from '@/components/transactions/preview-box';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -70,6 +74,8 @@ export function TransactionForm({
         vat_amount:
             editing && editing.vat_amount > 0 ? String(editing.vat_amount) : '',
         counterparty_tin: editing?.counterparty_tin ?? '',
+        atc: editing?.atc ?? '',
+        agent_withheld: '',
     });
     // VAT is 12% of the amount until the person types their own figure.
     const [vatTouched, setVatTouched] = useState(
@@ -92,6 +98,8 @@ export function TransactionForm({
     const asksWithholding =
         type === 'payment' || (type === 'invoice' && form.data.invoice_paid);
     const vatRate = context.vatRate;
+    // Only a withholding agent keeps tax from what they pay others.
+    const withholdingAtcs = type === 'expense' ? context.withholdingAtcs : null;
     const vatApplies =
         vatRate !== null &&
         (type === 'expense' ? showsVat : form.data.vat_kind === 'vatable');
@@ -127,6 +135,16 @@ export function TransactionForm({
         form.transform((data) => ({
             ...data,
             vat_amount: vatAmount,
+            atc: withholdingAtcs ? data.atc : '',
+            agent_withheld: withholdingAtcs
+                ? String(
+                      agentWithheld(
+                          withholdingAtcs,
+                          data.atc,
+                          Number(data.amount || 0),
+                      ),
+                  )
+                : '0',
             tax_withheld: asksWithholding && withheld ? data.tax_withheld : '0',
             certificate_received_on:
                 asksWithholding && withheld
@@ -521,6 +539,18 @@ export function TransactionForm({
                             </span>
                         </span>
                     </label>
+                    {withholdingAtcs && (
+                        <AgentWithholding
+                            atcs={withholdingAtcs}
+                            atc={form.data.atc}
+                            onChange={(atc) => form.setData('atc', atc)}
+                            amount={Number(form.data.amount || 0)}
+                            payee={form.data.counterparty}
+                            error={
+                                form.errors.atc ?? form.errors.agent_withheld
+                            }
+                        />
+                    )}
                 </>
             )}
 

@@ -45,6 +45,7 @@ class HomeController extends Controller
             'yearGross' => $year['gross'],
             'regime' => $profile->regime?->value,
             'vatRegistered' => $profile->vat_registered,
+            'withholdingAgent' => $profile->withholding_agent,
             'checklist' => $obligations->checklist($profile, $today->year, $focus, $transactions, $today),
             'upcoming' => $obligations->upcoming($profile, $year, $today),
             'recent' => $transactions

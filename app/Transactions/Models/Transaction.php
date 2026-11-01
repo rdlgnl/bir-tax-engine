@@ -30,6 +30,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property VatKind|null $vat_kind
  * @property string $vat_amount
  * @property string|null $counterparty_tin
+ * @property string|null $atc
+ * @property string $agent_withheld
  * @property CarbonImmutable|null $certificate_received_on
  * @property int|null $certificate_id
  * @property string|null $invoice_number
@@ -48,6 +50,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'vat_kind',
     'vat_amount',
     'counterparty_tin',
+    'atc',
+    'agent_withheld',
     'certificate_received_on',
     'invoice_number',
     'invoice_paid',
@@ -69,6 +73,7 @@ class Transaction extends Model
     protected $attributes = [
         'tax_withheld' => 0,
         'vat_amount' => 0,
+        'agent_withheld' => 0,
         'invoice_paid' => false,
         'has_valid_invoice' => false,
     ];
@@ -87,6 +92,7 @@ class Transaction extends Model
             'tax_withheld' => 'decimal:2',
             'vat_kind' => VatKind::class,
             'vat_amount' => 'decimal:2',
+            'agent_withheld' => 'decimal:2',
             'certificate_received_on' => 'date',
             'invoice_paid' => 'boolean',
             'category' => ExpenseCategory::class,

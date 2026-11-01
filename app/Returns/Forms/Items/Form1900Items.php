@@ -21,7 +21,7 @@ class Form1900Items extends ProfileFormItems
     public function looseLeafBooks(TaxProfile $profile): array
     {
         [$tin1, $tin2, $tin3] = $this->tin($profile);
-        [$address1, $address2] = $this->address((string) $this->upper($profile->registered_address));
+        [$address1, $address2] = $this->wrap((string) $this->upper($profile->registered_address), 70);
 
         $values = [
             'tin.1' => $tin1,
@@ -48,23 +48,5 @@ class Form1900Items extends ProfileFormItems
         }
 
         return $values;
-    }
-
-    /**
-     * An address over the form's two lines, broken between words.
-     *
-     * @return array{string, string}
-     */
-    private function address(string $address): array
-    {
-        $width = 70;
-
-        if (mb_strlen($address) <= $width) {
-            return [$address, ''];
-        }
-
-        $first = trim(mb_substr($address, 0, (int) mb_strrpos(mb_substr($address, 0, $width + 1), ' ')) ?: mb_substr($address, 0, $width));
-
-        return [$first, trim(mb_substr($address, mb_strlen($first)))];
     }
 }

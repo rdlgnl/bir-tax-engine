@@ -80,6 +80,10 @@ class HandleInertiaRequests extends Middleware
                 default => 'tax.expected_withholding.services',
             })),
             'vatRate' => $profile->vat_registered ? (float) config('tax.vat.rate') : null,
+            // A withholding agent picks the kind of payment; the ATC and rate follow.
+            'withholdingAtcs' => $profile->withholding_agent
+                ? collect((array) config('tax.withholding.atcs'))->map(fn (array $atc, string $code) => ['code' => $code, ...$atc])->values()
+                : null,
             'recentCounterparties' => Transaction::query()
                 ->where('type', '!=', TransactionType::Expense)
                 ->latest('occurred_on')
