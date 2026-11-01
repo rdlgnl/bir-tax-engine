@@ -179,7 +179,10 @@ class TaxCalculationService
             $due = max(0, $tax['tax'] + $salaryTax - $withheld - $salaryWithheld - $priorPaid);
 
             $form = $this->calendar->incomeTaxForm($profile, $quarter);
-            $filing = $filings->first(fn (Filing $f) => $f->quarter === $quarter);
+            $filing = $filings->first(fn (Filing $f) => $f->quarter === $quarter && $f->amendment === 0);
+            // The tax paid for the quarter, on the original return and any amendment.
+            $quarterFilings = $filings->filter(fn (Filing $f) => $f->quarter === $quarter && $f->amount_paid !== null);
+            $quarterPaid = $quarterFilings->isEmpty() ? null : $quarterFilings->sum(fn (Filing $f) => $this->cents($f->taxPaid()));
             $statutory = $this->calendar->incomeTaxStatutoryDate($year, $quarter);
             $dueDate = $this->calendar->nextWorkingDay($statutory);
             $periodEnd = CarbonImmutable::create($year, $quarter * 3)->endOfMonth()->startOfDay();
@@ -216,13 +219,13 @@ class TaxCalculationService
                 'days_left' => (int) round($today->diffInDays($dueDate, false)),
                 'status' => $quarterStatus,
                 'filed_on' => $filing?->filed_on->toDateString(),
-                'amount_paid' => $filing?->amount_paid !== null ? (float) $filing->amount_paid : null,
+                'amount_paid' => $quarterPaid !== null ? $this->pesos($quarterPaid) : null,
                 'paid_on' => $filing?->paid_on?->toDateString(),
                 'compensation' => $compensation,
             ];
 
             // What later quarters subtract: the payment made, or the amount owed.
-            $priorPaid += $filing?->amount_paid !== null ? $this->cents($filing->amount_paid) : $due;
+            $priorPaid += $quarterPaid ?? $due;
         }
 
         return [

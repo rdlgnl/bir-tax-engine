@@ -2,7 +2,7 @@
 
 namespace App\Transactions\Controllers;
 
-use App\Compliance\Rules\NotInFiledQuarter;
+use App\Compliance\Rules\NotInClosedYear;
 use App\Http\Controllers\Controller;
 use App\Notices\Services\Notices;
 use App\Profiles\Models\TaxProfile;
@@ -49,6 +49,8 @@ class TransactionController extends Controller
             'years' => range(now()->year, $firstDate ? CarbonImmutable::parse($firstDate)->year : now()->year),
             'yearGross' => (float) $all->filter(fn (Transaction $t) => $t->isIncome())->sum('amount'),
             'filedQuarters' => $this->filedQuarters($year),
+            // Once the annual return is filed, the year's entries are locked.
+            'yearClosed' => NotInClosedYear::closes(CarbonImmutable::create($year)),
         ]);
     }
 
@@ -70,9 +72,9 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction, Notices $notices): RedirectResponse
     {
-        if (Filing::incomeTaxReturnCovering($transaction->occurred_on) !== null) {
+        if (NotInClosedYear::closes($transaction->occurred_on)) {
             return back()->withErrors([
-                'transaction' => NotInFiledQuarter::message($transaction->occurred_on),
+                'transaction' => NotInClosedYear::message($transaction->occurred_on),
             ]);
         }
 

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $quarter
  * @property int $month
  * @property string $form
+ * @property int $amendment 0 for the original return, then 1, 2… for each amended return
  * @property CarbonImmutable $filed_on
  * @property string|null $reference_number
  * @property string|null $amount_paid
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Model;
     'quarter',
     'month',
     'form',
+    'amendment',
     'filed_on',
     'reference_number',
     'amount_paid',
@@ -60,6 +62,7 @@ class Filing extends Model
             'year' => 'integer',
             'quarter' => 'integer',
             'month' => 'integer',
+            'amendment' => 'integer',
             'filed_on' => 'date',
             'amount_paid' => 'decimal:2',
             'paid_on' => 'date',
@@ -73,11 +76,22 @@ class Filing extends Model
     }
 
     /**
+     * What was paid toward the tax itself: the payment less any surcharge
+     * and interest it included, which later returns don't credit.
+     */
+    public function taxPaid(): float
+    {
+        $penalties = is_array($this->snapshot) ? (float) ($this->snapshot['penalties']['total'] ?? 0) : 0.0;
+
+        return max(0.0, round((float) $this->amount_paid - $penalties, 2));
+    }
+
+    /**
      * The Q1 income tax return, which locks the year's tax method.
      */
     public static function firstQuarterReturn(int $year): ?self
     {
-        return static::query()->where('year', $year)->where('quarter', 1)->where('form', '1701Q')->first();
+        return static::query()->where('year', $year)->where('quarter', 1)->where('form', '1701Q')->where('amendment', 0)->first();
     }
 
     /**
@@ -89,6 +103,7 @@ class Filing extends Model
             ->where('year', $date->year)
             ->where('quarter', $date->quarter)
             ->whereIn('form', ReturnForm::INCOME_TAX_FORMS)
+            ->where('amendment', 0)
             ->first();
     }
 }

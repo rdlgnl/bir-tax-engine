@@ -8,6 +8,7 @@ use App\Data\Services\Backups;
 use App\Notices\Services\Notices;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Services\Amendments;
 use App\Tax\Services\RulePacks;
 use App\Tax\Services\TaxCalculationService;
 use App\Tax\Services\VatCalculator;
@@ -22,7 +23,7 @@ use Inertia\Response;
  */
 class HomeController extends Controller
 {
-    public function __invoke(TaxCalculationService $engine, TaxObligations $obligations, Backups $backups, Notices $notices, RulePacks $packs, VatCalculator $vatCalculator): Response
+    public function __invoke(Amendments $amendments, TaxCalculationService $engine, TaxObligations $obligations, Backups $backups, Notices $notices, RulePacks $packs, VatCalculator $vatCalculator): Response
     {
         $profile = TaxProfile::current();
         $today = CarbonImmutable::now();
@@ -69,6 +70,10 @@ class HomeController extends Controller
             'backupReminder' => $backups->reminder($today),
             'unreadNotices' => $notices->unreadCount($profile, $today),
             'ruleUpdate' => $packs->pending() ? $packs->version() : null,
+            // Filed quarters whose records changed since.
+            'amendments' => array_map(fn (array $a) => [
+                'year' => $a['year'], 'quarter' => $a['quarter'], 'form' => $a['form'], 'extra' => $a['extra'],
+            ], $amendments->needed($profile, $today)),
             // VAT this quarter so far, and how last quarter's return stands.
             'vat' => $profile->vat_registered ? (function () use ($vatCalculator, $today) {
                 $year = $vatCalculator->forYear($today->year, $today);

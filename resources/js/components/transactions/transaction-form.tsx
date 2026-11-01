@@ -656,9 +656,8 @@ export function TransactionForm({
                         className="mt-0.5 size-4 shrink-0"
                         aria-hidden
                     />
-                    Q{preview.quarter} is already filed. Changing a filed
-                    quarter needs an amended return, which comes in a later
-                    update.
+                    Q{preview.quarter} is already filed. Saving this means
+                    amending it; we'll prepare the amended return.
                 </p>
             )}
             <div className="flex gap-2">

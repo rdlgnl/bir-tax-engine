@@ -8,6 +8,7 @@ use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Returns\Requests\StoreFilingRequest;
 use App\Returns\Requests\UpdateFilingPaymentRequest;
+use App\Returns\Services\Amendments;
 use App\Returns\Services\ReturnForm;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -15,19 +16,33 @@ use Inertia\Inertia;
 
 class FilingController extends Controller
 {
-    public function store(StoreFilingRequest $request, ReturnForm $returns, Notices $notices): RedirectResponse
+    public function store(StoreFilingRequest $request, ReturnForm $returns, Amendments $amendments, Notices $notices): RedirectResponse
     {
-        $data = $request->safe()->except('paid');
+        $data = $request->safe()->except(['paid', 'amendment']);
+        $profile = TaxProfile::current();
 
         $withholding = in_array($data['form'], ['0619-E', '1601-EQ', '1604-E'], true);
+        $amendment = $request->boolean('amendment')
+            ? $amendments->for($profile, (int) $data['year'], (int) $data['quarter'])
+            : null;
+
+        if ($request->boolean('amendment') && ($amendment === null || $amendment['form'] !== $data['form'])) {
+            return back()->withErrors(['form' => 'This return matches what was filed; there is nothing to amend.']);
+        }
 
         // Freeze the figures as filed, so history never shifts under them.
         $filing = Filing::create([
             ...$data,
-            'snapshot' => $withholding ? null : $returns->snapshot(TaxProfile::current(), (int) $data['year'], (int) $data['quarter'], $data['form']),
+            'amendment' => $amendment['number'] ?? 0,
+            'snapshot' => match (true) {
+                $withholding => null,
+                $amendment !== null => $amendments->snapshot($profile, $amendment),
+                default => $returns->snapshot($profile, (int) $data['year'], (int) $data['quarter'], $data['form']),
+            },
         ]);
 
         $what = match (true) {
+            $filing->amendment > 0 => "Q{$filing->quarter}'s amended return",
             $filing->form === '0619-E' => CarbonImmutable::create($filing->year, $filing->month)->format('F').' withholding',
             $filing->form === '1601-EQ' => "Q{$filing->quarter} withholding",
             $filing->form === '1604-E' => "Your {$filing->year} list of payees (1604-E)",
@@ -58,6 +73,7 @@ class FilingController extends Controller
         $what = match (true) {
             $filing->form === '0619-E' => CarbonImmutable::create($filing->year, $filing->month)->format('F Y').' 0619-E',
             $filing->form === '1604-E' => "{$filing->year} 1604-E",
+            $filing->amendment > 0 => "Q{$filing->quarter} {$filing->form} (amended)",
             $filing->quarter === 4 && in_array($filing->form, ReturnForm::INCOME_TAX_FORMS, true) => "{$filing->year} annual return",
             default => "Q{$filing->quarter} {$filing->form}",
         };

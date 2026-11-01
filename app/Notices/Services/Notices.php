@@ -7,6 +7,7 @@ use App\Data\Models\Setting;
 use App\Data\Services\Backups;
 use App\Notices\Models\Notice;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Services\Amendments;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Models\Transaction;
@@ -26,6 +27,7 @@ class Notices
         private TaxCalculationService $engine,
         private TaxObligations $obligations,
         private Backups $backups,
+        private Amendments $amendments,
     ) {}
 
     public function record(string $kind, string $title, ?string $detail = null, ?string $url = null): void
@@ -83,6 +85,19 @@ class Notices
                 ($quarter['quarter'] === 4 ? 'Annual' : "Q{$quarter['quarter']}").' income tax · file and pay by '
                     .CarbonImmutable::parse($quarter['due_date'])->format('D, M j'),
                 route('returns.show', [$next['year'], $quarter['quarter'], $quarter['form']], absolute: false),
+                $today,
+            );
+        }
+
+        foreach ($this->amendments->needed($profile, $today) as $amendment) {
+            $items[] = $this->item(
+                "amend:{$amendment['year']}-{$amendment['quarter']}-{$amendment['number']}-{$amendment['amended']['due']}",
+                'amend',
+                "Q{$amendment['quarter']} {$amendment['year']} changed after you filed it",
+                $amendment['extra'] > 0
+                    ? 'Amend it: ₱'.number_format($amendment['extra']).' more to pay'
+                    : 'Amend it so the figures on file match',
+                route('returns.amend', [$amendment['year'], $amendment['quarter'], $amendment['form']], absolute: false),
                 $today,
             );
         }

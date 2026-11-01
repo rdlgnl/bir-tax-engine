@@ -1,5 +1,6 @@
 <?php
 
+use App\Returns\Controllers\AmendmentController;
 use App\Returns\Controllers\FileReturnController;
 use App\Returns\Controllers\FilingController;
 use App\Returns\Controllers\HistoryController;
@@ -20,6 +21,8 @@ Route::middleware('setup.complete')->group(function () {
             Route::get('/form', [FileReturnController::class, 'preview'])->name('returns.preview');
             Route::get('/pdf', [FileReturnController::class, 'pdf'])->name('returns.pdf');
             Route::get('/late', [FileReturnController::class, 'late'])->name('returns.late');
+            Route::get('/amend', [AmendmentController::class, 'show'])->name('returns.amend');
+            Route::get('/amend/pdf', [AmendmentController::class, 'pdf'])->name('returns.amend.pdf');
         });
 
     Route::prefix('/file/{year}/{quarter}/slsp')

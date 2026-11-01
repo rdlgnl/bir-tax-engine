@@ -13,6 +13,7 @@ import { TransactionTable } from '@/components/transactions/transaction-table';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso, plural } from '@/lib/format';
 import { backup, notifications, rules } from '@/routes';
+import { amend } from '@/routes/returns';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type {
     Checklist,
@@ -41,6 +42,12 @@ type Props = {
     backupReminder: { days_since: number | null } | null;
     unreadNotices: number;
     ruleUpdate: string | null;
+    amendments: {
+        year: number;
+        quarter: number;
+        form: string;
+        extra: number;
+    }[];
     vat: { current: VatQuarter; previous: VatQuarter; year: number } | null;
 };
 
@@ -70,6 +77,7 @@ export default function Home({
     backupReminder,
     unreadNotices,
     ruleUpdate,
+    amendments,
     vat,
 }: Props) {
     const { taxpayer } = usePage().props;
@@ -136,6 +144,25 @@ export default function Home({
                     </Note>
                 </div>
             )}
+
+            {amendments.map((a) => (
+                <div key={`${a.year}-${a.quarter}`} className="mb-5">
+                    <Note
+                        tone="warning"
+                        title={`Q${a.quarter} ${a.year} changed after you filed it`}
+                    >
+                        {a.extra > 0
+                            ? `Amend it: ${peso(a.extra)} more to pay, plus interest.`
+                            : 'Amend it so the figures on file match your records.'}{' '}
+                        <Link
+                            href={amend([a.year, a.quarter, a.form]).url}
+                            className="font-bold underline"
+                        >
+                            Amend Q{a.quarter}
+                        </Link>
+                    </Note>
+                </div>
+            ))}
 
             {backupReminder && (
                 <div className="mb-5">
