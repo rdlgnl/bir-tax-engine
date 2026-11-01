@@ -40,3 +40,25 @@ export type RemittanceMonth = {
     status: 'open' | 'due' | 'overdue' | 'filed';
     filed_on: string | null;
 };
+
+/** App\Payroll\Services\Payroll::annual, for the 1604-C. */
+export type PayrollAnnual = {
+    year: number;
+    months: RemittanceMonth[];
+    employees: {
+        id: number;
+        name: string;
+        tin: string | null;
+        pay: number;
+        tax: number;
+        withheld: number;
+        refund: number;
+        given_on: string | null;
+    }[];
+    compensation: number;
+    withheld: number;
+    refund: number;
+    due_date: string;
+    status: RemittanceMonth['status'];
+    filed_on: string | null;
+};

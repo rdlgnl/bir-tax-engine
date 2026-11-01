@@ -4,10 +4,13 @@ namespace App\Payroll\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Payroll\Models\Employee;
+use App\Payroll\Models\EmployeeCertificate;
 use App\Payroll\Requests\SaveEmployeeRequest;
 use App\Payroll\Services\Payroll;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\Items\Form1601CItems;
+use App\Returns\Forms\Items\Form1604CItems;
+use App\Returns\Forms\Items\Form2316Items;
 use App\Returns\Forms\OfficialFormFiller;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\Penalties;
@@ -15,6 +18,7 @@ use App\Tax\Services\TaxCalculationService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -98,6 +102,74 @@ class PayrollController extends Controller
         return redirect()->route('payroll');
     }
 
+    /**
+     * The 2316 an employee is given for a year (design 9-06).
+     */
+    public function certificate(Employee $employee, FilingCalendar $calendar, ?int $year = null): Response
+    {
+        $year ??= $this->certificateYear();
+        $pay = $this->payroll->employeeYear($employee, $year);
+        abort_if($pay['months'] === [], 404);
+        $given = EmployeeCertificate::query()->where('employee_id', $employee->id)->where('year', $year)->first();
+
+        return Inertia::render('payroll/certificate', [
+            'employee' => $this->employee($employee),
+            'year' => $year,
+            'pay' => $pay,
+            'givenOn' => $given?->given_on->toDateString(),
+            'dueDate' => $this->payroll->annualDue($year)->toDateString(),
+            'refundBy' => $calendar->nextWorkingDay(CarbonImmutable::create($year + 1, 1, 25))->toDateString(),
+            'edition' => (string) config('tax.forms.2316.edition'),
+        ]);
+    }
+
+    public function certificatePdf(Request $request, Employee $employee, int $year, Form2316Items $items, OfficialFormFiller $filler): HttpResponse
+    {
+        $pay = $this->payroll->employeeYear($employee, $year);
+        abort_if($pay['months'] === [], 404);
+
+        return response($filler->render('2316', $items->values(TaxProfile::current(), $employee, $year, $pay)), headers: [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => ($request->boolean('print') ? 'inline' : 'attachment')."; filename=2316-{$year}-".Str::slug($employee->name()).'.pdf',
+        ]);
+    }
+
+    public function given(Employee $employee, int $year): RedirectResponse
+    {
+        abort_if($this->payroll->employeeYear($employee, $year)['months'] === [], 404);
+        EmployeeCertificate::query()->firstOrCreate(
+            ['employee_id' => $employee->id, 'year' => $year],
+            ['given_on' => CarbonImmutable::now()->toDateString()],
+        );
+
+        return Inertia::flash('toast', "{$employee->first_name}'s 2316 is marked given.")->back();
+    }
+
+    /**
+     * The 1604-C, the year's list of employees (design 13-06).
+     */
+    public function annual(int $year): Response
+    {
+        $annual = $this->payroll->annual($year);
+        abort_if($annual['months'] === [], 404);
+
+        return Inertia::render('payroll/annual', [
+            'annual' => $annual,
+            'edition' => (string) config('tax.forms.1604-C.edition'),
+        ]);
+    }
+
+    public function annualPdf(Request $request, int $year, Form1604CItems $items, OfficialFormFiller $filler): HttpResponse
+    {
+        $annual = $this->payroll->annual($year);
+        abort_if($annual['months'] === [], 404);
+
+        return response($filler->render('1604-C', $items->values(TaxProfile::current(), $annual)), headers: [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => ($request->boolean('print') ? 'inline' : 'attachment')."; filename=1604-C-{$year}.pdf",
+        ]);
+    }
+
     public function month(int $year, int $month, Penalties $penalties, TaxCalculationService $engine): Response
     {
         $remittance = $this->remittance($year, $month);
@@ -121,6 +193,16 @@ class PayrollController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => ($request->boolean('print') ? 'inline' : 'attachment').sprintf('; filename=1601-C-%d-%02d.pdf', $year, $month),
         ]);
+    }
+
+    /**
+     * The 2316 is for the year just ended until April, then for this year.
+     */
+    private function certificateYear(): int
+    {
+        $today = CarbonImmutable::now();
+
+        return $today->month <= 4 ? $today->year - 1 : $today->year;
     }
 
     /**

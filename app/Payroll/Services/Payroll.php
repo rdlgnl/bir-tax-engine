@@ -3,6 +3,7 @@
 namespace App\Payroll\Services;
 
 use App\Payroll\Models\Employee;
+use App\Payroll\Models\EmployeeCertificate;
 use App\Returns\Models\Filing;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
@@ -19,6 +20,8 @@ use Carbon\CarbonImmutable;
  * @phpstan-type PayMonth array{month: int, pay: float, withheld: float, refund: float, year_end: bool}
  * @phpstan-type EmployeeYear array{months: list<PayMonth>, pay: float, tax: float, withheld: float, refund: float}
  * @phpstan-type RemittanceMonth array{month: int, employees: int, compensation: float, withheld: float, refund: float, due_date: string, status: Status, filed_on: string|null}
+ * @phpstan-type AnnualEmployee array{id: int, name: string, tin: string|null, pay: float, tax: float, withheld: float, refund: float, given_on: string|null}
+ * @phpstan-type Annual array{year: int, months: list<RemittanceMonth>, employees: list<AnnualEmployee>, compensation: float, withheld: float, refund: float, due_date: string, status: Status, filed_on: string|null}
  */
 class Payroll
 {
@@ -70,6 +73,69 @@ class Payroll
             'withheld' => round($withheld, 2),
             'refund' => $refund,
         ];
+    }
+
+    /**
+     * The year for the 1604-C: each month's 1601-C, each employee's pay and
+     * tax with whether their 2316 was given, and where the return stands.
+     * It's due January 31 of the next year.
+     *
+     * @return Annual
+     */
+    public function annual(int $year, ?CarbonImmutable $today = null): array
+    {
+        $today ??= CarbonImmutable::now();
+        $months = $this->year($year, $today);
+        $given = EmployeeCertificate::query()->where('year', $year)->pluck('given_on', 'employee_id');
+        $employees = [];
+
+        foreach (Employee::query()->orderBy('last_name')->get() as $employee) {
+            $employeeYear = $this->employeeYear($employee, $year);
+
+            if ($employeeYear['months'] === []) {
+                continue;
+            }
+
+            $givenOn = $given->get($employee->id);
+            $employees[] = [
+                'id' => $employee->id,
+                'name' => $employee->name(),
+                'tin' => $employee->tin,
+                'pay' => $employeeYear['pay'],
+                'tax' => $employeeYear['tax'],
+                'withheld' => $employeeYear['withheld'],
+                'refund' => $employeeYear['refund'],
+                'given_on' => $givenOn instanceof CarbonImmutable ? $givenOn->toDateString() : null,
+            ];
+        }
+
+        $due = $this->annualDue($year);
+        $filing = Filing::query()->where('year', $year)->where('form', '1604-C')->first();
+
+        return [
+            'year' => $year,
+            'months' => $months,
+            'employees' => $employees,
+            'compensation' => round(array_sum(array_column($months, 'compensation')), 2),
+            'withheld' => round(array_sum(array_column($months, 'withheld')), 2),
+            'refund' => round(array_sum(array_column($months, 'refund')), 2),
+            'due_date' => $due->toDateString(),
+            'status' => match (true) {
+                $filing !== null => 'filed',
+                $today->lessThanOrEqualTo(CarbonImmutable::create($year)->endOfYear()) => 'open',
+                $today->greaterThan($due->endOfDay()) => 'overdue',
+                default => 'due',
+            },
+            'filed_on' => $filing?->filed_on->toDateString(),
+        ];
+    }
+
+    /**
+     * The 1604-C, and the 2316 for each employee: January 31 of the next year.
+     */
+    public function annualDue(int $year): CarbonImmutable
+    {
+        return $this->calendar->nextWorkingDay(CarbonImmutable::create($year + 1, 1, 31));
     }
 
     /**

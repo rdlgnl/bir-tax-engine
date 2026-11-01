@@ -96,5 +96,19 @@
         "source": "https://bir-cdn.bir.gov.ph/local/pdf/1601C%20final%20Jan%202018%20with%20DPA.pdf",
         "sha256": "c8faaa71015337a73b4ceb96bfb265c539589ab5e10eb27899bb81f87f417397",
         "fetched": "2026-11-01"
+    },
+    "2316-2021-09": {
+        "form": "2316",
+        "edition": "September 2021 (ENCS)",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/2316%20Sep%202021%20ENCS_Final_corrected.pdf",
+        "sha256": "8e927e65b096d7a786ba7d36c55c28ee3de3546278880d9de8c11a91d1b48d60",
+        "fetched": "2026-11-01"
+    },
+    "1604-C-2018-01": {
+        "form": "1604-C",
+        "edition": "January 2018",
+        "source": "https://bir-cdn.bir.gov.ph/local/pdf/1604-C%20Jan%202018%20Final.pdf",
+        "sha256": "5239dd7f94bfc9d8a1b2e330e2da955bd5a0223762f41e95112d6b3822325dfd",
+        "fetched": "2026-11-01"
     }
 }

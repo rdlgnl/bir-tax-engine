@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { formatDate, monthLong, peso, todayIso } from '@/lib/format';
 import { payroll } from '@/routes';
 import { compare } from '@/routes/tax';
-import { month as monthPage } from '@/routes/payroll';
+import { annual, certificate, month as monthPage } from '@/routes/payroll';
 import { destroy, store, update } from '@/routes/payroll/employees';
 import type { Employee, EmployeeYear, RemittanceMonth } from '@/types';
 
@@ -258,7 +258,18 @@ export default function EmployeePage({
                                             Give {first} their 2316
                                         </span>
                                         <span className="text-sm text-muted-foreground">
-                                            Certificate of pay and tax withheld
+                                            Filled by the app from payroll ·{' '}
+                                            <Link
+                                                href={
+                                                    certificate([
+                                                        employee?.id ?? 0,
+                                                        yearEnd?.year ?? 0,
+                                                    ]).url
+                                                }
+                                                className="font-bold text-primary hover:underline"
+                                            >
+                                                Preview
+                                            </Link>
                                         </span>
                                     </span>
                                     <span className="font-bold">
@@ -271,7 +282,16 @@ export default function EmployeePage({
                                             Annual list of employees
                                         </span>
                                         <span className="text-sm text-muted-foreground">
-                                            Form 1604-C
+                                            Form 1604-C ·{' '}
+                                            <Link
+                                                href={
+                                                    annual(yearEnd?.year ?? 0)
+                                                        .url
+                                                }
+                                                className="font-bold text-primary hover:underline"
+                                            >
+                                                Filled form
+                                            </Link>
                                         </span>
                                     </span>
                                     <span className="font-bold">

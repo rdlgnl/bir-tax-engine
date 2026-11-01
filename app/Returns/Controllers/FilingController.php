@@ -21,7 +21,7 @@ class FilingController extends Controller
         $data = $request->safe()->except(['paid', 'amendment']);
         $profile = TaxProfile::current();
 
-        $withholding = in_array($data['form'], ['0619-E', '1601-EQ', '1604-E', '1601-C'], true);
+        $withholding = in_array($data['form'], ['0619-E', '1601-EQ', '1604-E', '1601-C', '1604-C'], true);
         $amendment = $request->boolean('amendment')
             ? $amendments->for($profile, (int) $data['year'], (int) $data['quarter'])
             : null;
@@ -47,12 +47,14 @@ class FilingController extends Controller
             $filing->form === '1601-C' => CarbonImmutable::create($filing->year, $filing->month)->format('F').' payroll withholding',
             $filing->form === '1601-EQ' => "Q{$filing->quarter} withholding",
             $filing->form === '1604-E' => "Your {$filing->year} list of payees (1604-E)",
+            $filing->form === '1604-C' => "Your {$filing->year} list of employees (1604-C)",
             $filing->quarter === 4 && ! in_array($filing->form, ['2551Q', '2550Q'], true) => "Your {$filing->year} annual return",
             default => "Q{$filing->quarter} {$filing->year}",
         };
         $notices->record('filing', $this->noticeTitle($filing), null, $withholding
             ? match ($filing->form) {
                 '1601-C' => route('payroll.month', [$filing->year, $filing->month], absolute: false),
+                '1604-C' => route('payroll.annual', $filing->year, absolute: false),
                 '1604-E' => route('withholding.annual', $filing->year, absolute: false),
                 default => route('withholding', $filing->year, absolute: false),
             }
@@ -79,6 +81,7 @@ class FilingController extends Controller
             $filing->form === '0619-E' => CarbonImmutable::create($filing->year, $filing->month)->format('F Y').' 0619-E',
             $filing->form === '1601-C' => CarbonImmutable::create($filing->year, $filing->month)->format('F Y').' 1601-C',
             $filing->form === '1604-E' => "{$filing->year} 1604-E",
+            $filing->form === '1604-C' => "{$filing->year} 1604-C",
             $filing->amendment > 0 => "Q{$filing->quarter} {$filing->form} (amended)",
             $filing->quarter === 4 && in_array($filing->form, ReturnForm::INCOME_TAX_FORMS, true) => "{$filing->year} annual return",
             default => "Q{$filing->quarter} {$filing->form}",
