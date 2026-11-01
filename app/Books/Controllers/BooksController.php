@@ -5,10 +5,12 @@ namespace App\Books\Controllers;
 use App\Books\Enums\BooksType;
 use App\Books\Models\BooksMonth;
 use App\Books\Requests\UpdateBooksTypeRequest;
+use App\Books\Services\GeneralLedger;
 use App\Books\Services\Journals;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as DomPdf;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -17,11 +19,12 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
  * Books of accounts: one month's cash receipts and disbursements journals,
- * to copy into the BIR-stamped books or print on loose-leaf.
+ * and its general journal and ledger, to copy into the BIR-stamped books
+ * or print on loose-leaf.
  */
 class BooksController extends Controller
 {
-    public function __construct(private Journals $journals) {}
+    public function __construct(private Journals $journals, private GeneralLedger $ledger) {}
 
     public function show(?int $year = null, ?int $month = null): Response
     {
@@ -70,14 +73,53 @@ class BooksController extends Controller
     public function pdf(int $year, int $month): HttpResponse
     {
         $period = $this->period($year, $month);
-        $profile = TaxProfile::current();
 
-        $document = Pdf::loadView('books.journals', [
+        return $this->document('books.journals', $period, $this->journals->forMonth($period->year, $period->month))
+            ->download(sprintf('books-%d-%02d.pdf', $period->year, $period->month));
+    }
+
+    public function general(int $year, int $month): Response
+    {
+        $today = CarbonImmutable::now();
+        $period = $this->period($year, $month);
+        $next = $period->addMonth();
+
+        return Inertia::render('books/general', [
+            'period' => ['year' => $period->year, 'month' => $period->month],
+            'previous' => $this->link($period->subMonth()),
+            'next' => $next->isAfter($today) ? null : $this->link($next),
+            'booksType' => (TaxProfile::current()->books_type ?? BooksType::Manual)->value,
+            'accounts' => array_map(fn (array $account) => $account[0], GeneralLedger::ACCOUNTS),
+            'journal' => $this->ledger->journal($period->year, $period->month),
+            'ledger' => $this->ledger->ledger($period->year, $period->month),
+        ]);
+    }
+
+    public function generalPdf(int $year, int $month): HttpResponse
+    {
+        $period = $this->period($year, $month);
+
+        return $this->document('books.general', $period, [
+            'accounts' => array_map(fn (array $account) => $account[0], GeneralLedger::ACCOUNTS),
+            'journal' => $this->ledger->journal($period->year, $period->month),
+            'ledger' => $this->ledger->ledger($period->year, $period->month),
+        ])->download(sprintf('general-journal-ledger-%d-%02d.pdf', $period->year, $period->month));
+    }
+
+    /**
+     * A month's books as a page-numbered PDF.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function document(string $view, CarbonImmutable $period, array $data): DomPdf
+    {
+        $profile = TaxProfile::current();
+        $document = Pdf::loadView($view, [
             'period' => $period,
             'profile' => $profile,
             'booksType' => $profile->books_type ?? BooksType::Manual,
             'preparedOn' => CarbonImmutable::now(),
-            ...$this->journals->forMonth($period->year, $period->month),
+            ...$data,
         ])->setPaper('a4');
 
         // DomPDF can't count pages from CSS, so number them once laid out.
@@ -93,7 +135,7 @@ class BooksController extends Controller
             [0.28, 0.33, 0.41],
         );
 
-        return $document->download(sprintf('books-%d-%02d.pdf', $period->year, $period->month));
+        return $document;
     }
 
     private function period(int $year, int $month): CarbonImmutable

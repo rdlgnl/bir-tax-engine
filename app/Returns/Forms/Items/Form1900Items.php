@@ -13,7 +13,7 @@ use App\Profiles\Models\TaxProfile;
 class Form1900Items extends ProfileFormItems
 {
     /** The books BuwisBuddy prints each month, from the Books screen. */
-    public const BOOKS = ['CASH RECEIPTS JOURNAL', 'CASH DISBURSEMENTS JOURNAL'];
+    public const BOOKS = ['CASH RECEIPTS JOURNAL', 'CASH DISBURSEMENTS JOURNAL', 'GENERAL JOURNAL', 'GENERAL LEDGER'];
 
     /**
      * @return Values

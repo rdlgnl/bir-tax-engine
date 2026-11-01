@@ -27,3 +27,36 @@ export type JournalTotals = {
     received: number;
     disbursed: number;
 };
+
+/** App\Books\Services\GeneralLedger */
+export type JournalLine = { account: number; debit: number; credit: number };
+
+export type JournalEntry = {
+    ref: string;
+    date: string;
+    description: string;
+    lines: JournalLine[];
+};
+
+export type LedgerAccount = {
+    code: number;
+    name: string;
+    opening: number;
+    debits: number;
+    credits: number;
+    closing: number;
+    postings: {
+        ref: string;
+        date: string;
+        description: string;
+        debit: number;
+        credit: number;
+        balance: number;
+    }[];
+};
+
+export type Ledger = {
+    accounts: LedgerAccount[];
+    debits: number;
+    credits: number;
+};

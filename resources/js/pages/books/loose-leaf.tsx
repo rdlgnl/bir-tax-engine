@@ -68,8 +68,9 @@ export default function LooseLeaf({
 
                     <SectionCard title="Every year">
                         <StepList>
-                            <Step n={1} done title="Print monthly journals">
-                                Page-numbered,{' '}
+                            <Step n={1} done title="Print monthly books">
+                                The cash journals, general journal and ledger,
+                                page-numbered,{' '}
                                 <Link
                                     href={books().url}
                                     className="font-bold text-primary hover:underline"
@@ -82,7 +83,7 @@ export default function LooseLeaf({
                                 title={`Bind within ${bindWithinDays} days after year end`}
                             >
                                 The cash receipts and cash disbursements
-                                journals, with your general journal and ledger
+                                journals, with the general journal and ledger
                             </Step>
                             <Step
                                 n={3}
