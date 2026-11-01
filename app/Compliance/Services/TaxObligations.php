@@ -3,6 +3,8 @@
 namespace App\Compliance\Services;
 
 use App\Compliance\Models\CompensationCertificate;
+use App\Loans\Models\Loan;
+use App\Loans\Services\LoanTax;
 use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
@@ -30,7 +32,7 @@ use Illuminate\Support\Str;
  *     date: string,
  *     statutory_date: string,
  *     title: string,
- *     kind: 'income_tax'|'percentage_tax'|'vat'|'withholding'|'reminder'|'decision',
+ *     kind: 'income_tax'|'percentage_tax'|'vat'|'withholding'|'dst'|'reminder'|'decision',
  *     status: 'open'|'due'|'overdue'|'filed'|'reminder',
  *     amount: float|null,
  *     note: string|null,
@@ -73,6 +75,7 @@ class TaxObligations
         private FilingCalendar $calendar,
         private VatCalculator $vat,
         private WithholdingAgent $agent,
+        private LoanTax $loans,
     ) {}
 
     /**
@@ -214,6 +217,26 @@ class TaxObligations
             }
         }
 
+        // Form 2000 for each loan the taxpayer files the DST on themselves.
+        foreach (Loan::query()->whereYear('signed_on', $y)->where('lender_kind', 'person')->get() as $loan) {
+            $dst = $this->loans->for($loan);
+
+            if ($dst['status'] === 'filed' && ! $includeFiled) {
+                continue;
+            }
+
+            $items[] = $this->deadline(
+                date: $dst['due_date'],
+                statutoryDate: $dst['due_date'],
+                title: "Form 2000 · DST on the loan from {$loan->lender}",
+                kind: 'dst',
+                status: $dst['status'] === 'bank' ? 'due' : $dst['status'],
+                amount: $dst['total'],
+                note: null,
+                href: route('loans.show', $loan, absolute: false),
+            );
+        }
+
         if ($profile->withholding_agent) {
             foreach ($this->withholding($y, $includeFiled) as $item) {
                 $items[] = $item;
@@ -321,7 +344,7 @@ class TaxObligations
     }
 
     /**
-     * @param  'income_tax'|'percentage_tax'|'vat'|'withholding'|'reminder'|'decision'  $kind
+     * @param  'income_tax'|'percentage_tax'|'vat'|'withholding'|'dst'|'reminder'|'decision'  $kind
      * @param  'open'|'due'|'overdue'|'filed'|'reminder'  $status
      * @param  'default'|'action'  $tone
      * @return Deadline

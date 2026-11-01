@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDate, peso, plural } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { create as loansCreate } from '@/routes/loans';
 import { index, marketplace } from '@/routes/transactions';
 import {
     cancel,
@@ -75,10 +76,6 @@ const OTHER_THINGS: [string, string][] = [
     [
         'Other business income',
         'Selling old equipment, side commissions: record it as money received.',
-    ],
-    [
-        'I signed a loan',
-        'Documentary stamp tax may be due. Comes in a later update.',
     ],
     [
         'I pay an employee',
@@ -425,6 +422,20 @@ export default function ImportStatement({
                                 <span className="text-[13px] text-muted-foreground">
                                     Import the payout report: sales, fees and
                                     the platform's withholding.
+                                </span>
+                            </Link>
+                        </li>
+                        <li className="border-t border-divider py-3">
+                            <Link
+                                href={loansCreate().url}
+                                className="block hover:underline"
+                            >
+                                <span className="block text-[15px] font-bold text-primary">
+                                    I signed a loan
+                                </span>
+                                <span className="text-[13px] text-muted-foreground">
+                                    Documentary stamp tax may be due on Form
+                                    2000.
                                 </span>
                             </Link>
                         </li>

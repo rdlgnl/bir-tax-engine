@@ -6,6 +6,7 @@ use App\Profiles\Models\TaxProfile;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 
 /**
  * BIR due dates from the rule pack, moved off weekends and holidays.
@@ -69,6 +70,15 @@ class FilingCalendar
     public function withholdingQuarterlyDue(int $year, int $quarter): CarbonImmutable
     {
         return $this->nextWorkingDay(CarbonImmutable::create($year, $quarter * 3)->addMonthNoOverflow()->endOfMonth()->startOfDay());
+    }
+
+    /**
+     * Form 2000 for a document signed on a date: 5 days after that month
+     * ends, or the next working day.
+     */
+    public function dstDue(CarbonInterface $signedOn): CarbonImmutable
+    {
+        return $this->nextWorkingDay(CarbonImmutable::parse($signedOn)->endOfMonth()->startOfDay()->addDays((int) config('tax.dst.due_days_after_month')));
     }
 
     /**

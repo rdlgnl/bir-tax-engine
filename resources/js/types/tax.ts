@@ -135,6 +135,7 @@ export type Deadline = {
         | 'percentage_tax'
         | 'vat'
         | 'withholding'
+        | 'dst'
         | 'reminder'
         | 'decision';
     status: 'open' | 'due' | 'overdue' | 'filed' | 'reminder';

@@ -6,3 +6,4 @@ export type * from './tax';
 export type * from './transactions';
 export type * from './vat';
 export type * from './withholding';
+export type * from './loans';
