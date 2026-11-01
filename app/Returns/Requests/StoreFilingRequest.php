@@ -26,11 +26,14 @@ class StoreFilingRequest extends FormRequest
             'form' => [
                 'required',
                 Rule::in([...ReturnForm::INCOME_TAX_FORMS, '2551Q', '2550Q', '0619-E', '1601-EQ', '1604-E']),
-                Rule::unique('filings')->where('year', $this->integer('year'))->where('quarter', $this->integer('quarter'))
-                    ->where('month', $this->integer('month')),
+                // An amended return is filed beside the original.
+                ...($this->boolean('amendment') ? [] : [
+                    Rule::unique('filings')->where('year', $this->integer('year'))->where('quarter', $this->integer('quarter'))
+                        ->where('month', $this->integer('month'))->where('amendment', 0),
+                ]),
                 // One income tax return per period, whichever annual form it was filed on.
                 function (string $attribute, mixed $value, Closure $fail) {
-                    $income = in_array($value, ReturnForm::INCOME_TAX_FORMS, true);
+                    $income = in_array($value, ReturnForm::INCOME_TAX_FORMS, true) && ! $this->boolean('amendment');
 
                     if ($income && Filing::query()->where('year', $this->integer('year'))->where('quarter', $this->integer('quarter'))
                         ->whereIn('form', ReturnForm::INCOME_TAX_FORMS)->exists()) {
@@ -44,6 +47,7 @@ class StoreFilingRequest extends FormRequest
                     $fail('The 0619-E is for the first or second month of the quarter.');
                 }
             }],
+            'amendment' => ['sometimes', 'boolean'],
             'filed_on' => ['required', 'date', 'before_or_equal:today'],
             'reference_number' => ['nullable', 'string', 'max:60'],
             'paid' => ['required', 'boolean'],

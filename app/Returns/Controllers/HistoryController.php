@@ -4,7 +4,9 @@ namespace App\Returns\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Returns\Requests\ShowHistoryRequest;
+use App\Returns\Services\Amendments;
 use App\Returns\Services\RecordsExport;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
@@ -19,7 +21,7 @@ use Inertia\Response;
  */
 class HistoryController extends Controller
 {
-    public function __invoke(ShowHistoryRequest $request, ReturnHistory $history, ReturnForm $returns, RecordsExport $export): Response
+    public function __invoke(ShowHistoryRequest $request, ReturnHistory $history, ReturnForm $returns, RecordsExport $export, Amendments $amendments): Response
     {
         $profile = TaxProfile::current();
         $today = CarbonImmutable::now();
@@ -37,6 +39,9 @@ class HistoryController extends Controller
             $filing = $history->filingFor($selected['year'], $selected['quarter'], $selected['form']);
             $live = $returns->layout($returns->snapshot($profile, $selected['year'], $selected['quarter'], $selected['form'], $today));
             $layout = $filing ? $returns->layout($returns->snapshotOf($filing, $profile)) : $live;
+            // A filed 1701Q that changed is amended; once amended, it no longer drifts.
+            $amendable = $filing !== null && $selected['form'] === '1701Q';
+            $amendment = $amendable ? $amendments->for($profile, $selected['year'], $selected['quarter'], $today) : null;
 
             $detail = [
                 'entry' => $selected,
@@ -50,10 +55,18 @@ class HistoryController extends Controller
                     'frozen' => $filing->snapshot !== null,
                 ] : null,
                 // What the filed return would say if computed from today's records.
-                'drift' => $filing && abs($live['payable'] - $layout['payable']) >= 0.01 ? [
+                'drift' => $filing && ! ($amendable && $amendment === null) && abs($live['payable'] - $layout['payable']) >= 0.01 ? [
                     'payable_now' => $live['payable'],
                     'difference' => round($live['payable'] - $layout['payable'], 2),
                 ] : null,
+                'amendment' => $amendment === null ? null : ['extra' => $amendment['extra'], 'overpaid' => $amendment['overpaid']],
+                'amended' => $filing === null ? [] : Filing::query()->where('year', $filing->year)->where('quarter', $filing->quarter)
+                    ->where('form', $filing->form)->where('amendment', '>', 0)->orderBy('amendment')->get()
+                    ->map(fn (Filing $f) => [
+                        'number' => $f->amendment,
+                        'filed_on' => $f->filed_on->toDateString(),
+                        'amount_paid' => $f->amount_paid !== null ? (float) $f->amount_paid : null,
+                    ])->all(),
             ];
         }
 

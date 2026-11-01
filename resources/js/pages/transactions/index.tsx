@@ -41,6 +41,7 @@ type Props = {
     years: number[];
     yearGross: number;
     filedQuarters: number[];
+    yearClosed: boolean;
 };
 
 const typeOptions = [
@@ -69,6 +70,7 @@ export default function TransactionsIndex({
     years,
     yearGross,
     filedQuarters,
+    yearClosed,
 }: Props) {
     const regime = usePage().props.transactionForm?.regime ?? null;
     const [search, setSearch] = useState(filters.search);
@@ -94,7 +96,13 @@ export default function TransactionsIndex({
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
-                only: ['transactions', 'filters', 'yearGross', 'filedQuarters'],
+                only: [
+                    'transactions',
+                    'filters',
+                    'yearGross',
+                    'filedQuarters',
+                    'yearClosed',
+                ],
             },
         );
     }
@@ -114,7 +122,7 @@ export default function TransactionsIndex({
     }, [search]);
 
     function select(transaction: TransactionWithEffect) {
-        if (filedQuarters.includes(transaction.quarter)) {
+        if (yearClosed) {
             setEditing(null);
             setLockedNotice(transaction.quarter);
 
@@ -136,8 +144,9 @@ export default function TransactionsIndex({
             role="status"
             className="mb-4 rounded-xl bg-warning-soft p-3 text-[13px] text-warning"
         >
-            Q{lockedNotice} is filed, so its entries are locked. Changing them
-            needs an amended return.
+            This year's annual return is filed, so its entries are locked.
+            Changing them needs an amended annual return, which isn't available
+            yet.
         </p>
     );
 
@@ -281,8 +290,8 @@ export default function TransactionsIndex({
                         <p className="mt-4 flex items-center gap-2 text-[13px] text-muted-foreground">
                             <Lock className="size-3.5" aria-hidden />
                             {filed} {filedQuarters.length === 1 ? 'is' : 'are'}{' '}
-                            filed: changes there need an amended return, which
-                            comes in a later update.
+                            filed: changing an entry there means amending that
+                            return, which we prepare for you.
                         </p>
                     )}
                 </SectionCard>

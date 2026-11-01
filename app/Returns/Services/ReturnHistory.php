@@ -57,7 +57,7 @@ class ReturnHistory
 
     public function filingFor(int $year, int $quarter, string $form): ?Filing
     {
-        return Filing::query()->where('year', $year)->where('quarter', $quarter)->where('form', $form)->first();
+        return Filing::query()->where('year', $year)->where('quarter', $quarter)->where('form', $form)->where('amendment', 0)->first();
     }
 
     /**
@@ -67,7 +67,11 @@ class ReturnHistory
     {
         $first = Transaction::query()->min('occurred_on');
         $firstYear = min($first ? CarbonImmutable::parse($first)->year : $today->year, $today->year);
-        $filings = Filing::query()->get()->keyBy(fn (Filing $f) => "{$f->year}-{$f->quarter}-{$f->form}");
+        $all = Filing::query()->get();
+        $filings = $all->where('amendment', 0)->keyBy(fn (Filing $f) => "{$f->year}-{$f->quarter}-{$f->form}");
+        // What was paid on a return, its amendments included.
+        $paid = $all->groupBy(fn (Filing $f) => "{$f->year}-{$f->quarter}-{$f->form}")
+            ->map(fn ($group) => $group->whereNotNull('amount_paid')->isEmpty() ? null : (float) $group->sum(fn (Filing $f) => (float) $f->amount_paid));
         $entries = [];
 
         for ($year = $today->year; $year >= $firstYear; $year--) {
@@ -84,8 +88,8 @@ class ReturnHistory
                     $filing = $filings->get("{$year}-{$quarter}-{$form}");
                     $percentageTax = $form === '2551Q';
                     $isVat = $form === '2550Q';
-                    $amount = $filing?->amount_paid !== null
-                        ? (float) $filing->amount_paid
+                    $amount = $filing !== null && $paid->get("{$year}-{$quarter}-{$form}") !== null
+                        ? (float) $paid->get("{$year}-{$quarter}-{$form}")
                         : (float) match (true) {
                             $isVat => $vat[$quarter]['payable'],
                             $percentageTax => $figures['percentage_tax'],

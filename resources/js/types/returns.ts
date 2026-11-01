@@ -60,6 +60,10 @@ export type HistoryDetail = {
         frozen: boolean;
     } | null;
     drift: { payable_now: number; difference: number } | null;
+    /** A filed 1701Q that changed since and needs amending. */
+    amendment: { extra: number; overpaid: number } | null;
+    /** Amended returns filed for this one. */
+    amended: { number: number; filed_on: string; amount_paid: number | null }[];
 };
 
 export type ReportYear = { year: number; sawt_quarters: number[] };

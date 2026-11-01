@@ -2,9 +2,8 @@
 
 namespace App\Transactions\Requests;
 
-use App\Compliance\Rules\NotInFiledQuarter;
+use App\Compliance\Rules\NotInClosedYear;
 use App\Profiles\Models\TaxProfile;
-use App\Returns\Models\Filing;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Enums\VatKind;
@@ -25,7 +24,7 @@ class SaveTransactionRequest extends FormRequest
     {
         return [
             'type' => ['required', Rule::enum(TransactionType::class)],
-            'occurred_on' => ['required', 'date', 'before_or_equal:today', new NotInFiledQuarter],
+            'occurred_on' => ['required', 'date', 'before_or_equal:today', new NotInClosedYear],
             'counterparty' => ['required', 'string', 'max:120'],
             'amount' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:999999999.99'],
             'tax_withheld' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'lt:amount'],
@@ -51,9 +50,9 @@ class SaveTransactionRequest extends FormRequest
         return [function (Validator $validator) {
             $existing = $this->route('transaction');
 
-            // Moving an entry out of a filed quarter changes that quarter too.
-            if ($existing instanceof Transaction && Filing::incomeTaxReturnCovering($existing->occurred_on) !== null) {
-                $validator->errors()->add('occurred_on', NotInFiledQuarter::message($existing->occurred_on));
+            // Moving an entry out of a closed year changes that year too.
+            if ($existing instanceof Transaction && NotInClosedYear::closes($existing->occurred_on)) {
+                $validator->errors()->add('occurred_on', NotInClosedYear::message($existing->occurred_on));
             }
         }];
     }

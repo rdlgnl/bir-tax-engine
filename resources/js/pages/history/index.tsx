@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { formatDate, formAmount, peso, signedPeso } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { history } from '@/routes';
-import { pdf, show as prepare } from '@/routes/returns';
+import { amend, pdf, show as prepare } from '@/routes/returns';
 import type { HistoryDetail, HistoryEntry, ReportYear } from '@/types';
 
 type Props = {
@@ -174,7 +174,7 @@ function EntryStatus({ entry }: { entry: HistoryEntry }) {
 }
 
 function Detail({ detail }: { detail: HistoryDetail }) {
-    const { entry, layout, filing, drift } = detail;
+    const { entry, layout, filing, drift, amendment, amended } = detail;
     const args: [number, number, string] = [
         entry.year,
         entry.quarter,
@@ -241,10 +241,31 @@ function Detail({ detail }: { detail: HistoryDetail }) {
                     Your records changed after you filed. Computed today this
                     return would be {peso(drift.payable_now)} (
                     {signedPeso(drift.difference)}). The filed figures above
-                    stay as they were; an amended return will reconcile them in
-                    a later update.
+                    stay as they were.{' '}
+                    {amendment && (
+                        <Link
+                            href={amend(args).url}
+                            className="font-bold underline"
+                        >
+                            Amend Q{entry.quarter}
+                            {amendment.extra > 0
+                                ? ` · ${peso(amendment.extra)} more to pay`
+                                : ''}
+                        </Link>
+                    )}
                 </p>
             )}
+
+            {amended.map((a) => (
+                <p key={a.number} className="text-sm text-slate-700">
+                    Amended return{amended.length > 1 ? ` ${a.number}` : ''}{' '}
+                    filed {formatDate(a.filed_on, 'long')}
+                    {a.amount_paid !== null
+                        ? ` · paid ${peso(a.amount_paid)}`
+                        : ''}
+                    .
+                </p>
+            ))}
 
             {filing && (
                 <p className="text-sm text-slate-700">

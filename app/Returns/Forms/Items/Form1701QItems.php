@@ -31,7 +31,8 @@ class Form1701QItems extends FormItems
         ]) + [
             '1' => (string) $snapshot['year'],
             "2.{$snapshot['quarter']}" => true,
-            '3.no' => true,
+            '3.yes' => $snapshot['amendment'] !== null,
+            '3.no' => $snapshot['amendment'] === null,
             $taxpayer['income'] === 'profession' ? '7.professional' : '7.single_proprietor' => true,
             "atc.{$taxpayer['atc']}" => true,
             '15.no' => true,
@@ -78,7 +79,9 @@ class Form1701QItems extends FormItems
         $paid = $this->peso($f['prior_payments']);
         $withheldBefore = $this->peso($f['withheld'] - $f['quarter_withheld']);
         $withheldNow = $this->peso($f['quarter_withheld']);
-        $credits = $paid + $withheldBefore + $withheldNow;
+        // An amended return credits what the returns filed before it paid.
+        $previouslyFiled = $this->peso($snapshot['amendment']['previously_paid'] ?? 0.0);
+        $credits = $paid + $withheldBefore + $withheldNow + $previouslyFiled;
         $payable = $taxDue - $credits;
         [$surcharge, $interest, $penalties] = $this->penalties($snapshot);
 
@@ -88,6 +91,7 @@ class Form1701QItems extends FormItems
             '56A' => $paid,
             '57A' => $withheldBefore,
             '58A' => $withheldNow,
+            '59A' => $previouslyFiled,
             '62A' => $credits,
             '63A' => $payable,
             '67A' => $penalties,

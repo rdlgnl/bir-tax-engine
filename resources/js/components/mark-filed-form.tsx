@@ -13,6 +13,7 @@ import { store } from '@/routes/filings';
 type Channel = 'online' | 'bank' | 'bir_office';
 
 type FilingForm = {
+    amendment: boolean;
     year: number;
     quarter: number;
     month: number | null;
@@ -30,6 +31,8 @@ type Props = {
     quarter: number;
     /** For a monthly form (0619-E). */
     month?: number | null;
+    /** An amended return, filed beside the original. */
+    amendment?: boolean;
     form: string;
     amountDue: number;
 };
@@ -39,19 +42,22 @@ export function MarkFiledForm({
     year,
     quarter,
     month = null,
+    amendment = false,
     form: formName,
     amountDue,
 }: Props) {
-    const name =
-        month !== null
-            ? new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
-                  new Date(year, month - 1, 1),
-              )
-            : quarter === 4 && !['2551Q', '2550Q', '1601-EQ'].includes(formName)
-              ? `the ${year} annual return`
-              : `Q${quarter}`;
+    const name = amendment
+        ? `Q${quarter}'s amended return`
+        : month !== null
+          ? new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
+                new Date(year, month - 1, 1),
+            )
+          : quarter === 4 && !['2551Q', '2550Q', '1601-EQ'].includes(formName)
+            ? `the ${year} annual return`
+            : `Q${quarter}`;
     const [sameNumbers, setSameNumbers] = useState(true);
     const form = useForm<FilingForm>({
+        amendment,
         year,
         quarter,
         month,

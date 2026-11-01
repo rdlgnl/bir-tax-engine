@@ -57,8 +57,10 @@ use Illuminate\Support\Str;
  *     rules: list<string>,
  *     taken_at: string,
  *     penalties: Penalty|null,
+ *     amendment: AmendmentInfo|null,
  *     vat?: VatQuarter,
  * }
+ * @phpstan-type AmendmentInfo array{number: int, previously_paid: float, original_filed_on: string, on_time: bool}
  * @phpstan-type LegacySnapshot array{
  *     form: string,
  *     year: int,
@@ -86,6 +88,7 @@ use Illuminate\Support\Str;
  *     lines: list<Line>,
  *     payable: float,
  *     penalties: Penalty|null,
+ *     amendment: AmendmentInfo|null,
  *     total_payable: float,
  *     overpayment: float,
  *     rule_pack: string,
@@ -155,7 +158,26 @@ class ReturnForm
             'rules' => $this->rulesUsed($profile, $form, $result['quarters'][$quarter]),
             'taken_at' => ($today ?? CarbonImmutable::now())->toIso8601String(),
             'penalties' => $this->latePenalties($result['quarters'][$quarter], $form, $result['gross'], $today ?? CarbonImmutable::now()),
+            'amendment' => null,
         ] + ($form === '2550Q' ? ['vat' => $this->vat->forYear($year, $today)[$quarter]] : []);
+    }
+
+    /**
+     * An amended return for a filed quarter: today's figures, less what was
+     * paid on the returns filed before, with only the penalties for the
+     * difference.
+     *
+     * @param  AmendmentInfo  $amendment
+     * @param  Penalty|null  $penalties
+     * @return Snapshot
+     */
+    public function amendedSnapshot(TaxProfile $profile, int $year, int $quarter, string $form, array $amendment, ?array $penalties, ?CarbonImmutable $today = null): array
+    {
+        return [
+            ...$this->snapshot($profile, $year, $quarter, $form, $today),
+            'amendment' => $amendment,
+            'penalties' => $penalties,
+        ];
     }
 
     /**
@@ -197,6 +219,7 @@ class ReturnForm
             // Returns filed before salaries were recorded had none.
             'figures' => $snapshot['figures'] + ['compensation' => null],
             'penalties' => $snapshot['penalties'] ?? null,
+            'amendment' => $snapshot['amendment'] ?? null,
             'previous_figures' => $snapshot['previous_figures'] ?? $now['previous_figures'],
         ];
     }
@@ -213,6 +236,8 @@ class ReturnForm
         $payable = match (true) {
             $vat !== null => $vat['payable'],
             $percentageTax => (float) $f['percentage_tax'],
+            // An amended return pays only what the earlier returns didn't.
+            $snapshot['amendment'] !== null => max(0.0, round($f['due'] - $snapshot['amendment']['previously_paid'], 2)),
             default => $f['due'],
         };
 
@@ -253,10 +278,12 @@ class ReturnForm
             },
             'payable' => $payable,
             'penalties' => $snapshot['penalties'],
+            'amendment' => $snapshot['amendment'],
             'total_payable' => round($payable + ($snapshot['penalties']['total'] ?? 0.0), 2),
             'overpayment' => match (true) {
                 $vat !== null => $vat['excess'],
                 $percentageTax => 0.0,
+                $snapshot['amendment'] !== null => max(0.0, round($snapshot['amendment']['previously_paid'] - $f['due'], 2)),
                 default => $f['excess_credit'],
             },
             'rule_pack' => $snapshot['rule_pack'],
@@ -324,14 +351,22 @@ class ReturnForm
             $lines[] = $this->line('Less: creditable tax withheld, this quarter', $f['quarter_withheld'], 'subtract');
         }
 
-        $lines[] = $f['excess_credit'] > 0 && $f['due'] <= 0
-            ? $this->line('Overpayment', $f['excess_credit'], 'total')
-            : $this->line('Tax payable', $f['due'], 'total');
+        if (($amendment = $snapshot['amendment']) !== null) {
+            $lines[] = $this->line('Less: tax paid in the return previously filed', $amendment['previously_paid'], 'subtract');
+            $difference = round($f['due'] - $amendment['previously_paid'], 2);
+            $lines[] = $difference < 0
+                ? $this->line('Overpayment', -$difference, 'total')
+                : $this->line('Tax payable', $difference, 'total');
+        } else {
+            $lines[] = $f['excess_credit'] > 0 && $f['due'] <= 0
+                ? $this->line('Overpayment', $f['excess_credit'], 'total')
+                : $this->line('Tax payable', $f['due'], 'total');
+        }
 
         if (($penalty = $snapshot['penalties']) !== null) {
             $lines[] = $this->line(sprintf('Add: surcharge (%s%%)', $this->percent($penalty['surcharge_rate'])), $penalty['surcharge']);
             $lines[] = $this->line(sprintf('Add: interest (%s%% a year, %d %s)', $this->percent($penalty['interest_rate']), $penalty['days'], $penalty['days'] === 1 ? 'day' : 'days'), $penalty['interest']);
-            $lines[] = $this->line('Total amount payable', $f['due'] + $penalty['total'], 'total');
+            $lines[] = $this->line('Total amount payable', max(0.0, $f['due'] - ($snapshot['amendment']['previously_paid'] ?? 0.0)) + $penalty['total'], 'total');
         }
 
         return $lines;

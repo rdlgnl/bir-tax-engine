@@ -3,6 +3,7 @@ import {
     CalendarClock,
     Download,
     FileCheck2,
+    FilePen,
     Scale,
     TrendingUp,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ const icons: Record<string, { icon: LucideIcon; tone: string }> = {
     certificate: { icon: FileCheck2, tone: 'bg-accent text-primary' },
     estimate: { icon: TrendingUp, tone: 'bg-accent text-primary' },
     filing: { icon: FileCheck2, tone: 'bg-success-soft text-success' },
+    amend: { icon: FilePen, tone: 'bg-warning-soft text-warning' },
     rules: { icon: Scale, tone: 'bg-accent text-primary' },
 };
 

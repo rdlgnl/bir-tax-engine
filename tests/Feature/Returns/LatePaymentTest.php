@@ -5,6 +5,7 @@ use App\Returns\Forms\OfficialForms;
 use App\Returns\Models\Filing;
 use App\Returns\Services\ReturnForm;
 use App\Tax\Services\Penalties;
+use App\Tax\Services\TaxCalculationService;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DemoTaxpayerSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -74,6 +75,9 @@ test('a late return keeps the penalties it was filed with', function () {
     $filing = Filing::query()->where('quarter', 3)->where('form', '1701Q')->sole();
 
     expect(app(ReturnForm::class)->snapshotOf($filing, TaxProfile::current())['penalties'])
-        ->toMatchArray(['total' => 1406.9, 'pay_on' => '2026-11-19']);
+        ->toMatchArray(['total' => 1406.9, 'pay_on' => '2026-11-19'])
+        // The penalties aren't tax: the annual return credits only the ₱14,000.
+        ->and($filing->taxPaid())->toBe(14000.0)
+        ->and(app(TaxCalculationService::class)->forYear(TaxProfile::current(), 2026)['quarters'][4]['prior_payments'])->toBe(18000.0);
     $this->get('/file/2026/3/1701Q/late')->assertRedirect('/file/2026/3/1701Q');
 });

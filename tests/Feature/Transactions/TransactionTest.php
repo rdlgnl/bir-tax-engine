@@ -93,14 +93,21 @@ test('entries are validated', function (array $data, string $field, ?string $mes
     'unknown type' => [['type' => 'gift'], 'type'],
 ]);
 
-test('nothing can be added to a filed quarter', function () {
-    $this->post('/transactions', payment(['occurred_on' => '2026-05-20']))
-        ->assertSessionHasErrors(['occurred_on' => "Q2 2026 is already filed. Changing it needs an amended return, which isn't available yet."]);
+test('a filed quarter can still change; its return is then amended', function () {
+    $this->post('/transactions', payment(['occurred_on' => '2026-05-20']))->assertSessionHasNoErrors();
+
+    $filed = Transaction::query()->whereDate('occurred_on', '2026-05-28')->first();
+    $this->put("/transactions/{$filed->id}", payment(['occurred_on' => '2026-05-28', 'amount' => '61000']))->assertSessionHasNoErrors();
+
+    expect($filed->fresh()->amount)->toBe('61000.00');
 });
 
-test('entries in a filed quarter can be neither moved, changed nor deleted', function () {
+test('nothing in a year whose annual return is filed can be added, moved, changed or deleted', function () {
+    Filing::factory()->create(['year' => 2026, 'quarter' => 4, 'form' => '1701-MS', 'filed_on' => '2026-10-27']);
     $filed = Transaction::query()->whereDate('occurred_on', '2026-05-28')->first();
 
+    $this->post('/transactions', payment(['occurred_on' => '2026-05-20']))
+        ->assertSessionHasErrors(['occurred_on' => "Your 2026 annual return is already filed. Changing that year needs an amended annual return, which isn't available yet."]);
     $this->put("/transactions/{$filed->id}", payment(['occurred_on' => '2026-10-01']))->assertSessionHasErrors('occurred_on');
     $this->delete("/transactions/{$filed->id}")->assertSessionHasErrors('transaction');
 
