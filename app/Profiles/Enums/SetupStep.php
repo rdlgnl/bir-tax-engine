@@ -7,13 +7,15 @@ use App\Tax\Enums\Regime;
 
 /**
  * The setup wizard, in order. Some steps only apply to some taxpayers:
- * salaried-only people skip the business questions, and only graduated
- * rates ask about expenses.
+ * salaried-only people skip the business questions, only those with a job
+ * and a business are asked about the job, and only graduated rates ask
+ * about expenses.
  */
 enum SetupStep: string
 {
     case Income = 'income';
     case Work = 'work';
+    case Job = 'job';
     case About = 'about';
     case Certificate = 'certificate';
     case Estimate = 'estimate';
@@ -27,6 +29,7 @@ enum SetupStep: string
         return match ($this) {
             self::Income => 'How you earn',
             self::Work => 'What you do',
+            self::Job => 'Your job',
             self::About => 'About you',
             self::Certificate => 'BIR certificate (COR)',
             self::Estimate => 'Expected income',
@@ -43,7 +46,11 @@ enum SetupStep: string
             return in_array($this, [self::Income, self::About, self::Summary], true);
         }
 
-        return $this !== self::Expenses || $profile->regime === Regime::Graduated;
+        return match ($this) {
+            self::Job => $profile->income_source === IncomeSource::Both,
+            self::Expenses => $profile->regime === Regime::Graduated,
+            default => true,
+        };
     }
 
     public function isAnswered(TaxProfile $profile): bool
@@ -51,6 +58,7 @@ enum SetupStep: string
         return match ($this) {
             self::Income => $profile->income_source !== null,
             self::Work => $profile->work_type !== null,
+            self::Job => $profile->monthly_salary !== null,
             self::About => filled($profile->full_name),
             self::Certificate => ! $profile->bir_registered || filled($profile->tin),
             self::Estimate => $profile->expected_income !== null,

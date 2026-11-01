@@ -9,6 +9,7 @@ import {
     EstimateStep,
     ExpensesStep,
     IncomeStep,
+    JobStep,
     MethodStep,
     WithholdingStep,
     WorkStep,
@@ -38,6 +39,7 @@ type Props = {
 const timeLeft: Record<SetupStepKey, string> = {
     income: 'About 2 minutes left',
     work: 'About 2 minutes left',
+    job: 'About 2 minutes left',
     about: 'About 90 seconds left',
     certificate: 'About 1 minute left',
     estimate: 'About 45 seconds left',
@@ -183,6 +185,7 @@ export default function SetupShow({
                                     <IncomeStep form={form} />
                                 )}
                                 {step === 'work' && <WorkStep form={form} />}
+                                {step === 'job' && <JobStep form={form} />}
                                 {step === 'about' && <AboutStep form={form} />}
                                 {step === 'certificate' && (
                                     <CertificateStep form={form} />

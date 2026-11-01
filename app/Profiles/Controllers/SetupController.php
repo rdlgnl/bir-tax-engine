@@ -48,6 +48,8 @@ class SetupController extends Controller
                 'income_source' => $profile->income_source?->value,
                 'work_type' => $profile->work_type?->value,
                 'profession' => $profile->profession?->value,
+                'employer_name' => $profile->employer_name,
+                'monthly_salary' => $profile->monthly_salary !== null ? (float) $profile->monthly_salary : null,
                 'first_name' => $name['first'],
                 'middle_name' => $name['middle'],
                 'last_name' => $name['last'],
@@ -126,6 +128,7 @@ class SetupController extends Controller
         return match (true) {
             $step === SetupStep::Income && $profile->income_source !== null => "How you earn: {$profile->income_source->label()}",
             $step === SetupStep::Work && $profile->work_type !== null => "What you do: {$profile->work_type->label()}",
+            $step === SetupStep::Job && $profile->monthly_salary !== null => 'Your job: ₱'.Number::format((float) $profile->monthly_salary).' a month',
             $step === SetupStep::Estimate && $profile->expected_income !== null => 'Expected income: ₱'.Number::format((float) $profile->expected_income),
             $step === SetupStep::Method && $profile->regime !== null => "Tax method: {$profile->regime->label()}",
             default => null,

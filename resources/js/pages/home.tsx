@@ -1,8 +1,10 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Bell, Plus } from 'lucide-react';
 import { ChecklistCard } from '@/components/home/checklist-card';
+import { JobCard } from '@/components/home/job-card';
 import { NextPaymentCard } from '@/components/home/next-payment-card';
 import { QuarterCard } from '@/components/home/quarter-card';
+import { SideBusinessCard } from '@/components/home/side-business-card';
 import { UpcomingCard } from '@/components/home/upcoming-card';
 import { VatCard } from '@/components/home/vat-card';
 import { Note } from '@/components/note';
@@ -14,6 +16,7 @@ import { backup, notifications, rules } from '@/routes';
 import { index as transactionsIndex } from '@/routes/transactions';
 import type {
     Checklist,
+    HomeJob,
     NextPayment,
     QuarterResult,
     TransactionWithEffect,
@@ -31,6 +34,7 @@ type Props = {
     regime: string | null;
     vatRegistered: boolean;
     withholdingAgent: boolean;
+    job: HomeJob | null;
     checklist: Checklist;
     upcoming: Deadline[];
     recent: TransactionWithEffect[];
@@ -59,6 +63,7 @@ export default function Home({
     regime,
     vatRegistered,
     withholdingAgent,
+    job,
     checklist,
     upcoming,
     recent,
@@ -84,6 +89,12 @@ export default function Home({
                     </h1>
                 </div>
                 <div className="flex items-center gap-2.5">
+                    {job && (
+                        <span className="hidden rounded-full bg-selected px-3 py-1.5 text-sm font-bold text-accent-foreground sm:inline">
+                            Job + business
+                            {regime === 'eight_percent' && ' · 8% on business'}
+                        </span>
+                    )}
                     <Link
                         href={notifications().url}
                         aria-label={
@@ -147,13 +158,40 @@ export default function Home({
                 <NextPaymentCard payment={nextPayment} />
                 {yearStatus === 'ok' && (
                     <>
-                        <QuarterCard
-                            quarter={focus}
-                            regime={regime}
-                            vatRegistered={vatRegistered}
-                            withholdingAgent={withholdingAgent}
-                        />
+                        {job ? (
+                            <SideBusinessCard
+                                quarter={focus}
+                                regime={regime}
+                                year={Number(today.slice(0, 4))}
+                            />
+                        ) : (
+                            <QuarterCard
+                                quarter={focus}
+                                regime={regime}
+                                vatRegistered={vatRegistered}
+                                withholdingAgent={withholdingAgent}
+                            />
+                        )}
                         <ChecklistCard checklist={checklist} quarter={focus} />
+                    </>
+                )}
+                {job && (
+                    <>
+                        <JobCard job={job} year={Number(today.slice(0, 4))} />
+                        <div className="self-start">
+                            <Note
+                                tone="warning"
+                                title={`Annual return (${job.annual_form}, or 1701-MS) · by ${formatDate(job.annual_due, 'long')}`}
+                            >
+                                With a side business you can't rely on your
+                                employer's filing. You'll need your 2316
+                                {job.employer
+                                    ? ` from ${job.employer}`
+                                    : ''}{' '}
+                                (due to you by Jan 31). We'll fill the{' '}
+                                {job.annual_form} from your records.
+                            </Note>
+                        </div>
                     </>
                 )}
                 {vat && (

@@ -164,6 +164,7 @@ function TextField({
     ...props
 }: StepProps & {
     name:
+        | 'employer_name'
         | 'first_name'
         | 'middle_name'
         | 'last_name'
@@ -204,6 +205,81 @@ function TextField({
             />
             <FieldError id={`${name}-error`} message={error} />
         </div>
+    );
+}
+
+export function JobStep({ form }: StepProps) {
+    const salary = form.data.monthly_salary;
+
+    return (
+        <>
+            <Heading
+                title="Tell us about your job"
+                lead="You have a job and a side business. Your employer already takes tax from your salary; we only need it for your annual return."
+            />
+            <div className="flex max-w-xl flex-col gap-4">
+                <TextField
+                    form={form}
+                    name="employer_name"
+                    label="Employer"
+                    autoComplete="organization"
+                />
+                <div className="flex flex-col gap-1.5">
+                    <Label
+                        htmlFor="monthly_salary"
+                        className="text-[15px] font-bold"
+                    >
+                        Monthly taxable salary
+                    </Label>
+                    <MoneyInput
+                        id="monthly_salary"
+                        size="large"
+                        value={salary === null ? '' : String(salary)}
+                        onValueChange={(value) =>
+                            form.setData(
+                                'monthly_salary',
+                                value === '' ? null : Number(value),
+                            )
+                        }
+                    />
+                    {!form.errors.monthly_salary && (
+                        <p className="text-[13px] text-muted-foreground">
+                            After SSS, PhilHealth and Pag-IBIG. It's on your
+                            payslip as "taxable income."
+                        </p>
+                    )}
+                    <FieldError message={form.errors.monthly_salary} />
+                </div>
+                <div className="rounded-2xl bg-muted p-4">
+                    <p className="text-[15px] font-bold">
+                        Have your 2316 already?
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                        Your employer gives it by Jan 31. Once you can add it,
+                        we'll use its exact figures instead of the estimate.
+                    </p>
+                </div>
+                <div className="rounded-2xl border border-[#C9D7FB] bg-selected p-4 text-accent-foreground">
+                    <p className="text-[15px] font-bold">
+                        What changes for you
+                    </p>
+                    <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
+                        <li>
+                            Quarterly returns cover only your business income.
+                        </li>
+                        <li>
+                            With 8%, there's no ₱250,000 reduction, because you
+                            have a salary.
+                        </li>
+                        <li>
+                            You can't rely on your employer's filing. You file
+                            an annual return by Apr 15 (1701, or the shorter
+                            1701-MS for micro taxpayers).
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </>
     );
 }
 

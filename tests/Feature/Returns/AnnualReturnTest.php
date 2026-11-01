@@ -52,14 +52,15 @@ test('the filled 1701-MS downloads as the BIR form', function () {
     expect($response->headers->get('Content-Disposition'))->toContain('1701-MS-2026-Q4.pdf');
 });
 
-test('a mixed-income earner keeps the 1701, with no other form offered', function () {
+test('a mixed-income earner files the 1701, or the shorter 1701-MS, but not the 1701A', function () {
     TaxProfile::factory()->graduated(DeductionMethod::Osd)->create(['income_source' => 'both']);
     Transaction::factory()->on('2026-03-10')->create(['amount' => 300_000]);
 
     $this->get('/file/2026/4/1701')->assertInertia(fn (Assert $page) => $page
         ->component('returns/annual')
-        ->where('alternativeForm', null));
-    $this->get('/file/2026/4/1701-MS')->assertNotFound();
+        ->where('alternativeForm', '1701-MS'));
+    $this->get('/file/2026/4/1701-MS')->assertOk();
+    $this->get('/file/2026/4/1701A')->assertNotFound();
 });
 
 test('only one annual income tax return is marked filed, whichever form', function () {

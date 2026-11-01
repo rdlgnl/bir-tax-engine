@@ -13,6 +13,7 @@ export type ClientsWithhold = 'yes' | 'no' | 'unsure';
 export type SetupStepKey =
     | 'income'
     | 'work'
+    | 'job'
     | 'about'
     | 'certificate'
     | 'estimate'
@@ -32,6 +33,8 @@ export type SetupAnswers = {
     income_source: IncomeSource | null;
     work_type: WorkType | null;
     profession: Profession | null;
+    employer_name: string | null;
+    monthly_salary: number | null;
     first_name: string | null;
     middle_name: string | null;
     last_name: string | null;
@@ -86,4 +89,14 @@ export type NextDeadline = {
     form: string;
     quarter: number;
     amount: number | null;
+};
+
+/** HomeController: the job of someone who also has a business. */
+export type HomeJob = {
+    employer: string | null;
+    monthly_salary: number | null;
+    annual_salary: number | null;
+    employer_withholds: number | null;
+    annual_form: string;
+    annual_due: string;
 };

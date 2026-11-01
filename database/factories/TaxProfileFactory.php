@@ -84,4 +84,16 @@ class TaxProfileFactory extends Factory
     {
         return $this->state(['income_source' => IncomeSource::Both]);
     }
+
+    /**
+     * A job alongside the business, with the employer and salary recorded.
+     */
+    public function withJob(float $monthlySalary = 50_000, string $employer = 'Northwind BPO Inc.'): static
+    {
+        return $this->state([
+            'income_source' => IncomeSource::Both,
+            'employer_name' => $employer,
+            'monthly_salary' => $monthlySalary,
+        ]);
+    }
 }

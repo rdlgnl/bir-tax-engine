@@ -1,5 +1,6 @@
 <?php
 
+use App\Profiles\Controllers\JobController;
 use App\Profiles\Controllers\ProfileController;
 use App\Profiles\Controllers\RegistrationController;
 use App\Profiles\Controllers\SetupController;
@@ -14,6 +15,7 @@ Route::put('/setup/{step}', [SetupController::class, 'update'])->name('setup.upd
 
 Route::middleware('setup.complete')->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile');
+    Route::put('/profile/job', [JobController::class, 'update'])->name('profile.job');
     Route::get('/profile/registration', [RegistrationController::class, 'show'])->name('registration');
     Route::get('/profile/registration/1905', [RegistrationController::class, 'form'])->name('registration.form');
 });

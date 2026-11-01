@@ -2,12 +2,15 @@
 
 namespace App\Returns\Forms\Items;
 
+use Illuminate\Support\Str;
+
 /**
  * BIR Form 1701: the annual return for mixed-income earners and anyone on
  * itemized deductions. The fourth quarter's figures are the year's.
  *
- * The app keeps no record of salaries, so a mixed-income earner still copies
- * their compensation (Part V Schedules 1 and 2) from their 2316.
+ * A salary goes in Part V Schedules 1 and 2, its tax joins the business's
+ * (items 24-25 on graduated rates, 32 on 8%), and what the employer
+ * withheld is a credit (Part VII item 5).
  */
 class Form1701Items extends FormItems
 {
@@ -54,6 +57,29 @@ class Form1701Items extends FormItems
 
         $sales = $this->peso($f['gross']);
         $taxDue = $this->peso($f['income_tax']);
+        $salary = $f['compensation'];
+        $salaryTaxable = $salary !== null ? $this->peso($salary['taxable']) : 0;
+        $salaryTax = $salary !== null ? $this->peso($salary['tax']) : 0;
+        $salaryWithheld = $salary !== null ? $this->peso($salary['withheld']) : 0;
+        $totalTax = $taxDue + $salaryTax;
+
+        if ($salary !== null) {
+            $compensation = $this->peso($salary['gross']);
+
+            $values += [
+                'S1.1.taxpayer' => true,
+                'S1.1.employer' => $salary['employer'] !== null ? Str::upper($salary['employer']) : null,
+                'S1.1.compensation' => $compensation,
+                'S1.1.withheld' => $salaryWithheld,
+                'S1.3A.compensation' => $compensation,
+                'S1.3A.withheld' => $salaryWithheld,
+                'S2.4' => $compensation,
+                'S2.5' => $this->peso($salary['non_taxable']),
+                'S2.6' => $salaryTaxable,
+                // On graduated rates the salary is taxed together with the business (item 25).
+                ...($eightPercent ? ['S2.7' => $salaryTax] : []),
+            ];
+        }
 
         if ($eightPercent) {
             $reduction = $this->peso($f['exempt_amount']);
@@ -64,7 +90,7 @@ class Form1701Items extends FormItems
                 'S3B.29' => $reduction,
                 'S3B.30' => $sales - $reduction,
                 'S3B.31' => $taxDue,
-                'S3B.32' => $taxDue,
+                'S3B.32' => $totalTax,
             ];
         } else {
             $deduction = $this->peso($f['deduction']);
@@ -78,25 +104,26 @@ class Form1701Items extends FormItems
                     : ['S3A.17' => $deduction]),
                 'S3A.18' => $sales - $deduction,
                 'S3A.23' => $sales - $deduction,
-                'S3A.24' => $sales - $deduction,
-                'S3A.25' => $taxDue,
+                'S3A.24' => $salaryTaxable + $sales - $deduction,
+                'S3A.25' => $totalTax,
             ];
         }
 
         $paid = $this->peso($f['prior_payments']);
         $withheldBefore = $this->peso($f['withheld'] - $f['quarter_withheld']);
         $withheldNow = $this->peso($f['quarter_withheld']);
-        $credits = $paid + $withheldBefore + $withheldNow;
-        $payable = $taxDue - $credits;
+        $credits = $paid + $withheldBefore + $withheldNow + $salaryWithheld;
+        $payable = $totalTax - $credits;
 
         return $values + [
-            'VI.1' => $taxDue,
-            'VI.5' => $taxDue,
+            'VI.1' => $totalTax,
+            'VI.5' => $totalTax,
             'VII.2' => $paid,
             'VII.3' => $withheldBefore,
             'VII.4' => $withheldNow,
+            ...($salary !== null ? ['VII.5' => $salaryWithheld] : []),
             'VII.10' => $credits,
-            '22A' => $taxDue,
+            '22A' => $totalTax,
             '23A' => $credits,
             '24A' => $payable,
             '26A' => $payable,

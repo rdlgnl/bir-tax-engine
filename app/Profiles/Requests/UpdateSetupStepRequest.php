@@ -33,6 +33,10 @@ class UpdateSetupStepRequest extends FormRequest
                 'work_type' => ['required', Rule::enum(WorkType::class)],
                 'profession' => ['nullable', Rule::enum(Profession::class)],
             ],
+            SetupStep::Job => [
+                'employer_name' => ['required', 'string', 'max:120'],
+                'monthly_salary' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999'],
+            ],
             SetupStep::About => [
                 'first_name' => ['required', 'string', 'max:60'],
                 'middle_name' => ['nullable', 'string', 'max:60'],

@@ -82,6 +82,21 @@ return [
     'p4.tin' => $comb(4, 14.9, 135.1, 9, 88.5),
     'p4.last_name' => $comb(4, 208.8, 598.9, 26, 88.5),
 
+    // Part V Schedule 1: the employer, then the taxpayer's totals (3A).
+    'S1.1.taxpayer' => $check(2, 30.4, 357.4),
+    'S1.1.employer' => $comb(2, 88.9, 598.2, 35, 366.5),
+    'S1.1.tin' => $comb(2, 386.0, 598.2, 14, 382.5),
+    'S1.1.compensation' => $columnA(2, 440.0),
+    'S1.1.withheld' => ['page' => 2, 'type' => 'amount', 'x' => 462.0, 'to' => 598.2, 'cells' => 9, 'y' => 440.0],
+    'S1.3A.compensation' => $columnA(2, 473.0),
+    'S1.3A.withheld' => ['page' => 2, 'type' => 'amount', 'x' => 462.0, 'to' => 598.2, 'cells' => 9, 'y' => 473.0],
+
+    // Part V Schedule 2: taxable compensation.
+    'S2.4' => $columnA(2, 530.5),
+    'S2.5' => $columnA(2, 546.5),
+    'S2.6' => $columnA(2, 562.5),
+    'S2.7' => $columnA(2, 578.5),
+
     // Part V Schedule 3.A: business income at graduated rates.
     'S3A.8' => $columnA(2, 617.5),
     'S3A.9' => $columnA(2, 633.5),
@@ -119,5 +134,6 @@ return [
     'VII.2' => $columnA(4, 326.5),
     'VII.3' => $columnA(4, 341.5),
     'VII.4' => $columnA(4, 356.5),
+    'VII.5' => $columnA(4, 371.5),
     'VII.10' => $columnA(4, 445.5),
 ];

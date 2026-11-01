@@ -79,6 +79,7 @@ use Illuminate\Support\Str;
  *     period: string,
  *     method: string,
  *     taxpayer: array{name: string, tin: string|null, rdo: string|null, atc: string},
+ *     with_salary: bool,
  *     lines: list<Line>,
  *     payable: float,
  *     overpayment: float,
@@ -170,6 +171,8 @@ class ReturnForm
         return [
             ...$snapshot,
             'taxpayer' => $snapshot['taxpayer'] + $now['taxpayer'],
+            // Returns filed before salaries were recorded had none.
+            'figures' => $snapshot['figures'] + ['compensation' => null],
             'previous_figures' => $snapshot['previous_figures'] ?? $now['previous_figures'],
         ];
     }
@@ -218,6 +221,7 @@ class ReturnForm
                 'rdo' => $snapshot['taxpayer']['rdo'],
                 'atc' => $snapshot['taxpayer']['atc'],
             ],
+            'with_salary' => $snapshot['taxpayer']['income'] === 'mixed',
             'lines' => match (true) {
                 $vat !== null => $this->vatLines($vat),
                 $percentageTax => $this->percentageTaxLines($f),
@@ -244,6 +248,7 @@ class ReturnForm
         $f = $snapshot['figures'];
         $eightPercent = $snapshot['regime'] === Regime::EightPercent->value;
         $annual = $snapshot['quarter'] === 4;
+        $salary = $annual ? $f['compensation'] : null;
 
         $lines = $annual
             ? [$this->line('Sales/receipts for the year', $f['gross'])]
@@ -253,7 +258,11 @@ class ReturnForm
             ];
 
         if ($eightPercent) {
-            $lines[] = $this->line('Less: allowable reduction from gross sales', $f['exempt_amount'], 'subtract');
+            $lines[] = $this->line(
+                $snapshot['taxpayer']['income'] === 'mixed' ? 'Less: allowable reduction (none with a job)' : 'Less: allowable reduction from gross sales',
+                $f['exempt_amount'],
+                'subtract',
+            );
         } else {
             $lines[] = $this->line(
                 $snapshot['deduction_method'] === DeductionMethod::Itemized->value
@@ -264,12 +273,25 @@ class ReturnForm
             );
         }
 
-        $lines[] = $this->line('Taxable income to date', $f['taxable'], 'total');
-        $lines[] = $this->line($eightPercent ? 'Tax due (8%)' : 'Tax due (graduated rates)', $f['income_tax'], 'total');
+        $lines[] = $this->line($salary !== null ? 'Taxable business income' : 'Taxable income to date', $f['taxable'], 'total');
+
+        if ($salary !== null) {
+            // The salary is taxed at graduated rates; on graduated rates the business is taxed on top of it.
+            $lines[] = $this->line($eightPercent ? 'Tax due on business (8%)' : 'Tax due on business, on top of your salary', $f['income_tax']);
+            $lines[] = $this->line('Taxable salary'.($salary['employer'] !== null ? " ({$salary['employer']})" : ''), $salary['taxable']);
+            $lines[] = $this->line('Tax due on salary (graduated rates)', $salary['tax']);
+            $lines[] = $this->line('Total tax due', $f['income_tax'] + $salary['tax'], 'total');
+        } else {
+            $lines[] = $this->line($eightPercent ? 'Tax due (8%)' : 'Tax due (graduated rates)', $f['income_tax'], 'total');
+        }
 
         if ($annual) {
             $lines[] = $this->line('Less: tax paid in Q1 to Q3 returns', $f['prior_payments'], 'subtract');
             $lines[] = $this->line('Less: creditable tax withheld for the year', $f['withheld'], 'subtract');
+
+            if ($salary !== null) {
+                $lines[] = $this->line('Less: tax withheld by your employer (2316)', $salary['withheld'], 'subtract');
+            }
         } else {
             $lines[] = $this->line('Less: tax paid in previous quarters', $f['prior_payments'], 'subtract');
             $lines[] = $this->line('Less: creditable tax withheld, previous quarters', $f['withheld'] - $f['quarter_withheld'], 'subtract');

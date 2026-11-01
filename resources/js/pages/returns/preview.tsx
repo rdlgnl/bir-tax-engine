@@ -42,8 +42,16 @@ export default function ReturnPreview({
         { key: 'identity', label: 'My name, TIN and RDO are right' },
         {
             key: 'income',
-            label: `All my ${layout.quarter === 4 ? layout.year : `Q${layout.quarter}`} income is recorded`,
+            label: `All my ${layout.quarter === 4 ? layout.year : `Q${layout.quarter}`} ${layout.with_salary ? 'side ' : ''}income is recorded`,
         },
+        ...(incomeTax && layout.with_salary && layout.quarter === 4
+            ? [
+                  {
+                      key: 'salary',
+                      label: 'My salary and its tax match my 2316',
+                  },
+              ]
+            : []),
         { key: 'invoice', label: 'Sales are counted by invoice date' },
         ...(incomeTax
             ? [
@@ -254,6 +262,14 @@ export default function ReturnPreview({
                                     {check.label}
                                 </label>
                             ))}
+                            {incomeTax &&
+                                layout.with_salary &&
+                                layout.regime === 'eight_percent' && (
+                                    <p className="mt-2 text-[13px] text-warning">
+                                        No ₱250,000 reduction: it only applies
+                                        if you have no salary.
+                                    </p>
+                                )}
                             {osd && (
                                 <p className="mt-2 text-[13px] text-warning">
                                     OSD replaces all itemized expenses; receipts
@@ -293,6 +309,18 @@ export default function ReturnPreview({
                                 .
                             </p>
                         </SectionCard>
+                    )}
+
+                    {incomeTax && layout.with_salary && (
+                        <p className="flex items-start gap-2.5 rounded-2xl border border-[#C9D7FB] bg-selected px-4 py-3.5 text-sm text-accent-foreground">
+                            <Info
+                                className="mt-0.5 size-4 shrink-0"
+                                aria-hidden
+                            />
+                            {layout.quarter === 4
+                                ? 'Your salary is on this return with your business. What your employer withheld counts against the tax.'
+                                : 'Only your business income goes on the quarterly return. Your salary is taxed by your employer and comes back in your annual return.'}
+                        </p>
                     )}
 
                     <p className="flex items-start gap-2.5 rounded-2xl border border-[#C9D7FB] bg-selected px-4 py-3.5 text-sm text-accent-foreground">
