@@ -14,6 +14,7 @@ use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Returns\Services\FinancialStatements;
 use App\Returns\Services\ReturnHistory;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
@@ -574,6 +575,24 @@ class TaxObligations
     }
 
     /**
+     * The annual return's financial statements, when it needs them: ticked
+     * once the return is filed, since they go in with it through eAFS.
+     *
+     * @param  QuarterResult  $quarter
+     * @return list<ChecklistItem>
+     */
+    private function statementsItem(array $quarter, bool $filed): array
+    {
+        $needed = $quarter['quarter'] === 4 ? FinancialStatements::required($quarter['regime'], $quarter['deduction_method'], $quarter['gross']) : 'none';
+
+        return match ($needed) {
+            'none' => [],
+            'audited' => [$this->item('statements', 'Audited financial statements', $filed, 'Sales over ₱3,000,000: audited by an independent CPA, through eAFS')],
+            'unaudited' => [$this->item('statements', 'Financial statements', $filed, 'Or an Account Information Form, through eAFS')],
+        };
+    }
+
+    /**
      * The quarter's to-do list, as shown on the compliance page and card.
      *
      * @param  QuarterResult  $quarter
@@ -624,6 +643,7 @@ class TaxObligations
                     Filing::query()->where('year', $year)->where('quarter', $quarter['quarter'])->where('form', '2551Q')->exists(),
                     $this->peso((float) $quarter['percentage_tax']).' · due '.$this->calendar->percentageTaxDue($year, $quarter['quarter'])->format('M j'))
                 : $this->item('percentage_tax', 'No percentage tax due', true, $quarter['regime'] === Regime::Graduated->value ? 'VAT applies after passing ₱3,000,000' : '8% option replaces 2551Q'),
+            ...$this->statementsItem($quarter, $filing !== null),
             $this->item('filed', 'Return filed', $filing !== null,
                 $filing ? "Filed {$filing->filed_on->format('M j')}" : "{$quarter['form']} · due {$dueOn}",
                 action: $filing === null && $ended ? 'file' : null),

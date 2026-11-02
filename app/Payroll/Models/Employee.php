@@ -50,6 +50,14 @@ class Employee extends Model
     use RecordsChanges;
 
     /**
+     * Their 2316 records go with them, one by one, so each removal is in the history.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(fn (self $employee) => EmployeeCertificate::query()->where('employee_id', $employee->id)->get()->each->delete());
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

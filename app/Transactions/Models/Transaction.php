@@ -100,6 +100,10 @@ class Transaction extends Model
                 $transaction->invoice_paid_on = $transaction->occurred_on;
             }
         });
+        // Saving or deleting a sale also relinks the client's 2307s
+        // (CertificateLinks): a certificate covers the payments it matches,
+        // so imports, edits and deletes all keep the links current without
+        // calling it themselves.
         static::saved(fn (self $transaction) => app(CertificateLinks::class)->afterChange($transaction));
         static::deleted(fn (self $transaction) => app(CertificateLinks::class)->afterChange($transaction));
     }

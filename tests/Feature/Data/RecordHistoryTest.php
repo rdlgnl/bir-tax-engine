@@ -2,6 +2,8 @@
 
 use App\Data\Models\RecordChange;
 use App\Data\Services\LocalData;
+use App\Payroll\Models\Employee;
+use App\Payroll\Models\EmployeeCertificate;
 use App\Returns\Models\Filing;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -52,4 +54,14 @@ test('a filed return lists the changes since to the records it was computed from
 test('the history is kept in backups', function () {
     expect(LocalData::TABLES)->toContain('record_changes')
         ->and(app(LocalData::class)->rows()['record_changes'])->not->toBeEmpty();
+});
+
+test('removing an employee records their 2316s going with them', function () {
+    $employee = Employee::query()->create(['first_name' => 'Joy', 'last_name' => 'Ramos', 'monthly_pay' => 30_000, 'started_on' => '2026-01-01']);
+    EmployeeCertificate::query()->create(['employee_id' => $employee->id, 'year' => 2025, 'given_on' => '2026-01-20']);
+
+    $this->delete("/payroll/employees/{$employee->id}")->assertRedirect();
+
+    expect(RecordChange::query()->where('event', 'deleted')->whereIn('subject', ['employee', 'employee_certificate'])->orderBy('id')->pluck('subject')->all())
+        ->toBe(['employee_certificate', 'employee']);
 });
