@@ -171,6 +171,23 @@ class TaxProfile extends Model
     }
 
     /**
+     * The profile once an 8% year's sales pass ₱3,000,000: graduated rates
+     * for the rest of the year (RR 8-2018). The OSD is chosen on the Q1
+     * return, which an 8% filer made for 8%, so expenses are itemized.
+     * REVIEW: whether the OSD can still be chosen after the switch.
+     * Read-only, like forYear().
+     */
+    public function onGraduatedRates(int $year): self
+    {
+        $copy = clone $this;
+        $copy->yearView = $year;
+        $copy->setAttribute('regime', Regime::Graduated);
+        $copy->setAttribute('deduction_method', $this->deduction_method ?? DeductionMethod::Itemized);
+
+        return $copy;
+    }
+
+    /**
      * Before the method or a registration changes, the years already
      * recorded keep the values they were taxed on; the change applies from
      * this year. (This year's method is locked once its Q1 return is filed.)

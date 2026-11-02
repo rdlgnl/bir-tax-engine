@@ -7,6 +7,9 @@ export type QuarterStatus = 'open' | 'due' | 'overdue' | 'filed';
 export type QuarterResult = {
     quarter: number;
     form: string;
+    /** The quarter's method: an 8% year turns graduated once it passes ₱3,000,000. */
+    regime: Regime | null;
+    deduction_method: DeductionMethod | null;
     quarter_gross: number;
     quarter_withheld: number;
     gross: number;
@@ -31,7 +34,15 @@ export type QuarterResult = {
     paid_on: string | null;
 };
 
-export type YearStatus = 'ok' | 'cannot_compute' | 'not_applicable';
+export type YearStatus = 'ok' | 'not_applicable';
+
+/** When an 8% year's sales passed ₱3,000,000 (RR 8-2018). */
+export type RegimeSwitch = {
+    month: number;
+    quarter: 1 | 2 | 3 | 4;
+    vat_from: string;
+    register_by: string;
+};
 
 export type YearResult = {
     year: number;
@@ -39,6 +50,7 @@ export type YearResult = {
     deduction_method: DeductionMethod | null;
     status: YearStatus;
     gross: number;
+    switched: RegimeSwitch | null;
     quarters: Record<1 | 2 | 3 | 4, QuarterResult>;
 };
 
@@ -87,13 +99,7 @@ export type Explanation = {
 export type RulePack = { version: string; reviewed: boolean };
 
 export type NextPayment = {
-    state:
-        | 'empty'
-        | 'cannot_compute'
-        | 'due'
-        | 'overdue'
-        | 'clear'
-        | 'not_applicable';
+    state: 'empty' | 'due' | 'overdue' | 'clear' | 'not_applicable';
     year: number;
     quarter: QuarterResult | null;
     estimate: number | null;

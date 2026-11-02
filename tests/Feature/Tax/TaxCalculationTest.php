@@ -126,11 +126,15 @@ test('itemized deductions only count expenses with valid invoices', function () 
         ->toMatchArray(['deduction' => 100_000.0, 'taxable' => 500_000.0, 'income_tax' => 42_500.0]);
 });
 
-test('the engine refuses to guess once 8% sales pass ₱3,000,000', function () {
+test('exactly ₱3,000,000 stays on 8%; a peso more moves the year to graduated rates', function () {
     $profile = TaxProfile::factory()->create();
-    Transaction::factory()->on('2026-03-01')->create(['amount' => 3_000_001]);
+    $sale = Transaction::factory()->on('2026-03-01')->create(['amount' => 3_000_000]);
 
-    expect($this->engine->forYear($profile, 2026)['status'])->toBe('cannot_compute');
+    expect($this->engine->forYear($profile, 2026))->toMatchArray(['status' => 'ok', 'switched' => null]);
+
+    $sale->update(['amount' => 3_000_001]);
+
+    expect($this->engine->forYear($profile, 2026)['switched'])->toBe(['month' => 3, 'quarter' => 1, 'vat_from' => '2026-04-01', 'register_by' => '2026-04-30']);
 });
 
 test('each transaction shows how much it moved the year’s tax', function () {

@@ -115,8 +115,9 @@ class ReturnForm
      */
     public function snapshot(TaxProfile $profile, int $year, int $quarter, string $form, ?CarbonImmutable $today = null): array
     {
-        $profile = $profile->forYear($year);
         $result = $this->engine->forYear($profile, $year, $today);
+        // The year's method, and graduated rates once an 8% year passed ₱3,000,000.
+        $profile = $this->engine->taxpayerFor($profile, $result, $quarter);
         $name = $profile->nameParts();
         $eightPercent = $profile->regime === Regime::EightPercent;
         $income = match (true) {

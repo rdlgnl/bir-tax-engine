@@ -31,14 +31,15 @@ class TaxController extends Controller
             ?? max(1, $today->quarter - 1);
 
         $transactions = Transaction::query()->forYear($year)->get();
+        $taxpayer = $engine->taxpayerFor($profile, $result, $quarter);
 
         return Inertia::render('tax/show', [
             'year' => $year,
             'quarter' => $quarter,
             'result' => $result,
-            'explanation' => $explainer->explain($profile, $year, $result['quarters'][$quarter], $transactions, $today),
+            'explanation' => $explainer->explain($taxpayer, $year, $result['quarters'][$quarter], $transactions, $today, $result['switched']),
             'methodLockedOn' => Filing::firstQuarterReturn($year)?->filed_on->toDateString(),
-            'regimeLabel' => $profile->regime?->label(),
+            'regimeLabel' => $taxpayer->regime?->label(),
             'purelySelfEmployed' => $profile->isPurelySelfEmployed(),
             'rulePack' => ['version' => config('tax.version'), 'reviewed' => config('tax.reviewed')],
         ]);

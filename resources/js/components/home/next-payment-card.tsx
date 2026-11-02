@@ -124,21 +124,6 @@ export function NextPaymentCard({ payment }: { payment: NextPayment }) {
         );
     }
 
-    if (payment.state === 'cannot_compute') {
-        return (
-            <Shell label="CAN'T COMPUTE YET">
-                <p className="text-2xl font-extrabold">
-                    We can't compute this one yet
-                </p>
-                <p className="mt-2 text-[15px] text-slate-200">
-                    You passed ₱3,000,000. The rule for moving from 8% to
-                    graduated mid-year isn't in your rule pack yet, so we won't
-                    guess. A rule update will cover it.
-                </p>
-            </Shell>
-        );
-    }
-
     if (payment.state === 'not_applicable') {
         return (
             <Shell label="NOTHING TO FILE">

@@ -1,7 +1,13 @@
 import { Link } from '@inertiajs/react';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
-import { formatDate, minusPeso, peso, periodLabel } from '@/lib/format';
+import {
+    formatDate,
+    minusPeso,
+    monthLong,
+    peso,
+    periodLabel,
+} from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { show as prepare } from '@/routes/returns';
 import { compare } from '@/routes/tax';
@@ -16,7 +22,7 @@ type Props = {
 
 /** "How we calculated it": every line of the cumulative computation. */
 export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
-    const eightPercent = year.regime === 'eight_percent';
+    const eightPercent = quarter.regime === 'eight_percent';
     const priorQuarters =
         quarter.quarter === 1 ? null : `Q1–Q${quarter.quarter - 1}`;
     const payable = quarter.status === 'due' || quarter.status === 'overdue';
@@ -45,7 +51,7 @@ export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
                 ) : (
                     <Line
                         label={
-                            year.deduction_method === 'itemized'
+                            quarter.deduction_method === 'itemized'
                                 ? 'Less: expenses with invoices'
                                 : 'Less: flat 40% deduction'
                         }
@@ -125,7 +131,11 @@ export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
                     <strong className="text-foreground">
                         {peso(quarter.percentage_tax)}
                     </strong>{' '}
-                    (3% of {peso(quarter.quarter_gross)}, Form 2551Q).
+                    (
+                    {year.switched?.quarter === quarter.quarter
+                        ? `on your sales from January to ${monthLong(year.switched.month)}`
+                        : `3% of ${peso(quarter.quarter_gross)}`}
+                    , Form 2551Q).
                 </p>
             )}
 
