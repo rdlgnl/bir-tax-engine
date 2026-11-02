@@ -2,15 +2,14 @@
 
 namespace App\Tax\Services;
 
-use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
+use App\Profiles\Models\TaxYear;
 use App\Returns\Models\Filing;
 use App\Returns\Services\ReturnForm;
-use App\Tax\Enums\BooksMethod;
-use App\Tax\Enums\DeductionMethod;
+use App\Tax\Calculation\TaxCalculator;
+use App\Tax\Calculation\TaxInputs;
+use App\Tax\Calculation\YearTaxpayer;
 use App\Tax\Enums\Regime;
-use App\Tax\Enums\TaxpayerClassification;
-use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -77,6 +76,7 @@ use Illuminate\Support\Collection;
  * @phpstan-type Switch array{month: int, quarter: int, vat_from: string, register_by: string}
  *
  * @phpstan-import-type SalaryInput from Compensation
+ * @phpstan-import-type Rules from TaxInputs
  *
  * @phpstan-type CompareOption array{
  *     key: 'eight_percent'|'graduated_osd'|'graduated_itemized',
@@ -94,6 +94,7 @@ class TaxCalculationService
         private FilingCalendar $calendar,
         private Compensation $compensation,
         private TaxRules $rules,
+        private TaxCalculator $calculator,
     ) {}
 
     /**
@@ -114,14 +115,11 @@ class TaxCalculationService
     }
 
     /**
-     * Quarterly returns are cumulative: each one computes tax on the year so
-     * far, then subtracts what earlier quarters paid and what clients withheld.
-     * Quarter 4 is the annual return.
-     *
-     * A sale counts for income tax on the books' method (accrual: its invoice
-     * date; cash: when paid), with the tax withheld from it; for percentage
-     * tax on its invoice date from April 27, 2024, when paid before. Expenses
-     * count on their date.
+     * A year's tax from the given records: gathers the inputs (each sale's
+     * dates on the books' method of the year it's dated, the year's method
+     * and registrations, its rules and due dates) and hands them to the
+     * calculator, which reads nothing else. A year the rule pack doesn't
+     * cover is refused.
      *
      * @param  Collection<int, Transaction>  $transactions
      * @param  Collection<int, Filing>  $filings
@@ -136,150 +134,83 @@ class TaxCalculationService
         CarbonImmutable $today,
         ?array $salary = null,
     ): array {
-        $today = $today->startOfDay();
-        // The year's own method and registrations, and its own rules: a year
-        // the rule pack doesn't cover is refused.
-        $base = $profile;
-        $profile = $profile->forYear($year);
-        $brackets = $this->rules->forYear($year)->brackets();
+        return $this->calculator->year($this->inputs($profile, $year, $transactions, $filings, $today, $salary));
+    }
+
+    /**
+     * @param  Collection<int, Transaction>  $transactions
+     * @param  Collection<int, Filing>  $filings
+     * @param  SalaryInput|null  $salary
+     */
+    private function inputs(TaxProfile $profile, int $year, Collection $transactions, Collection $filings, CarbonImmutable $today, ?array $salary): TaxInputs
+    {
+        $taxpayer = $profile->forYear($year);
         // Each sale on the books' method of the year it's dated, so an invoice
         // counts once when the method changes between years.
-        $methods = [$year => $profile->books_method];
-        $method = fn (Transaction $t) => $methods[$t->occurred_on->year] ??= $base->forYear($t->occurred_on->year)->books_method;
-        $income = $transactions->filter(fn (Transaction $t) => $t->incomeDate($method($t))?->year === $year)
-            ->sortBy(fn (Transaction $t) => $t->incomeDate($method($t))?->toDateString());
-        $sales = $transactions->filter(fn (Transaction $t) => $t->salesTaxDate()?->year === $year);
-        $expenses = $transactions->filter(fn (Transaction $t) => ! $t->isIncome() && $t->occurred_on->year === $year);
-        $yearGross = $this->sumCents($income, 'amount');
-
-        $status = $profile->income_source === IncomeSource::Employed ? 'not_applicable' : 'ok';
-        $switched = $this->switchToGraduated($profile, $year, $income, $method);
-        $classification = TaxpayerClassification::forYear($year, $this->pesos($yearGross));
-
-        $quarters = [];
-        $priorPaid = 0;
-        // Earlier quarters' tax that wasn't paid and isn't credited: it's still owed.
-        $unpaidEarlier = 0;
+        $methods = [$year => $taxpayer->books_method];
+        $method = function (Transaction $t) use (&$methods, $profile) {
+            return $methods[$t->occurred_on->year] ??= $profile->forYear($t->occurred_on->year)->books_method;
+        };
+        $dates = [];
+        $quarterFilings = [];
 
         foreach ([1, 2, 3, 4] as $quarter) {
-            $toDate = $income->filter(fn (Transaction $t) => $t->incomeDate($method($t))?->quarter <= $quarter);
-            $inQuarter = $income->filter(fn (Transaction $t) => $t->incomeDate($method($t))?->quarter === $quarter);
-
-            $gross = $this->sumCents($toDate, 'amount');
-            $deductible = $this->deductibleCents($expenses->filter(fn (Transaction $t) => $t->quarter() <= $quarter));
-            // The tax a client withheld counts with the income it was withheld from.
-            $withheld = $this->sumCents($toDate, 'tax_withheld');
-            $unconfirmed = $this->sumCents(
-                $toDate->filter(fn (Transaction $t) => $t->certificateStatus($today) !== CertificateStatus::Received),
-                'tax_withheld',
-            );
-            $quarterGross = $this->sumCents($inQuarter, 'amount');
-            $quarterSales = $sales->filter(fn (Transaction $t) => $t->salesTaxDate()?->quarter === $quarter);
-            // Graduated rates from the quarter an 8% year passed ₱3,000,000.
-            $taxpayer = $this->quarterTaxpayer($profile, $year, $quarter, $switched);
-
-            $tax = $this->incomeTax($taxpayer, $gross, $deductible, $brackets);
-            $compensation = null;
-            $salaryTax = 0;
-            $salaryWithheld = 0;
-
-            // The annual return adds a salary: taxed at graduated rates, with
-            // business income on graduated rates stacked on top of it, and
-            // what the employer withheld credited.
-            if ($quarter === 4 && $salary !== null && $taxpayer->regime !== null) {
-                $salaryTaxable = max(0, $this->cents($salary['gross']) - $this->cents($salary['non_taxable']));
-                $salaryTax = $this->graduated($salaryTaxable, $brackets);
-                $salaryWithheld = $salary['withheld'] === null ? $salaryTax : $this->cents($salary['withheld']);
-
-                if ($taxpayer->regime === Regime::Graduated) {
-                    $tax['tax'] = $this->stackedGraduated($salaryTaxable, $tax['taxable'], $brackets);
-                }
-
-                $compensation = [
-                    'employer' => $salary['employer'],
-                    'employer_tin' => $salary['employer_tin'],
-                    'gross' => $salary['gross'],
-                    'non_taxable' => $salary['non_taxable'],
-                    'taxable' => $this->pesos($salaryTaxable),
-                    'tax' => $this->pesos($salaryTax),
-                    'withheld' => $this->pesos($salaryWithheld),
-                    'source' => $salary['source'],
-                ];
-            }
-
-            $due = max(0, $tax['tax'] + $salaryTax - $withheld - $salaryWithheld - $priorPaid);
-
-            // A year on two methods files the 1701, not the 1701-MS (1701-MS guidelines).
-            $form = $switched !== null && $quarter === 4 ? '1701' : $this->calendar->incomeTaxForm($taxpayer, $quarter, $classification);
-            $filing = $filings->first(fn (Filing $f) => $f->quarter === $quarter && $f->amendment === 0);
-            // The tax paid for the quarter, on the original return and any amendment.
-            $quarterFilings = $filings->filter(fn (Filing $f) => $f->quarter === $quarter && $f->amount_paid !== null);
-            $quarterPaid = $quarterFilings->isEmpty() ? null : $quarterFilings->sum(fn (Filing $f) => $this->cents($f->taxPaid()));
             $statutory = $this->calendar->incomeTaxStatutoryDate($year, $quarter);
-            $dueDate = $this->calendar->nextWorkingDay($statutory);
-            $periodEnd = CarbonImmutable::create($year, $quarter * 3)->endOfMonth()->startOfDay();
+            $due = $this->calendar->nextWorkingDay($statutory);
+            $dates[$quarter] = ['statutory' => $statutory, 'due' => $due, 'moved_reason' => $this->calendar->movedReason($statutory, $due)];
 
-            $quarterStatus = match (true) {
-                $filing !== null => 'filed',
-                $today->lessThanOrEqualTo($periodEnd) => 'open',
-                $today->greaterThan($dueDate) => 'overdue',
-                default => 'due',
-            };
-
-            $quarters[$quarter] = [
-                'quarter' => $quarter,
-                'form' => $form,
-                'regime' => $taxpayer->regime?->value,
-                // Only graduated rates deduct anything.
-                'deduction_method' => $taxpayer->regime === Regime::Graduated ? $taxpayer->deduction_method?->value : null,
-                'quarter_gross' => $this->pesos($quarterGross),
-                'quarter_withheld' => $this->pesos($this->sumCents($inQuarter, 'tax_withheld')),
-                'gross' => $this->pesos($gross),
-                'deductible_expenses' => $this->pesos($deductible),
-                'exempt_amount' => $this->pesos($tax['exempt']),
-                'deduction' => $this->pesos($tax['deduction']),
-                'taxable' => $this->pesos($tax['taxable']),
-                'income_tax' => $this->pesos($tax['tax']),
-                'prior_payments' => $this->pesos($priorPaid),
-                'unpaid_earlier' => $this->pesos($unpaidEarlier),
-                'withheld' => $this->pesos($withheld),
-                'withheld_unconfirmed' => $this->pesos($unconfirmed),
-                'due' => $this->pesos($due),
-                'excess_credit' => $this->pesos(max(0, $withheld + $salaryWithheld + $priorPaid - $tax['tax'] - $salaryTax)),
-                ...$this->quarterPercentageTax($taxpayer, $year, $quarter, $quarterSales, $sales, $switched),
-                'statutory_date' => $statutory->toDateString(),
-                'due_date' => $dueDate->toDateString(),
-                'due_date_moved_reason' => $this->calendar->movedReason($statutory, $dueDate),
-                'days_left' => (int) round($today->diffInDays($dueDate, false)),
-                'status' => $quarterStatus,
-                'filed_on' => $filing?->filed_on->toDateString(),
-                'amount_paid' => $quarterPaid !== null ? $this->pesos($quarterPaid) : null,
-                'paid_on' => $filing?->paid_on?->toDateString(),
-                'compensation' => $compensation,
+            $original = $filings->first(fn (Filing $f) => $f->quarter === $quarter && $f->amendment === 0);
+            $paid = $filings->filter(fn (Filing $f) => $f->quarter === $quarter && $f->amount_paid !== null);
+            $quarterFilings[$quarter] = [
+                'filed' => $original !== null,
+                'filed_on' => $original?->filed_on->toDateString(),
+                'paid_on' => $original?->paid_on?->toDateString(),
+                'paid' => $paid->isEmpty() ? null : (int) $paid->sum(fn (Filing $f) => $this->cents($f->taxPaid())),
             ];
-
-            // What later quarters subtract: the payment recorded, or, while the
-            // quarter can still be paid on time, the tax it owes. One overdue,
-            // or filed with nothing paid, isn't credited: its tax stays in the
-            // later returns, as the 1701Q's "tax paid in previous quarters" has it.
-            $credited = match (true) {
-                $quarterPaid !== null => $quarterPaid,
-                $filing === null && $quarterStatus !== 'overdue' => $due,
-                default => 0,
-            };
-            $priorPaid += $credited;
-            $unpaidEarlier += $quarterPaid === null ? $due - $credited : max(0, $due - $quarterPaid);
         }
 
+        return new TaxInputs(
+            year: $year,
+            today: $today,
+            taxpayer: YearTaxpayer::of($taxpayer),
+            sales: array_values($transactions->filter(fn (Transaction $t) => $t->isIncome())->map(fn (Transaction $t) => [
+                'amount' => $this->cents($t->amount),
+                'withheld' => $this->cents($t->tax_withheld),
+                'confirmed' => $t->certificate_received_on !== null,
+                'income_date' => $t->incomeDate($method($t)),
+                'sales_tax_date' => $t->salesTaxDate(),
+            ])->all()),
+            expenses: array_values($transactions->filter(fn (Transaction $t) => ! $t->isIncome() && $t->occurred_on->year === $year)->map(fn (Transaction $t) => [
+                'date' => $t->occurred_on,
+                'deductible' => $t->type === TransactionType::Expense && $t->has_valid_invoice ? $this->cents($t->amount) : 0,
+            ])->all()),
+            filings: $quarterFilings,
+            rules: $this->ruleValues($year),
+            dates: $dates,
+            assignedClass: TaxYear::query()->where('year', $year)->first()?->classification,
+            salary: $salary,
+        );
+    }
+
+    /**
+     * The year's rules as the calculator takes them, amounts in centavos.
+     *
+     * @return Rules
+     */
+    private function ruleValues(int $year): array
+    {
         return [
-            'year' => $year,
-            'regime' => $profile->regime?->value,
-            'deduction_method' => $profile->deduction_method?->value,
-            'status' => $status,
-            'gross' => $this->pesos($yearGross),
-            'switched' => $switched,
-            'classification' => $classification->value,
-            'quarters' => $quarters,
+            'brackets' => $this->rules->forYear($year)->brackets(),
+            'percentage_rates' => array_combine([1, 2, 3, 4], array_map(fn (int $q) => $this->rules->forQuarter($year, $q)->rate('percentage_tax_rate'), [1, 2, 3, 4])),
+            'eight_percent_rate' => (float) config('tax.eight_percent.rate'),
+            'exempt_amount' => $this->cents(config('tax.eight_percent.exempt_amount')),
+            'gross_limit' => $this->cents(config('tax.eight_percent.gross_limit')),
+            'osd_rate' => (float) config('tax.osd_rate'),
+            'classes' => [
+                'micro' => (float) config('tax.classification.micro_below'),
+                'small' => (float) config('tax.classification.small_below'),
+                'medium' => (float) config('tax.classification.medium_below'),
+            ],
         ];
     }
 
@@ -423,35 +354,7 @@ class TaxCalculationService
      */
     private function incomeTax(TaxProfile $profile, int $gross, int $deductible, array $brackets): array
     {
-        if ($profile->income_source === IncomeSource::Employed || $profile->regime === null) {
-            return ['exempt' => 0, 'deduction' => 0, 'taxable' => 0, 'tax' => 0];
-        }
-
-        if ($profile->regime === Regime::EightPercent) {
-            $exempt = $profile->isPurelySelfEmployed()
-                ? min($gross, $this->cents(config('tax.eight_percent.exempt_amount')))
-                : 0;
-            $taxable = $gross - $exempt;
-
-            return [
-                'exempt' => $exempt,
-                'deduction' => 0,
-                'taxable' => $taxable,
-                'tax' => $this->rate($taxable, config('tax.eight_percent.rate')),
-            ];
-        }
-
-        $deduction = $profile->deduction_method === DeductionMethod::Itemized
-            ? min($gross, $deductible)
-            : $this->rate($gross, config('tax.osd_rate'));
-        $taxable = $gross - $deduction;
-
-        return [
-            'exempt' => 0,
-            'deduction' => $deduction,
-            'taxable' => $taxable,
-            'tax' => $this->graduated($taxable, $brackets),
-        ];
+        return $this->calculator->incomeTax(YearTaxpayer::of($profile), $gross, $deductible, ['brackets' => $brackets] + $this->ruleValues(CarbonImmutable::now()->year));
     }
 
     /**
@@ -491,80 +394,6 @@ class TaxCalculationService
     }
 
     /**
-     * An 8% year whose sales pass ₱3,000,000 is on graduated rates from
-     * then on, with the 8% paid before credited (RR 8-2018). The
-     * registration is updated within the next month, VAT applies from the
-     * first day of that month, and percentage tax is owed on the sales up
-     * to it. The limit is "exceeded": exactly ₱3,000,000 stays on 8%.
-     *
-     * @param  Collection<int, Transaction>  $income
-     * @param  callable(Transaction): BooksMethod  $method  each sale's books method
-     * @return Switch|null
-     */
-    private function switchToGraduated(TaxProfile $profile, int $year, Collection $income, callable $method): ?array
-    {
-        if ($profile->regime !== Regime::EightPercent) {
-            return null;
-        }
-
-        $limit = $this->cents(config('tax.eight_percent.gross_limit'));
-        $total = 0;
-
-        foreach ($income as $sale) {
-            $total += $this->cents($sale->amount);
-            $on = $sale->incomeDate($method($sale)) ?? $sale->occurred_on;
-
-            if ($total > $limit) {
-                $next = CarbonImmutable::create($year, $on->month)->addMonth();
-
-                return [
-                    'month' => $on->month,
-                    'quarter' => $on->quarter,
-                    'vat_from' => $next->toDateString(),
-                    'register_by' => $next->endOfMonth()->toDateString(),
-                ];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * A quarter's percentage tax and the sales it's on. In a year that left
-     * 8%, it's all on the 2551Q of the quarter the limit was passed: the
-     * sales from January to that month, payable then without penalty; VAT
-     * replaces it after.
-     *
-     * @param  Collection<int, Transaction>  $quarterSales
-     * @param  Collection<int, Transaction>  $sales  the year's
-     * @param  Switch|null  $switched
-     * @return array{percentage_tax: float|null, percentage_tax_base: float|null}
-     */
-    private function quarterPercentageTax(TaxProfile $taxpayer, int $year, int $quarter, Collection $quarterSales, Collection $sales, ?array $switched): array
-    {
-        $none = ['percentage_tax' => null, 'percentage_tax_base' => null];
-
-        if ($switched === null) {
-            $base = $this->sumCents($quarterSales, 'amount');
-
-            return $this->owesPercentageTax($taxpayer)
-                ? ['percentage_tax' => $this->pesos($this->rate($base, $this->rules->forQuarter($year, $quarter)->rate('percentage_tax_rate'))), 'percentage_tax_base' => $this->pesos($base)]
-                : $none;
-        }
-
-        if ($quarter !== $switched['quarter']) {
-            return $none;
-        }
-
-        $toSwitch = $sales->filter(fn (Transaction $t) => $t->salesTaxDate()?->month <= $switched['month']);
-
-        return [
-            'percentage_tax' => $this->pesos((int) $toSwitch->sum(fn (Transaction $t) => $this->percentageTaxOn($t))),
-            'percentage_tax_base' => $this->pesos($this->sumCents($toSwitch, 'amount')),
-        ];
-    }
-
-    /**
      * The percentage tax on one sale, at its quarter's rate, in centavos.
      */
     private function percentageTaxOn(Transaction $sale): int
@@ -584,17 +413,7 @@ class TaxCalculationService
      */
     private function graduated(int $taxable, array $brackets): int
     {
-        $tax = 0;
-
-        foreach ($brackets as [$over, $base, $rate]) {
-            $overCents = $this->cents($over);
-
-            if ($taxable > $overCents) {
-                $tax = $this->cents($base) + $this->rate($taxable - $overCents, $rate);
-            }
-        }
-
-        return $tax;
+        return $this->calculator->graduated($taxable, $brackets);
     }
 
     /**
@@ -606,7 +425,7 @@ class TaxCalculationService
      */
     private function stackedGraduated(int $salary, int $taxable, array $brackets): int
     {
-        return $this->graduated($salary + $taxable, $brackets) - $this->graduated($salary, $brackets);
+        return $this->calculator->stackedGraduated($salary, $taxable, $brackets);
     }
 
     /**
