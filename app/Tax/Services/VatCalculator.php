@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
  * less VAT on purchases (input tax). Sales count on their invoice date
  * (EOPT). Input VAT counts only from purchase invoices in the taxpayer's
  * name; others are listed as excluded. Excess input VAT carries over to
- * the next quarter of the year.
+ * the next quarter, from one year into the next too (NIRC Sec. 110(B)).
  *
  * @phpstan-type VatQuarter array{
  *     quarter: int,
@@ -37,6 +37,9 @@ use Illuminate\Support\Collection;
  */
 class VatCalculator
 {
+    /** @var array<int, float> each year's excess input VAT left after Q4 */
+    private array $yearEndExcess = [];
+
     public function __construct(private FilingCalendar $calendar) {}
 
     /**
@@ -47,7 +50,7 @@ class VatCalculator
         $today ??= CarbonImmutable::now();
         $transactions = Transaction::query()->forYear($year)->get();
         $filings = Filing::query()->where('year', $year)->where('form', '2550Q')->get()->keyBy('quarter');
-        $carry = 0.0;
+        $carry = $this->carriedInto($year);
         $quarters = [];
 
         foreach ([1, 2, 3, 4] as $quarter) {
@@ -71,7 +74,28 @@ class VatCalculator
             $carry = $q['excess'];
         }
 
+        $this->yearEndExcess[$year] = $carry;
+
         return $quarters;
+    }
+
+    /**
+     * The excess input VAT the year before ended with: it carries into this
+     * year's first quarter. Nothing before the first year with records.
+     */
+    private function carriedInto(int $year): float
+    {
+        $first = Transaction::query()->min('occurred_on');
+
+        if ($first === null || $year <= CarbonImmutable::parse($first)->year) {
+            return 0.0;
+        }
+
+        if (! array_key_exists($year - 1, $this->yearEndExcess)) {
+            $this->forYear($year - 1);
+        }
+
+        return $this->yearEndExcess[$year - 1];
     }
 
     /**

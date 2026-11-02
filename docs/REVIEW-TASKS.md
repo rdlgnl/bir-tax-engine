@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 22 of 76 done.
+Status: 28 of 92 done.
 
 ---
 
@@ -165,10 +165,37 @@ Do not let anyone rely on the app for real filings until these are ticked:
     - **Needs verification:** the quarterly 20% test, which today uses taxable income to date
 
 ### M10 · Excess input VAT stops at year end
-- [ ] Carry the Q4 excess into the next year's Q1 (today the carry-over resets each January in [VatCalculator.php](../app/Tax/Services/VatCalculator.php)).
+
+- [x] Carry the Q4 excess into the next year's Q1 ([VatCalculator.php](../app/Tax/Services/VatCalculator.php) works out the years before, back to the first record).
 
 **Basis (Confirmed):** NIRC Sec. 110(B), excess input tax carries over to the succeeding quarter or quarters. Row 2.7 of the rule review.
-**Tests:** Q4 excess shows as carried over in the next year's Q1; a year with no VAT purchases keeps the carry-over.
+**Done when:** a Q4 excess shows as carried over in the next year's Q1. ✔ [VatTest.php](../tests/Feature/Tax/VatTest.php)
+
+### R · Corrections from the rule research
+
+From [BIR rule review answers.md](research/BIR%20rule%20review%20answers.md). Each item still goes to the CPA with the rest of the pack (C3).
+
+Done:
+
+- [x] Loan DST: ₱1.50 per ₱200 up to June 30, 2025; 0.75% of the loan from July 1, 2025 (RA 12214, RR 19-2025). Loans under a year are prorated by days over 365, not by months. The rate shown on Form 2000 follows the loan's signing date.
+- [x] December 1601-C is due January 15; the 2316 copies go to the BIR by February 28 and show as a reminder (RR 11-2018 Sec. 2.83).
+- [x] Reduced EOPT penalties only for returns due from April 27, 2024 (RR 6-2024), and only for micro and small taxpayers. The BIR-assigned classification can be set per year on the profile; without it the app estimates from sales (RR 8-2024 thresholds: ₱3M, ₱20M, ₱1B).
+- [x] The ₱3M computerized-books rule is removed: computerized books are required only of large taxpayers (RR 9-2009).
+- [x] E-marketplace withholding note: WI760 / WC760, RR 16-2023 with the RMC 8-2024 start date.
+
+Still to build:
+
+- [ ] Payroll: the BIR's withholding table per pay period (RR 11-2018 Annex E), annualized only at year end; the ₱90,000 13th-month and other benefits, de minimis (RR 29-2025 limits from January 6, 2026), contributions and minimum-wage earners kept out of taxable pay and shown on the 2316. Replaces M3.
+- [ ] 8% to graduated: crossing ₱3M in the year switches the year to graduated and recomputes the earlier quarters (RR 8-2018 Sec. 3(D)), instead of stopping.
+- [ ] No-payment returns: a registered tax type is filed every period, even at zero (0619-E, 1601-EQ, 2551Q, 1701Q, 1702Q).
+- [ ] 5% professional fee rate (WI010) only when the payee is non-VAT and declared under ₱3M (RR 14-2018).
+- [ ] Financial statements: graduated with itemized attaches them, audited above ₱3M of gross sales (NIRC Sec. 232(A)); OSD and 8% need none. Replaces H6.
+- [ ] Filing channel: e-filing is the default; the filled PDFs are worksheets to copy, except 1701-MS. Replaces H3.
+- [ ] 1701-MS only for micro and small taxpayers.
+- [ ] Notices: the RR 4-2026 abatement (until December 31, 2026); 2550M is optional; EIS by December 31, 2026 for those covered.
+- [ ] Corporations: MCIT at the monthly average for 2023 (1.5%), MCIT from the fourth year after BIR registration, NOLCO and excess-MCIT ledgers. Feeds M4.
+- [ ] Income timing: percentage tax and VAT on the invoice date only from April 27, 2024; income tax follows the books' method for the year. Settles H2.
+- [ ] Holidays back to 2018; the annual ITR's second installment; 0619-E on eFPS by the 15th.
 
 ### M1 · Holidays beyond 2027
 

@@ -66,6 +66,17 @@ test('excess input VAT carries over to the next quarter', function () {
         ->and($quarters[3])->toMatchArray(['carried_over' => 12000.0, 'payable' => 27600.0]);
 });
 
+test('excess input VAT left after Q4 carries into the next year (NIRC Sec. 110(B))', function () {
+    // A VAT-registered year ending with more VAT on purchases than on sales.
+    Transaction::factory()->expense(validInvoice: true)->on('2025-11-10')->create(['counterparty' => 'Big Supplier', 'amount' => 200_000, 'vat_amount' => 24_000]);
+
+    $previous = app(VatCalculator::class)->forYear(2025);
+    $this_year = app(VatCalculator::class)->forYear(2026);
+
+    expect($previous[4]['excess'])->toBe(24000.0)
+        ->and($this_year[1]['carried_over'])->toBe(24000.0);
+});
+
 test('a VAT-registered taxpayer records VAT; others don’t', function () {
     vatTaxpayer();
 

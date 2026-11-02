@@ -160,7 +160,7 @@ class Payroll
                 continue;
             }
 
-            $due = $this->calendar->withholdingMonthlyDue($year, $month);
+            $due = $this->calendar->compensationMonthlyDue($year, $month);
             $filing = $filings->first(fn (Filing $f) => $f->month === $month);
             $months[] = [
                 'month' => $month,

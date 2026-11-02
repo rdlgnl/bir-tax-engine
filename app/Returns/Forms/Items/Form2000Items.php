@@ -4,6 +4,7 @@ namespace App\Returns\Forms\Items;
 
 use App\Loans\Models\Loan;
 use App\Profiles\Models\TaxProfile;
+use App\Tax\Services\DocumentaryStampTax;
 use App\Tax\Services\Penalties;
 
 /**
@@ -53,7 +54,7 @@ class Form2000Items extends ProfileFormItems
             'p2.name' => $this->name($profile),
             's1.1.atc' => (string) config('tax.dst.loan.atc'),
             's1.1.base' => (float) $loan->amount,
-            's1.1.rate' => sprintf('P%s / P%d', number_format((float) config('tax.dst.loan.rate'), 2), (int) config('tax.dst.loan.per')),
+            's1.1.rate' => app(DocumentaryStampTax::class)->rateLabel($loan->signed_on),
             's1.1.due' => $tax,
             's1.total' => $tax,
         ];

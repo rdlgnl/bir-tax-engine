@@ -18,7 +18,7 @@ test('a micro or small taxpayer pays a 10% surcharge and 6% interest a year', fu
         'surcharge' => 1400.0, 'surcharge_rate' => 0.10, 'interest' => 6.9, 'interest_rate' => 0.06, 'days' => 3,
         'compromise' => 0.0, 'total' => 1406.9, 'due_date' => '2026-11-16', 'pay_on' => '2026-11-19',
     ])
-        ->and($penalties->weeklyInterest(14_000, 695_000))->toBe(16.11)
+        ->and($penalties->weeklyInterest(14_000, CarbonImmutable::parse('2026-11-16'), 695_000))->toBe(16.11)
         // Design 9-01: an amendment of an on-time return owes interest only.
         ->and($penalties->late(1_600, CarbonImmutable::parse('2026-08-17'), CarbonImmutable::parse('2026-11-10'), 695_000, surcharge: false))
         ->toMatchArray(['surcharge' => 0.0, 'interest' => 22.36, 'days' => 85, 'total' => 22.36]);
@@ -27,6 +27,35 @@ test('a micro or small taxpayer pays a 10% surcharge and 6% interest a year', fu
 test('larger taxpayers pay the full 25% surcharge and 12% interest', function () {
     expect(app(Penalties::class)->late(100_000, CarbonImmutable::parse('2026-11-16'), CarbonImmutable::parse('2026-12-16'), 25_000_000))
         ->toMatchArray(['surcharge' => 25000.0, 'interest' => 986.3, 'days' => 30, 'total' => 25986.3]);
+});
+
+test('the reduced rates apply only to returns due from April 27, 2024 (RR 6-2024)', function () {
+    $penalties = app(Penalties::class);
+
+    expect($penalties->late(10_000, CarbonImmutable::parse('2024-04-15'), CarbonImmutable::parse('2024-05-15'), 695_000))
+        ->toMatchArray(['surcharge_rate' => 0.25, 'interest_rate' => 0.12])
+        ->and($penalties->late(10_000, CarbonImmutable::parse('2024-05-15'), CarbonImmutable::parse('2024-06-15'), 695_000))
+        ->toMatchArray(['surcharge_rate' => 0.10, 'interest_rate' => 0.06]);
+});
+
+test('the class the BIR assigned for the year decides the rates over the sales estimate', function () {
+    $this->seed(DemoTaxpayerSeeder::class);
+    $penalties = app(Penalties::class);
+
+    // ₱695,000 of sales points to micro, but the BIR classed the taxpayer medium for 2026.
+    $this->put('/profile/classification', ['year' => 2026, 'classification' => 'medium'])->assertRedirect();
+
+    expect($penalties->late(10_000, CarbonImmutable::parse('2026-11-16'), CarbonImmutable::parse('2026-11-19'), 695_000))
+        ->toMatchArray(['surcharge_rate' => 0.25, 'interest_rate' => 0.12]);
+
+    // Blank goes back to the estimate.
+    $this->put('/profile/classification', ['year' => 2026, 'classification' => null])->assertRedirect();
+
+    expect($penalties->late(10_000, CarbonImmutable::parse('2026-11-16'), CarbonImmutable::parse('2026-11-19'), 695_000))
+        ->toMatchArray(['surcharge_rate' => 0.10]);
+    $this->get('/profile')->assertInertia(fn (Assert $page) => $page
+        ->where('classification.assigned', null)
+        ->where('classification.estimate.value', 'micro'));
 });
 
 test('a return prepared after its due date adds the penalties to every figure', function () {

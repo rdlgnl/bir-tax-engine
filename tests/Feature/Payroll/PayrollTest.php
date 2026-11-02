@@ -53,13 +53,13 @@ test('a full year settles to the tax on the year’s pay, and leaving early refu
         ->and(end($left['months']))->toMatchArray(['month' => 6, 'withheld' => 0.0, 'year_end' => true]);
 });
 
-test('the 1601-C months are due on the 10th and show on the calendar', function () {
+test('the 1601-C months are due on the 10th, December’s on January 15, and show on the calendar', function () {
     joy();
     $months = app(Payroll::class)->year(2026);
 
     expect(array_column($months, 'month'))->toBe([10, 11, 12])
         ->and($months[0])->toMatchArray(['employees' => 1, 'compensation' => 30000.0, 'withheld' => 1375.0, 'due_date' => '2026-11-10', 'status' => 'due'])
-        ->and($months[2])->toMatchArray(['withheld' => 0.0, 'refund' => 2750.0, 'status' => 'open']);
+        ->and($months[2])->toMatchArray(['withheld' => 0.0, 'refund' => 2750.0, 'status' => 'open', 'due_date' => '2027-01-15']);
 
     $profile = TaxProfile::current();
     $deadlines = array_values(array_filter(
@@ -69,6 +69,11 @@ test('the 1601-C months are due on the 10th and show on the calendar', function 
 
     expect(array_column($deadlines, 'title'))->toBe(['October 1601-C · tax on salaries', 'November 1601-C · tax on salaries', 'December 1601-C · tax on salaries'])
         ->and($deadlines[0])->toMatchArray(['date' => '2026-11-10', 'amount' => 1375.0, 'href' => '/payroll/2026/10']);
+
+    // The BIR's copies of the 2316s, scanned, by February 28 (2027-02-28 is a Sunday).
+    $copies = collect(app(TaxObligations::class)->deadlines($profile, app(TaxCalculationService::class)->forYear($profile, 2026)))
+        ->firstWhere('title', '2026 2316s to the BIR · scanned copies');
+    expect($copies)->toMatchArray(['date' => '2027-03-01', 'kind' => 'reminder']);
 });
 
 test('the 1601-C is filled from the month’s payroll and marked remitted', function () {

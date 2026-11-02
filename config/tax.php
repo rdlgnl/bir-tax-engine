@@ -66,6 +66,8 @@ return [
             ],
             'percentage_tax_rate' => 0.03,
             'rule_ids' => ['graduated' => 'IT-GRAD-2018', 'percentage_tax' => 'PT-3PCT-2018'],
+            // DST on loans (Sec. 179 as TRAIN amended it): ₱1.50 for each ₱200 or fraction.
+            'dst' => ['loan' => ['per' => 200, 'rate' => 1.50]],
         ],
         // RA 11534 (CREATE): 1% percentage tax from July 1, 2020 to June 30, 2023.
         '2020-07-01' => [
@@ -96,6 +98,11 @@ return [
             'corporation' => ['mcit_rate' => 0.02],
             'rule_ids' => ['percentage_tax' => 'PT-3PCT'],
         ],
+        // RA 12214 (CMEPA) and RR 19-2025: DST on loans is 0.75% of the
+        // issue price, without rounding up to the next ₱200.
+        '2025-07-01' => [
+            'dst' => ['loan' => ['percent' => 0.0075]],
+        ],
     ],
 
     // Withholding as an agent: the tax a taxpayer keeps from what they pay
@@ -116,6 +123,11 @@ return [
         ],
         // 0619-E: day of the next month; 1601-EQ: last day of the month after the quarter.
         'monthly_due_day' => 10,
+        // 1601-C for December: January 15 (RR 2-98 Sec. 2.83 as amended).
+        'december_compensation_due_day' => 15,
+        // The employer's copies of the 2316s to the BIR, scanned, with the
+        // substituted-filing list (RR 16-2021): month and day of the next year.
+        'certificates_to_bir' => [2, 28],
         // The quarterly list of payees (QAP) filed with the 1601-EQ, in the
         // alphalist layout: header, a line per payee, control line.
         // REVIEW: check the layout and file name against the current alphalist module.
@@ -131,14 +143,21 @@ return [
         'rate' => 0.12,
     ],
 
-    'micro_taxpayer_limit' => 3_000_000,
+    // Taxpayer classes by gross sales, net of VAT (RA 11976; RR 8-2024). The
+    // BIR assigns each taxpayer's class; these only estimate it.
+    'classification' => [
+        'micro_below' => 3_000_000,
+        'small_below' => 20_000_000,
+        'medium_below' => 1_000_000_000,
+    ],
 
-    // Documentary stamp tax on a loan (NIRC section 179, as TRAIN amended
-    // it): ₱1.50 for each ₱200 or fraction, a share of it for a term under
-    // a year. Filed on Form 2000 within 5 days after the month it was signed.
-    // REVIEW: the ATC, and prorating by months rather than days.
+    // Documentary stamp tax on a loan (NIRC section 179): the rate is in
+    // `dated`, by the date the loan was signed, and a term under a year pays
+    // its share by days over 365. Filed on Form 2000 within 5 days after the
+    // month it was signed (Sec. 200), ATC DS106.
+    // REVIEW: the ATC on loans signed from July 1, 2025.
     'dst' => [
-        'loan' => ['atc' => 'DS106', 'per' => 200, 'rate' => 1.50],
+        'loan' => ['atc' => 'DS106'],
         'due_days_after_month' => 5,
     ],
 
@@ -159,18 +178,18 @@ return [
         'atc' => ['regular' => 'IC010', 'mcit' => 'IC055'],
     ],
 
-    // Paying late (NIRC sections 248-249, as the Ease of Paying Taxes Act
-    // changed them): a surcharge once, and interest a year on the unpaid tax
-    // from the due date. Micro and small taxpayers (gross sales below
-    // ₱20,000,000) pay a lower surcharge and half the interest. A compromise
-    // penalty may be added by the BIR and isn't estimated.
-    // REVIEW: rates and the threshold against the current regulations.
+    // Paying late (NIRC sections 248-249): a surcharge once, and interest a
+    // year on the unpaid tax from the due date. Micro and small taxpayers pay
+    // a 10% surcharge and half the interest, for returns due from April 27,
+    // 2024 (RA 11976; RR 6-2024). A compromise penalty may be added by the
+    // BIR and isn't estimated.
+    // REVIEW: interest on tax that was unpaid on both sides of April 27, 2024.
     'penalties' => [
         'surcharge' => 0.25,
         'interest' => 0.12,
         'reduced_surcharge' => 0.10,
         'reduced_interest' => 0.06,
-        'reduced_below' => 20_000_000,
+        'reduced_from' => '2024-04-27',
     ],
 
     // Summary Alphalist of Withholding Taxes, the file that goes with an
@@ -196,12 +215,11 @@ return [
         'fiscal_month_end' => 12,
     ],
 
-    // Books of accounts (NIRC Sec. 232 and 235, as amended by EOPT).
-    // REVIEW: confirm the sales level that requires computerized books
-    // registration before relying on it.
+    // Books of accounts (NIRC Sec. 232 and 235, as amended by EOPT): kept 5
+    // years. Computerized books are required only of large taxpayers
+    // (RR 9-2009); anyone may register them through ORUS.
     'books' => [
         'retention_years' => 5,
-        'computerized_limit' => 3_000_000,
         // Loose-leaf books are bound within this many days after year end (BIR Form 1900).
         'bind_within_days' => 15,
     ],

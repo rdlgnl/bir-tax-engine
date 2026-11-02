@@ -33,12 +33,24 @@ function loanDeadlines(): array
     return array_values(array_filter(app(TaxObligations::class)->deadlines($profile, $year), fn (array $d) => $d['kind'] === 'dst'));
 }
 
-test('DST on a loan is ₱1.50 for each ₱200 or fraction, a share of it under a year', function () {
+test('DST on a loan signed before July 2025 is ₱1.50 for each ₱200 or fraction, a share of it by days under a year', function () {
+    $dst = app(DocumentaryStampTax::class);
+    $signed = CarbonImmutable::parse('2025-01-15');
+
+    expect($dst->onLoan(500_000, $signed, 12))->toBe(3750.0)
+        ->and($dst->onLoan(500_100, $signed, 24))->toBe(3751.5)
+        // Jan 15 to Jul 15: 181 of 365 days.
+        ->and($dst->onLoan(500_000, $signed, 6))->toBe(1859.59)
+        ->and($dst->rateLabel($signed))->toBe('P1.50 / P200');
+});
+
+test('DST on a loan signed from July 1, 2025 is 0.75% of the amount, without rounding to ₱200 (RA 12214)', function () {
     $dst = app(DocumentaryStampTax::class);
 
-    expect($dst->onLoan(500_000, 12))->toBe(3750.0)
-        ->and($dst->onLoan(500_100, 24))->toBe(3751.5)
-        ->and($dst->onLoan(500_000, 6))->toBe(1875.0);
+    expect($dst->onLoan(500_000, CarbonImmutable::parse('2025-06-30'), 12))->toBe(3750.0)
+        ->and($dst->onLoan(500_100, CarbonImmutable::parse('2025-06-30'), 12))->toBe(3751.5)
+        ->and($dst->onLoan(500_100, CarbonImmutable::parse('2025-07-01'), 12))->toBe(3750.75)
+        ->and($dst->rateLabel(CarbonImmutable::parse('2025-07-01')))->toBe('0.75%');
 });
 
 test('a loan from a person is due on Form 2000 5 days after its month', function () {
@@ -74,7 +86,7 @@ test('Form 2000 is filled with the lender and the loan on Schedule 1', function 
         '1' => '102026', '2.no' => true, 'tin.1' => '123', 'tin.branch' => '00000', '5' => '028',
         '10.creditor' => true, '11' => 'RAMON CRUZ', '12' => '23456789000000',
         '14' => 3750.0, '16' => 3750.0, '17D' => null, '18' => 3750.0,
-        's1.1.atc' => 'DS106', 's1.1.base' => 500000.0, 's1.1.rate' => 'P1.50 / P200', 's1.1.due' => 3750.0, 's1.total' => 3750.0,
+        's1.1.atc' => 'DS106', 's1.1.base' => 500000.0, 's1.1.rate' => '0.75%', 's1.1.due' => 3750.0, 's1.total' => 3750.0,
     ]);
 
     $response = $this->get("/loans/{$loan->id}/pdf")->assertOk()->assertHeader('Content-Type', 'application/pdf');

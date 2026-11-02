@@ -10,6 +10,7 @@ use App\Loans\Services\LoanTax;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\Items\Form2000Items;
 use App\Returns\Forms\OfficialFormFiller;
+use App\Tax\Services\DocumentaryStampTax;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -66,13 +67,13 @@ class LoanController extends Controller
         return redirect()->route('loans.index');
     }
 
-    public function form(Loan $loan): Response
+    public function form(Loan $loan, DocumentaryStampTax $dst): Response
     {
         return Inertia::render('loans/form', [
             'loan' => $this->resource($loan),
             'edition' => (string) config('tax.forms.2000.edition'),
             'atc' => (string) config('tax.dst.loan.atc'),
-            'rate' => sprintf('%s per %d', number_format((float) config('tax.dst.loan.rate'), 2), (int) config('tax.dst.loan.per')),
+            'rate' => $dst->rateLabel($loan->signed_on),
         ]);
     }
 
