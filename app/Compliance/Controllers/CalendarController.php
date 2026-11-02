@@ -47,6 +47,7 @@ class CalendarController extends Controller
                 fn (string $date) => ['date' => $date, 'name' => $this->calendar->holidays()[$date]],
                 array_filter(array_keys($this->calendar->holidays()), $inMonth),
             )),
+            'holidaysKnown' => $this->calendar->knowsHolidays($month->year),
             'comingUp' => $this->obligations->upcoming(
                 TaxProfile::current(),
                 $this->engine->forYear(TaxProfile::current(), $today->year, $today),

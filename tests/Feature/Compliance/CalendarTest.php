@@ -19,6 +19,7 @@ test('November shows Q3 moved off the Sunday, with holidays', function () {
         ->where('deadlines.0.amount', 14000)
         ->where('holidays', [
             ['date' => '2026-11-01', 'name' => "All Saints' Day"],
+            ['date' => '2026-11-02', 'name' => "All Souls' Day"],
             ['date' => '2026-11-30', 'name' => 'Bonifacio Day'],
         ])
         ->where('comingUp.0.date', '2026-11-16'));

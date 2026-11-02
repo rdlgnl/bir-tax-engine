@@ -168,6 +168,10 @@ class FileReturnController extends Controller
             'alternativeForm' => $alternative !== $snapshot['form'] ? $alternative : null,
             'paperFiling' => $this->paperFiling($snapshot['form']),
             'financialStatements' => $this->financialStatements($snapshot),
+            // Over ₱2,000, half now and half by October 15 (NIRC Sec. 56(A)(2)).
+            'secondInstallment' => $layout['payable'] > (float) config('tax.deadlines.installment_above')
+                ? ['amount' => round($layout['payable'] / 2, 2), 'due' => $this->calendar->secondInstallmentDue($snapshot['year'])->toDateString()]
+                : null,
         ]);
     }
 

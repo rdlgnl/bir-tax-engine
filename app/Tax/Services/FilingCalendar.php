@@ -112,6 +112,17 @@ class FilingCalendar
         return $this->nextWorkingDay(CarbonImmutable::create($year + 1, 3, 1));
     }
 
+    /**
+     * The second half of a year's annual income tax, when paid in two:
+     * October 15 of the next year.
+     */
+    public function secondInstallmentDue(int $year): CarbonImmutable
+    {
+        [$month, $day] = config('tax.deadlines.second_installment');
+
+        return $this->nextWorkingDay(CarbonImmutable::create($year + 1, $month, $day));
+    }
+
     public function swornDeclarationDue(int $year): CarbonImmutable
     {
         [$month, $day] = config('tax.deadlines.sworn_declaration');
@@ -171,6 +182,21 @@ class FilingCalendar
     public function holidays(): array
     {
         return config('tax.holidays');
+    }
+
+    /**
+     * Whether the rule pack lists a year's holidays. Without them, deadlines
+     * move off weekends only.
+     */
+    public function knowsHolidays(int $year): bool
+    {
+        foreach (array_keys($this->holidays()) as $date) {
+            if (str_starts_with($date, "{$year}-")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function holidayName(CarbonImmutable $date): ?string
