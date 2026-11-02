@@ -31,6 +31,8 @@ type Props = {
     paperFiling: boolean;
     /** What goes with the return (RMC 17-2019; NIRC Sec. 232(A)). */
     financialStatements: 'none' | 'unaudited' | 'audited';
+    /** Over ₱2,000 the tax can be paid in two halves. */
+    secondInstallment: { amount: number; due: string } | null;
 };
 
 export default function AnnualReturn({
@@ -45,6 +47,7 @@ export default function AnnualReturn({
     alternativeForm,
     paperFiling,
     financialStatements,
+    secondInstallment,
 }: Props) {
     const args: [number, number, string] = [layout.year, 4, layout.form];
     const estimate = !periodEnded;
@@ -230,6 +233,15 @@ export default function AnnualReturn({
                         </StepList>
                     </SectionCard>
 
+                    {secondInstallment && (
+                        <Note title="You can pay it in two">
+                            Pay at least half, {peso(secondInstallment.amount)},
+                            with the return, and the rest by{' '}
+                            {formatDate(secondInstallment.due, 'long')}. Record
+                            what you paid when you mark it filed; the calendar
+                            reminds you of the rest.
+                        </Note>
+                    )}
                     {financialStatements === 'none' && (
                         <Note title="No financial statements needed">
                             {eightPercent

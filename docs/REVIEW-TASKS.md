@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 50 of 95 done.
+Status: 52 of 96 done.
 
 ---
 
@@ -184,16 +184,17 @@ Done:
 - [x] Notices: the RR 4-2026 abatement for micro taxpayers with returns due by the end of 2025 still unfiled, on the late return and the calendar until December 31, 2026; e-invoicing (EIS) by December 31, 2026 for online sellers that aren't micro; the 2550M is optional (RMC 52-2023); the 5% professional fee rate only for a payee who isn't VAT-registered (RR 14-2018).
 - [x] Corporations: MCIT at the months' average (1.5% for 2023, RMC 69-2023); MCIT from the fourth year after BIR registration; NOLCO (three years, five for 2020–2021) and excess MCIT (three years) carried on the 1702-RT.
 - [x] Income timing: percentage tax and VAT on the invoice date from April 27, 2024 (when paid before); income tax on the books' method per year, accrual by default; invoices record when they're paid; the books' receipts on that day (H2).
+- [x] Holidays 2018 to 2026 from each year's proclamations (nationwide regular and special non-working days, Eid included), so past deadlines and penalties move as they did; the annual tax over ₱2,000 in two halves, the second by October 15 (NIRC Sec. 56(A)(2)), on the annual page and the calendar.
 - [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
 
 Still to build:
 
 - [ ] No-payment 1702Q for a corporation with no income, and a 1601-C for months with no employees while registered for withholding on compensation (the app doesn't record that registration).
-- [ ] Holidays back to 2018; the annual ITR's second installment; 0619-E on eFPS by the 15th.
+- [ ] eFPS filers' dates (0619-E by the 15th, 1601-C by group): the app assumes eBIRForms filers, as RMC 20-2026 has the self-employed who aren't listed for eFPS.
 
 ### M1 · Holidays beyond 2027
 
-- [ ] Warn or refuse for years without a holiday list ([FilingCalendar.php](../app/Tax/Services/FilingCalendar.php)).
+- [x] Warn for years without a holiday list: the calendar says deadlines move off weekends only ([FilingCalendar.php](../app/Tax/Services/FilingCalendar.php) `knowsHolidays`).
 - [ ] Yearly holiday update as part of the rule-pack process.
 
 ---

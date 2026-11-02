@@ -369,6 +369,18 @@ class TaxObligations
                 href: route('sworn.show', $y, absolute: false));
         }
 
+        // The annual return filed with part of the tax paid: the rest is due October 15.
+        $annual = $year['quarters'][4];
+        $rest = round($annual['due'] - (float) $annual['amount_paid'], 2);
+
+        if ($annual['status'] === 'filed' && $annual['amount_paid'] !== null && $rest > 0
+            && $annual['due'] > (float) config('tax.deadlines.installment_above')) {
+            $date = $this->calendar->secondInstallmentDue($y)->toDateString();
+            $items[] = $this->deadline($date, $date, "{$y} income tax · second half", 'income_tax',
+                CarbonImmutable::now()->toDateString() > $date ? 'overdue' : 'due', $rest, null,
+                href: route('history', ['year' => $y, 'quarter' => 4], absolute: false));
+        }
+
         foreach ($this->notices($profile, $year) as $item) {
             $items[] = $item;
         }

@@ -3,6 +3,7 @@ import { CalendarPlus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ComingUp } from '@/components/calendar/coming-up';
 import { DeadlineChip } from '@/components/calendar/deadline-chip';
 import { MonthGrid } from '@/components/calendar/month-grid';
+import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
@@ -15,6 +16,8 @@ type Props = {
     today: string;
     deadlines: Deadline[];
     holidays: { date: string; name: string }[];
+    /** Whether the rule pack has this year's holidays. */
+    holidaysKnown: boolean;
     comingUp: Deadline[];
 };
 
@@ -30,6 +33,7 @@ export default function CalendarIndex({
     today,
     deadlines,
     holidays,
+    holidaysKnown,
     comingUp,
 }: Props) {
     const label = new Intl.DateTimeFormat('en-US', {
@@ -126,6 +130,16 @@ export default function CalendarIndex({
 
                 <div className="flex flex-col gap-5">
                     <ComingUp items={comingUp} today={today} />
+                    {!holidaysKnown && (
+                        <Note
+                            tone="warning"
+                            title={`No ${month.slice(0, 4)} holidays yet`}
+                        >
+                            Your rule pack doesn't have this year's holidays, so
+                            deadlines here move off weekends only. A deadline on
+                            a holiday may be a day or two later.
+                        </Note>
+                    )}
                     <SectionCard title="How dates are set">
                         <p className="text-sm text-slate-700">
                             Weekends and holidays move a deadline to the next

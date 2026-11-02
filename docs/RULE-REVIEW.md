@@ -105,12 +105,13 @@ Reference letters such as `IT-GRAD-2023` are the app's own rule ids.
 
 ## 6. Deadlines
 
-| #   | Rule as the app applies it                                                                     | Value  | Basis (to confirm)          | Periods   | Decision | Notes   |
-| --- | ---------------------------------------------------------------------------------------------- | ------ | --------------------------- | --------- | -------- | ------- |
-| 6.1 | 1701Q due May 15, Aug 15, Nov 15; annual return April 15 of the next year                      | —      | NIRC Sec. 74, 77; RR 8-2018 | 2018 →    |          |         |
-| 6.2 | A due date on a weekend or holiday moves to the next working day                               | —      | (general rule)              | —         |          |         |
-| 6.3 | Holidays used: regular holidays and the usual special non-working days, **2026 and 2027 only** | —      | Proclamations               | 2026–2027 |          | Task M1 |
-| 6.4 | Form 2000 (DST) due 5 days after the end of the month the document was signed                  | 5 days | NIRC Sec. 200               | 2018 →    |          |         |
+| #   | Rule as the app applies it                                                                                                                                                                                                     | Value           | Basis (to confirm)                           | Periods   | Decision | Notes                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------------------------------------------- | --------- | -------- | --------------------------------- |
+| 6.1 | 1701Q due May 15, Aug 15, Nov 15; annual return April 15 of the next year                                                                                                                                                      | —               | NIRC Sec. 74, 77; RR 8-2018                  | 2018 →    |          |                                   |
+| 6.2 | A due date on a weekend or holiday moves to the next working day                                                                                                                                                               | —               | RMC 65-2016                                  | —         |          |                                   |
+| 6.3 | Holidays used: each year's nationwide regular holidays and special non-working days, 2018 to 2026 (Eid included); 2027 from the usual dates. A year without a list moves deadlines off weekends only, and the calendar says so | —               | Proclamations, as timeanddate.com lists them | 2018–2027 |          | 2027's proclamation and Eid dates |
+| 6.4 | Form 2000 (DST) due 5 days after the end of the month the document was signed                                                                                                                                                  | 5 days          | NIRC Sec. 200                                | 2018 →    |          |                                   |
+| 6.5 | Annual income tax over ₱2,000 can be paid in two equal halves, the second by October 15; a return filed with part paid puts the rest on the calendar                                                                           | ₱2,000 / Oct 15 | NIRC Sec. 56(A)(2)                           | 2018 →    |          |                                   |
 
 ## 7. Documentary stamp tax on loans
 
