@@ -2,6 +2,7 @@
 
 namespace App\Profiles\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
@@ -27,6 +28,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['year', 'regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax', 'books_method', 'classification'])]
 class TaxYear extends Model
 {
+    use RecordsChanges;
+
     /** The profile's fields a year keeps its own value of. */
     public const ELECTIONS = ['regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax', 'books_method'];
 
@@ -46,5 +49,10 @@ class TaxYear extends Model
             'books_method' => BooksMethod::class,
             'classification' => TaxpayerClassification::class,
         ];
+    }
+
+    public function historyLabel(): string
+    {
+        return "{$this->year}'s tax choices";
     }
 }

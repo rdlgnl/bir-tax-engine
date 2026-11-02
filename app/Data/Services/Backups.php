@@ -2,6 +2,7 @@
 
 namespace App\Data\Services;
 
+use App\Data\Models\RecordChange;
 use App\Data\Models\Setting;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -169,7 +170,7 @@ class Backups
      */
     public function restore(string $path, string $password): void
     {
-        $this->inspect($path);
+        $made = $this->inspect($path)['made_at'];
 
         $zip = $this->open($path);
         $zip->setPassword($password);
@@ -203,6 +204,14 @@ class Backups
         $zip->close();
 
         $this->data->replace($tables['tables']);
+        // The backup brings its own history; the restore itself goes on top.
+        RecordChange::query()->create([
+            'subject' => 'backup',
+            'event' => 'restored',
+            'label' => 'Records restored from a backup'.($made !== '' ? ' made '.CarbonImmutable::parse($made)->format('M j, Y') : ''),
+            'cause' => request()->route()?->getName(),
+            'at' => CarbonImmutable::now(),
+        ]);
 
         $disk = Storage::disk('local');
         $disk->deleteDirectory(LocalData::DOCUMENTS);

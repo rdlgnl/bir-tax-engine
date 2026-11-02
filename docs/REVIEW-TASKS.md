@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 53 of 96 done.
+Status: 57 of 96 done.
 
 ---
 
@@ -115,14 +115,14 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### H4 · History of changes to records
 
-- [ ] Append-only `record_changes` table: model, record id, event, before and after (JSON), at, cause.
-- [ ] Model events on transactions, the profile, certificates, loans, employees, corporations and their quarters, letters and filings.
-- [ ] Editing or deleting in a filed quarter is shown as a change after filing, linking to the amendment.
-- [ ] Include it in backups; never erased except by "Erase all data".
+- [x] Append-only `record_changes` table: subject, record id, event, label, before and after (JSON), cause (the screen it came from), at. The model refuses edits and deletes ([RecordChange.php](../app/Data/Models/RecordChange.php)).
+- [x] Model events (the [RecordsChanges](../app/Data/Concerns/RecordsChanges.php) trait) on transactions, the profile and the years' choices, certificates, loans, employees and their 2316s, corporations and their quarters, letters, filings and issued 2307s. Bulk updates through the query builder aren't recorded.
+- [x] A filed return lists every change since to the records it was computed from (its period's sales and expenses, its year's 2307s and tax choices, the profile), under "Changes since filed" on the history page, beside the existing amendment link.
+- [x] Included in backups; a restore brings back the backup's history and adds a "restored" entry; only "Erase all data" clears it.
 
 **Why:** records are edited in place; only filed snapshots and a few notices remain.
 **Tests:** an edit after filing appears in the history; a delete leaves a record.
-**Done when:** for any filed return you can list every record change made since.
+**Done when:** for any filed return you can list every record change made since. ✔ [RecordHistoryTest.php](../tests/Feature/Data/RecordHistoryTest.php)
 
 ### H5 · Host header check (DNS rebinding)
 

@@ -2,6 +2,7 @@
 
 namespace App\Compliance\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,6 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class CompensationCertificate extends Model
 {
+    use RecordsChanges;
+
     /**
      * Get the attributes that should be cast.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Returns\Controllers;
 
+use App\Data\Services\RecordHistory;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
@@ -21,7 +22,7 @@ use Inertia\Response;
  */
 class HistoryController extends Controller
 {
-    public function __invoke(ShowHistoryRequest $request, ReturnHistory $history, ReturnForm $returns, RecordsExport $export, Amendments $amendments): Response
+    public function __invoke(ShowHistoryRequest $request, ReturnHistory $history, ReturnForm $returns, RecordsExport $export, Amendments $amendments, RecordHistory $records): Response
     {
         $profile = TaxProfile::current();
         $today = CarbonImmutable::now();
@@ -60,6 +61,8 @@ class HistoryController extends Controller
                     'difference' => round($live['payable'] - $layout['payable'], 2),
                 ] : null,
                 'amendment' => $amendment === null ? null : ['extra' => $amendment['extra'], 'overpaid' => $amendment['overpaid']],
+                // Every change since it was filed to the records it was computed from.
+                'changes' => $filing === null ? [] : $records->sinceFiling($filing),
                 'amended' => $filing === null ? [] : Filing::query()->where('year', $filing->year)->where('quarter', $filing->quarter)
                     ->where('form', $filing->form)->where('amendment', '>', 0)->orderBy('amendment')->get()
                     ->map(fn (Filing $f) => [

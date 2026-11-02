@@ -25,6 +25,13 @@ const channels: Record<string, string> = {
     bir_office: 'a BIR office',
 };
 
+const events: Record<string, string> = {
+    created: 'Added',
+    updated: 'Edited',
+    deleted: 'Deleted',
+    restored: 'Restored',
+};
+
 function key(e: { year: number; quarter: number; form: string }): string {
     return `${e.year}-${e.quarter}-${e.form}`;
 }
@@ -174,7 +181,8 @@ function EntryStatus({ entry }: { entry: HistoryEntry }) {
 }
 
 function Detail({ detail }: { detail: HistoryDetail }) {
-    const { entry, layout, filing, drift, amendment, amended } = detail;
+    const { entry, layout, filing, drift, amendment, amended, changes } =
+        detail;
     const args: [number, number, string] = [
         entry.year,
         entry.quarter,
@@ -299,6 +307,48 @@ function Detail({ detail }: { detail: HistoryDetail }) {
                     </Button>
                 )}
             </div>
+
+            {filing && (
+                <details className="rounded-xl border px-4 py-3">
+                    <summary className="cursor-pointer text-[15px] font-bold">
+                        Changes since filed · {changes.length}
+                    </summary>
+                    {changes.length === 0 ? (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            Nothing this return was computed from has changed
+                            since you marked it filed.
+                        </p>
+                    ) : (
+                        <ul className="mt-2 flex flex-col divide-y divide-divider text-sm">
+                            {changes.map((c, i) => (
+                                <li key={i} className="py-2">
+                                    <span className="block font-bold">
+                                        {events[c.event]} · {c.label}
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                        {formatDate(c.at.slice(0, 10), 'long')}{' '}
+                                        · {c.cause}
+                                    </span>
+                                    {c.event === 'updated' && (
+                                        <ul className="mt-1 text-slate-700">
+                                            {c.fields.map((f) => (
+                                                <li key={f.field}>
+                                                    {f.field.replaceAll(
+                                                        '_',
+                                                        ' ',
+                                                    )}
+                                                    : {f.before ?? '—'} →{' '}
+                                                    {f.after ?? '—'}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </details>
+            )}
 
             <details className="rounded-xl bg-muted px-4 py-3">
                 <summary className="cursor-pointer text-[15px] font-bold">

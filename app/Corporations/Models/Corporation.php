@@ -2,6 +2,7 @@
 
 namespace App\Corporations\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -42,6 +43,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Corporation extends Model
 {
+    use RecordsChanges;
+
     /**
      * The app keeps one corporation.
      */
@@ -72,5 +75,10 @@ class Corporation extends Model
             'withholding_agent' => 'boolean',
             'employees' => 'integer',
         ];
+    }
+
+    public function historyLabel(): string
+    {
+        return $this->name;
     }
 }

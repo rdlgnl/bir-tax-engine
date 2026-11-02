@@ -2,6 +2,7 @@
 
 namespace App\Payroll\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,8 @@ use Illuminate\Support\Str;
 ])]
 class Employee extends Model
 {
+    use RecordsChanges;
+
     /**
      * Get the attributes that should be cast.
      *
@@ -92,5 +95,10 @@ class Employee extends Model
 
         return $this->started_on->lessThanOrEqualTo($start->endOfMonth())
             && ($this->ended_on === null || $this->ended_on->greaterThanOrEqualTo($start));
+    }
+
+    public function historyLabel(): string
+    {
+        return "Employee {$this->name()}";
     }
 }
