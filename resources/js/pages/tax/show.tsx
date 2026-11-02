@@ -97,10 +97,10 @@ export default function TaxShow({
                         {result.switched.quarter} 2551Q, with no penalty if paid
                         on time. Sales from{' '}
                         {formatDate(result.switched.vat_from, 'long')} are
-                        subject to 12% VAT: register for VAT by{' '}
-                        {formatDate(result.switched.register_by, 'long')}.
-                        BuwisBuddy doesn't compute VAT for part of a year yet,
-                        so ask your accountant about those sales.
+                        subject to 12% VAT, on a 2550Q each quarter: register
+                        for VAT by{' '}
+                        {formatDate(result.switched.register_by, 'long')}. A
+                        sale recorded without VAT has 12% added to it.
                     </Note>
                 </div>
             )}

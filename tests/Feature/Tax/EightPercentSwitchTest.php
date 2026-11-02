@@ -5,6 +5,7 @@ use App\Profiles\Models\TaxProfile;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\VatCalculator;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -43,8 +44,9 @@ test('the switch quarter files a graduated 1701Q and a 2551Q, and the calendar a
 
     expect($snapshot)->toMatchArray(['regime' => 'graduated', 'deduction_method' => 'itemized'])
         ->and(app(ReturnHistory::class)->formsForQuarter($this->profile, $result, 2))->toBe(['1701Q'])
-        ->and(app(ReturnHistory::class)->formsForQuarter($this->profile, $result, 3))->toBe(['1701Q', '2551Q'])
-        ->and(app(ReturnHistory::class)->formsForQuarter($this->profile, $result, 4))->toBe(['1701']);
+        // VAT from September 1: a 2550Q from Q3 on.
+        ->and(app(ReturnHistory::class)->formsForQuarter($this->profile, $result, 3))->toBe(['1701Q', '2551Q', '2550Q'])
+        ->and(app(ReturnHistory::class)->formsForQuarter($this->profile, $result, 4))->toBe(['1701', '2550Q']);
 
     $this->get('/file/2026/3/2551Q')->assertOk();
     $this->get('/file/2026/2/2551Q')->assertNotFound();
@@ -52,6 +54,27 @@ test('the switch quarter files a graduated 1701Q and a 2551Q, and the calendar a
     $deadlines = collect(app(TaxObligations::class)->deadlines($this->profile, $result));
     expect($deadlines->firstWhere('title', 'Register for VAT · sales passed ₱3,000,000'))->toMatchArray(['date' => '2026-09-30', 'kind' => 'reminder', 'href' => '/profile/registration'])
         ->and($deadlines->firstWhere('title', 'Q3 2551Q · percentage tax'))->toMatchArray(['amount' => 99000.0]);
+});
+
+test('VAT applies from the month after: 12% added to sales recorded without it, on a 2550Q from that quarter', function () {
+    Transaction::factory()->on('2026-09-20')->create(['counterparty' => 'Acme', 'amount' => 200_000]);
+    Transaction::factory()->on('2026-10-05')->create(['counterparty' => 'Acme', 'amount' => 100_000]);
+    $vat = app(VatCalculator::class);
+
+    // July and August stay under percentage tax.
+    expect($vat->appliesFrom(2026)?->toDateString())->toBe('2026-09-01')
+        ->and($vat->forYear(2026)[2]['output_vat'])->toBe(0.0)
+        ->and($vat->forYear(2026)[3])->toMatchArray(['vatable_sales' => 200000.0, 'output_vat' => 24000.0])
+        ->and($vat->forYear(2026)[4]['output_vat'])->toBe(12000.0);
+
+    $deadlines = collect(app(TaxObligations::class)->deadlines($this->profile, app(TaxCalculationService::class)->forYear($this->profile, 2026)));
+    expect($deadlines->firstWhere('title', 'Q3 2550Q · VAT'))->toMatchArray(['amount' => 24000.0])
+        ->and($deadlines->firstWhere('title', 'Q2 2550Q · VAT'))->toBeNull();
+
+    $this->get('/file/2026/3/2550Q')->assertOk();
+    $this->get('/file/2026/2/2550Q')->assertNotFound();
+    $this->get('/file/2026/3/slsp')->assertOk();
+    $this->get('/file/2026/2/slsp')->assertNotFound();
 });
 
 test('My tax explains the switch', function () {

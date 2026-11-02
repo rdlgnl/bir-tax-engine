@@ -217,9 +217,9 @@ class TaxObligations
                 'VAT from '.CarbonImmutable::parse($year['switched']['vat_from'])->format('M j'), href: route('registration', absolute: false));
         }
 
-        if ($profile->vat_registered) {
+        if ($this->vat->appliesFrom($y) !== null) {
             foreach ($this->vat->forYear($y) as $vat) {
-                if ($vat['status'] === 'filed' && ! $includeFiled) {
+                if (! $this->vat->appliesIn($y, $vat['quarter']) || ($vat['status'] === 'filed' && ! $includeFiled)) {
                     continue;
                 }
 
