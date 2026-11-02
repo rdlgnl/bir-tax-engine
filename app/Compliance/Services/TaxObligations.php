@@ -271,6 +271,11 @@ class TaxObligations
                     href: route('payroll.annual', $y, absolute: false),
                 );
             }
+
+            // The BIR's copies of the 2316s, scanned, with the substituted-filing list.
+            $date = $this->calendar->compensationCertificatesToBirDue($y)->toDateString();
+            $items[] = $this->deadline($date, $date, "{$y} 2316s to the BIR · scanned copies", 'reminder', 'reminder', null, 'Reminder',
+                href: route('payroll.annual', $y, absolute: false));
         }
 
         // Replying to a BIR letter, until it's dealt with.

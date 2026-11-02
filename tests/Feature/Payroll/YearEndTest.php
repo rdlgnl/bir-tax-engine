@@ -28,7 +28,8 @@ function yearEndItems(): array
 
     return array_values(array_filter(
         app(TaxObligations::class)->deadlines($profile, $year),
-        fn (array $d) => str_contains($d['title'], '2316') || str_contains($d['title'], '1604-C'),
+        // The BIR's scanned copies are their own reminder, tested with the 1601-C dates.
+        fn (array $d) => (str_contains($d['title'], '2316') && ! str_contains($d['title'], 'scanned')) || str_contains($d['title'], '1604-C'),
     ));
 }
 

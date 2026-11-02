@@ -34,7 +34,7 @@ class LoanTax
     public function for(Loan $loan, ?CarbonImmutable $today = null): array
     {
         $today ??= CarbonImmutable::now();
-        $tax = $this->dst->onLoan((float) $loan->amount, $loan->term_months);
+        $tax = $this->dst->onLoan((float) $loan->amount, $loan->signed_on, $loan->term_months);
         $due = $this->calendar->dstDue($loan->signed_on);
         $status = match (true) {
             $loan->filedByLender() => 'bank',

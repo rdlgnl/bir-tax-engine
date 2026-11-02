@@ -26,7 +26,6 @@ type Props = {
     regime: string | null;
     copiedAt: string | null;
     retentionYears: number;
-    computerizedLimit: number;
     receipts: CashReceipt[];
     disbursements: CashDisbursement[];
     totals: JournalTotals;
@@ -46,7 +45,6 @@ export default function BooksShow({
     regime,
     copiedAt,
     retentionYears,
-    computerizedLimit,
     receipts,
     disbursements,
     totals,
@@ -235,12 +233,12 @@ export default function BooksShow({
                         Books and records must be kept for {retentionYears}{' '}
                         years after the return they support is filed (EOPT).
                     </Note>
-                    <Note
-                        tone="warning"
-                        title={`Above ${peso(computerizedLimit)} in sales`}
-                    >
-                        Computerized books then need a separate BIR permit.
-                        We'll tell you before you get there.
+                    <Note title="These are your records, not registered books">
+                        Your BIR-registered books are the stamped or loose-leaf
+                        books you copy or print these into. Computerized books
+                        are optional (only large taxpayers must use them) and
+                        are registered through ORUS for an Acknowledgement
+                        Certificate.
                     </Note>
                     {booksType === 'manual' && (
                         <Note title="Prefer printing to copying?">

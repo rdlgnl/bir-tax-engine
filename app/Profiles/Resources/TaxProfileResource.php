@@ -53,7 +53,7 @@ class TaxProfileResource extends JsonResource
                     'label' => $this->vat_registered ? 'VAT-registered' : 'Not VAT-registered',
                     'source' => $fromCor,
                 ],
-                (float) $this->expected_income < config('tax.micro_taxpayer_limit') && $this->expected_income !== null
+                (float) $this->expected_income < config('tax.classification.micro_below') && $this->expected_income !== null
                     ? ['label' => 'Micro taxpayer (under ₱3M)', 'source' => 'estimate']
                     : null,
                 $this->regime ? ['label' => $this->regimeLabel().' income tax', 'source' => 'your choice'] : null,

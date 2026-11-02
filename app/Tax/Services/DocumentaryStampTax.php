@@ -2,17 +2,41 @@
 
 namespace App\Tax\Services;
 
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
+
 /**
- * Documentary stamp tax on a loan: a rate for each ₱200 (or fraction) of
- * the amount, and only a share of it when the term is under a year.
+ * Documentary stamp tax on a loan, at the rate in force the day it was
+ * signed: ₱1.50 for each ₱200 or fraction until June 30, 2025, then 0.75%
+ * of the amount (RA 12214). A term under a year pays its share, by days
+ * over 365.
  */
 class DocumentaryStampTax
 {
-    public function onLoan(float $amount, int $termMonths): float
-    {
-        $per = (float) config('tax.dst.loan.per');
-        $full = ceil(round($amount / $per, 6)) * (float) config('tax.dst.loan.rate');
+    public function __construct(private TaxRules $rules) {}
 
-        return round($termMonths < 12 ? $full * max(1, $termMonths) / 12 : $full, 2);
+    public function onLoan(float $amount, CarbonInterface $signedOn, int $termMonths): float
+    {
+        $rules = $this->rules->on($signedOn);
+        $full = $rules->has('dst.loan.percent')
+            ? round($amount * $rules->rate('dst.loan.percent'), 2)
+            : ceil(round($amount / $rules->rate('dst.loan.per'), 6)) * $rules->rate('dst.loan.rate');
+
+        $signed = CarbonImmutable::parse($signedOn)->startOfDay();
+        $days = (int) $signed->diffInDays($signed->addMonthsNoOverflow(max(1, $termMonths)));
+
+        return round($days < 365 ? $full * $days / 365 : $full, 2);
+    }
+
+    /**
+     * The rate as the form prints it: "P1.50 / P200" or "0.75%".
+     */
+    public function rateLabel(CarbonInterface $signedOn): string
+    {
+        $rules = $this->rules->on($signedOn);
+
+        return $rules->has('dst.loan.percent')
+            ? rtrim(rtrim(number_format($rules->rate('dst.loan.percent') * 100, 2), '0'), '.').'%'
+            : sprintf('P%s / P%d', number_format($rules->rate('dst.loan.rate'), 2), (int) $rules->rate('dst.loan.per'));
     }
 }

@@ -45,7 +45,6 @@ class BooksController extends Controller
                 ->value('copied_at')
                 ?->toDateString(),
             'retentionYears' => config('tax.books.retention_years'),
-            'computerizedLimit' => config('tax.books.computerized_limit'),
             ...$this->journals->forMonth($period->year, $period->month),
         ]);
     }

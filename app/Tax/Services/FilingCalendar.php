@@ -65,6 +65,28 @@ class FilingCalendar
     }
 
     /**
+     * 1601-C: the month's tax withheld on salaries, by the 10th of the month
+     * after; December's by January 15 (RR 2-98 Sec. 2.83, as amended).
+     */
+    public function compensationMonthlyDue(int $year, int $month): CarbonImmutable
+    {
+        return $month === 12
+            ? $this->nextWorkingDay(CarbonImmutable::create($year + 1, 1, (int) config('tax.withholding.december_compensation_due_day')))
+            : $this->withholdingMonthlyDue($year, $month);
+    }
+
+    /**
+     * The employer's copies of the year's 2316s, scanned, with the list of
+     * employees qualified for substituted filing: by February 28 (RR 16-2021).
+     */
+    public function compensationCertificatesToBirDue(int $year): CarbonImmutable
+    {
+        [$month, $day] = config('tax.withholding.certificates_to_bir');
+
+        return $this->nextWorkingDay(CarbonImmutable::create($year + 1, $month, $day));
+    }
+
+    /**
      * 1601-EQ: the quarter's return, by the last day of the month after it.
      */
     public function withholdingQuarterlyDue(int $year, int $quarter): CarbonImmutable

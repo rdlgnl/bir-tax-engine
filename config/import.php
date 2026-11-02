@@ -39,12 +39,16 @@ return [
     // Online marketplace payout reports: a line per order. Sales are what the
     // buyer paid; the platform's fees are an expense and its withholding a
     // credit, confirmed by its 2307.
-    // REVIEW: the rate (1% of half the gross remittance) and the ₱500,000
-    // sworn-declaration threshold, against the current revenue regulations.
+    // RR 16-2023 (in force January 11, 2024; withholding from July 15, 2024
+    // for e-marketplaces): 1% of half the gross remittance, ATC WI760 for
+    // individuals and WC760 for corporations. A seller whose sales are
+    // ₱500,000 or less is spared only with a sworn declaration the BIR
+    // received, filed with the platform by January 20 (RMC 8-2024).
     'marketplace' => [
         'platforms' => ['Shopee', 'Lazada', 'TikTok Shop', 'Zalora'],
         'withholding_rate' => 0.005,
         'exempt_up_to' => 500_000,
+        'atc' => ['individual' => 'WI760', 'corporation' => 'WC760'],
         'columns' => [
             'date' => ['order date', 'order creation date', 'order created', 'created at', 'order time', 'date', 'transaction date', 'payout date', 'release date'],
             'order' => ['order id', 'order no', 'order number', 'order sn', 'order', 'reference', 'reference number'],

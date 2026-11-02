@@ -4,6 +4,7 @@ namespace App\Profiles\Models;
 
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
+use App\Tax\Enums\TaxpayerClassification;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,8 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property DeductionMethod|null $deduction_method
  * @property bool|null $vat_registered
  * @property bool|null $registered_percentage_tax
+ * @property TaxpayerClassification|null $classification the class the BIR assigned for the year
  */
-#[Fillable(['year', 'regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax'])]
+#[Fillable(['year', 'regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax', 'classification'])]
 class TaxYear extends Model
 {
     /** The profile's fields a year keeps its own value of. */
@@ -39,6 +41,7 @@ class TaxYear extends Model
             'deduction_method' => DeductionMethod::class,
             'vat_registered' => 'boolean',
             'registered_percentage_tax' => 'boolean',
+            'classification' => TaxpayerClassification::class,
         ];
     }
 }

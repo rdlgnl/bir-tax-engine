@@ -31,129 +31,129 @@ Reference letters such as `IT-GRAD-2023` are the app's own rule ids.
 
 ## 1. Income tax — individuals
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 1.1 | Graduated rates, annual table `IT-GRAD-2018` | ₱0–250k 0%; 250k–400k 20% of excess; 400k–800k ₱30,000 + 25%; 800k–2M ₱130,000 + 30%; 2M–8M ₱490,000 + 32%; over 8M ₱2,410,000 + 35% | NIRC Sec. 24(A)(2)(a) as amended by RA 10963 | 2018–2022 | | |
-| 1.2 | Graduated rates, annual table `IT-GRAD-2023` | ₱0–250k 0%; 250k–400k 15%; 400k–800k ₱22,500 + 20%; 800k–2M ₱102,500 + 25%; 2M–8M ₱402,500 + 30%; over 8M ₱2,202,500 + 35% | same, table for 2023 onwards | 2023 → | | |
-| 1.3 | 8% option on gross sales/receipts and other non-operating income, in lieu of graduated rates and percentage tax | 8% | NIRC Sec. 24(A)(2)(b); RR 8-2018 Sec. 3; RMO 23-2018 | 2018 → | | |
-| 1.4 | ₱250,000 reduction before the 8%, for the purely self-employed only | ₱250,000 | RR 8-2018 Sec. 3 | 2018 → | | |
-| 1.5 | Mixed income on 8%: business income at 8% with no ₱250,000 reduction; salary at graduated rates | — | NIRC Sec. 24(A)(2)(c)(2); RR 8-2018 Sec. 2(B) | 2018 → | | |
-| 1.6 | 8% not available to VAT-registered taxpayers, nor once gross sales exceed the VAT threshold in the year; the app then stops and tells the user (it doesn't compute the switch to graduated) | ₱3,000,000 | RR 8-2018 Sec. 3(D); NIRC Sec. 109(BB) | 2018 → | | |
-| 1.7 | The method (8% or graduated, and OSD or itemized) is elected on the Q1 1701Q and locked for the year once that return is filed | — | RR 8-2018 | 2018 → | | |
-| 1.8 | Optional standard deduction for individuals: 40% of **gross sales/receipts** | 40% | NIRC Sec. 34(L); RR 16-2008 | 2018 → | | |
-| 1.9 | Itemized deductions: only expenses with a valid invoice in the taxpayer's name are deducted | — | NIRC Sec. 34(A)–(K) | 2018 → | | |
-| 1.10 | Quarterly returns are cumulative: tax on income to date, less earlier quarters' payments and creditable withholding to date | — | NIRC Sec. 74 | 2018 → | | |
-| 1.11 | An earlier quarter not yet paid is assumed paid (its tax due) when computing later quarters | — | (app design) | 2018 → | | See task M7 |
-| 1.12 | Mixed income on graduated rates: business taxable income is stacked on top of taxable compensation; the employer's withholding (from the 2316) is credited on the annual return | — | NIRC Sec. 24(A)(2)(c)(1) | 2018 → | | |
-| 1.13 | Excess creditable withholding at year end is shown as an overpayment (carry-over or refund is the taxpayer's choice on the form) | — | NIRC Sec. 76 | 2018 → | | |
-| 1.14 | Annual form: 1701-MS for the purely self-employed (1701A or 1701 also accepted); 1701 for mixed income (1701-MS also accepted) | — | (BIR form guidelines) | 2024 → | | Confirm current form rules |
-| 1.15 | Income is counted on the **date of the invoice** (unpaid invoices included); payments without an invoice on the date received | — | RA 11976 (EOPT) | 2018 → | | See Question Q1 |
+| #    | Rule as the app applies it                                                                                                                                                                  | Value                                                                                                                                | Basis (to confirm)                                   | Periods   | Decision | Notes                      |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- | --------- | -------- | -------------------------- |
+| 1.1  | Graduated rates, annual table `IT-GRAD-2018`                                                                                                                                                | ₱0–250k 0%; 250k–400k 20% of excess; 400k–800k ₱30,000 + 25%; 800k–2M ₱130,000 + 30%; 2M–8M ₱490,000 + 32%; over 8M ₱2,410,000 + 35% | NIRC Sec. 24(A)(2)(a) as amended by RA 10963         | 2018–2022 |          |                            |
+| 1.2  | Graduated rates, annual table `IT-GRAD-2023`                                                                                                                                                | ₱0–250k 0%; 250k–400k 15%; 400k–800k ₱22,500 + 20%; 800k–2M ₱102,500 + 25%; 2M–8M ₱402,500 + 30%; over 8M ₱2,202,500 + 35%           | same, table for 2023 onwards                         | 2023 →    |          |                            |
+| 1.3  | 8% option on gross sales/receipts and other non-operating income, in lieu of graduated rates and percentage tax                                                                             | 8%                                                                                                                                   | NIRC Sec. 24(A)(2)(b); RR 8-2018 Sec. 3; RMO 23-2018 | 2018 →    |          |                            |
+| 1.4  | ₱250,000 reduction before the 8%, for the purely self-employed only                                                                                                                         | ₱250,000                                                                                                                             | RR 8-2018 Sec. 3                                     | 2018 →    |          |                            |
+| 1.5  | Mixed income on 8%: business income at 8% with no ₱250,000 reduction; salary at graduated rates                                                                                             | —                                                                                                                                    | NIRC Sec. 24(A)(2)(c)(2); RR 8-2018 Sec. 2(B)        | 2018 →    |          |                            |
+| 1.6  | 8% not available to VAT-registered taxpayers, nor once gross sales exceed the VAT threshold in the year; the app then stops and tells the user (it doesn't compute the switch to graduated) | ₱3,000,000                                                                                                                           | RR 8-2018 Sec. 3(D); NIRC Sec. 109(BB)               | 2018 →    |          |                            |
+| 1.7  | The method (8% or graduated, and OSD or itemized) is elected on the Q1 1701Q and locked for the year once that return is filed                                                              | —                                                                                                                                    | RR 8-2018                                            | 2018 →    |          |                            |
+| 1.8  | Optional standard deduction for individuals: 40% of **gross sales/receipts**                                                                                                                | 40%                                                                                                                                  | NIRC Sec. 34(L); RR 16-2008                          | 2018 →    |          |                            |
+| 1.9  | Itemized deductions: only expenses with a valid invoice in the taxpayer's name are deducted                                                                                                 | —                                                                                                                                    | NIRC Sec. 34(A)–(K)                                  | 2018 →    |          |                            |
+| 1.10 | Quarterly returns are cumulative: tax on income to date, less earlier quarters' payments and creditable withholding to date                                                                 | —                                                                                                                                    | NIRC Sec. 74                                         | 2018 →    |          |                            |
+| 1.11 | An earlier quarter not yet paid is assumed paid (its tax due) when computing later quarters                                                                                                 | —                                                                                                                                    | (app design)                                         | 2018 →    |          | See task M7                |
+| 1.12 | Mixed income on graduated rates: business taxable income is stacked on top of taxable compensation; the employer's withholding (from the 2316) is credited on the annual return             | —                                                                                                                                    | NIRC Sec. 24(A)(2)(c)(1)                             | 2018 →    |          |                            |
+| 1.13 | Excess creditable withholding at year end is shown as an overpayment (carry-over or refund is the taxpayer's choice on the form)                                                            | —                                                                                                                                    | NIRC Sec. 76                                         | 2018 →    |          |                            |
+| 1.14 | Annual form: 1701-MS for the purely self-employed (1701A or 1701 also accepted); 1701 for mixed income (1701-MS also accepted)                                                              | —                                                                                                                                    | (BIR form guidelines)                                | 2024 →    |          | Confirm current form rules |
+| 1.15 | Income is counted on the **date of the invoice** (unpaid invoices included); payments without an invoice on the date received                                                               | —                                                                                                                                    | RA 11976 (EOPT)                                      | 2018 →    |          | See Question Q1            |
 
 ## 2. Percentage tax and VAT
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 2.1 | Percentage tax for graduated-rate, non-VAT taxpayers, on quarterly gross sales/receipts (`PT-3PCT-2018`) | 3% | NIRC Sec. 116 as amended by RA 10963 | 2018-01-01 → 2020-06-30 | | |
-| 2.2 | Percentage tax (`PT-1PCT`) | 1% | NIRC Sec. 116 as amended by RA 11534 (CREATE) | 2020-07-01 → 2023-06-30 | | |
-| 2.3 | Percentage tax (`PT-3PCT`) | 3% | NIRC Sec. 116 | 2023-07-01 → | | |
-| 2.4 | 8% filers don't file 2551Q; the app also flags a COR that still lists percentage tax and offers a 1905 | — | RR 8-2018 | 2018 → | | |
-| 2.5 | VAT on sales, net of VAT; output tax less input tax on purchases | 12% | NIRC Sec. 106, 108, 110; RR 3-2024 | 2018 → | | |
-| 2.6 | Input VAT is claimed only on purchase invoices issued in the taxpayer's name | — | NIRC Sec. 110; RR 3-2024 | 2018 → | | |
-| 2.7 | Excess input VAT carries to the next quarter **of the same year only**; it resets to zero each January | — | NIRC Sec. 110(B) | 2018 → | | **Likely wrong**: Sec. 110(B) carries excess to succeeding quarters. Task M10 |
-| 2.8 | VAT on services counted by invoice date (gross sales), not receipts | — | RA 11976 (EOPT); RR 3-2024 | 2024-04-27 → | | |
-| 2.9 | Percentage tax and VAT returns: 2551Q and 2550Q due 25 days after the quarter ends | 25 days | RR (quarterly filing) | 2018 → | | |
+| #   | Rule as the app applies it                                                                               | Value   | Basis (to confirm)                            | Periods                 | Decision | Notes                                                                         |
+| --- | -------------------------------------------------------------------------------------------------------- | ------- | --------------------------------------------- | ----------------------- | -------- | ----------------------------------------------------------------------------- |
+| 2.1 | Percentage tax for graduated-rate, non-VAT taxpayers, on quarterly gross sales/receipts (`PT-3PCT-2018`) | 3%      | NIRC Sec. 116 as amended by RA 10963          | 2018-01-01 → 2020-06-30 |          |                                                                               |
+| 2.2 | Percentage tax (`PT-1PCT`)                                                                               | 1%      | NIRC Sec. 116 as amended by RA 11534 (CREATE) | 2020-07-01 → 2023-06-30 |          |                                                                               |
+| 2.3 | Percentage tax (`PT-3PCT`)                                                                               | 3%      | NIRC Sec. 116                                 | 2023-07-01 →            |          |                                                                               |
+| 2.4 | 8% filers don't file 2551Q; the app also flags a COR that still lists percentage tax and offers a 1905   | —       | RR 8-2018                                     | 2018 →                  |          |                                                                               |
+| 2.5 | VAT on sales, net of VAT; output tax less input tax on purchases                                         | 12%     | NIRC Sec. 106, 108, 110; RR 3-2024            | 2018 →                  |          |                                                                               |
+| 2.6 | Input VAT is claimed only on purchase invoices issued in the taxpayer's name                             | —       | NIRC Sec. 110; RR 3-2024                      | 2018 →                  |          |                                                                               |
+| 2.7 | Excess input VAT carries to the next quarter **of the same year only**; it resets to zero each January   | —       | NIRC Sec. 110(B)                              | 2018 →                  |          | **Likely wrong**: Sec. 110(B) carries excess to succeeding quarters. Task M10 |
+| 2.8 | VAT on services counted by invoice date (gross sales), not receipts                                      | —       | RA 11976 (EOPT); RR 3-2024                    | 2024-04-27 →            |          |                                                                               |
+| 2.9 | Percentage tax and VAT returns: 2551Q and 2550Q due 25 days after the quarter ends                       | 25 days | RR (quarterly filing)                         | 2018 →                  |          |                                                                               |
 
 ## 3. Creditable withholding received (2307s)
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 3.1 | Tax a client withheld is credited against income tax in the quarter of the payment; "confirmed" once the client's 2307 is received | — | NIRC Sec. 58, 76; RR 2-98 as amended; RMC 14-2025 | 2018 → | | |
-| 3.2 | Clients are expected to issue the 2307 within 20 days after the quarter ends (reminder only) | 20 days | RR 2-98 Sec. 2.58 | 2018 → | | |
-| 3.3 | Expected client withholding shown as a hint: services 5%, without a sworn declaration 10%, goods 1% | 5% / 10% / 1% | RR 11-2018 | 2018 → | | |
-| 3.4 | Sworn declaration of gross income to clients, by January 15 each year | Jan 15 | RR 11-2018 | 2018 → | | |
-| 3.5 | Online marketplaces withhold 1% of one-half of gross remittances (0.5% effective) once the seller's annual sales exceed ₱500,000 or without a sworn declaration | 0.5%; ₱500,000 | RR 16-2023 | 2024 → | | [config/import.php](../config/import.php) |
-| 3.6 | SAWT `.DAT`: header, one line per payor, control line; file name `{TIN}{branch}{MMYYYY}{form}.DAT`, branch `0000` | — | BIR alphalist data entry module | — | | Layout unverified |
+| #   | Rule as the app applies it                                                                                                                                      | Value          | Basis (to confirm)                                | Periods | Decision | Notes                                     |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------- | ------- | -------- | ----------------------------------------- |
+| 3.1 | Tax a client withheld is credited against income tax in the quarter of the payment; "confirmed" once the client's 2307 is received                              | —              | NIRC Sec. 58, 76; RR 2-98 as amended; RMC 14-2025 | 2018 →  |          |                                           |
+| 3.2 | Clients are expected to issue the 2307 within 20 days after the quarter ends (reminder only)                                                                    | 20 days        | RR 2-98 Sec. 2.58                                 | 2018 →  |          |                                           |
+| 3.3 | Expected client withholding shown as a hint: services 5%, without a sworn declaration 10%, goods 1%                                                             | 5% / 10% / 1%  | RR 11-2018                                        | 2018 →  |          |                                           |
+| 3.4 | Sworn declaration of gross income to clients, by January 15 each year                                                                                           | Jan 15         | RR 11-2018                                        | 2018 →  |          |                                           |
+| 3.5 | Online marketplaces withhold 1% of one-half of gross remittances (0.5% effective) once the seller's annual sales exceed ₱500,000 or without a sworn declaration | 0.5%; ₱500,000 | RR 16-2023                                        | 2024 →  |          | [config/import.php](../config/import.php) |
+| 3.6 | SAWT `.DAT`: header, one line per payor, control line; file name `{TIN}{branch}{MMYYYY}{form}.DAT`, branch `0000`                                               | —              | BIR alphalist data entry module                   | —       |          | Layout unverified                         |
 
 ## 4. The taxpayer as withholding agent and employer
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 4.1 | ATC WI010: professional fee to an individual with a sworn declaration | 5% | RR 11-2018 | 2018 → | | |
-| 4.2 | ATC WI011: professional fee to an individual without a sworn declaration | 10% | RR 11-2018 | 2018 → | | |
-| 4.3 | ATC WC010: professional fee to a company | 10% | RR 11-2018 | 2018 → | | Confirm rate vs gross income test |
-| 4.4 | ATC WI100 / WC100: rent of real property | 5% | RR 2-98 as amended | 2018 → | | |
-| 4.5 | ATC WI120 / WC120: contractors and services | 2% | RR 2-98 as amended | 2018 → | | |
-| 4.6 | 0619-E for the first two months of a quarter, due the 10th of the next month; 1601-EQ for the quarter, due the last day of the month after it; 1604-E due March 1 | 10th / last day / Mar 1 | RR 11-2018 | 2018 → | | |
-| 4.7 | A month or quarter with nothing withheld: the app doesn't list a return as due | — | — | — | | See Question Q5 |
-| 4.8 | QAP and 1604-E alphalist `.DAT` files: `{TIN}{branch}{period}1601EQ.DAT`, `{TIN}{branch}1231{year}1604E.DAT` | — | BIR alphalist data entry module | — | | Layout unverified |
-| 4.9 | Compensation withholding: graduated tax on 12 × the month's taxable pay, divided by 12; the last month worked adjusts to the year's tax on the year's pay; over-withholding refunded by January 25 | — | NIRC Sec. 79; RR 11-2018 | 2018 → | | See Question Q4 |
-| 4.10 | Taxable pay is entered by the user **after** SSS, PhilHealth and Pag-IBIG; the ₱90,000 exemption for 13th-month and other benefits and de minimis benefits are **not** modeled | ₱90,000 | NIRC Sec. 32(B)(7)(e) | 2018 → | | Task M3 |
-| 4.11 | 1601-C due the 10th of the next month (December included); 1604-C and the employee's 2316 due January 31 | 10th / Jan 31 | RR 11-2018 | 2018 → | | Confirm December 1601-C date |
-| 4.12 | 2316: all recorded pay goes in as taxable basic salary; pay of ₱250,000 or less is not moved to item 29 (exempt basic salary) | — | 2316 guidelines | 2021 → | | |
-| 4.13 | VAT 2550Q's ATC on the form | VT010 | — | — | | |
+| #    | Rule as the app applies it                                                                                                                                                                         | Value                   | Basis (to confirm)              | Periods | Decision | Notes                             |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------------- | ------- | -------- | --------------------------------- |
+| 4.1  | ATC WI010: professional fee to an individual with a sworn declaration                                                                                                                              | 5%                      | RR 11-2018                      | 2018 →  |          |                                   |
+| 4.2  | ATC WI011: professional fee to an individual without a sworn declaration                                                                                                                           | 10%                     | RR 11-2018                      | 2018 →  |          |                                   |
+| 4.3  | ATC WC010: professional fee to a company                                                                                                                                                           | 10%                     | RR 11-2018                      | 2018 →  |          | Confirm rate vs gross income test |
+| 4.4  | ATC WI100 / WC100: rent of real property                                                                                                                                                           | 5%                      | RR 2-98 as amended              | 2018 →  |          |                                   |
+| 4.5  | ATC WI120 / WC120: contractors and services                                                                                                                                                        | 2%                      | RR 2-98 as amended              | 2018 →  |          |                                   |
+| 4.6  | 0619-E for the first two months of a quarter, due the 10th of the next month; 1601-EQ for the quarter, due the last day of the month after it; 1604-E due March 1                                  | 10th / last day / Mar 1 | RR 11-2018                      | 2018 →  |          |                                   |
+| 4.7  | A month or quarter with nothing withheld: the app doesn't list a return as due                                                                                                                     | —                       | —                               | —       |          | See Question Q5                   |
+| 4.8  | QAP and 1604-E alphalist `.DAT` files: `{TIN}{branch}{period}1601EQ.DAT`, `{TIN}{branch}1231{year}1604E.DAT`                                                                                       | —                       | BIR alphalist data entry module | —       |          | Layout unverified                 |
+| 4.9  | Compensation withholding: graduated tax on 12 × the month's taxable pay, divided by 12; the last month worked adjusts to the year's tax on the year's pay; over-withholding refunded by January 25 | —                       | NIRC Sec. 79; RR 11-2018        | 2018 →  |          | See Question Q4                   |
+| 4.10 | Taxable pay is entered by the user **after** SSS, PhilHealth and Pag-IBIG; the ₱90,000 exemption for 13th-month and other benefits and de minimis benefits are **not** modeled                     | ₱90,000                 | NIRC Sec. 32(B)(7)(e)           | 2018 →  |          | Task M3                           |
+| 4.11 | 1601-C due the 10th of the next month (December included); 1604-C and the employee's 2316 due January 31                                                                                           | 10th / Jan 31           | RR 11-2018                      | 2018 →  |          | Confirm December 1601-C date      |
+| 4.12 | 2316: all recorded pay goes in as taxable basic salary; pay of ₱250,000 or less is not moved to item 29 (exempt basic salary)                                                                      | —                       | 2316 guidelines                 | 2021 →  |          |                                   |
+| 4.13 | VAT 2550Q's ATC on the form                                                                                                                                                                        | VT010                   | —                               | —       |          |                                   |
 
 ## 5. Late payment
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 5.1 | Surcharge on tax not paid on time | 25% | NIRC Sec. 248 | — | | |
-| 5.2 | Interest per year on the unpaid tax, from the due date | 12% | NIRC Sec. 249 (double the legal rate) | — | | |
-| 5.3 | Micro and small taxpayers (gross sales below ₱20,000,000): reduced surcharge and half the interest. Applied to **all** periods computed today, by the taxpayer's current gross | 10% / 6%; ₱20M | RA 11976 (EOPT) | — | | Effective date and classification test |
-| 5.4 | Compromise penalties aren't estimated | — | RMO 7-2015 | — | | |
+| #   | Rule as the app applies it                                                                                                                                                     | Value          | Basis (to confirm)                    | Periods | Decision | Notes                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- | ------------------------------------- | ------- | -------- | -------------------------------------- |
+| 5.1 | Surcharge on tax not paid on time                                                                                                                                              | 25%            | NIRC Sec. 248                         | —       |          |                                        |
+| 5.2 | Interest per year on the unpaid tax, from the due date                                                                                                                         | 12%            | NIRC Sec. 249 (double the legal rate) | —       |          |                                        |
+| 5.3 | Micro and small taxpayers (gross sales below ₱20,000,000): reduced surcharge and half the interest. Applied to **all** periods computed today, by the taxpayer's current gross | 10% / 6%; ₱20M | RA 11976 (EOPT)                       | —       |          | Effective date and classification test |
+| 5.4 | Compromise penalties aren't estimated                                                                                                                                          | —              | RMO 7-2015                            | —       |          |                                        |
 
 ## 6. Deadlines
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 6.1 | 1701Q due May 15, Aug 15, Nov 15; annual return April 15 of the next year | — | NIRC Sec. 74, 77; RR 8-2018 | 2018 → | | |
-| 6.2 | A due date on a weekend or holiday moves to the next working day | — | (general rule) | — | | |
-| 6.3 | Holidays used: regular holidays and the usual special non-working days, **2026 and 2027 only** | — | Proclamations | 2026–2027 | | Task M1 |
-| 6.4 | Form 2000 (DST) due 5 days after the end of the month the document was signed | 5 days | NIRC Sec. 200 | 2018 → | | |
+| #   | Rule as the app applies it                                                                     | Value  | Basis (to confirm)          | Periods   | Decision | Notes   |
+| --- | ---------------------------------------------------------------------------------------------- | ------ | --------------------------- | --------- | -------- | ------- |
+| 6.1 | 1701Q due May 15, Aug 15, Nov 15; annual return April 15 of the next year                      | —      | NIRC Sec. 74, 77; RR 8-2018 | 2018 →    |          |         |
+| 6.2 | A due date on a weekend or holiday moves to the next working day                               | —      | (general rule)              | —         |          |         |
+| 6.3 | Holidays used: regular holidays and the usual special non-working days, **2026 and 2027 only** | —      | Proclamations               | 2026–2027 |          | Task M1 |
+| 6.4 | Form 2000 (DST) due 5 days after the end of the month the document was signed                  | 5 days | NIRC Sec. 200               | 2018 →    |          |         |
 
 ## 7. Documentary stamp tax on loans
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 7.1 | DST on a loan agreement: ₱1.50 per ₱200 or fraction; for a term under a year, prorated **by months** | ₱1.50 / ₱200 | NIRC Sec. 179 as amended by RA 10963 | 2018 → | | Proration basis |
-| 7.2 | ATC on Form 2000 | DS106 | — | — | | |
-| 7.3 | A bank lender files and pays it; the app asks the taxpayer to file only for a loan from a person | — | — | — | | |
+| #   | Rule as the app applies it                                                                           | Value        | Basis (to confirm)                   | Periods | Decision | Notes           |
+| --- | ---------------------------------------------------------------------------------------------------- | ------------ | ------------------------------------ | ------- | -------- | --------------- |
+| 7.1 | DST on a loan agreement: ₱1.50 per ₱200 or fraction; for a term under a year, prorated **by months** | ₱1.50 / ₱200 | NIRC Sec. 179 as amended by RA 10963 | 2018 →  |          | Proration basis |
+| 7.2 | ATC on Form 2000                                                                                     | DS106        | —                                    | —       |          |                 |
+| 7.3 | A bank lender files and pays it; the app asks the taxpayer to file only for a loan from a person     | —            | —                                    | —       |          |                 |
 
 ## 8. Corporations
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 8.1 | Regular corporate income tax | 25% | NIRC Sec. 27(A) as amended by RA 11534 | 2021 → | | |
-| 8.2 | Lower rate when net taxable income ≤ ₱5,000,000 **and** total assets ≤ ₱100,000,000 excluding land | 20% | same | 2021 → | | |
-| 8.3 | Quarterly 1702Q: the lower-rate test uses taxable income **to date** | — | (app interpretation) | 2021 → | | See Question Q6 |
-| 8.4 | MCIT from the 4th taxable year after the year operations began, on gross income; tax due is the higher of regular tax and MCIT | — | NIRC Sec. 27(E) | 2021 → | | |
-| 8.5 | MCIT rate | 1% to 2023-06-30; 2% from 2023-07-01 | RA 11534 | 2021 → | | |
-| 8.6 | For 2023, MCIT is computed **per quarter**: each quarter's gross income at that quarter's rate | — | (app interpretation) | 2023 | | Proration method |
-| 8.7 | OSD for corporations: 40% of gross income | 40% | NIRC Sec. 34(L) | 2021 → | | |
-| 8.8 | 1702Q due 60 days after each of the first three quarters; 1702-RT on the 15th day of the 4th month after year end | 60 days / Apr 15 | NIRC Sec. 75, 77 | 2021 → | | |
-| 8.9 | ATCs | IC010 regular, IC055 MCIT | — | — | | |
-| 8.10 | Not computed: NOLCO, excess MCIT carry-forward, prior year's excess credits; left for the accountant | — | — | — | | |
+| #    | Rule as the app applies it                                                                                                     | Value                                | Basis (to confirm)                     | Periods | Decision | Notes            |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ | -------------------------------------- | ------- | -------- | ---------------- |
+| 8.1  | Regular corporate income tax                                                                                                   | 25%                                  | NIRC Sec. 27(A) as amended by RA 11534 | 2021 →  |          |                  |
+| 8.2  | Lower rate when net taxable income ≤ ₱5,000,000 **and** total assets ≤ ₱100,000,000 excluding land                             | 20%                                  | same                                   | 2021 →  |          |                  |
+| 8.3  | Quarterly 1702Q: the lower-rate test uses taxable income **to date**                                                           | —                                    | (app interpretation)                   | 2021 →  |          | See Question Q6  |
+| 8.4  | MCIT from the 4th taxable year after the year operations began, on gross income; tax due is the higher of regular tax and MCIT | —                                    | NIRC Sec. 27(E)                        | 2021 →  |          |                  |
+| 8.5  | MCIT rate                                                                                                                      | 1% to 2023-06-30; 2% from 2023-07-01 | RA 11534                               | 2021 →  |          |                  |
+| 8.6  | For 2023, MCIT is computed **per quarter**: each quarter's gross income at that quarter's rate                                 | —                                    | (app interpretation)                   | 2023    |          | Proration method |
+| 8.7  | OSD for corporations: 40% of gross income                                                                                      | 40%                                  | NIRC Sec. 34(L)                        | 2021 →  |          |                  |
+| 8.8  | 1702Q due 60 days after each of the first three quarters; 1702-RT on the 15th day of the 4th month after year end              | 60 days / Apr 15                     | NIRC Sec. 75, 77                       | 2021 →  |          |                  |
+| 8.9  | ATCs                                                                                                                           | IC010 regular, IC055 MCIT            | —                                      | —       |          |                  |
+| 8.10 | Not computed: NOLCO, excess MCIT carry-forward, prior year's excess credits; left for the accountant                           | —                                    | —                                      | —       |          |                  |
 
 ## 9. Books of accounts
 
-| # | Rule as the app applies it | Value | Basis (to confirm) | Periods | Decision | Notes |
-|---|---|---|---|---|---|---|
-| 9.1 | Books and records kept 5 years after the return they support is filed | 5 years | NIRC Sec. 235 as amended by RA 11976 | 2024 → | | |
-| 9.2 | Above this level of sales, computerized books need a separate BIR permit | ₱3,000,000 | — | — | | Not confident of this rule |
-| 9.3 | Loose-leaf books are bound within 15 days after year end | 15 days | BIR Form 1900 | — | | |
-| 9.4 | Cash receipts, cash disbursements, general journal and general ledger kept on a **cash basis** | — | NIRC Sec. 232 | — | | See Question Q1 |
-| 9.5 | Chart of accounts: cash; creditable withholding tax; withholding tax payable (expanded and on compensation); VAT payable; owner's capital; owner's drawings; service income; expense accounts by category; taxes and licenses; interest and penalties | — | — | — | | |
-| 9.6 | Income tax paid is booked to owner's drawings; percentage tax and DST to taxes and licenses; penalties apart | — | — | — | | |
-| 9.7 | Salaries are recorded as expenses at full pay; the tax withheld from them is booked as cash kept and owed until the 1601-C pays it | — | — | — | | |
-| 9.8 | Audited financial statements: the app tells 8% filers none are needed and says **nothing** to graduated filers | — | NIRC Sec. 232(A) | — | | See Question Q3 |
+| #   | Rule as the app applies it                                                                                                                                                                                                                            | Value      | Basis (to confirm)                   | Periods | Decision | Notes                      |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------ | ------- | -------- | -------------------------- |
+| 9.1 | Books and records kept 5 years after the return they support is filed                                                                                                                                                                                 | 5 years    | NIRC Sec. 235 as amended by RA 11976 | 2024 →  |          |                            |
+| 9.2 | Above this level of sales, computerized books need a separate BIR permit                                                                                                                                                                              | ₱3,000,000 | —                                    | —       |          | Not confident of this rule |
+| 9.3 | Loose-leaf books are bound within 15 days after year end                                                                                                                                                                                              | 15 days    | BIR Form 1900                        | —       |          |                            |
+| 9.4 | Cash receipts, cash disbursements, general journal and general ledger kept on a **cash basis**                                                                                                                                                        | —          | NIRC Sec. 232                        | —       |          | See Question Q1            |
+| 9.5 | Chart of accounts: cash; creditable withholding tax; withholding tax payable (expanded and on compensation); VAT payable; owner's capital; owner's drawings; service income; expense accounts by category; taxes and licenses; interest and penalties | —          | —                                    | —       |          |                            |
+| 9.6 | Income tax paid is booked to owner's drawings; percentage tax and DST to taxes and licenses; penalties apart                                                                                                                                          | —          | —                                    | —       |          |                            |
+| 9.7 | Salaries are recorded as expenses at full pay; the tax withheld from them is booked as cash kept and owed until the 1601-C pays it                                                                                                                    | —          | —                                    | —       |          |                            |
+| 9.8 | Audited financial statements: the app tells 8% filers none are needed and says **nothing** to graduated filers                                                                                                                                        | —          | NIRC Sec. 232(A)                     | —       |          | See Question Q3            |
 
 ## 10. Forms and letters
 
-| # | Rule as the app applies it | Value | Decision | Notes |
-|---|---|---|---|---|
-| 10.1 | Form editions filled: 1701Q, 1701A, 1701, 2551Q, 0619-E, 1604-E, 2000, 1601-C, 1604-C, 2307, 1702Q, 1702-RT (January 2018); 1601-EQ (January 2019); 2316 (September 2021); 2550Q (April 2024); 1701-MS (August 2024); 1905, 1900 (October 2025) | — | | Are these the current editions? |
-| 10.2 | Income tax forms (1701Q, 1701, 1701A, 1701-MS, 1702Q, 1702-RT) are filled in whole pesos (49 centavos or less drop, 50 or more round up); the others in pesos and centavos | — | | |
-| 10.3 | ATCs on the income tax forms: 8% II015 business, II017 profession, II016 mixed; graduated II012, II014, II013; percentage tax PT010 | — | | |
-| 10.4 | BIR letter kinds the app recognizes: reminder of a return not filed; notice of tax not paid; letter about a difference in income; Letter of Authority; assessment notice (PAN or FAN); other. The last three tell the user to see a CPA | — | | [config/letters.php](../config/letters.php) |
+| #    | Rule as the app applies it                                                                                                                                                                                                                      | Value | Decision | Notes                                       |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | -------- | ------------------------------------------- |
+| 10.1 | Form editions filled: 1701Q, 1701A, 1701, 2551Q, 0619-E, 1604-E, 2000, 1601-C, 1604-C, 2307, 1702Q, 1702-RT (January 2018); 1601-EQ (January 2019); 2316 (September 2021); 2550Q (April 2024); 1701-MS (August 2024); 1905, 1900 (October 2025) | —     |          | Are these the current editions?             |
+| 10.2 | Income tax forms (1701Q, 1701, 1701A, 1701-MS, 1702Q, 1702-RT) are filled in whole pesos (49 centavos or less drop, 50 or more round up); the others in pesos and centavos                                                                      | —     |          |                                             |
+| 10.3 | ATCs on the income tax forms: 8% II015 business, II017 profession, II016 mixed; graduated II012, II014, II013; percentage tax PT010                                                                                                             | —     |          |                                             |
+| 10.4 | BIR letter kinds the app recognizes: reminder of a return not filed; notice of tax not paid; letter about a difference in income; Letter of Authority; assessment notice (PAN or FAN); other. The last three tell the user to see a CPA         | —     |          | [config/letters.php](../config/letters.php) |
 
 ---
 
@@ -173,11 +173,11 @@ Please answer each in a few lines, with the basis.
 
 ## Sign-off
 
-| | |
-|---|---|
-| Reviewer | |
-| CPA / PRC licence no. | |
-| Date of review | |
+|                            |         |
+| -------------------------- | ------- |
+| Reviewer                   |         |
+| CPA / PRC licence no.      |         |
+| Date of review             |         |
 | Rule pack version reviewed | 2026.11 |
-| Rows changed | |
-| Signature | |
+| Rows changed               |         |
+| Signature                  |         |

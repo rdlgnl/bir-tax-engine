@@ -314,7 +314,7 @@ class GeneralLedger
     private function stampTax(Loan $loan): array
     {
         $paid = (float) $loan->amount_paid;
-        $tax = min($paid, $this->dst->onLoan((float) $loan->amount, $loan->term_months));
+        $tax = min($paid, $this->dst->onLoan((float) $loan->amount, $loan->signed_on, $loan->term_months));
 
         return $this->entry((string) $loan->filed_on?->toDateString(), "Form 2000 paid · DST on the loan from {$loan->lender}", [
             $this->debit(520, $tax),

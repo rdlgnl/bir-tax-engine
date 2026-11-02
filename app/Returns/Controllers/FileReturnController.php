@@ -191,7 +191,7 @@ class FileReturnController extends Controller
         return Inertia::render('returns/late', [
             'layout' => $this->returns->layout($snapshot),
             'dueDate' => $snapshot['figures']['due_date'],
-            'weekly' => $penalties->weeklyInterest($snapshot['figures']['due'], $engine->forYear($profile, $year)['gross']),
+            'weekly' => $penalties->weeklyInterest($snapshot['figures']['due'], CarbonImmutable::parse($snapshot['figures']['due_date']), $engine->forYear($profile, $year)['gross']),
         ]);
     }
 

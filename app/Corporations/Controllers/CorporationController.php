@@ -275,7 +275,7 @@ class CorporationController extends Controller
             $candidates[] = array_map(fn (CarbonImmutable $month) => [
                 'title' => "{$month->format('F')} payroll (1601-C)",
                 'detail' => $corporation->employees === 1 ? '1 employee' : "{$corporation->employees} employees",
-                'date' => $this->calendar->withholdingMonthlyDue($month->year, $month->month),
+                'date' => $this->calendar->compensationMonthlyDue($month->year, $month->month),
             ], [$lastMonth, $today]);
         }
 

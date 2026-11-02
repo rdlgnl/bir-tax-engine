@@ -1,15 +1,24 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { SectionCard } from '@/components/section-card';
 import { ClassificationList } from '@/components/profile/classification-list';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
 import { data, registration } from '@/routes';
+import { classification as saveClassification } from '@/routes/profile';
 import { show as setupShow } from '@/routes/setup';
 import { compare } from '@/routes/tax';
 import type { RulePack, TaxProfileSummary } from '@/types';
 
+type Choice = { value: string; label: string };
+
 type Props = {
     profile: TaxProfileSummary;
+    classification: {
+        year: number;
+        assigned: string | null;
+        estimate: Choice;
+        options: Choice[];
+    };
     year: number;
     methodLockedOn: string | null;
     nextYearDecisionDue: string;
@@ -22,6 +31,7 @@ function maskTin(tin: string | null): string | null {
 
 export default function ProfileShow({
     profile,
+    classification,
     year,
     methodLockedOn,
     nextYearDecisionDue,
@@ -126,6 +136,48 @@ export default function ProfileShow({
                                 </div>
                             ))}
                         </dl>
+                        <div className="mt-4 flex flex-col gap-1.5">
+                            <label
+                                htmlFor="classification"
+                                className="text-sm font-bold"
+                            >
+                                Taxpayer classification for{' '}
+                                {classification.year}
+                            </label>
+                            <select
+                                id="classification"
+                                value={classification.assigned ?? ''}
+                                onChange={(event) =>
+                                    router.put(
+                                        saveClassification().url,
+                                        {
+                                            year: classification.year,
+                                            classification:
+                                                event.target.value || null,
+                                        },
+                                        { preserveScroll: true },
+                                    )
+                                }
+                                className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
+                            >
+                                <option value="">
+                                    Not set · estimated{' '}
+                                    {classification.estimate.label}
+                                </option>
+                                {classification.options.map((option) => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-[13px] text-muted-foreground">
+                                The BIR assigns it; ORUS shows yours. Micro and
+                                small taxpayers pay lower penalties.
+                            </p>
+                        </div>
                         <div className="mt-4 flex flex-wrap gap-2.5">
                             <Button
                                 asChild
