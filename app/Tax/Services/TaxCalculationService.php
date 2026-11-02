@@ -150,11 +150,11 @@ class TaxCalculationService
     private function inputs(TaxProfile $profile, int $year, Collection $transactions, Collection $filings, CarbonImmutable $today, ?array $salary): TaxInputs
     {
         $taxpayer = $profile->forYear($year);
-        // Each sale on the books' method of the year it's dated, so an invoice
+        // Each sale on the method of the year it's dated, so an invoice
         // counts once when the method changes between years.
-        $methods = [$year => $taxpayer->books_method];
+        $methods = [$year => $taxpayer->incomeMethod()];
         $method = function (Transaction $t) use (&$methods, $profile) {
-            return $methods[$t->occurred_on->year] ??= $profile->forYear($t->occurred_on->year)->books_method;
+            return $methods[$t->occurred_on->year] ??= $profile->forYear($t->occurred_on->year)->incomeMethod();
         };
         $dates = [];
         $quarterFilings = [];
@@ -244,8 +244,8 @@ class TaxCalculationService
             $before = $this->totalTax($taxpayer, (int) $year, 0, 0, 0, $brackets);
 
             foreach ($inYear->sortBy([['occurred_on', 'asc'], ['id', 'asc']]) as $transaction) {
-                // On cash books an unpaid invoice doesn't count yet.
-                if ($transaction->isIncome() && $transaction->incomeDate($taxpayer->books_method) === null) {
+                // On cash books, or on 8%, an unpaid invoice doesn't count yet.
+                if ($transaction->isIncome() && $transaction->incomeDate($taxpayer->incomeMethod()) === null) {
                     $effects[$transaction->id] = 0.0;
 
                     continue;
@@ -277,7 +277,7 @@ class TaxCalculationService
     {
         $profile = $profile->forYear($candidate->occurred_on->year);
         $others = $yearTransactions->reject(fn (Transaction $t) => $candidate->exists && $t->is($candidate));
-        $income = $others->filter(fn (Transaction $t) => $t->incomeDate($profile->books_method) !== null);
+        $income = $others->filter(fn (Transaction $t) => $t->incomeDate($profile->incomeMethod()) !== null);
         $gross = $this->sumCents($income, 'amount');
         $deductible = $this->deductibleCents($others);
         $percentageTax = (int) $income->sum(fn (Transaction $t) => $this->percentageTaxOn($t));
@@ -287,7 +287,7 @@ class TaxCalculationService
         $year = $candidate->occurred_on->year;
         $before = $this->totalTax($profile, $year, $gross, $deductible, $percentageTax, $brackets);
         $after = match (true) {
-            $candidate->incomeDate($profile->books_method) !== null => $this->totalTax($profile, $year, $gross + $amount, $deductible, $percentageTax + $this->percentageTaxOn($candidate), $brackets),
+            $candidate->incomeDate($profile->incomeMethod()) !== null => $this->totalTax($profile, $year, $gross + $amount, $deductible, $percentageTax + $this->percentageTaxOn($candidate), $brackets),
             $candidate->has_valid_invoice => $this->totalTax($profile, $year, $gross, $deductible + $amount, $percentageTax, $brackets),
             default => $before,
         };

@@ -34,6 +34,7 @@ function invoicePayment(array $overrides = []): array
 }
 
 test('a payment for a recorded invoice marks it paid instead of counting the sale again', function () {
+    // On 8% the invoice counts once, when it's paid (RR 8-2018 Sec. 2(g)).
     $gross = yearGross();
     $count = Transaction::query()->count();
 
@@ -41,7 +42,7 @@ test('a payment for a recorded invoice marks it paid instead of counting the sal
 
     expect(invoice0142())->invoice_paid->toBeTrue()->tax_withheld->toBe('2000.00')
         ->and(Transaction::query()->count())->toBe($count)
-        ->and(yearGross())->toBe($gross);
+        ->and(yearGross())->toBe($gross + 40_000);
 });
 
 test('a payment that doesn’t match the invoice, or for one already paid, is turned back', function () {

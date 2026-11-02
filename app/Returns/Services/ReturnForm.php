@@ -137,7 +137,7 @@ class ReturnForm
             'quarter' => $quarter,
             'regime' => $profile->regime?->value,
             'deduction_method' => $profile->deduction_method?->value,
-            'books_method' => $profile->books_method->value,
+            'books_method' => $profile->incomeMethod()->value,
             'purely_self_employed' => $profile->isPurelySelfEmployed(),
             'taxpayer' => [
                 // As the forms write it: "LAST, FIRST MIDDLE".

@@ -24,8 +24,8 @@ test('the annual return is the 1701-MS, an estimate until the year ends', functi
         ->where('periodEnded', false)
         ->where('eightPercent', true)
         ->where('figures', [
-            'gross' => 695000, 'less' => 250000, 'income_tax' => 35600, 'prior_payments' => 18000,
-            'withheld' => 11500, 'payable' => 6100, 'overpayment' => 0,
+            'gross' => 655000, 'less' => 250000, 'income_tax' => 32400, 'prior_payments' => 18000,
+            'withheld' => 11500, 'payable' => 2900, 'overpayment' => 0,
         ])
         ->where('certificatesNotIn', [
             ['counterparty' => 'Acme Co.', 'withheld' => 1000],

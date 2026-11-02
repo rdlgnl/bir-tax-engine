@@ -187,16 +187,33 @@ class TaxProfile extends Model
     }
 
     /**
+     * When a sale counts for income tax. On 8% the tax is on gross receipts,
+     * which RR 8-2018 Sec. 2(g) defines as money "actually or constructively
+     * received", so an unpaid invoice waits even on accrual books. Graduated
+     * rates follow the books' method (NIRC Sec. 43).
+     * REVIEW: sellers of goods, whose 8% base is gross sales "reported during
+     * the period" (Sec. 2(h)), not receipts.
+     */
+    public function incomeMethod(): BooksMethod
+    {
+        return $this->regime === Regime::EightPercent ? BooksMethod::Cash : $this->books_method;
+    }
+
+    /**
      * The profile once an 8% year's sales pass ₱3,000,000: graduated rates
      * for the rest of the year (RR 8-2018). The OSD is chosen on the Q1
-     * return, which an 8% filer made for 8%, so expenses are itemized.
-     * REVIEW: whether the OSD can still be chosen after the switch.
+     * return, which an 8% filer made for 8%, so expenses are itemized: without
+     * the OSD signified on the return, itemized applies (RR 8-2018 Sec. 8).
+     * REVIEW: whether the OSD can be chosen on the first graduated return;
+     * the regulation doesn't say.
      * Read-only, like forYear().
      */
     public function onGraduatedRates(int $year): self
     {
         $copy = clone $this;
         $copy->yearView = $year;
+        // The year began on receipts, so it stays on them: a sale counts once.
+        $copy->setAttribute('books_method', $this->incomeMethod());
         $copy->setAttribute('regime', Regime::Graduated);
         $copy->setAttribute('deduction_method', $this->deduction_method ?? DeductionMethod::Itemized);
 

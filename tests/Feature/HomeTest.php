@@ -58,7 +58,7 @@ test('last year’s annual return is due in the first months', function () {
         ->where('nextPayment.state', 'due')
         ->where('nextPayment.year', 2026)
         ->where('nextPayment.quarter.form', '1701-MS')
-        ->where('nextPayment.quarter.due', 6100)
+        ->where('nextPayment.quarter.due', 2900)
         ->where('nextPayment.quarter.due_date', '2027-04-15'));
 });
 

@@ -82,6 +82,16 @@ test('an unremitted month stays due on the quarter and turns overdue after the 1
         ->and($q3)->toMatchArray(['remitted' => 0.0, 'still_due' => 6500.0]);
 });
 
+test('a company’s professional fee is 10% up to ₱720,000 of gross income and 15% over it', function () {
+    withholdingAgent();
+    $fee = ['type' => 'expense', 'occurred_on' => '2026-10-15', 'counterparty' => 'Ledger Partners Inc.', 'category' => 'person', 'amount' => '40000', 'agent_withheld' => ''];
+
+    $this->post('/transactions', [...$fee, 'atc' => 'WC010'])->assertSessionHasNoErrors();
+    $this->post('/transactions', [...$fee, 'atc' => 'WC011'])->assertSessionHasNoErrors();
+
+    expect(Transaction::query()->where('counterparty', 'Ledger Partners Inc.')->orderBy('id')->pluck('agent_withheld')->all())->toBe(['4000.00', '6000.00']);
+});
+
 test('a withholding agent records the ATC and tax kept on an expense; others don’t', function () {
     withholdingAgent();
     $expense = [
