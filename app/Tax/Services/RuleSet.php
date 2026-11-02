@@ -25,6 +25,16 @@ final class RuleSet
         return Arr::get($this->values, $key);
     }
 
+    /**
+     * Every rule in force on the date, as the rule pack has them.
+     *
+     * @return array<string, mixed>
+     */
+    public function values(): array
+    {
+        return $this->values;
+    }
+
     public function has(string $key): bool
     {
         return Arr::has($this->values, $key);

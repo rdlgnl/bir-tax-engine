@@ -5,6 +5,7 @@ use App\Corporations\Services\CorporateTax;
 use App\Payroll\Services\Payroll;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Services\ReturnForm;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\NoTaxRules;
@@ -116,4 +117,17 @@ test('a corporation’s 2023 MCIT is on the months’ average rate, and years be
     $corporation->quarters()->where('quarter', '<=', 2)->update(['sales' => 2_500_000]);
 
     expect($tax->annual($corporation, 2023)['mcit'])->toBe(60_000.0);
+});
+
+test('a return keeps the rule set it was computed on', function () {
+    TaxProfile::factory()->graduated()->create();
+    Transaction::factory()->on('2022-02-10')->create(['amount' => 100_000]);
+
+    $income = app(ReturnForm::class)->snapshot(TaxProfile::current(), 2022, 1, '1701Q');
+    $percentage = app(ReturnForm::class)->snapshot(TaxProfile::current(), 2022, 1, '2551Q');
+
+    expect($income['rule_set']['date'])->toBe('2022-12-31')
+        ->and($income['rule_set']['values']['graduated_brackets'][1])->toBe([250_000, 0, 0.20])
+        ->and($percentage['rule_set']['date'])->toBe('2022-01-01')
+        ->and($percentage['rule_set']['values']['percentage_tax_rate'])->toBe(0.01);
 });

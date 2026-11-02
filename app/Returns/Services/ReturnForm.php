@@ -59,6 +59,7 @@ use Illuminate\Support\Str;
  *     previous_figures: QuarterResult|null,
  *     rule_pack: string,
  *     rules: list<string>,
+ *     rule_set?: array{date: string, values: array<string, mixed>},
  *     taken_at: string,
  *     penalties: Penalty|null,
  *     amendment: AmendmentInfo|null,
@@ -165,6 +166,8 @@ class ReturnForm
             'previous_figures' => $result['quarters'][$quarter - 1] ?? null,
             'rule_pack' => config('tax.version'),
             'rules' => $this->rulesUsed($profile, $year, $quarter, $form, $result['quarters'][$quarter]),
+            // The dated rules in force for the period, kept with a filed return.
+            'rule_set' => $this->ruleSet($year, $quarter, $form),
             'taken_at' => ($today ?? CarbonImmutable::now())->toIso8601String(),
             'penalties' => $this->latePenalties($result['quarters'][$quarter], $form, $result['gross'], $today ?? CarbonImmutable::now()),
             'amendment' => null,
@@ -304,6 +307,19 @@ class ReturnForm
             'rules' => $snapshot['rules'],
             'taken_at' => $snapshot['taken_at'],
         ];
+    }
+
+    /**
+     * The rule set a return was computed on: the year's for income tax, the
+     * quarter's for percentage tax and VAT.
+     *
+     * @return array{date: string, values: array<string, mixed>}
+     */
+    private function ruleSet(int $year, int $quarter, string $form): array
+    {
+        $set = in_array($form, ['2551Q', '2550Q'], true) ? $this->rules->forQuarter($year, $quarter) : $this->rules->forYear($year);
+
+        return ['date' => $set->date->toDateString(), 'values' => $set->values()];
     }
 
     /**

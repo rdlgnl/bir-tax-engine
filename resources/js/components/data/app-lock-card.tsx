@@ -52,8 +52,11 @@ export function AppLockCard({
                     : 'Off'}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-                A PIN between your records and anyone else at this computer. If
-                you forget it, restore a backup on a fresh install.
+                The PIN locks the app's screens. It doesn't encrypt the files on
+                this computer: anyone who can open your account's files can
+                still read them, so keep your computer's login and disk
+                encryption on. Backups are encrypted with their own password. If
+                you forget the PIN, restore a backup on a fresh install.
             </p>
 
             <form
