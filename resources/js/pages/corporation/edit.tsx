@@ -158,7 +158,7 @@ export default function CorporationEdit({
                         <div className="grid gap-4 sm:grid-cols-2">
                             {field(
                                 'operations_began',
-                                'Year operations began',
+                                'Year registered with the BIR',
                                 { type: 'number', inputMode: 'numeric' },
                             )}
                             <div className="flex flex-col gap-1.5">

@@ -156,7 +156,7 @@ class CorporationController extends Controller
             'annual' => $annual,
             'figures' => $this->row($corporation, $year, 4)?->only(['sales', 'cost_of_sales', 'other_income', 'deductions', 'withheld']),
             'edition' => (string) config('tax.forms.1702-RT.edition'),
-            'mcitRate' => $this->tax->mcitRate($year),
+            'mcitRate' => $this->tax->mcitAverageRate($year),
         ]);
     }
 
@@ -224,13 +224,13 @@ class CorporationController extends Controller
     private function mcitNote(Corporation $corporation, int $year): array
     {
         $from = $this->tax->mcitFrom($corporation);
-        $rate = round($this->tax->mcitRate($year) * 100).'%';
+        $rate = rtrim(rtrim(number_format($this->tax->mcitAverageRate($year) * 100, 2), '0'), '.').'%';
 
         if ($year < $from) {
             return [
                 'applies' => false,
                 'title' => "Minimum corporate income tax starts in {$from}",
-                'body' => "It applies from the 4th year after operations began ({$corporation->operations_began}). Until then, only the regular rate applies.",
+                'body' => "It applies from the 4th year after the year it registered with the BIR ({$corporation->operations_began}). Until then, only the regular rate applies.",
             ];
         }
 
@@ -239,7 +239,7 @@ class CorporationController extends Controller
         return [
             'applies' => true,
             'title' => "Minimum corporate income tax applies from {$from}",
-            'body' => "{$year} is the {$nth} year after operations began ({$corporation->operations_began}), so each quarter compares {$rate} of gross income with the regular tax.",
+            'body' => "{$year} is the {$nth} year after it registered with the BIR ({$corporation->operations_began}), so each quarter compares {$rate} of gross income with the regular tax.",
         ];
     }
 

@@ -10,9 +10,11 @@ use App\Corporations\Services\CorporateTax;
  * computation for the year, with the quarters' payments and the 2307s as
  * credits, and the totals on page 1.
  *
- * The itemized deductions go on Schedule I as one total; breaking them
- * down, NOLCO, the MCIT carry-over and the reconciliation with the books
- * (pages 3 and 4) are for the corporation's accountant.
+ * The itemized deductions go on Schedule I as one total, and the earlier
+ * years' losses (NOLCO, item 36) and excess MCIT (item 47) as the app
+ * carried them; breaking the deductions down, the NOLCO and MCIT schedules
+ * and the reconciliation with the books (pages 3 and 4) are for the
+ * corporation's accountant.
  *
  * @phpstan-import-type Values from FormItems
  * @phpstan-import-type AnnualEstimate from CorporateTax
@@ -32,7 +34,8 @@ class Form1702RTItems extends CorporationFormItems
         $other = $this->peso($f['other_income']);
         $grossIncome = $sales - $cost + $other;
         $deductions = $osd ? $this->peso($grossIncome * (float) config('tax.corporation.osd_rate')) : $this->peso($f['deductions']);
-        $taxable = $grossIncome - $deductions;
+        $nolco = $this->peso($annual['nolco']);
+        $taxable = $grossIncome - $deductions - $nolco;
         $regular = $this->peso(max(0, $taxable) * $annual['rate']);
         // Each quarter at its own rate (1% until June 2023, then 2%).
         $mcit = $annual['mcit_applies'] ? $this->peso($annual['mcit']) : null;
@@ -40,6 +43,7 @@ class Form1702RTItems extends CorporationFormItems
         $credits = [
             '45' => $this->peso($annual['paid_mcit']),
             '46' => $this->peso($annual['paid_regular']),
+            '47' => $this->peso($annual['excess_mcit_applied']),
             '48' => $this->peso($annual['withheld_previous']),
             '49' => $this->peso($annual['withheld_fourth_quarter']),
         ];
@@ -95,7 +99,8 @@ class Form1702RTItems extends CorporationFormItems
             '32' => $other,
             '33' => $grossIncome,
             '34' => $osd ? null : $deductions,
-            '37' => $osd ? null : $deductions,
+            '36' => $osd ? null : $nolco,
+            '37' => $osd ? null : $deductions + $nolco,
             '38' => $osd ? $deductions : null,
             '39' => $taxable,
             '40' => (string) round($annual['rate'] * 100),

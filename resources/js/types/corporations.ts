@@ -79,6 +79,18 @@ export type CorporateAnnualEstimate = CorporateTaxRate & {
     filed_on: string | null;
     reference_number: string | null;
     amount_paid: number | null;
+    /** Earlier years' losses deducted this year (NOLCO). */
+    nolco: number;
+    net_taxable_income: number;
+    /** Earlier years' MCIT over the regular tax, credited this year. */
+    excess_mcit_applied: number;
+    carried: {
+        kind: 'nolco' | 'excess_mcit';
+        year: number;
+        available: number;
+        applied: number;
+        last_year: number;
+    }[];
 };
 
 /** A quarter's figures as the books have them, for editing. */
