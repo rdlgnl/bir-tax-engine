@@ -235,10 +235,30 @@ test('0619-E, 1601-EQ and 1604-E deadlines show on the calendar for a withholdin
         fn (array $item) => $item['kind'] === 'withholding',
     ));
 
-    expect(array_column($withholding, 'title'))->toBe(['August 0619-E · withholding', 'Q3 1601-EQ · withholding', '2026 1604-E · list of payees'])
+    // Withholding began in July: nothing before it, and October counts even with nothing withheld yet.
+    expect(array_column($withholding, 'title'))->toBe(['August 0619-E · withholding', 'Q3 1601-EQ · withholding', 'October 0619-E · withholding', 'Q4 1601-EQ · withholding', '2026 1604-E · list of payees'])
         ->and($withholding[0])->toMatchArray(['status' => 'overdue', 'amount' => 3500.0, 'href' => '/withholding/2026/month/8'])
         ->and($withholding[1])->toMatchArray(['amount' => 5000.0, 'href' => '/withholding/2026/quarter/3'])
-        ->and($withholding[2])->toMatchArray(['date' => '2027-03-01', 'status' => 'open', 'amount' => null, 'href' => '/withholding/2026/annual']);
+        ->and($withholding[2])->toMatchArray(['status' => 'open', 'amount' => null, 'note' => 'So far'])
+        ->and($withholding[4])->toMatchArray(['date' => '2027-03-01', 'status' => 'open', 'amount' => null, 'href' => '/withholding/2026/annual']);
+});
+
+test('a month with nothing withheld still has its no-payment 0619-E (RMC 12-2015)', function () {
+    $profile = withholdingAgent();
+    remitted(7, 1_500);
+    remitted(8, 3_500);
+    $this->travelTo(CarbonImmutable::parse('2026-12-20 10:00'));
+
+    $year = app(TaxCalculationService::class)->forYear($profile, 2026, CarbonImmutable::now());
+    $withholding = collect(app(TaxObligations::class)->deadlines($profile, $year))->where('kind', 'withholding')->keyBy('title');
+
+    expect($withholding->get('October 0619-E · withholding'))->toMatchArray(['date' => '2026-11-10', 'status' => 'overdue', 'amount' => 0.0, 'note' => 'No payment'])
+        ->and($withholding->get('November 0619-E · withholding'))->toMatchArray(['status' => 'overdue', 'note' => 'No payment'])
+        ->and($withholding->has('January 0619-E · withholding'))->toBeFalse();
+
+    $this->get('/withholding/2026/month/10/pdf')->assertOk();
+    // The page marks the months before July as before withholding started.
+    $this->get('/withholding')->assertInertia(fn (Assert $page) => $page->where('startedOn', '2026-07-01'));
 });
 
 test('a month’s 0619-E can be filed once the month is over, before its quarter ends', function () {

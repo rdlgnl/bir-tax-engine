@@ -345,7 +345,7 @@ class TaxObligations
         }
 
         if ($profile->withholding_agent) {
-            foreach ($this->withholding($y, $includeFiled) as $item) {
+            foreach ($this->withholding($profile, $y, $includeFiled) as $item) {
                 $items[] = $item;
             }
         }
@@ -373,21 +373,35 @@ class TaxObligations
 
     /**
      * A withholding agent's 0619-E for the first two months of each quarter,
-     * 1601-EQ for the quarter and 1604-E for the year, once something was withheld.
-     * REVIEW: whether a month or quarter with nothing withheld still needs a return.
+     * 1601-EQ for the quarter and 1604-E for the year, from when they
+     * started withholding: a period with nothing withheld still has its
+     * return, a no-payment one (RMC 12-2015).
+     * REVIEW: the BIR texts found confirm it for the 0619-E; the 1601-EQ
+     * and 1604-E follow the same registration.
      *
      * @return list<Deadline>
      */
-    private function withholding(int $year, bool $includeFiled): array
+    private function withholding(TaxProfile $profile, int $year, bool $includeFiled): array
     {
+        $start = $this->agent->startedOn($profile);
+        $today = CarbonImmutable::now();
+
+        if ($start === null || $start->year > $year) {
+            return [];
+        }
+
+        // A period counts once it has begun and the taxpayer was withholding by its end.
+        $counts = fn (int $first, int $last) => CarbonImmutable::create($year, $first)->lessThanOrEqualTo($today)
+            && CarbonImmutable::create($year, $last)->endOfMonth()->greaterThanOrEqualTo($start);
         $items = [];
 
         foreach ($this->agent->year($year) as $q) {
             foreach (array_slice($q['months'], 0, 2) as $m) {
-                if ($m['withheld'] <= 0 || $m['due_date'] === null || ($m['status'] === 'filed' && ! $includeFiled)) {
+                if ($m['due_date'] === null || ! $counts($m['month'], $m['month']) || ($m['status'] === 'filed' && ! $includeFiled)) {
                     continue;
                 }
 
+                $nothing = $m['withheld'] <= 0;
                 $items[] = $this->deadline(
                     date: $m['due_date'],
                     statutoryDate: $m['due_date'],
@@ -395,12 +409,16 @@ class TaxObligations
                     kind: 'withholding',
                     status: $m['status'],
                     amount: $m['status'] === 'open' ? null : $m['withheld'],
-                    note: $m['status'] === 'open' ? 'So far' : null,
+                    note: match (true) {
+                        $nothing && $m['status'] !== 'open' => 'No payment',
+                        $m['status'] === 'open' => 'So far',
+                        default => null,
+                    },
                     href: route('withholding.month', [$year, $m['month']], absolute: false),
                 );
             }
 
-            if ($q['withheld'] <= 0 || ($q['status'] === 'filed' && ! $includeFiled)) {
+            if (! $counts($q['quarter'] * 3 - 2, $q['quarter'] * 3) || ($q['status'] === 'filed' && ! $includeFiled)) {
                 continue;
             }
 
@@ -411,14 +429,18 @@ class TaxObligations
                 kind: 'withholding',
                 status: $q['status'],
                 amount: $q['status'] === 'open' ? null : $q['still_due'],
-                note: $q['status'] === 'open' ? 'So far' : null,
+                note: match (true) {
+                    $q['status'] === 'open' => 'So far',
+                    $q['still_due'] <= 0 => 'No payment',
+                    default => null,
+                },
                 href: route('withholding.quarter', [$year, $q['quarter']], absolute: false),
             );
         }
 
         $annual = $this->agent->annual($year);
 
-        if ($annual['withheld'] > 0 && ($annual['status'] !== 'filed' || $includeFiled)) {
+        if ($annual['status'] !== 'filed' || $includeFiled) {
             $items[] = $this->deadline(
                 date: $annual['due_date'],
                 statutoryDate: $annual['due_date'],

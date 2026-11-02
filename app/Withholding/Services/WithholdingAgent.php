@@ -2,6 +2,7 @@
 
 namespace App\Withholding\Services;
 
+use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Tax\Services\FilingCalendar;
 use App\Transactions\Enums\TransactionType;
@@ -174,6 +175,24 @@ class WithholdingAgent
                 'date' => $t->occurred_on->toDateString(),
             ])->all()),
         ];
+    }
+
+    /**
+     * When the taxpayer started withholding: their first payment withheld
+     * on, else their BIR registration. Returns are due every period from
+     * then, with nothing withheld or not, until withholding is removed from
+     * the registration (RMC 12-2015, RMC 28-2017).
+     * REVIEW: the app doesn't record when withholding was registered.
+     */
+    public function startedOn(TaxProfile $profile): ?CarbonImmutable
+    {
+        $first = Transaction::query()->where('type', TransactionType::Expense)->where('agent_withheld', '>', 0)->min('occurred_on');
+
+        return match (true) {
+            $first !== null => CarbonImmutable::parse($first)->startOfMonth(),
+            $profile->registered_on !== null => CarbonImmutable::parse($profile->registered_on)->startOfMonth(),
+            default => null,
+        };
     }
 
     public static function key(string $payee): string
