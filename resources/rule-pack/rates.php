@@ -78,8 +78,8 @@ return [
             'rule_ids' => ['percentage_tax' => 'PT-1PCT'],
         ],
         // RA 11534 (CREATE) for corporations, from the first full year the
-        // app supports: 2020 straddles the change and isn't encoded.
-        // REVIEW: the 1% MCIT for July 2020 to June 2023.
+        // app supports: 2020 straddles the change and isn't encoded. The 1%
+        // MCIT runs July 1, 2020 to June 30, 2023 (RR 5-2021's rate table).
         '2021-01-01' => [
             'corporation' => ['rate' => 0.25, 'small_rate' => 0.20, 'mcit_rate' => 0.01],
         ],
@@ -152,12 +152,14 @@ return [
 
     // A corporation's income tax (NIRC section 27, as the CREATE Act changed
     // it): the regular rate, or the lower rate when taxable income is
-    // ₱5,000,000 or less and total assets (excluding land) are ₱100,000,000
-    // or less. From the 4th year after operations began, the tax is at least
-    // the MCIT on gross income. The rates are in `dated`. The quarterly 1702Q
-    // is due 60 days after each of the first three quarters. REVIEW: rates,
-    // thresholds, the MCIT start year, and testing the lower rate on the
-    // taxable income to date each quarter.
+    // ₱5,000,000 or less and total assets are ₱100,000,000 or less, net of
+    // depreciation and excluding only the land under the office, plant and
+    // equipment (RR 5-2021; RMC 62-2021). From the 4th taxable year after
+    // the year it registered with the BIR, the tax is at least the MCIT on
+    // gross income (RMC 62-2021). The rates are in `dated`. The quarterly
+    // 1702Q is due 60 days after each of the first three quarters.
+    // REVIEW: testing the lower rate on the taxable income to date each
+    // quarter; neither RR 5-2021 nor RMC 62-2021 says how the 1702Q applies it.
     'corporation' => [
         'small_taxable_income' => 5_000_000,
         'small_total_assets' => 100_000_000,

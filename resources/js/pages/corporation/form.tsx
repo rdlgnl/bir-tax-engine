@@ -41,7 +41,7 @@ export default function CorporationForm({
         {
             key: 'rate',
             label: tax.small
-                ? '20% rate: taxable income ≤ ₱5M and assets ≤ ₱100M (excluding land)'
+                ? '20% rate: taxable income ≤ ₱5M and assets ≤ ₱100M (excluding the land under the office)'
                 : '25% rate: taxable income or assets above the 20% limits',
         },
         {

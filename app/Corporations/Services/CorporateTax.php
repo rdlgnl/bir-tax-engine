@@ -172,7 +172,8 @@ class CorporateTax
     /**
      * The MCIT rate over the first months of a year, as the months' average:
      * in 2023, 1% for January to June and 2% after, so 1.5% for the year
-     * (RMC 69-2023). REVIEW: RMC 36-2024's text on 2023 wasn't read.
+     * (RMC 69-2023). RMC 36-2024 gives 1.50% for a year ending December 31,
+     * 2023 (as Grant Thornton reports it). REVIEW: its text wasn't read.
      */
     public function mcitAverageRate(int $year, int $months = 12): float
     {

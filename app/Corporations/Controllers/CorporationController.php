@@ -210,10 +210,10 @@ class CorporationController extends Controller
         $assets = '₱'.Number::abbreviate((float) config('tax.corporation.small_total_assets'));
 
         return $small
-            ? ['title' => 'Why 20%, not 25%', 'body' => "Taxable income is {$income} or less and total assets are {$assets} or less (excluding land). Above either, the rate is 25%."]
+            ? ['title' => 'Why 20%, not 25%', 'body' => "Taxable income is {$income} or less and total assets are {$assets} or less (excluding the land under the office, plant and equipment). Above either, the rate is 25%."]
             : ['title' => 'Why 25%, not 20%', 'body' => (float) $corporation->total_assets > (float) config('tax.corporation.small_total_assets')
-                ? "Total assets (excluding land) are above {$assets}. The 20% rate is for corporations with {$assets} or less and taxable income of {$income} or less."
-                : "Taxable income so far is above {$income}. The 20% rate is for {$income} or less, with total assets of {$assets} or less (excluding land)."];
+                ? "Total assets (excluding the land under the office, plant and equipment) are above {$assets}. The 20% rate is for corporations with {$assets} or less and taxable income of {$income} or less."
+                : "Taxable income so far is above {$income}. The 20% rate is for {$income} or less, with total assets of {$assets} or less (excluding the land under the office, plant and equipment)."];
     }
 
     /**
