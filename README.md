@@ -78,3 +78,14 @@ A packaged build (the desktop app) runs on the taxpayer's own computer, so:
 - Set `APP_URL` to the address the app answers on: `RejectUnknownHosts` only answers `localhost`, `127.0.0.1`, `[::1]` and that host.
 - Run `php artisan config:cache`; the rule pack in `resources/rule-pack/` is read into it.
 - Keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md).
+
+## Updating the rule pack
+
+The rules are in `resources/rule-pack/`, one file per kind, read as one by `config/tax.php`.
+
+1. Change the part, citing the issuance. A rule that changes on a date goes in `rates.php` → `dated` under that date, holding only what changed; earlier periods keep their rules, and filed returns keep the rule set they were filed on.
+2. Bump the pack's `version` and the part's under `parts`, describe the change under `changes` (the app shows it on its "what changed" screen), and clear the part's `reviewed` sign-off: it's a new version to review.
+3. Run the tests.
+4. Once a tax professional has checked it, record their sign-off on the part and on each rule it cites (`'reviewed' => ['by' => …, 'on' => 'YYYY-MM-DD', 'source' => …]`). `php artisan rules:status` lists what's left; `--strict` fails until nothing is, for a release check.
+
+Every December, add the next year's holidays to `holidays.php` from the proclamation (regular holidays and special non-working days, nationwide; the Eid holidays when they're declared). Until a year has a list the calendar moves deadlines off weekends only, and says so.

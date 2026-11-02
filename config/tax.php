@@ -15,8 +15,9 @@
 |
 | REVIEW STATUS: encoded from the NIRC as amended by RA 10963 (TRAIN) and
 | the issuances cited in each part, and cross-checked against the figures on the
-| approved screens. The design's "blueprint doc" was not available, so
-| `reviewed` stays false until a tax professional signs off.
+| approved screens. Nothing is reviewed until a tax professional signs
+| off each part (under `parts`) and each rule (in citations.php); run
+| `php artisan rules:status` to see what's left.
 |
 | Amounts are in pesos.
 |
@@ -26,18 +27,18 @@ return [
 
     'version' => '2026.11',
 
-    'reviewed' => false,
-
     // Each part of the pack, reviewed and versioned on its own. A part is
-    // signed off once a tax professional has checked every rule in it.
+    // signed off once a tax professional has checked every rule in it:
+    // 'reviewed' => ['by' => 'Name, CPA', 'on' => 'YYYY-MM-DD', 'source' => '…'].
+    // The pack counts as reviewed when every part is.
     'parts' => [
-        'rates' => ['title' => 'Rates and thresholds', 'version' => '2026.11', 'reviewed' => false],
-        'deadlines' => ['title' => 'Deadlines', 'version' => '2026.11', 'reviewed' => false],
-        'holidays' => ['title' => 'Holidays', 'version' => '2026.11', 'reviewed' => false],
-        'forms' => ['title' => 'Form editions', 'version' => '2026.11', 'reviewed' => false],
-        'codes' => ['title' => 'Tax codes', 'version' => '2026.11', 'reviewed' => false],
-        'formats' => ['title' => 'File formats', 'version' => '2026.11', 'reviewed' => false],
-        'citations' => ['title' => 'Rule citations', 'version' => '2026.11', 'reviewed' => false],
+        'rates' => ['title' => 'Rates and thresholds', 'version' => '2026.11', 'reviewed' => null],
+        'deadlines' => ['title' => 'Deadlines', 'version' => '2026.11', 'reviewed' => null],
+        'holidays' => ['title' => 'Holidays', 'version' => '2026.11', 'reviewed' => null],
+        'forms' => ['title' => 'Form editions', 'version' => '2026.11', 'reviewed' => null],
+        'codes' => ['title' => 'Tax codes', 'version' => '2026.11', 'reviewed' => null],
+        'formats' => ['title' => 'File formats', 'version' => '2026.11', 'reviewed' => null],
+        'citations' => ['title' => 'Rule citations', 'version' => '2026.11', 'reviewed' => null],
     ],
 
     // What each rule pack changed, newest first, for the "what changed" screen.

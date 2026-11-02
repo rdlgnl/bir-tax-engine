@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 84 of 97 done.
+Status: 87 of 97 done.
 
 ---
 
@@ -61,7 +61,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 - [x] List every rule the app applies, `REVIEW` comments included, for a CPA: [RULE-REVIEW.md](RULE-REVIEW.md) (each rule as applied, its value, basis and periods, a decision column, seven questions and a sign-off).
 - [ ] CPA reviews each one; record reviewer, date and source per rule.
-- [ ] Set `reviewed` per rule (not one flag for the whole pack); the app keeps saying "not yet reviewed" for any rule without sign-off.
+- [x] Set `reviewed` per rule and per part (not one flag for the whole pack), as a sign-off record (who, when, against what); the app says "not yet reviewed" for any rule without one, and the pack counts as reviewed when every part is. `php artisan rules:status` lists what's left.
 
 **Includes:**
 
@@ -195,7 +195,7 @@ Still to build:
 ### M1 · Holidays beyond 2027
 
 - [x] Warn for years without a holiday list: the calendar says deadlines move off weekends only ([FilingCalendar.php](../app/Tax/Services/FilingCalendar.php) `knowsHolidays`).
-- [ ] Yearly holiday update as part of the rule-pack process.
+- [x] Yearly holiday update as part of the rule-pack process: in the README's "Updating the rule pack".
 
 ---
 
@@ -244,7 +244,7 @@ Add these tests (table-driven where possible):
 
 - [x] EOPT taxpayer classification (micro, small, medium, large) stored per year, set on the profile; RR 8-2024 bands (₱3M, ₱20M, ₱1B).
 - [ ] E-invoicing (EIS) readiness, if the app ever issues invoices.
-- [ ] Rule updates shipped as dated rule files with a sign-off record (C1 + C3).
+- [x] Rule updates shipped as dated rule files with a sign-off record (C1 + C3): the pack's parts, each versioned with its sign-off, and the update steps in the README.
 - [ ] Filing and payment through an accredited provider: decision first (not in the design).
 
 ---

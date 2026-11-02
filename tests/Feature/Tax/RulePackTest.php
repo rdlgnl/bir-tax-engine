@@ -49,5 +49,5 @@ test('the rules page also describes the pack in use', function () {
         ->has('changes', 2)
         // Each kind of rule on its own version and sign-off.
         ->has('parts', 7)
-        ->where('parts.2', ['title' => 'Holidays', 'version' => '2026.11', 'reviewed' => false]));
+        ->where('parts.2', ['title' => 'Holidays', 'version' => '2026.11', 'reviewed' => null]));
 });

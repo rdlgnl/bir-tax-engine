@@ -1,3 +1,4 @@
+import type { SignOff } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChevronLeft } from 'lucide-react';
 import { Note } from '@/components/note';
@@ -17,7 +18,7 @@ type Numbers = {
 type Props = {
     version: string;
     reviewed: boolean;
-    parts: { title: string; version: string; reviewed: boolean }[];
+    parts: { title: string; version: string; reviewed: SignOff | null }[];
     changes: { area: string; title: string; summary: string }[];
     pending: boolean;
     previousVersion: string | null;
@@ -138,7 +139,7 @@ export default function Rules({
                                     <span className="text-sm text-muted-foreground">
                                         {part.version} ·{' '}
                                         {part.reviewed
-                                            ? 'reviewed'
+                                            ? `reviewed by ${part.reviewed.by}, ${part.reviewed.on}`
                                             : 'not yet reviewed'}
                                     </span>
                                 </li>

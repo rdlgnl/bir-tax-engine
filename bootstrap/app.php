@@ -33,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         __DIR__.'/../app/Returns/Commands',
+        __DIR__.'/../app/Tax/Commands',
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

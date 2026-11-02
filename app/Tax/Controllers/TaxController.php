@@ -6,6 +6,7 @@ use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Tax\Services\RuleReview;
 use App\Tax\Services\TaxCalculationService;
 use App\Tax\Services\TaxExplainer;
 use App\Transactions\Models\Transaction;
@@ -41,7 +42,7 @@ class TaxController extends Controller
             'methodLockedOn' => Filing::firstQuarterReturn($year)?->filed_on->toDateString(),
             'regimeLabel' => $taxpayer->regime?->label(),
             'purelySelfEmployed' => $profile->isPurelySelfEmployed(),
-            'rulePack' => ['version' => config('tax.version'), 'reviewed' => config('tax.reviewed')],
+            'rulePack' => ['version' => config('tax.version'), 'reviewed' => RuleReview::packReviewed()],
         ]);
     }
 }

@@ -186,3 +186,5 @@ Please answer each in a few lines, with the basis.
 | Rule pack version reviewed | 2026.11 |
 | Rows changed               |         |
 | Signature                  |         |
+
+Once signed, the sign-off is recorded in the rule pack itself, so the app stops saying "not yet reviewed": for each part reviewed, `'reviewed' => ['by' => 'Name, CPA', 'on' => 'YYYY-MM-DD', 'source' => 'what it was checked against']` under `parts` in [config/tax.php](../config/tax.php), and the same for each rule in [resources/rule-pack/citations.php](../resources/rule-pack/citations.php). `php artisan rules:status` lists what's still to sign off.
