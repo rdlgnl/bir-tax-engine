@@ -22,6 +22,9 @@ return [
     // moves deadlines off weekends only, and the calendar says so.
     // 2027 is Proclamation No. 1427, s. 2026 (as GMA News lists it; EDSA
     // Day is a working day). REVIEW: add the Eid holidays when they're declared.
+    //
+    // A year after the last list is estimated from `usual_holidays` below,
+    // until its proclamation is added here.
     'holidays' => [
         '2018-01-01' => 'New Year\'s Day',
         '2018-02-16' => 'Chinese New Year',
@@ -228,6 +231,31 @@ return [
         '2027-12-25' => 'Christmas Day',
         '2027-12-30' => 'Rizal Day',
         '2027-12-31' => 'Last day of the year',
+    ],
+
+    // A year without a list: only the days every proclamation from 2018 to
+    // 2027 kept, so an estimated deadline is never later than the real one.
+    // Holy Week falls on the days before Easter, and National Heroes Day on
+    // the last Monday of August. Left out: days that some years moved
+    // (Araw ng Kagitingan, Ninoy Aquino Day, Bonifacio Day), the extra
+    // special days each proclamation adds, Chinese New Year and the Eid
+    // days, which follow lunar calendars.
+    'usual_holidays' => [
+        'fixed' => [
+            '01-01' => "New Year's Day",
+            '05-01' => 'Labor Day',
+            '06-12' => 'Independence Day',
+            '11-01' => "All Saints' Day",
+            '12-25' => 'Christmas Day',
+            '12-30' => 'Rizal Day',
+        ],
+        // Days before Easter Sunday.
+        'before_easter' => [
+            3 => 'Maundy Thursday',
+            2 => 'Good Friday',
+            1 => 'Black Saturday',
+        ],
+        'last_monday_of_august' => 'National Heroes Day',
     ],
 
 ];

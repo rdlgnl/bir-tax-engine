@@ -4,6 +4,7 @@ use App\Compliance\Controllers\CalendarController;
 use App\Compliance\Controllers\CertificateController;
 use App\Compliance\Controllers\CompensationController;
 use App\Compliance\Controllers\ComplianceController;
+use App\Compliance\Controllers\HolidayController;
 use App\Compliance\Controllers\SwornDeclarationController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,10 @@ Route::middleware('setup.complete')->group(function () {
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
     Route::get('/calendar/export', [CalendarController::class, 'export'])->name('calendar.export');
+    Route::post('/calendar/holidays', [HolidayController::class, 'store'])->name('calendar.holidays.store');
+    Route::post('/calendar/holidays/{date}/off', [HolidayController::class, 'off'])->where('date', '\d{4}-\d{2}-\d{2}')->name('calendar.holidays.off');
+    Route::delete('/calendar/holidays/{date}', [HolidayController::class, 'undo'])->where('date', '\d{4}-\d{2}-\d{2}')->name('calendar.holidays.undo');
+    Route::delete('/calendar/holidays/year/{year}', [HolidayController::class, 'reset'])->whereNumber('year')->name('calendar.holidays.reset');
 
     Route::get('/sworn/{year?}', [SwornDeclarationController::class, 'show'])->whereNumber('year')->name('sworn.show');
     Route::get('/sworn/{year}/pdf/{client?}', [SwornDeclarationController::class, 'pdf'])->whereNumber('year')->where('client', '[a-z0-9-]+')->name('sworn.pdf');

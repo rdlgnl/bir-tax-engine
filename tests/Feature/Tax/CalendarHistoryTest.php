@@ -26,6 +26,28 @@ test('past years’ holidays move their deadlines, and a year without a list say
     $this->get('/calendar?month=2028-01')->assertInertia(fn (Assert $page) => $page->where('holidaysKnown', false));
 });
 
+test('a year without a proclamation uses the holidays every year keeps', function () {
+    $calendar = app(FilingCalendar::class);
+
+    // Easter 2028 is April 16: Maundy Thursday to Black Saturday, then Sunday.
+    expect($calendar->nextWorkingDay(CarbonImmutable::parse('2028-04-13'))->toDateString())->toBe('2028-04-17')
+        // National Heroes Day, the last Monday of August.
+        ->and($calendar->nextWorkingDay(CarbonImmutable::parse('2028-08-28'))->toDateString())->toBe('2028-08-29')
+        ->and($calendar->holidayName(CarbonImmutable::parse('2028-06-12')))->toBe('Independence Day')
+        // Days some years moved aren't assumed, so a deadline is never late.
+        ->and($calendar->holidayName(CarbonImmutable::parse('2028-11-30')))->toBeNull()
+        ->and($calendar->holidaysIn(2028))->toHaveCount(10)
+        // A proclaimed year keeps its own list.
+        ->and($calendar->holidaysIn(2023))->toHaveKey('2023-04-10');
+
+    $this->travelTo(CarbonImmutable::parse('2026-11-05 10:00'));
+    TaxProfile::factory()->create();
+
+    $this->get('/calendar?month=2028-04')->assertInertia(fn (Assert $page) => $page
+        ->where('holidays.0', ['date' => '2028-04-13', 'name' => 'Maundy Thursday'])
+        ->has('holidays', 3));
+});
+
 test('annual tax over ₱2,000 can be paid in two, and the second half goes on the calendar', function () {
     $this->travelTo(CarbonImmutable::parse('2026-03-01 10:00'));
     $profile = TaxProfile::factory()->create();
