@@ -4,7 +4,7 @@ namespace App\Returns\Services;
 
 use App\Compliance\Models\Certificate;
 use App\Profiles\Models\TaxProfile;
-use App\Tax\Services\FilingCalendar;
+use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
  */
 class Sawt
 {
-    public function __construct(private FilingCalendar $calendar) {}
+    public function __construct(private TaxCalculationService $engine) {}
 
     /**
      * One row per client, alphabetically, named and coded as on their 2307
@@ -65,9 +65,9 @@ class Sawt
      * The return the SAWT is attached to: the 1701Q, or the annual return
      * for the fourth quarter.
      */
-    public function form(TaxProfile $profile, int $quarter): string
+    public function form(TaxProfile $profile, int $year, int $quarter): string
     {
-        return $this->calendar->incomeTaxForm($profile, $quarter);
+        return $this->engine->forYear($profile, $year)['quarters'][$quarter]['form'];
     }
 
     /**
@@ -85,7 +85,7 @@ class Sawt
             '{tin}' => $tin,
             '{branch}' => config('tax.sawt.branch_code'),
             '{period}' => $this->periodEnd($year, $quarter)->format('mY'),
-            '{form}' => $this->form($profile, $quarter),
+            '{form}' => $this->form($profile, $year, $quarter),
         ]);
     }
 
@@ -97,7 +97,7 @@ class Sawt
     {
         $tin = (string) $this->tin($profile);
         $branch = config('tax.sawt.branch_code');
-        $form = $this->form($profile, $quarter);
+        $form = $this->form($profile, $year, $quarter);
         $period = $this->periodEnd($year, $quarter)->format('m/Y');
         $name = $profile->nameParts();
         $rows = $this->rows($year, $quarter);

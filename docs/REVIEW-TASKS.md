@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 34 of 94 done.
+Status: 42 of 93 done.
 
 ---
 
@@ -21,7 +21,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [x] C2 Elections are kept per tax year
 - [ ] C3 Rule pack reviewed by a CPA
 - [x] H1 A sale can't be counted twice
-- [ ] H3 Filing channel settled and the copy says it plainly
+- [x] H3 Filing channel settled and the copy says it plainly
 - [x] H5 Host header check (DNS rebinding)
 
 ---
@@ -112,12 +112,11 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### H3 · Filing channel settled and the copy says it plainly
 
-- [ ] **Needs verification:** which taxpayers must e-file (eBIRForms or eFPS) and whether a printed filled PDF is accepted for each form we produce (RR 9-2013 and later; EOPT "file anywhere").
-- [ ] Per form, say exactly how to file it. Where e-filing is required, add a "copy these into eBIRForms" checklist with item numbers.
-- [ ] Rename "Download filled form" where it's a reference copy, not the filing.
+- [x] Which taxpayers must e-file and whether a printed filled PDF is accepted: RMC 20-2026, taxpayers not on eFPS file through eBIRForms; paper only for the 1701-MS of micro and small taxpayers, or when the BIR declares its systems down. In the rules as `tax.filing.paper_forms`.
+- [x] Per form, say exactly how to file it: the return pages already list the values to copy into eBIRForms; the annual page's steps and the form preview now say e-file, except for the 1701-MS.
+- [x] "Download filled form" is "See your filled form" where it's a worksheet.
 
-**Done when:** no screen implies a printed PDF is a filing where it isn't.
-**Waiting on:** Question Q2 in [RULE-REVIEW.md](RULE-REVIEW.md).
+**Done when:** no screen implies a printed PDF is a filing where it isn't. ✔ [FilingGuidanceTest.php](../tests/Feature/Returns/FilingGuidanceTest.php)
 
 ### H4 · History of changes to records
 
@@ -141,12 +140,12 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### H6 · Financial statements on the annual return
 
-- [ ] Graduated filers: say financial statements are attached.
-- [ ] **Needs verification:** the CPA audit threshold (NIRC Sec. 232(A), likely gross annual sales above ₱3,000,000 after TRAIN). Put it in the rules.
-- [ ] Show it on the annual return page ([returns/annual.tsx](../resources/js/pages/returns/annual.tsx)) and the checklist.
+- [x] Graduated filers on itemized deductions: say financial statements (or an Account Information Form) are attached; on OSD or 8%, none (RMC 17-2019).
+- [x] The CPA audit threshold: gross sales above ₱3,000,000 (NIRC Sec. 232(A) as TRAIN amended it), in the rules as `tax.financial_statements.audit_above`.
+- [x] Show it on the annual return page ([returns/annual.tsx](../resources/js/pages/returns/annual.tsx)).
+- [ ] And on the compliance checklist.
 
-**Done when:** a graduated filer above the threshold is told to attach audited statements.
-**Waiting on:** Question Q3 in [RULE-REVIEW.md](RULE-REVIEW.md).
+**Done when:** a graduated filer above the threshold is told to attach audited statements. ✔ [FilingGuidanceTest.php](../tests/Feature/Returns/FilingGuidanceTest.php)
 
 ### M3 · Payroll exemptions
 
@@ -187,15 +186,13 @@ Done:
 - [x] Payroll: the BIR's monthly withholding table (RR 11-2018 Annex "D" and "E"), the cumulative average method for a new hire with an earlier employer this year, and the annualized computation only at year end. Contributions, de minimis benefits (RR 29-2025 limits listed from January 6, 2026), the 13th month up to ₱90,000 and a minimum wage are kept out of taxable pay, on the 1601-C (items 15–20, 23) and the 2316 (items 10, 11, 22, 25B, 29, 34–36, 48). Replaces M3.
 - [x] 8% to graduated: once an 8% year's sales exceed ₱3M, graduated rates (itemized) apply from that quarter with the 8% paid credited; that quarter's 2551Q carries percentage tax from January to the month passed; the annual return is the 1701; a calendar reminder to register for VAT by the end of the next month (RR 8-2018). The app no longer stops at ₱3M.
 - [x] No-payment returns: a withholding agent's 0619-E, 1601-EQ and 1604-E are listed every period from when withholding started, at ₱0 with "No payment"; the withholding page marks earlier periods and links to removing withholding from the registration (RMC 12-2015). The 1701Q and 2551Q were already listed at ₱0.
+- [x] Financial statements on the annual return by deduction method, audited above ₱3M (H6); filing channel: e-file by default, paper only for the 1701-MS (H3); the 1701-MS only for micro and small taxpayers, medium ones on the 1701A (8% or OSD) or 1701, by the class the BIR assigned or the estimate from sales.
 - [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
 
 Still to build:
 
 - [ ] No-payment 1702Q for a corporation with no income, and a 1601-C for months with no employees while registered for withholding on compensation (the app doesn't record that registration).
 - [ ] 5% professional fee rate (WI010) only when the payee is non-VAT and declared under ₱3M (RR 14-2018).
-- [ ] Financial statements: graduated with itemized attaches them, audited above ₱3M of gross sales (NIRC Sec. 232(A)); OSD and 8% need none. Replaces H6.
-- [ ] Filing channel: e-filing is the default; the filled PDFs are worksheets to copy, except 1701-MS. Replaces H3.
-- [ ] 1701-MS only for micro and small taxpayers.
 - [ ] Notices: the RR 4-2026 abatement (until December 31, 2026); 2550M is optional; EIS by December 31, 2026 for those covered.
 - [ ] Corporations: MCIT at the monthly average for 2023 (1.5%), MCIT from the fourth year after BIR registration, NOLCO and excess-MCIT ledgers. Feeds M4.
 - [ ] Income timing: percentage tax and VAT on the invoice date only from April 27, 2024; income tax follows the books' method for the year. Settles H2.

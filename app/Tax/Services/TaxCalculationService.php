@@ -8,6 +8,7 @@ use App\Returns\Models\Filing;
 use App\Returns\Services\ReturnForm;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
+use App\Tax\Enums\TaxpayerClassification;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
@@ -67,6 +68,7 @@ use Illuminate\Support\Collection;
  *     status: 'ok'|'not_applicable',
  *     gross: float,
  *     switched: Switch|null,
+ *     classification: string,
  *     quarters: array<int, QuarterResult>,
  * }
  * @phpstan-type Switch array{month: int, quarter: int, vat_from: string, register_by: string}
@@ -136,6 +138,7 @@ class TaxCalculationService
 
         $status = $profile->income_source === IncomeSource::Employed ? 'not_applicable' : 'ok';
         $switched = $this->switchToGraduated($profile, $year, $income);
+        $classification = TaxpayerClassification::forYear($year, $this->pesos($yearGross));
 
         $quarters = [];
         $priorPaid = 0;
@@ -187,7 +190,7 @@ class TaxCalculationService
             $due = max(0, $tax['tax'] + $salaryTax - $withheld - $salaryWithheld - $priorPaid);
 
             // A year on two methods files the 1701, not the 1701-MS (1701-MS guidelines).
-            $form = $switched !== null && $quarter === 4 ? '1701' : $this->calendar->incomeTaxForm($taxpayer, $quarter);
+            $form = $switched !== null && $quarter === 4 ? '1701' : $this->calendar->incomeTaxForm($taxpayer, $quarter, $classification);
             $filing = $filings->first(fn (Filing $f) => $f->quarter === $quarter && $f->amendment === 0);
             // The tax paid for the quarter, on the original return and any amendment.
             $quarterFilings = $filings->filter(fn (Filing $f) => $f->quarter === $quarter && $f->amount_paid !== null);
@@ -245,6 +248,7 @@ class TaxCalculationService
             'status' => $status,
             'gross' => $this->pesos($yearGross),
             'switched' => $switched,
+            'classification' => $classification->value,
             'quarters' => $quarters,
         ];
     }

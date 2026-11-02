@@ -17,6 +17,8 @@ type Props = {
     missingDetails: { label: string; step: 'about' | 'certificate' }[];
     alsoFile: { form: string; payable: number }[];
     alternativeForm: string | null;
+    /** Only the 1701-MS can be filed on paper; other forms are e-filed. */
+    paperFiling: boolean;
 };
 
 type Check = { key: string; label: string };
@@ -26,6 +28,7 @@ export default function ReturnPreview({
     filedOn,
     missingDetails,
     alsoFile,
+    paperFiling,
     alternativeForm,
 }: Props) {
     const args: [number, number, string] = [
@@ -325,10 +328,9 @@ export default function ReturnPreview({
 
                     <p className="flex items-start gap-2.5 rounded-2xl border border-[#C9D7FB] bg-selected px-4 py-3.5 text-sm text-accent-foreground">
                         <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-                        The download is the BIR's own {layout.form}, filled in.
-                        Print it at actual size on long bond paper (8.5 × 13
-                        in), sign it, and file it with your payment at a bank
-                        the BIR accredits, or copy the values into eBIRForms.
+                        {paperFiling
+                            ? `The download is the BIR's own ${layout.form}, filled in. Print it at actual size on long bond paper (8.5 × 13 in), sign it, and file it with your payment at a bank the BIR accredits, or at any RDO with nothing to pay. You can also file it in eBIRForms.`
+                            : `This is the BIR's own ${layout.form}, filled in, for you to check and keep. File it by copying the values into eBIRForms (or eFPS, if you're enrolled). A printed copy is accepted only when the BIR declares its online systems down.`}
                     </p>
 
                     {!filedOn && (
