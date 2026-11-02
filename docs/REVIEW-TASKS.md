@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 52 of 96 done.
+Status: 53 of 96 done.
 
 ---
 
@@ -185,7 +185,7 @@ Done:
 - [x] Corporations: MCIT at the months' average (1.5% for 2023, RMC 69-2023); MCIT from the fourth year after BIR registration; NOLCO (three years, five for 2020–2021) and excess MCIT (three years) carried on the 1702-RT.
 - [x] Income timing: percentage tax and VAT on the invoice date from April 27, 2024 (when paid before); income tax on the books' method per year, accrual by default; invoices record when they're paid; the books' receipts on that day (H2).
 - [x] Holidays 2018 to 2026 from each year's proclamations (nationwide regular and special non-working days, Eid included), so past deadlines and penalties move as they did; the annual tax over ₱2,000 in two halves, the second by October 15 (NIRC Sec. 56(A)(2)), on the annual page and the calendar.
-- [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
+- [x] VAT for part of a year: after the switch, VAT from the first day of the next month, on a 2550Q and SLSP from that quarter; a sale recorded without VAT has 12% added (REVIEW: whether such a price is taken as including VAT).
 
 Still to build:
 

@@ -52,6 +52,11 @@ class ReturnHistory
         $forms[0] = $result['quarters'][$quarter]['form'];
         $percentageTax = $result['quarters'][$quarter]['percentage_tax'] !== null;
 
+        // VAT from the month after an 8% year passed ₱3,000,000.
+        if (! in_array('2550Q', $forms, true) && $this->vat->appliesIn($result['year'], $quarter)) {
+            $forms[] = '2550Q';
+        }
+
         return array_values(array_filter($forms, fn (string $form) => $form !== '2551Q' || $percentageTax));
     }
 
@@ -97,7 +102,7 @@ class ReturnHistory
         for ($year = $today->year; $year >= $firstYear; $year--) {
             $result = $this->engine->forYear($profile, $year, $today);
             $taxpayer = $profile->forYear($year);
-            $vat = $taxpayer->vat_registered ? $this->vat->forYear($year, $today) : [];
+            $vat = $this->vat->appliesFrom($year) !== null ? $this->vat->forYear($year, $today) : [];
 
             foreach (array_reverse($result['quarters'], true) as $quarter => $figures) {
                 // Only periods that have started.

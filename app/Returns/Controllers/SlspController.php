@@ -70,14 +70,15 @@ class SlspController extends Controller
     }
 
     /**
-     * Only a VAT-registered taxpayer files an SLSP, for a quarter that has started.
+     * Only a quarter with VAT has an SLSP, once it has started: a
+     * VAT-registered year, or from the month after an 8% year passed ₱3M.
      */
     private function ensure(int $year, int $quarter): TaxProfile
     {
         $profile = TaxProfile::current()->forYear($year);
 
         abort_unless(
-            $profile->vat_registered && $year >= 2018 && CarbonImmutable::create($year, $quarter * 3 - 2)->lessThanOrEqualTo(CarbonImmutable::now()),
+            $year >= 2018 && app(VatCalculator::class)->appliesIn($year, $quarter) && CarbonImmutable::create($year, $quarter * 3 - 2)->lessThanOrEqualTo(CarbonImmutable::now()),
             404,
         );
 
