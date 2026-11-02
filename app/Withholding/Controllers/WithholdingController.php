@@ -57,6 +57,7 @@ class WithholdingController extends Controller
             'quarters' => array_values($quarters),
             'payees' => array_values($payees),
             'annualDue' => $this->calendar->withholdingAnnualDue($year)->toDateString(),
+            'startedOn' => $this->agent->startedOn(TaxProfile::current())?->toDateString(),
         ]);
     }
 

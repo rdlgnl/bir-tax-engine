@@ -4,6 +4,7 @@ import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { formatDate, monthLong, peso, todayIso } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { registration } from '@/routes';
 import {
     annual,
     month as monthPage,
@@ -24,6 +25,8 @@ type Props = {
     quarters: WithholdingQuarter[];
     payees: YearPayee[];
     annualDue: string;
+    /** When withholding started; returns are due from then. */
+    startedOn: string | null;
 };
 
 const pill: Record<WithholdingMonth['status'], string> = {
@@ -38,29 +41,45 @@ function Status({
     due,
     withheld,
     filedLabel,
+    before,
 }: {
     status: WithholdingMonth['status'];
     due: string;
     withheld: number;
     filedLabel: string;
+    /** The period ended before withholding started: no return. */
+    before: boolean;
 }) {
-    // With nothing withheld there is nothing to remit, so nothing is late.
-    const nothing = status !== 'filed' && withheld <= 0;
+    if (before && status !== 'filed') {
+        return (
+            <span
+                className={cn(
+                    'rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap',
+                    pill.open,
+                )}
+            >
+                Before you started withholding
+            </span>
+        );
+    }
+
+    // With nothing withheld the return is still filed, with no payment.
+    const nothing = withheld <= 0 ? 'No payment · ' : '';
 
     return (
         <span
             className={cn(
                 'rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap',
-                pill[nothing ? 'open' : status],
+                pill[status],
             )}
         >
-            {nothing
-                ? 'Nothing withheld'
-                : status === 'filed'
-                  ? filedLabel
-                  : status === 'overdue'
-                    ? `Overdue since ${formatDate(due)}`
-                    : `Due ${formatDate(due)}`}
+            {status === 'filed'
+                ? filedLabel
+                : status === 'overdue'
+                  ? `${nothing}Overdue since ${formatDate(due)}`
+                  : status === 'open' && withheld <= 0
+                    ? 'Nothing withheld yet'
+                    : `${nothing}Due ${formatDate(due)}`}
         </span>
     );
 }
@@ -70,8 +89,13 @@ export default function WithholdingIndex({
     quarters,
     payees,
     annualDue,
+    startedOn,
 }: Props) {
     const today = todayIso();
+    // Whether a period ended before withholding started.
+    const before = (lastMonth: number) =>
+        startedOn === null ||
+        `${year}-${String(lastMonth).padStart(2, '0')}-31` < startedOn;
     const started = (month: number) =>
         `${year}-${String(month).padStart(2, '0')}-01` <= today;
     const shown = quarters.filter((q) => started(q.quarter * 3 - 2));
@@ -170,6 +194,9 @@ export default function WithholdingIndex({
                                                                 withheld={
                                                                     m.withheld
                                                                 }
+                                                                before={before(
+                                                                    m.month,
+                                                                )}
                                                                 filedLabel="Remitted"
                                                             />
                                                         )}
@@ -226,6 +253,9 @@ export default function WithholdingIndex({
                                                     status={q.status}
                                                     due={q.due_date}
                                                     withheld={q.withheld}
+                                                    before={before(
+                                                        q.quarter * 3,
+                                                    )}
                                                     filedLabel="Filed"
                                                 />
                                             )}
@@ -319,7 +349,16 @@ export default function WithholdingIndex({
                         Keep the tax from each fee or rent you pay. Remit the
                         first two months of a quarter with 0619-E by the 10th of
                         the next month, and the quarter with 1601-EQ and its
-                        list of payees. Give each payee a 2307.
+                        list of payees. Give each payee a 2307. A month with
+                        nothing withheld still has its return, with no payment,
+                        until you{' '}
+                        <Link
+                            href={registration().url}
+                            className="font-bold underline"
+                        >
+                            remove withholding from your registration
+                        </Link>
+                        .
                     </Note>
                     <Note
                         tone="warning"

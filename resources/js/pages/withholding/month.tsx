@@ -146,8 +146,9 @@ export default function WithholdingMonthPage({
                         <Note
                             title={`Due ${formatDate(status.due_date, 'short')}`}
                         >
-                            Remit what you withheld in {name} by{' '}
-                            {formatDate(status.due_date, 'long')}.{' '}
+                            {withheld > 0
+                                ? `Remit what you withheld in ${name} by ${formatDate(status.due_date, 'long')}.`
+                                : `Nothing withheld in ${name}, but the 0619-E is still filed, as a no-payment return, by ${formatDate(status.due_date, 'long')}. Filed late, it can draw a penalty even with nothing to pay.`}{' '}
                             {monthLong(quarter * 3)} has no 0619-E; it goes with
                             the quarterly 1601-EQ.
                         </Note>
