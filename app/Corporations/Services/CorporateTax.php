@@ -12,7 +12,8 @@ use Illuminate\Support\Collection;
 /**
  * A corporation's income tax: the regular rate (20% or 25%) on taxable
  * income, or the minimum corporate income tax (MCIT) on gross income when
- * that's higher, declared cumulatively on the 1702Q each quarter.
+ * that's higher, declared cumulatively on the 1702Q each quarter. This
+ * gathers each year's inputs; CorporateCalculator computes from them.
  *
  * Earlier quarters count as paid with what was recorded when they were
  * marked filed, or else with what they came to.
@@ -89,7 +90,7 @@ use Illuminate\Support\Collection;
  */
 class CorporateTax
 {
-    public function __construct(private FilingCalendar $calendar, private TaxRules $rules) {}
+    public function __construct(private FilingCalendar $calendar, private TaxRules $rules, private CorporateCalculator $calculator) {}
 
     /**
      * @return QuarterTax
@@ -106,60 +107,7 @@ class CorporateTax
      */
     public function quarters(Corporation $corporation, int $year, int $upTo = 3): array
     {
-        $rows = $this->rows($corporation, $year);
-        $results = [];
-        $toDate = $this->figures(null, $corporation);
-        $grossByQuarter = [];
-        $paidRegular = $paidMcit = $withheldBefore = 0.0;
-        $today = CarbonImmutable::now();
-
-        for ($q = 1; $q <= $upTo; $q++) {
-            $row = $rows->get($q);
-            $thisQuarter = $this->figures($row, $corporation);
-            $previousTaxable = $toDate['taxable_income'];
-            $toDate = $this->add($toDate, $thisQuarter);
-            $grossByQuarter[] = $thisQuarter['gross_income'];
-            $tax = $this->tax($corporation, $year, $toDate['taxable_income'], $toDate['gross_income'], $q * 3);
-            $withheld = (float) ($row->withheld ?? 0);
-            $credits = round($paidRegular + $paidMcit + $withheldBefore + $withheld, 2);
-            $statutory = $this->quarterStatutoryDate($year, $q);
-            $due = $this->calendar->nextWorkingDay($statutory);
-
-            $results[$q] = [
-                'year' => $year,
-                'quarter' => $q,
-                'has_figures' => $row !== null,
-                'this_quarter' => $thisQuarter,
-                'to_date' => $toDate,
-                'previous_taxable_income' => $previousTaxable,
-                'gross_by_quarter' => $grossByQuarter,
-                ...$tax,
-                'paid_regular' => $paidRegular,
-                'paid_mcit' => $paidMcit,
-                'withheld_previous' => $withheldBefore,
-                'withheld_this_quarter' => $withheld,
-                'credits' => $credits,
-                'payable' => round($tax['tax_due'] - $credits, 2),
-                'due_date' => $due->toDateString(),
-                'statutory_date' => $statutory->toDateString(),
-                'due_note' => $this->dueNote($this->quarterEnd($year, $q), $statutory, $due),
-                'status' => match (true) {
-                    $row?->filed_on !== null => 'filed',
-                    $today->lessThanOrEqualTo($this->quarterEnd($year, $q)->endOfDay()) => 'open',
-                    $today->greaterThan($due->endOfDay()) => 'overdue',
-                    default => 'due',
-                },
-                'filed_on' => $row?->filed_on?->toDateString(),
-                'reference_number' => $row?->reference_number,
-                'amount_paid' => $row?->amount_paid !== null ? (float) $row->amount_paid : null,
-            ];
-
-            $paid = $results[$q]['amount_paid'] ?? max(0.0, $results[$q]['payable']);
-            $tax['uses'] === 'mcit' ? $paidMcit += $paid : $paidRegular += $paid;
-            $withheldBefore += $withheld;
-        }
-
-        return $results;
+        return $this->calculator->quarters($this->inputs($corporation, $year), $upTo);
     }
 
     /**
@@ -171,9 +119,7 @@ class CorporateTax
      */
     public function annual(Corporation $corporation, int $year): ?array
     {
-        $rows = $this->rows($corporation, $year);
-
-        if ($rows->isEmpty()) {
+        if ($this->rows($corporation, $year)->isEmpty()) {
             return null;
         }
 
@@ -182,129 +128,12 @@ class CorporateTax
 
         // The earlier years in turn, each leaving its loss or excess MCIT to the next.
         for ($y = $first; $y < $year; $y++) {
-            $earlier = $this->rows($corporation, $y);
-
-            if ($earlier->isNotEmpty()) {
-                $ledger = $this->yearTax($corporation, $y, $earlier, $ledger)['ledger'];
+            if ($this->rows($corporation, $y)->isNotEmpty()) {
+                $ledger = $this->calculator->year($this->inputs($corporation, $y), $ledger)['ledger'];
             }
         }
 
-        return $this->yearTax($corporation, $year, $rows, $ledger)['annual'];
-    }
-
-    /**
-     * One year's 1702-RT on what earlier years carried into it, and what it
-     * carries on.
-     *
-     * @param  Collection<int, CorporationQuarter>  $rows
-     * @param  Ledger  $ledger
-     * @return array{annual: AnnualEstimate, ledger: Ledger}
-     */
-    private function yearTax(Corporation $corporation, int $year, Collection $rows, array $ledger): array
-    {
-        $estimated = ! $rows->has(4);
-        $factor = $estimated ? 4 / $rows->count() : 1.0;
-        $figures = $this->figures(null, $corporation);
-
-        foreach ($rows as $row) {
-            $figures = $this->add($figures, $this->figures($row, $corporation));
-        }
-
-        $figures = array_map(fn (float $amount) => round($amount * $factor, 2), $figures);
-        $withheld = round($rows->sum(fn (CorporationQuarter $row) => (float) $row->withheld) * $factor, 2);
-        $withheldBefore = round($rows->filter(fn (CorporationQuarter $row) => $row->quarter < 4)->sum(fn (CorporationQuarter $row) => (float) $row->withheld), 2);
-        // What's still usable this year; the rest has run out.
-        $ledger = array_values(array_filter($ledger, fn (array $entry) => $entry['last_year'] >= $year && $entry['remaining'] > 0));
-        $carried = [];
-
-        // Losses first in, first used, against a profit; not under the OSD.
-        // REVIEW: whether a loss's years run on while the OSD is used.
-        $room = $corporation->deduction_method === 'itemized' ? max(0.0, $figures['taxable_income']) : 0.0;
-
-        foreach ($ledger as $i => $entry) {
-            if ($entry['kind'] === 'nolco') {
-                $applied = round(min($room, $entry['remaining']), 2);
-                $room -= $applied;
-                $ledger[$i]['remaining'] = round($entry['remaining'] - $applied, 2);
-                $carried[] = ['kind' => 'nolco', 'year' => $entry['year'], 'available' => $entry['remaining'], 'applied' => $applied, 'last_year' => $entry['last_year']];
-            }
-        }
-
-        $nolco = round(array_sum(array_map(fn (array $c) => $c['applied'], $carried)), 2);
-        $net = round($figures['taxable_income'] - $nolco, 2);
-        $tax = $this->tax($corporation, $year, $net, $figures['gross_income'], 12);
-
-        // Excess MCIT is credited against the regular tax, in a year it's the one due.
-        // REVIEW: whether the credit may take the tax below the year's MCIT.
-        $room = $tax['uses'] === 'regular' ? $tax['tax_due'] : 0.0;
-
-        foreach ($ledger as $i => $entry) {
-            if ($entry['kind'] === 'excess_mcit') {
-                $applied = round(min($room, $entry['remaining']), 2);
-                $room -= $applied;
-                $ledger[$i]['remaining'] = round($entry['remaining'] - $applied, 2);
-                $carried[] = ['kind' => 'excess_mcit', 'year' => $entry['year'], 'available' => $entry['remaining'], 'applied' => $applied, 'last_year' => $entry['last_year']];
-            }
-        }
-
-        $excessApplied = round(array_sum(array_map(fn (array $c) => $c['kind'] === 'excess_mcit' ? $c['applied'] : 0.0, $carried)), 2);
-
-        if ($figures['taxable_income'] < 0) {
-            // 2020 and 2021 losses carry five years (RR 25-2020).
-            $years = in_array($year, [2020, 2021], true) ? 5 : 3;
-            $ledger[] = ['kind' => 'nolco', 'year' => $year, 'remaining' => round(-$figures['taxable_income'], 2), 'last_year' => $year + $years];
-        }
-
-        if ($tax['uses'] === 'mcit') {
-            $ledger[] = ['kind' => 'excess_mcit', 'year' => $year, 'remaining' => round($tax['mcit'] - $tax['regular_tax'], 2), 'last_year' => $year + 3];
-        }
-
-        $paidRegular = $paidMcit = 0.0;
-
-        foreach ($this->quarters($corporation, $year) as $quarter) {
-            if ($quarter['has_figures']) {
-                $paid = $quarter['amount_paid'] ?? max(0.0, $quarter['payable']);
-                $quarter['uses'] === 'mcit' ? $paidMcit += $paid : $paidRegular += $paid;
-            }
-        }
-
-        $payments = round($paidRegular + $paidMcit, 2);
-        $credits = round($payments + $withheld + $excessApplied, 2);
-        $due = $this->calendar->incomeTaxDue($year, 4);
-        $fourth = $rows->get(4);
-        $today = CarbonImmutable::now();
-
-        $annual = [
-            'year' => $year,
-            'estimated' => $estimated,
-            'quarters_entered' => $rows->count(),
-            'figures' => $figures,
-            'withheld' => $withheld,
-            'withheld_previous' => $withheldBefore,
-            'withheld_fourth_quarter' => round($withheld - $withheldBefore, 2),
-            ...$tax,
-            'paid_regular' => round($paidRegular, 2),
-            'paid_mcit' => round($paidMcit, 2),
-            'quarterly_payments' => $payments,
-            'credits' => $credits,
-            'payable' => round($tax['tax_due'] - $credits, 2),
-            'due_date' => $due->toDateString(),
-            'status' => match (true) {
-                $fourth?->filed_on !== null => 'filed',
-                $today->lessThanOrEqualTo($this->quarterEnd($year, 4)->endOfDay()) => 'open',
-                $today->greaterThan($due->endOfDay()) => 'overdue',
-                default => 'due',
-            },
-            'filed_on' => $fourth?->filed_on?->toDateString(),
-            'reference_number' => $fourth?->reference_number,
-            'amount_paid' => $fourth?->amount_paid !== null ? (float) $fourth->amount_paid : null,
-            'nolco' => $nolco,
-            'net_taxable_income' => $net,
-            'excess_mcit_applied' => $excessApplied,
-            'carried' => $carried,
-        ];
-
-        return ['annual' => $annual, 'ledger' => $ledger];
+        return $this->calculator->year($this->inputs($corporation, $year), $ledger)['annual'];
     }
 
     /**
@@ -398,71 +227,49 @@ class CorporateTax
     }
 
     /**
-     * The regular tax on the year's rates, and the MCIT on the gross income
-     * of the months so far at their average rate.
-     *
-     * @return Tax
+     * A year's inputs for the calculator: its quarters as entered, the
+     * corporation's method and assets, the year's rates by month, the due
+     * dates and the 1702-RT's.
      */
-    private function tax(Corporation $corporation, int $year, float $taxableIncome, float $grossIncome, int $months): array
+    private function inputs(Corporation $corporation, int $year): CorporateInputs
     {
-        $rules = $this->rules->forYear($year);
-        $small = $taxableIncome <= (float) config('tax.corporation.small_taxable_income')
-            && (float) $corporation->total_assets <= (float) config('tax.corporation.small_total_assets');
-        $rate = $rules->rate($small ? 'corporation.small_rate' : 'corporation.rate');
-        $regular = round(max(0.0, $taxableIncome) * $rate, 2);
-        $mcitApplies = $year >= $this->mcitFrom($corporation);
-        $mcit = $mcitApplies ? round(max(0.0, $grossIncome) * $this->mcitAverageRate($year, $months), 2) : 0.0;
+        $dates = [];
 
-        return [
-            'rate' => $rate,
-            'small' => $small,
-            'regular_tax' => $regular,
-            'mcit_applies' => $mcitApplies,
-            'mcit' => $mcit,
-            'uses' => $mcit > $regular ? 'mcit' : 'regular',
-            'tax_due' => max($regular, $mcit),
-        ];
-    }
-
-    /**
-     * One quarter's figures, with the 40% optional standard deduction in
-     * place of the books' deductions when the corporation chose it.
-     *
-     * @return Figures
-     */
-    private function figures(?CorporationQuarter $row, Corporation $corporation): array
-    {
-        $sales = (float) ($row->sales ?? 0);
-        $cost = (float) ($row->cost_of_sales ?? 0);
-        $other = (float) ($row->other_income ?? 0);
-        $grossIncome = round($sales - $cost + $other, 2);
-        $deductions = $corporation->deduction_method === 'osd'
-            ? round(max(0.0, $grossIncome) * (float) config('tax.corporation.osd_rate'), 2)
-            : (float) ($row->deductions ?? 0);
-
-        return [
-            'sales' => $sales,
-            'cost_of_sales' => $cost,
-            'gross_from_operation' => round($sales - $cost, 2),
-            'other_income' => $other,
-            'gross_income' => $grossIncome,
-            'deductions' => $deductions,
-            'taxable_income' => round($grossIncome - $deductions, 2),
-        ];
-    }
-
-    /**
-     * @param  Figures  $a
-     * @param  Figures  $b
-     * @return Figures
-     */
-    private function add(array $a, array $b): array
-    {
-        foreach ($a as $key => $amount) {
-            $a[$key] = round($amount + $b[$key], 2);
+        foreach ([1, 2, 3] as $q) {
+            $statutory = $this->quarterStatutoryDate($year, $q);
+            $due = $this->calendar->nextWorkingDay($statutory);
+            $dates[$q] = ['statutory' => $statutory, 'due' => $due, 'due_note' => $this->dueNote($this->quarterEnd($year, $q), $statutory, $due), 'period_end' => $this->quarterEnd($year, $q)];
         }
 
-        return $a;
+        $dates[4] = ['statutory' => $this->calendar->incomeTaxStatutoryDate($year, 4), 'due' => $this->calendar->incomeTaxDue($year, 4), 'due_note' => '', 'period_end' => $this->quarterEnd($year, 4)];
+        $rules = $this->rules->forYear($year);
+
+        return new CorporateInputs(
+            year: $year,
+            today: CarbonImmutable::now(),
+            deductionMethod: $corporation->deduction_method,
+            totalAssets: (float) $corporation->total_assets,
+            mcitApplies: $year >= $this->mcitFrom($corporation),
+            rows: $this->rows($corporation, $year)->map(fn (CorporationQuarter $row) => [
+                'sales' => (float) $row->sales,
+                'cost_of_sales' => (float) $row->cost_of_sales,
+                'other_income' => (float) $row->other_income,
+                'deductions' => (float) $row->deductions,
+                'withheld' => (float) $row->withheld,
+                'filed_on' => $row->filed_on?->toDateString(),
+                'reference_number' => $row->reference_number,
+                'amount_paid' => $row->amount_paid !== null ? (float) $row->amount_paid : null,
+            ])->all(),
+            rules: [
+                'rate' => $rules->rate('corporation.rate'),
+                'small_rate' => $rules->rate('corporation.small_rate'),
+                'mcit_rates' => array_combine(range(1, 12), array_map(fn (int $m) => $this->rules->on(CarbonImmutable::create($year, $m))->rate('corporation.mcit_rate'), range(1, 12))),
+                'small_taxable_income' => (float) config('tax.corporation.small_taxable_income'),
+                'small_total_assets' => (float) config('tax.corporation.small_total_assets'),
+                'osd_rate' => (float) config('tax.corporation.osd_rate'),
+            ],
+            dates: $dates,
+        );
     }
 
     /**
