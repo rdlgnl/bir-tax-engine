@@ -2,8 +2,11 @@
 
 namespace App\Books\Services;
 
+use App\Profiles\Models\TaxProfile;
+use App\Tax\Enums\BooksMethod;
 use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
 /**
@@ -20,6 +23,26 @@ use Illuminate\Support\Str;
  */
 class Journals
 {
+    /**
+     * What clients owed at a month's end on accrual books: invoices dated by
+     * then and not yet paid, VAT included. Null on cash books.
+     */
+    public function receivable(int $year, int $month): ?float
+    {
+        if (TaxProfile::current()?->forYear($year)->books_method !== BooksMethod::Accrual) {
+            return null;
+        }
+
+        $end = CarbonImmutable::create($year, $month)->endOfMonth()->toDateString();
+
+        return round((float) Transaction::query()
+            ->where('type', TransactionType::Invoice)
+            ->where('occurred_on', '<=', $end.' 23:59:59')
+            ->where(fn ($q) => $q->where('invoice_paid', false)->orWhere('invoice_paid_on', '>', $end.' 23:59:59'))
+            ->get()
+            ->sum(fn (Transaction $t) => (float) $t->amount + (float) $t->vat_amount), 2);
+    }
+
     /**
      * @return array{
      *     receipts: list<Receipt>,

@@ -85,3 +85,15 @@ test('the books method is chosen on the books page, applies from this year, and 
 
     expect(Transaction::query()->where('invoice_number', '0142')->where('type', 'invoice')->sole()->invoice_paid_on->toDateString())->toBe('2027-01-29');
 });
+
+test('an invoice counts once, by the method of the year it’s dated, when the method changes', function () {
+    $profile = TaxProfile::factory()->graduated()->create();
+    // Invoiced in December 2026 on accrual books, paid in January 2027.
+    Transaction::factory()->invoice(paid: true)->on('2026-12-10')->create(['amount' => 50_000, 'invoice_paid_on' => '2027-01-08']);
+    $this->travelTo(CarbonImmutable::parse('2027-02-01 10:00'));
+    TaxProfile::current()->update(['books_method' => BooksMethod::Cash]);
+    $profile = TaxProfile::current();
+
+    expect(app(TaxCalculationService::class)->forYear($profile, 2026)['gross'])->toBe(50000.0)
+        ->and(app(TaxCalculationService::class)->forYear($profile, 2027)['gross'])->toBe(0.0);
+});

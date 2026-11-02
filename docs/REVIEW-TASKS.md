@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 71 of 96 done.
+Status: 72 of 96 done.
 
 ---
 
@@ -99,7 +99,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 - [x] Per tax type, from the research (Q1): percentage tax and VAT count a sale on its invoice date from April 27, 2024 (RR 3-2024), and when paid before; income tax follows the books' method (NIRC Secs. 43–45), chosen per year on the books page (when invoiced or when paid). Invoices record the day they're paid.
 - [x] The books put a paid invoice in the receipts journal on the day it was paid. On cash books, a quarter's income on the return equals the books' receipts.
-- [ ] On accrual books, unpaid invoices aren't in the books: add accounts receivable.
+- [x] On accrual books, an invoice is income on its date in the general journal, owed as accounts receivable until paid, then collected; the books page shows what clients owed at month end. An invoice follows the method of the year it's dated, so it counts once when the method changes.
 - [x] The return checklist says how sales are counted, by the books' method.
 
 **Basis:** RA 11976 Secs. 17, 24; RR 3-2024 Sec. 7(a) for invoices before April 27, 2024 (VAT; percentage tax by analogy, **needs verification**); NIRC Secs. 43–45.

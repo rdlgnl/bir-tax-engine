@@ -4,7 +4,9 @@ namespace App\Books\Services;
 
 use App\Loans\Models\Loan;
 use App\Payroll\Services\Payroll;
+use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Tax\Enums\BooksMethod;
 use App\Tax\Services\DocumentaryStampTax;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
@@ -14,10 +16,13 @@ use Illuminate\Support\Str;
 
 /**
  * The general journal and general ledger, which loose-leaf books bind
- * with the cash journals. Every receipt and expense is a double entry, on
- * the same cash basis as the cash journals; so is each tax paid with a
- * return or a loan's Form 2000, and the tax withheld from salaries. The
- * ledger posts the entries to each account.
+ * with the cash journals. Every receipt and expense is a double entry; so
+ * is each tax paid with a return or a loan's Form 2000, and the tax
+ * withheld from salaries. The ledger posts the entries to each account.
+ *
+ * An invoice follows the books' method of the year it's dated: on cash
+ * books it's income when paid; on accrual books it's income on its date,
+ * owed as accounts receivable until paid.
  *
  * Amounts are kept net of VAT, so VAT on a sale or purchase goes to VAT
  * payable and the cash includes it. Salaries are recorded as expenses at
@@ -40,6 +45,7 @@ class GeneralLedger
      */
     public const ACCOUNTS = [
         101 => ['Cash', 'debit'],
+        103 => ['Accounts receivable', 'debit'],
         105 => ['Creditable withholding tax', 'debit'],
         201 => ['Withholding tax payable', 'credit'],
         202 => ['Withholding tax payable on compensation', 'credit'],
@@ -78,6 +84,9 @@ class GeneralLedger
     /** @var array<int, list<array{month: int, withheld: float, refund: float}>> payroll months by year */
     private array $payroll = [];
 
+    /** @var array<int, BooksMethod> each year's books method */
+    private array $methods = [];
+
     public function __construct(private Payroll $payrollService, private DocumentaryStampTax $dst) {}
 
     /**
@@ -95,8 +104,19 @@ class GeneralLedger
         foreach ($transactions as $t) {
             if ($t->type === TransactionType::Expense) {
                 $entries[] = $this->expense($t);
+            } elseif ($t->type === TransactionType::Invoice && $this->accrual($t)) {
+                $entries[] = $this->collection($t);
             } elseif ($t->type === TransactionType::Payment || $t->invoice_paid) {
                 $entries[] = $this->receipt($t);
+            }
+        }
+
+        // On accrual books an invoice is income on its date, paid or not.
+        $invoiced = Transaction::query()->forMonth($year, $month)->where('type', TransactionType::Invoice)->orderBy('occurred_on')->orderBy('id')->get();
+
+        foreach ($invoiced as $t) {
+            if ($this->accrual($t)) {
+                $entries[] = $this->sale($t);
             }
         }
 
@@ -229,6 +249,51 @@ class GeneralLedger
         }
 
         return $balances;
+    }
+
+    /**
+     * Whether an invoice is on accrual books: its year's method.
+     */
+    private function accrual(Transaction $t): bool
+    {
+        $year = $t->occurred_on->year;
+
+        return ($this->methods[$year] ??= TaxProfile::current()?->forYear($year)->books_method ?? BooksMethod::Accrual) === BooksMethod::Accrual;
+    }
+
+    /**
+     * An invoice on accrual books: owed by the client, income on its date.
+     *
+     * @return Entry
+     */
+    private function sale(Transaction $t): array
+    {
+        $amount = (float) $t->amount;
+        $vat = (float) $t->vat_amount;
+
+        return $this->entry($t->occurred_on->toDateString(), "Invoiced {$t->counterparty} · invoice {$t->invoice_number}", [
+            $this->debit(103, $amount + $vat),
+            $this->credit(401, $amount),
+            $this->credit(205, $vat),
+        ]);
+    }
+
+    /**
+     * An accrual invoice paid: cash after the client's withholding, the
+     * withholding as a credit against income tax, the receivable settled.
+     *
+     * @return Entry
+     */
+    private function collection(Transaction $t): array
+    {
+        $owed = (float) $t->amount + (float) $t->vat_amount;
+        $withheld = (float) $t->tax_withheld;
+
+        return $this->entry($t->cashDate()->toDateString(), "Collected from {$t->counterparty} · invoice {$t->invoice_number}", [
+            $this->debit(101, $owed - $withheld),
+            $this->debit(105, $withheld),
+            $this->credit(103, $owed),
+        ]);
     }
 
     /**
