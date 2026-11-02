@@ -2,6 +2,7 @@
 
 namespace App\Payroll\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['employee_id', 'year', 'given_on'])]
 class EmployeeCertificate extends Model
 {
+    use RecordsChanges;
+
     /**
      * Get the attributes that should be cast.
      *

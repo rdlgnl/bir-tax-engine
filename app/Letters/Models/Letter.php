@@ -2,6 +2,7 @@
 
 namespace App\Letters\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['kind', 'dated_on', 'office', 'form', 'year', 'quarter', 'month', 'reply_by', 'notes'])]
 class Letter extends Model
 {
+    use RecordsChanges;
+
     protected $table = 'bir_letters';
 
     /**
@@ -56,5 +59,10 @@ class Letter extends Model
     public function needsHelp(): bool
     {
         return (bool) config("letters.kinds.{$this->kind}.help", false);
+    }
+
+    public function historyLabel(): string
+    {
+        return 'BIR letter · '.$this->kindLabel();
     }
 }

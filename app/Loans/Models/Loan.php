@@ -2,6 +2,7 @@
 
 namespace App\Loans\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,8 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Loan extends Model
 {
+    use RecordsChanges;
+
     /**
      * Get the attributes that should be cast.
      *
@@ -53,5 +56,10 @@ class Loan extends Model
     public function filedByLender(): bool
     {
         return $this->lender_kind === 'bank';
+    }
+
+    public function historyLabel(): string
+    {
+        return "Loan from {$this->lender}";
     }
 }

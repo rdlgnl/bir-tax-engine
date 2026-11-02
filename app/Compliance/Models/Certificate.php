@@ -2,6 +2,7 @@
 
 namespace App\Compliance\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -36,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Certificate extends Model
 {
+    use RecordsChanges;
+
     /**
      * Get the attributes that should be cast.
      *

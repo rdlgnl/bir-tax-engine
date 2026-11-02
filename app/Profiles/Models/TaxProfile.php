@@ -3,6 +3,7 @@
 namespace App\Profiles\Models;
 
 use App\Books\Enums\BooksType;
+use App\Data\Concerns\RecordsChanges;
 use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
@@ -100,6 +101,8 @@ class TaxProfile extends Model
 {
     /** @use HasFactory<TaxProfileFactory> */
     use HasFactory;
+
+    use RecordsChanges;
 
     /**
      * The model's default values for attributes.
@@ -312,5 +315,10 @@ class TaxProfile extends Model
             ->map(fn (string $part) => Str::upper(Str::substr($part, 0, 1)))
             ->take(2)
             ->implode('');
+    }
+
+    public function historyLabel(): string
+    {
+        return 'Your profile';
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Withholding\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['year', 'quarter', 'payee', 'given_on'])]
 class IssuedCertificate extends Model
 {
+    use RecordsChanges;
+
     /**
      * Get the attributes that should be cast.
      *

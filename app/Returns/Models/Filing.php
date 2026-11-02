@@ -2,6 +2,7 @@
 
 namespace App\Returns\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use App\Profiles\Models\TaxYear;
 use App\Returns\Services\ReturnForm;
 use Carbon\CarbonImmutable;
@@ -51,6 +52,8 @@ class Filing extends Model
 {
     /** @use HasFactory<FilingFactory> */
     use HasFactory;
+
+    use RecordsChanges;
 
     /**
      * The Q1 income tax return elects the year's method: it's recorded
@@ -124,5 +127,12 @@ class Filing extends Model
             ->whereIn('form', ReturnForm::INCOME_TAX_FORMS)
             ->where('amendment', 0)
             ->first();
+    }
+
+    public function historyLabel(): string
+    {
+        $period = $this->month > 0 ? CarbonImmutable::create($this->year, $this->month)->format('F Y') : "{$this->year} Q{$this->quarter}";
+
+        return "{$this->form} · {$period}".($this->amendment > 0 ? " · amendment {$this->amendment}" : '');
     }
 }

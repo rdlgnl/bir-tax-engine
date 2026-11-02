@@ -4,6 +4,7 @@ namespace App\Transactions\Models;
 
 use App\Compliance\Models\Certificate;
 use App\Compliance\Services\CertificateLinks;
+use App\Data\Concerns\RecordsChanges;
 use App\Tax\Enums\BooksMethod;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\ExpenseCategory;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * Something that happened to the business: money in, an invoice, or an expense.
@@ -68,6 +70,8 @@ class Transaction extends Model
 {
     /** @use HasFactory<TransactionFactory> */
     use HasFactory;
+
+    use RecordsChanges;
 
     /**
      * The model's default values for attributes.
@@ -258,5 +262,10 @@ class Transaction extends Model
         return $today->greaterThan($dueBy)
             ? CertificateStatus::Missing
             : CertificateStatus::Pending;
+    }
+
+    public function historyLabel(): string
+    {
+        return Str::headline($this->type->value).' · '.$this->counterparty.' · ₱'.number_format((float) $this->amount, 2).' · '.$this->occurred_on->toDateString();
     }
 }

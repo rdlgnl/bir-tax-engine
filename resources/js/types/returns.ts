@@ -65,6 +65,8 @@ export type HistoryDetail = {
     /** A filed 1701Q that changed since and needs amending. */
     amendment: { extra: number; overpaid: number } | null;
     /** Amended returns filed for this one. */
+    /** Changes since filing to the records the return was computed from. */
+    changes: RecordChange[];
     amended: { number: number; filed_on: string; amount_paid: number | null }[];
 };
 
@@ -92,4 +94,14 @@ export type Penalty = {
     total: number;
     due_date: string;
     pay_on: string;
+};
+
+/** App\Data\Services\RecordHistory: one change to the records. */
+export type RecordChange = {
+    at: string;
+    event: 'created' | 'updated' | 'deleted' | 'restored';
+    subject: string;
+    label: string;
+    cause: string;
+    fields: { field: string; before: string | null; after: string | null }[];
 };

@@ -2,6 +2,7 @@
 
 namespace App\Corporations\Models;
 
+use App\Data\Concerns\RecordsChanges;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class CorporationQuarter extends Model
 {
+    use RecordsChanges;
+
     /**
      * @return BelongsTo<Corporation, $this>
      */
@@ -62,5 +65,10 @@ class CorporationQuarter extends Model
             'filed_on' => 'immutable_date',
             'amount_paid' => 'decimal:2',
         ];
+    }
+
+    public function historyLabel(): string
+    {
+        return "Corporation figures · {$this->year} Q{$this->quarter}";
     }
 }
