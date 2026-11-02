@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Tax\Services\TaxRules;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
@@ -16,7 +17,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // One rule lookup per request, so pinning a filed year's rules reaches every service.
+        $this->app->scoped(TaxRules::class);
     }
 
     /**

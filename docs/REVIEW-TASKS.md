@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 74 of 96 done.
+Status: 75 of 96 done.
 
 ---
 
@@ -203,7 +203,7 @@ Still to build:
 
 - [ ] **A1 Pure calculator.** Gather inputs into a `TaxInputs` value. `TaxCalculator` takes inputs and a `RuleSet` and returns a `TaxResult`, with no queries and no `config()`. Corporations follow the same shape.
 - [ ] **A2 Trace.** `TaxResult` carries each step: input, rule id, rate, rounding. `TaxExplainer` reads it, and the snapshot stores it.
-- [ ] **A3 Amendments compare like with like.** Recompute the filed period under the snapshot's rule set, not today's.
+- [x] **A3 Amendments compare like with like.** A filed quarter is recomputed on the rule set kept with it (`TaxRules::pinned`), so only changed records call for an amendment, and the amended return uses the same rules. Returns filed before rule sets were kept use today's.
 - [ ] **A4 Rule files split by kind.** Rates, deadlines, holidays, form editions, ATC codes and file formats are reviewed and versioned separately.
 - [x] **M8 Side effect on saving a transaction.** Documented in `Transaction::booted`: saving or deleting a sale relinks the client's 2307s.
 

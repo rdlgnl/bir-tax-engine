@@ -7,6 +7,7 @@ use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Tax\Services\Penalties;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\TaxRules;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Number;
@@ -20,12 +21,16 @@ use Illuminate\Support\Number;
  * The amended return keeps the original's due date: interest runs on the
  * difference from then, and a surcharge only if the original was late.
  *
+ * The quarter is recomputed on the rules it was filed under, kept with the
+ * filed return, so only changed records call for an amendment, not a newer
+ * rule pack.
+ *
  * @phpstan-import-type QuarterResult from TaxCalculationService
  * @phpstan-import-type Penalty from Penalties
  * @phpstan-import-type Snapshot from ReturnForm
  *
  * @phpstan-type Figures array{gross: float, reduction: float, income_tax: float, withheld: float, due: float}
- * @phpstan-type Amendment array{year: int, quarter: int, form: string, number: int, filed_on: string, due_date: string, on_time: bool, reason: string, filed: Figures, amended: Figures, paid: float, extra: float, overpaid: float, penalties: Penalty|null}
+ * @phpstan-type Amendment array{year: int, quarter: int, form: string, number: int, filed_on: string, due_date: string, on_time: bool, reason: string, filed: Figures, amended: Figures, paid: float, extra: float, overpaid: float, penalties: Penalty|null, rule_set: array{date: string, values: array<string, mixed>}|null}
  */
 class Amendments
 {
@@ -35,6 +40,7 @@ class Amendments
         private TaxCalculationService $engine,
         private ReturnForm $returns,
         private Penalties $penalties,
+        private TaxRules $rules,
     ) {}
 
     /**
@@ -72,9 +78,11 @@ class Amendments
             return null;
         }
 
-        $result = $this->engine->forYear($profile, $year, $today);
+        $filedSnapshot = $this->returns->snapshotOf($latest, $profile);
+        $ruleSet = $filedSnapshot['rule_set'] ?? null;
+        $result = $this->rules->pinned($year, $ruleSet, fn () => $this->engine->forYear($profile, $year, $today));
         $now = $result['quarters'][$quarter];
-        $before = $this->returns->snapshotOf($latest, $profile)['figures'];
+        $before = $filedSnapshot['figures'];
         $filed = $this->figures($before);
         $amended = $this->figures($now);
 
@@ -105,6 +113,7 @@ class Amendments
             'penalties' => $extra > 0
                 ? $this->penalties->late($extra, CarbonImmutable::parse($dueDate), $today, $result['gross'], surcharge: ! $onTime)
                 : null,
+            'rule_set' => $ruleSet,
         ];
     }
 
@@ -114,12 +123,12 @@ class Amendments
      */
     public function snapshot(TaxProfile $profile, array $amendment, ?CarbonImmutable $today = null): array
     {
-        return $this->returns->amendedSnapshot($profile, $amendment['year'], $amendment['quarter'], $amendment['form'], [
+        return $this->rules->pinned($amendment['year'], $amendment['rule_set'], fn () => $this->returns->amendedSnapshot($profile, $amendment['year'], $amendment['quarter'], $amendment['form'], [
             'number' => $amendment['number'],
             'previously_paid' => $amendment['paid'],
             'original_filed_on' => $amendment['filed_on'],
             'on_time' => $amendment['on_time'],
-        ], $amendment['penalties'], $today);
+        ], $amendment['penalties'], $today));
     }
 
     /**
