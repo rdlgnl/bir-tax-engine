@@ -49,7 +49,7 @@ test('earlier quarters use the cumulative method and carry excess credit', funct
 
     $year = $this->engine->forYear(TaxProfile::current(), 2026);
 
-    expect($year['gross'])->toBe(695_000.0)
+    expect($year['gross'])->toBe(655_000.0)
         ->and($year['status'])->toBe('ok')
         ->and($year['quarters'][1])->toMatchArray([
             'income_tax' => 0.0, 'due' => 0.0, 'excess_credit' => 3_000.0, 'status' => 'filed', 'amount_paid' => 0.0,
@@ -58,8 +58,8 @@ test('earlier quarters use the cumulative method and carry excess credit', funct
             'income_tax' => 12_000.0, 'withheld' => 8_000.0, 'due' => 4_000.0, 'status' => 'filed', 'filed_on' => '2026-08-14',
         ])
         ->and($year['quarters'][4])->toMatchArray([
-            'form' => '1701-MS', 'income_tax' => 35_600.0, 'prior_payments' => 18_000.0, 'withheld' => 11_500.0,
-            'due' => 6_100.0, 'due_date' => '2027-04-15', 'status' => 'open',
+            'form' => '1701-MS', 'income_tax' => 32_400.0, 'prior_payments' => 18_000.0, 'withheld' => 11_500.0,
+            'due' => 2_900.0, 'due_date' => '2027-04-15', 'status' => 'open',
         ]);
 });
 
@@ -146,7 +146,8 @@ test('each transaction shows how much it moved the year’s tax', function () {
     $by = fn (string $date) => $effects[$transactions->first(fn ($t) => $t->occurred_on->toDateString() === $date)->id];
 
     expect($by('2026-10-06'))->toBe(2_000.0)
-        ->and($by('2026-10-26'))->toBe(3_200.0)
+        // On 8% the unpaid Oct 26 invoice waits until it's paid.
+        ->and($by('2026-10-26'))->toBe(0.0)
         ->and($by('2026-10-15'))->toBe(0.0)
         ->and($by('2026-01-12'))->toBe(0.0);
 });

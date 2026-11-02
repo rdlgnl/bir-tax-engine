@@ -16,7 +16,7 @@ test('Home keeps a note of the numbers under the pack in use', function () {
 
     expect(Setting::get('rule_pack_seen'))->toMatchArray([
         'version' => '2026.11',
-        'numbers' => ['quarter_label' => 'Q4 / annual', 'quarter' => 6100, 'annual' => 6100, 'next_deadline' => '2026-11-16'],
+        'numbers' => ['quarter_label' => 'Q4 / annual', 'quarter' => 2900, 'annual' => 2900, 'next_deadline' => '2026-11-16'],
     ]);
 });
 
@@ -32,8 +32,8 @@ test('a new pack shows what changed and the numbers before and after', function 
         ->where('pending', true)
         ->where('previousVersion', '2026.11')
         ->where('changes.0.title', '2027 holidays added')
-        ->where('before.annual', 6100)
-        ->where('after.annual', 6100));
+        ->where('before.annual', 2900)
+        ->where('after.annual', 2900));
 
     $this->post('/rules/seen')->assertRedirect('/home');
 
@@ -46,7 +46,7 @@ test('the rules page also describes the pack in use', function () {
         ->where('version', '2026.11')
         ->where('pending', false)
         ->where('before', null)
-        ->has('changes', 2)
+        ->has('changes', 4)
         // Each kind of rule on its own version and sign-off.
         ->has('parts', 7)
         ->where('parts.2', ['title' => 'Holidays', 'version' => '2026.11', 'reviewed' => null]));

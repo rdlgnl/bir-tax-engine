@@ -45,7 +45,7 @@ export function AgentWithholding({
     const [declaration, setDeclaration] = useState<boolean>(
         current?.declaration ?? true,
     );
-    const asksDeclaration = kind === 'professional' && to === 'person';
+    const asksDeclaration = kind === 'professional';
 
     function choose(next: { kind?: Kind; to?: Payee; declaration?: boolean }) {
         const k = next.kind ?? kind;
@@ -63,9 +63,7 @@ export function AgentWithholding({
             (option) =>
                 option.kind === k &&
                 option.payee === p &&
-                (k !== 'professional' ||
-                    p !== 'person' ||
-                    option.declaration === d),
+                (k !== 'professional' || option.declaration === d),
         );
         onChange(match?.code ?? '');
     }
@@ -114,10 +112,16 @@ export function AgentWithholding({
                     {asksDeclaration && (
                         <div className="flex flex-col gap-1.5">
                             <span className="text-sm font-bold">
-                                Did they give you a sworn declaration this year?
+                                {to === 'person'
+                                    ? 'Did they give you a sworn declaration this year?'
+                                    : 'Did they declare gross income of ₱720,000 or less this year?'}
                             </span>
                             <ChoiceChips<'yes' | 'no'>
-                                label="Did they give you a sworn declaration this year?"
+                                label={
+                                    to === 'person'
+                                        ? 'Did they give you a sworn declaration this year?'
+                                        : 'Did they declare gross income of ₱720,000 or less this year?'
+                                }
                                 variant="segmented"
                                 value={declaration ? 'yes' : 'no'}
                                 onChange={(value) =>
@@ -127,14 +131,18 @@ export function AgentWithholding({
                                     { value: 'yes', label: 'Yes' },
                                     {
                                         value: 'no',
-                                        label: 'No, VAT-registered, or not sure',
+                                        label:
+                                            to === 'person'
+                                                ? 'No, VAT-registered, or not sure'
+                                                : 'No, or not sure',
                                     },
                                 ]}
                                 className="bg-slate-200/70"
                             />
                             <p className="text-[13px] text-muted-foreground">
-                                With it, you withhold 5%. Without it, or if
-                                they're VAT-registered, 10%.
+                                {to === 'person'
+                                    ? "With it, you withhold 5%. Without it, or if they're VAT-registered, 10%."
+                                    : 'If so, you withhold 10%. Over ₱720,000, or not declared, 15%.'}
                             </p>
                         </div>
                     )}

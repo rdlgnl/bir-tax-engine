@@ -154,9 +154,11 @@ export default function BooksShow({
                             className="max-w-md"
                         />
                         <p className="text-[13px] text-muted-foreground">
-                            {booksMethod === 'cash'
-                                ? 'Your income tax counts a sale when the money comes in, as these journals do.'
-                                : 'Your income tax counts a sale on its invoice date, paid or not.'}{' '}
+                            {regime === 'eight_percent'
+                                ? 'On the 8% rate your income tax counts a sale when it’s paid, whichever you pick: the 8% is on money received.'
+                                : booksMethod === 'cash'
+                                  ? 'Your income tax counts a sale when the money comes in, as these journals do.'
+                                  : 'Your income tax counts a sale on its invoice date, paid or not.'}{' '}
                             Percentage tax and VAT count it on its invoice date
                             either way (since April 27, 2024). A change applies
                             from this year.

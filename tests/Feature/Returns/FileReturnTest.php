@@ -105,7 +105,7 @@ test('an open quarter can be previewed but not marked filed yet', function () {
     $this->get('/file/2026/4/1701A')->assertInertia(fn (Assert $page) => $page
         ->where('periodEnded', false)
         ->where('layout.title', 'Annual Income Tax Return')
-        ->where('layout.lines.0', ['label' => 'Sales/receipts for the year', 'amount' => 695000, 'kind' => 'amount']));
+        ->where('layout.lines.0', ['label' => 'Sales/receipts for the year', 'amount' => 655000, 'kind' => 'amount']));
 });
 
 test('a filed return sends you to its history', function () {

@@ -33,7 +33,7 @@ test('the list shows each entry with its tax effect and 2307 status', function (
         ->has('transactions', 18)
         ->where('transactions.0.counterparty', 'Studio Uno')
         ->where('transactions.0.invoice_number', '0142')
-        ->where('transactions.0.tax_effect', 3200)
+        ->where('transactions.0.tax_effect', 0)
         ->where('transactions.1.type', 'payment')
         ->where('transactions.1.certificate_status', 'pending'));
 });

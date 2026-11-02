@@ -39,6 +39,18 @@ test('on accrual books a sale counts on its invoice date, paid or not', function
     expect(quarters($profile, 2026)[1])->toMatchArray(['quarter_gross' => 100000.0, 'percentage_tax' => 3000.0]);
 });
 
+test('on 8% a sale counts when paid even on accrual books: the tax is on receipts (RR 8-2018 Sec. 2(g))', function () {
+    $profile = TaxProfile::factory()->create(['books_method' => BooksMethod::Accrual]);
+    $invoice = Transaction::factory()->invoice()->on('2026-03-10')->create(['amount' => 100_000]);
+
+    expect(quarters($profile, 2026)[1]['quarter_gross'])->toBe(0.0);
+
+    $invoice->update(['invoice_paid' => true, 'invoice_paid_on' => '2026-05-05']);
+
+    expect(quarters($profile, 2026)[2]['quarter_gross'])->toBe(100000.0)
+        ->and(quarters($profile, 2026)[1]['quarter_gross'])->toBe(0.0);
+});
+
 test('an invoice from December paid in January counts in January on cash books', function () {
     $profile = TaxProfile::factory()->graduated()->create(['books_method' => BooksMethod::Cash]);
     Transaction::factory()->invoice(paid: true)->on('2025-12-15')->create(['amount' => 50_000, 'invoice_paid_on' => '2026-01-08']);
