@@ -19,8 +19,13 @@ use Carbon\CarbonImmutable;
  * Quarter 4 is the annual return. Internally everything is in integer
  * centavos so sums never drift; results are in pesos.
  *
+ * Each quarter carries its trace: every step from gross to the amount
+ * due, with the rule it applies, its rate and the bracket used. Amounts
+ * round to the centavo, half up, at each multiplication.
+ *
  * @phpstan-import-type YearResult from TaxCalculationService
  * @phpstan-import-type Switch from TaxCalculationService
+ * @phpstan-import-type Step from TaxCalculationService
  * @phpstan-import-type Sale from TaxInputs
  * @phpstan-import-type Rules from TaxInputs
  */
@@ -111,6 +116,7 @@ class TaxCalculator
                 default => 'due',
             };
 
+            $percentage = $this->quarterPercentageTax($taxpayer, $quarter, $quarterSales, $sales, $switched, $rules);
             $quarters[$quarter] = [
                 'quarter' => $quarter,
                 'form' => $form,
@@ -131,7 +137,7 @@ class TaxCalculator
                 'withheld_unconfirmed' => $this->pesos($unconfirmed),
                 'due' => $this->pesos($due),
                 'excess_credit' => $this->pesos(max(0, $withheld + $salaryWithheld + $priorPaid - $tax['tax'] - $salaryTax)),
-                ...$this->quarterPercentageTax($taxpayer, $quarter, $quarterSales, $sales, $switched, $rules),
+                ...$percentage,
                 'statutory_date' => $in->dates[$quarter]['statutory']->toDateString(),
                 'due_date' => $dueDate->toDateString(),
                 'due_date_moved_reason' => $in->dates[$quarter]['moved_reason'],
@@ -141,6 +147,7 @@ class TaxCalculator
                 'amount_paid' => $quarterPaid !== null ? $this->pesos($quarterPaid) : null,
                 'paid_on' => $filing['paid_on'] ?? null,
                 'compensation' => $compensation,
+                'trace' => $this->trace($taxpayer, $quarter, $rules, $gross, $tax, $compensation, $priorPaid, $withheld, $due, $percentage),
             ];
 
             // What later quarters subtract: the payment recorded, or, while the
@@ -166,6 +173,88 @@ class TaxCalculator
             'classification' => $classification->value,
             'quarters' => $quarters,
         ];
+    }
+
+    /**
+     * The steps from the year's gross to the amount due, and the quarter's
+     * percentage tax, each with the rule it applies.
+     *
+     * @param  Rules  $rules
+     * @param  array{exempt: int, deduction: int, taxable: int, tax: int}  $tax
+     * @param  array{taxable: float, tax: float, withheld: float}|array<string, mixed>|null  $salary
+     * @param  array{percentage_tax: float|null, percentage_tax_base: float|null}  $percentage
+     * @return list<Step>
+     */
+    private function trace(YearTaxpayer $taxpayer, int $quarter, array $rules, int $gross, array $tax, ?array $salary, int $priorPaid, int $withheld, int $due, array $percentage): array
+    {
+        $ids = $rules['rule_ids'] ?? ['graduated' => null, 'percentage_tax' => []];
+        $step = $this->step(...);
+        $steps = [$step('gross', $quarter === 4 ? 'Gross sales for the year' : 'Gross sales to date', $gross)];
+
+        if ($taxpayer->regime === Regime::EightPercent) {
+            $rule = $taxpayer->purelySelfEmployed() ? 'IT-8PCT-PURE' : 'IT-8PCT-MIXED';
+
+            if ($taxpayer->purelySelfEmployed()) {
+                $steps[] = $step('reduction', 'Less: the ₱250,000 reduction', $tax['exempt'], $rule);
+            }
+
+            $steps[] = $step('taxable', 'Taxable', $tax['taxable']);
+            $steps[] = $step('income_tax', 'Income tax at 8%', $tax['tax'], $rule, $rules['eight_percent_rate']);
+        } elseif ($taxpayer->regime === Regime::Graduated) {
+            $steps[] = $taxpayer->deductionMethod === DeductionMethod::Itemized
+                ? $step('deduction', 'Less: expenses with invoices', $tax['deduction'], 'IT-ITEMIZED')
+                : $step('deduction', 'Less: the 40% standard deduction', $tax['deduction'], 'IT-OSD', $rules['osd_rate']);
+            $steps[] = $step('taxable', 'Taxable', $tax['taxable']);
+            $steps[] = $step('income_tax', 'Income tax, graduated rates', $tax['tax'], $ids['graduated'], null, $this->bracket($tax['taxable'], $rules['brackets']));
+        }
+
+        if ($salary !== null) {
+            $steps[] = $step('salary_tax', 'Tax on the salary', (float) $salary['tax'], $ids['graduated'], null, 'On ₱'.number_format((float) $salary['taxable'], 2).' of taxable salary');
+            $steps[] = $step('salary_withheld', "Less: the employer's withholding", (float) $salary['withheld']);
+        }
+
+        $steps[] = $step('prior_payments', 'Less: paid in earlier quarters', $priorPaid);
+        $steps[] = $step('withheld', 'Less: creditable tax withheld by clients', $withheld, $withheld > 0 ? 'CWT-CREDIT' : null);
+        $steps[] = $step('due', 'Tax due', $due);
+
+        if ($percentage['percentage_tax'] !== null) {
+            $steps[] = $step('percentage_tax', 'Percentage tax', $percentage['percentage_tax'], $ids['percentage_tax'][$quarter] ?? null, $rules['percentage_rates'][$quarter], 'On ₱'.number_format((float) $percentage['percentage_tax_base'], 2).' of sales', 'percentage_tax');
+        }
+
+        return $steps;
+    }
+
+    /**
+     * One step of the trace; an amount in centavos as an int, in pesos as a float.
+     *
+     * @param  'income_tax'|'percentage_tax'  $part
+     * @return Step
+     */
+    private function step(string $key, string $label, int|float $amount, ?string $rule = null, ?float $rate = null, ?string $note = null, string $part = 'income_tax'): array
+    {
+        return ['part' => $part, 'step' => $key, 'label' => $label, 'amount' => is_int($amount) ? $this->pesos($amount) : $amount, 'rule' => $rule, 'rate' => $rate, 'note' => $note];
+    }
+
+    /**
+     * The graduated table's band a taxable amount falls in, in words.
+     *
+     * @param  list<array{int|float, int|float, float}>  $brackets
+     */
+    private function bracket(int $taxable, array $brackets): string
+    {
+        $band = $brackets[0];
+
+        foreach ($brackets as $bracket) {
+            if ($taxable > $this->cents($bracket[0])) {
+                $band = $bracket;
+            }
+        }
+
+        [$over, $base, $rate] = $band;
+
+        return $rate <= 0
+            ? 'Up to ₱'.number_format((float) $brackets[1][0]).': no tax'
+            : ($base > 0 ? '₱'.number_format((float) $base).' + ' : '').round($rate * 100).'% of the excess over ₱'.number_format((float) $over);
     }
 
     /**

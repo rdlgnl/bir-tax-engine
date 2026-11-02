@@ -52,7 +52,9 @@ use Illuminate\Support\Collection;
  *     amount_paid: float|null,
  *     paid_on: string|null,
  *     compensation: Salary|null,
+ *     trace: list<Step>,
  * }
+ * @phpstan-type Step array{part: 'income_tax'|'percentage_tax', step: string, label: string, amount: float, rule: string|null, rate: float|null, note: string|null}
  * @phpstan-type Salary array{
  *     employer: string|null,
  *     employer_tin: string|null,
@@ -202,6 +204,11 @@ class TaxCalculationService
         return [
             'brackets' => $this->rules->forYear($year)->brackets(),
             'percentage_rates' => array_combine([1, 2, 3, 4], array_map(fn (int $q) => $this->rules->forQuarter($year, $q)->rate('percentage_tax_rate'), [1, 2, 3, 4])),
+            // The rules each step cites, for the trace.
+            'rule_ids' => [
+                'graduated' => $this->rules->forYear($year)->ruleId('graduated'),
+                'percentage_tax' => array_combine([1, 2, 3, 4], array_map(fn (int $q) => $this->rules->forQuarter($year, $q)->ruleId('percentage_tax'), [1, 2, 3, 4])),
+            ],
             'eight_percent_rate' => (float) config('tax.eight_percent.rate'),
             'exempt_amount' => $this->cents(config('tax.eight_percent.exempt_amount')),
             'gross_limit' => $this->cents(config('tax.eight_percent.gross_limit')),
@@ -372,6 +379,24 @@ class TaxCalculationService
         }
 
         return $this->incomeTax($profile, $gross, $deductible, $brackets)['tax'] + ($this->owesPercentageTax($profile) ? $percentageTax : 0);
+    }
+
+    /**
+     * The rules a quarter's computation applied, from its trace: the tax
+     * rule first, then the deduction, then percentage tax, then the credit
+     * for tax withheld.
+     *
+     * @param  QuarterResult  $quarter
+     * @param  'income_tax'|'percentage_tax'|null  $part  only that part's, or all
+     * @return list<string>
+     */
+    public static function rulesApplied(array $quarter, ?string $part = null): array
+    {
+        $steps = array_filter($quarter['trace'], fn (array $s) => $s['rule'] !== null && ($part === null || $s['part'] === $part));
+        $order = ['income_tax' => 0, 'reduction' => 1, 'deduction' => 1, 'salary_tax' => 2, 'percentage_tax' => 3, 'withheld' => 4];
+        usort($steps, fn (array $a, array $b) => ($order[$a['step']] ?? 2) <=> ($order[$b['step']] ?? 2));
+
+        return array_values(array_unique(array_map(fn (array $s) => (string) $s['rule'], $steps)));
     }
 
     /**

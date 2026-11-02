@@ -19,7 +19,7 @@ use Carbon\CarbonImmutable;
  * @phpstan-type Sale array{amount: int, withheld: int, confirmed: bool, income_date: CarbonImmutable|null, sales_tax_date: CarbonImmutable|null}
  * @phpstan-type Expense array{date: CarbonImmutable, deductible: int}
  * @phpstan-type QuarterFiling array{filed: bool, filed_on: string|null, paid_on: string|null, paid: int|null}
- * @phpstan-type Rules array{brackets: list<array{int|float, int|float, float}>, percentage_rates: array<int, float>, eight_percent_rate: float, exempt_amount: int, gross_limit: int, osd_rate: float, classes: array{micro: float, small: float, medium: float}}
+ * @phpstan-type Rules array{brackets: list<array{int|float, int|float, float}>, percentage_rates: array<int, float>, eight_percent_rate: float, exempt_amount: int, gross_limit: int, osd_rate: float, classes: array{micro: float, small: float, medium: float}, rule_ids?: array{graduated: string, percentage_tax: array<int, string>}}
  * @phpstan-type QuarterDates array{statutory: CarbonImmutable, due: CarbonImmutable, moved_reason: string|null}
  */
 final readonly class TaxInputs
