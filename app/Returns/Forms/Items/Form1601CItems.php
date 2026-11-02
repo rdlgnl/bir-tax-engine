@@ -8,9 +8,10 @@ use App\Tax\Services\Penalties;
 use Carbon\CarbonImmutable;
 
 /**
- * BIR Form 1601-C: a month's tax withheld on salaries. All pay is taxable
- * here (the app records taxable pay), so the non-taxable lines stay at
- * zero and what was withheld is what's remitted.
+ * BIR Form 1601-C: a month's tax withheld on salaries. The month's pay, the
+ * parts left untaxed (a minimum wage, the 13th month up to ₱90,000, de
+ * minimis benefits, the employees' contributions), and the taxable rest.
+ * What was withheld is what's remitted.
  *
  * @phpstan-import-type Values from FormItems
  * @phpstan-import-type RemittanceMonth from Payroll
@@ -46,9 +47,16 @@ class Form1601CItems extends ProfileFormItems
             '11.private' => true,
             '13.no' => true,
             '14' => $month['compensation'],
-            '21' => 0.0,
-            '22' => $month['compensation'],
-            '24' => $month['compensation'],
+            '15' => $month['minimum_wage'],
+            '16' => 0.0,
+            '17' => $month['benefits'],
+            '18' => $month['de_minimis'],
+            '19' => $month['contributions'],
+            '20' => 0.0,
+            '21' => round($month['compensation'] - $month['taxable'], 2),
+            '22' => $month['taxable'],
+            '23' => $month['not_withheld'],
+            '24' => round($month['taxable'] - $month['not_withheld'], 2),
             '25' => $withheld,
             '26' => 0.0,
             '27' => $withheld,

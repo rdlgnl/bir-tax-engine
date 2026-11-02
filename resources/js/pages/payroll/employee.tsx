@@ -5,6 +5,7 @@ import { MoneyInput } from '@/components/money-input';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatDate, monthLong, peso, todayIso } from '@/lib/format';
@@ -16,7 +17,15 @@ import type { Employee, EmployeeYear, RemittanceMonth } from '@/types';
 
 type Props = {
     employee: Employee | null;
-    payday: { withheld: number; net: number } | null;
+    payday: {
+        pay: number;
+        de_minimis: number;
+        contributions: number;
+        taxable: number;
+        withheld: number;
+        net: number;
+    } | null;
+    deMinimis: { label: string; amount: number; per: string }[];
     yearEnd?: EmployeeYear & {
         year: number;
         withheld_before: number;
@@ -34,13 +43,28 @@ type EmployeeForm = {
     tin: string;
     position: string;
     monthly_pay: string;
+    contributions: string;
+    de_minimis: string;
+    minimum_wage: boolean;
     started_on: string;
     ended_on: string;
+    previous_pay: string;
+    previous_withheld: string;
 };
+
+type MoneyField =
+    | 'contributions'
+    | 'de_minimis'
+    | 'previous_pay'
+    | 'previous_withheld';
+
+const amount = (value: number | null | undefined) =>
+    value ? String(value) : '';
 
 export default function EmployeePage({
     employee,
     payday,
+    deMinimis,
     yearEnd,
     nextRemittance,
     annualDue,
@@ -53,9 +77,33 @@ export default function EmployeePage({
         tin: employee?.tin ?? '',
         position: employee?.position ?? '',
         monthly_pay: employee ? String(employee.monthly_pay) : '',
+        contributions: amount(employee?.contributions),
+        de_minimis: amount(employee?.de_minimis),
+        minimum_wage: employee?.minimum_wage ?? false,
         started_on: employee?.started_on ?? todayIso(),
         ended_on: employee?.ended_on ?? '',
+        previous_pay: amount(employee?.previous_pay),
+        previous_withheld: amount(employee?.previous_withheld),
     });
+    // An earlier employer only counts in the year they started.
+    const startedThisYear =
+        form.data.started_on.slice(0, 4) === todayIso().slice(0, 4);
+    const money = (name: MoneyField, label: string, hint: string) => (
+        <div className="flex flex-col gap-1.5">
+            <Label htmlFor={name} className="font-bold">
+                {label}
+            </Label>
+            <MoneyInput
+                id={name}
+                value={form.data[name]}
+                onValueChange={(value) => form.setData(name, value)}
+            />
+            {!form.errors[name] && (
+                <p className="text-[13px] text-muted-foreground">{hint}</p>
+            )}
+            <FieldError message={form.errors[name]} />
+        </div>
+    );
     const first = employee?.first_name ?? 'them';
     const text = (
         name: 'first_name' | 'middle_name' | 'last_name' | 'tin' | 'position',
@@ -124,7 +172,7 @@ export default function EmployeePage({
                 >
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="monthly_pay" className="font-bold">
-                            Monthly taxable pay
+                            Monthly basic pay
                         </Label>
                         <MoneyInput
                             id="monthly_pay"
@@ -137,7 +185,8 @@ export default function EmployeePage({
                         />
                         {!form.errors.monthly_pay && (
                             <p className="text-[13px] text-muted-foreground">
-                                After SSS, PhilHealth and Pag-IBIG shares.
+                                Before their share of SSS, PhilHealth and
+                                Pag-IBIG.
                             </p>
                         )}
                         <FieldError message={form.errors.monthly_pay} />
@@ -152,6 +201,14 @@ export default function EmployeePage({
                                         {peso(payday.withheld)}
                                     </dd>
                                 </div>
+                                {payday.contributions > 0 && (
+                                    <div className="flex justify-between border-b border-divider py-3">
+                                        <dt>Their share of contributions</dt>
+                                        <dd className="font-bold">
+                                            {peso(payday.contributions)}
+                                        </dd>
+                                    </div>
+                                )}
                                 <div className="flex justify-between border-b border-divider py-3">
                                     <dt>Pay {employee.first_name}</dt>
                                     <dd className="font-bold">
@@ -167,6 +224,59 @@ export default function EmployeePage({
                             </dl>
                         </SectionCard>
                     )}
+
+                    <SectionCard title="What isn't taxed">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {money(
+                                'contributions',
+                                'Their share of SSS, PhilHealth and Pag-IBIG',
+                                'Each month, the employee share only.',
+                            )}
+                            {money(
+                                'de_minimis',
+                                'De minimis benefits',
+                                'Each month, paid on top of basic pay.',
+                            )}
+                        </div>
+                        {deMinimis.length > 0 && (
+                            <p className="mt-3 text-[13px] text-muted-foreground">
+                                Within the BIR limits:{' '}
+                                {deMinimis
+                                    .map(
+                                        (limit) =>
+                                            `${limit.label.toLowerCase()} ${peso(limit.amount)} a ${limit.per}`,
+                                    )
+                                    .join(', ')}
+                                . More than that is taxable pay.
+                            </p>
+                        )}
+                        <label className="mt-4 flex items-start gap-3 text-[15px]">
+                            <Checkbox
+                                checked={form.data.minimum_wage}
+                                onCheckedChange={(checked) =>
+                                    form.setData(
+                                        'minimum_wage',
+                                        checked === true,
+                                    )
+                                }
+                                className="mt-1"
+                            />
+                            <span>
+                                <span className="block font-bold">
+                                    Paid the minimum wage
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                    A minimum wage earner's basic pay isn't
+                                    taxed or withheld on.
+                                </span>
+                            </span>
+                        </label>
+                        <p className="mt-4 text-[13px] text-muted-foreground">
+                            Their 13th month, a twelfth of the year's basic pay,
+                            is paid with the last payroll of the year and isn't
+                            taxed up to ₱90,000.
+                        </p>
+                    </SectionCard>
 
                     <SectionCard title="Employee">
                         <div className="grid gap-4 sm:grid-cols-3">
@@ -219,6 +329,23 @@ export default function EmployeePage({
                             </div>
                         </div>
                     </SectionCard>
+
+                    {(startedThisYear || form.data.previous_pay) && (
+                        <SectionCard title="Earlier employer this year">
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {money(
+                                    'previous_pay',
+                                    'Taxable pay there',
+                                    'From the 2316 that employer gave them.',
+                                )}
+                                {money(
+                                    'previous_withheld',
+                                    'Tax withheld there',
+                                    'Leave blank if they had no other employer.',
+                                )}
+                            </div>
+                        </SectionCard>
+                    )}
 
                     {nextRemittance && annualDue && (
                         <SectionCard title="On your calendar">
@@ -341,10 +468,11 @@ export default function EmployeePage({
                             }
                             title="Year-end check"
                         >
-                            {employee.first_name}'s {yearEnd.year} pay will
-                            total {peso(yearEnd.pay)}
+                            {employee.first_name}'s {yearEnd.year} taxable pay
+                            will total{' '}
+                            {peso(yearEnd.taxable + yearEnd.previous_pay)}
                             {yearEnd.tax === 0
-                                ? ', below ₱250,000, so no tax is due on it.'
+                                ? ', ₱250,000 or less, so no tax is due on it.'
                                 : `, so ${peso(yearEnd.tax)} in tax is due on it.`}{' '}
                             {yearEnd.refund > 0
                                 ? `At the last payroll of the year nothing more is withheld, and the ${peso(yearEnd.refund)} withheld before is refunded to ${first} by ${formatDate(yearEnd.refund_by, 'long')}.`
@@ -363,8 +491,9 @@ export default function EmployeePage({
                         </Link>
                     </Note>
                     <Note tone="warning" title="Not covered">
-                        SSS, PhilHealth and Pag-IBIG are separate agencies.
-                        Track them elsewhere.
+                        Paying SSS, PhilHealth and Pag-IBIG is done with each
+                        agency; track it elsewhere. Other bonuses, overtime and
+                        allowances aren't counted yet.
                     </Note>
                 </div>
             </div>

@@ -40,6 +40,12 @@ return [
 
     // Part II: computation of tax.
     '14' => $amount(306.5),
+    '15' => $amount(332.0),
+    '16' => $amount(348.0),
+    '17' => $amount(364.0),
+    '18' => $amount(380.0),
+    '19' => $amount(396.0),
+    '20' => $amount(412.0),
     '21' => $amount(428.0),
     '22' => $amount(443.9),
     '23' => $amount(459.2),

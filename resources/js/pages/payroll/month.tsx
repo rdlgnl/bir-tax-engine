@@ -130,12 +130,25 @@ export default function PayrollMonth({
                                 },
                                 {
                                     label: 'Less: non-taxable compensation',
-                                    value: formAmount(0),
+                                    value: formAmount(
+                                        remittance.compensation -
+                                            remittance.taxable,
+                                    ),
                                 },
                                 {
                                     label: 'Taxable compensation',
-                                    value: formAmount(remittance.compensation),
+                                    value: formAmount(remittance.taxable),
                                 },
+                                ...(remittance.not_withheld > 0
+                                    ? [
+                                          {
+                                              label: 'Less: pay of ₱250,000 or less a year',
+                                              value: formAmount(
+                                                  remittance.not_withheld,
+                                              ),
+                                          },
+                                      ]
+                                    : []),
                                 {
                                     label: 'Tax withheld',
                                     value: formAmount(remittance.withheld),

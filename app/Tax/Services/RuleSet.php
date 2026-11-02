@@ -36,11 +36,13 @@ final class RuleSet
     }
 
     /**
+     * The graduated table, or another table of the same shape.
+     *
      * @return list<array{int|float, int|float, float}>
      */
-    public function brackets(): array
+    public function brackets(string $table = 'graduated_brackets'): array
     {
-        return $this->get('graduated_brackets');
+        return $this->get($table);
     }
 
     /**

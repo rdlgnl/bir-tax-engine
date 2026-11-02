@@ -46,5 +46,5 @@ test('the rules page also describes the pack in use', function () {
         ->where('version', '2026.11')
         ->where('pending', false)
         ->where('before', null)
-        ->has('changes', 1));
+        ->has('changes', 2));
 });
