@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 78 of 97 done.
+Status: 79 of 97 done.
 
 ---
 
@@ -189,7 +189,7 @@ Done:
 
 Still to build:
 
-- [ ] No-payment 1702Q for a corporation with no income, and a 1601-C for months with no employees while registered for withholding on compensation (the app doesn't record that registration).
+- [x] No-payment 1702Q: every quarter is listed from the year the corporation registered, "No payment" when nothing's due; a 1601-C for months with no one on payroll after the year's first hire, "No payment", the month page pointing to the 1905 to stop (REVIEW: the app doesn't record the compensation-withholding registration).
 - [ ] eFPS filers' dates (0619-E by the 15th, 1601-C by group): the app assumes eBIRForms filers, as RMC 20-2026 has the self-employed who aren't listed for eFPS.
 
 ### M1 · Holidays beyond 2027
