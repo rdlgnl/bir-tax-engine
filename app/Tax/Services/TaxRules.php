@@ -17,11 +17,45 @@ class TaxRules
     /** @var array<string, RuleSet> */
     private array $sets = [];
 
+    /** @var array<int, RuleSet> years held to a filed return's rules */
+    private array $pinned = [];
+
     public function on(CarbonInterface $date): RuleSet
     {
+        if (isset($this->pinned[$date->year])) {
+            return $this->pinned[$date->year];
+        }
+
         $day = $date->toDateString();
 
         return $this->sets[$day] ??= $this->build(CarbonImmutable::parse($day));
+    }
+
+    /**
+     * Runs $work with a year held to the rule set a return was filed on, so
+     * a filed period is recomputed on its own rules, not today's pack. A
+     * null rule set (a return filed before they were kept) changes nothing.
+     *
+     * @template T
+     *
+     * @param  array{date: string, values: array<string, mixed>}|null  $ruleSet
+     * @param  callable(): T  $work
+     * @return T
+     */
+    public function pinned(int $year, ?array $ruleSet, callable $work): mixed
+    {
+        if ($ruleSet === null) {
+            return $work();
+        }
+
+        $before = $this->pinned;
+        $this->pinned[$year] = new RuleSet(CarbonImmutable::parse($ruleSet['date']), $ruleSet['values']);
+
+        try {
+            return $work();
+        } finally {
+            $this->pinned = $before;
+        }
     }
 
     public function forYear(int $year): RuleSet

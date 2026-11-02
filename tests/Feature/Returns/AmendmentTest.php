@@ -128,3 +128,25 @@ test('editing a sale moves the amendment the other way, to an overpayment', func
     expect($amendment)->toMatchArray(['extra' => 0.0, 'overpaid' => 1600.0, 'penalties' => null])
         ->and($amendment['reason'])->toBe('You changed a ₱30,000 payment from May 28 after Q2 was filed.');
 });
+
+test('a filed quarter is recomputed on the rules it was filed under, so a newer pack alone doesn’t call for an amendment (A3)', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-09-01 10:00'));
+    Filing::query()->delete();
+    Transaction::query()->delete();
+    App\Profiles\Models\TaxYear::query()->delete();
+    TaxProfile::current()->update(['regime' => 'graduated', 'deduction_method' => 'osd']);
+    Transaction::factory()->on('2026-05-10')->create(['amount' => 500_000]);
+    $this->post('/filings', ['year' => 2026, 'quarter' => 2, 'form' => '1701Q', 'filed_on' => '2026-08-14', 'paid' => false])->assertSessionHasNoErrors();
+
+    // A later pack with a different 2023 table: the filed quarter stays as it was.
+    config(['tax.dated.2023-01-01.graduated_brackets.1' => [250_000, 0, 0.16]]);
+    app()->forgetScopedInstances();
+
+    expect(app(Amendments::class)->for(TaxProfile::current(), 2026, 2))->toBeNull();
+
+    // A record changes: the amendment is computed on the filed table, 15% over ₱250,000 of ₱360,000.
+    Transaction::factory()->on('2026-06-10')->create(['amount' => 100_000]);
+    app()->forgetScopedInstances();
+
+    expect(app(Amendments::class)->for(TaxProfile::current(), 2026, 2)['amended'])->toMatchArray(['gross' => 600000.0, 'income_tax' => 16500.0]);
+});
