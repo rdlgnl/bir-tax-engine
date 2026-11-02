@@ -3,6 +3,7 @@
 namespace App\Tax\Services;
 
 use App\Profiles\Models\TaxProfile;
+use App\Tax\Calculation\YearTaxpayer;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
@@ -131,20 +132,12 @@ class FilingCalendar
     }
 
     /**
-     * The return for a quarter. The annual return of the purely
-     * self-employed is the 1701-MS (micro and small taxpayers, below
-     * ₱20,000,000 in sales); someone with a salary as well files the 1701,
-     * which has room for every employer.
+     * The return for a quarter, as YearTaxpayer::incomeTaxForm chooses it
+     * for the profile as it stands.
      */
     public function incomeTaxForm(TaxProfile $profile, int $quarter, TaxpayerClassification $class = TaxpayerClassification::Micro): string
     {
-        return match (true) {
-            $quarter < 4 => '1701Q',
-            // The 1701-MS is for micro and small taxpayers (1701-MS guidelines, August 2024).
-            $profile->isPurelySelfEmployed() && $class->microOrSmall() => '1701-MS',
-            $profile->isPurelySelfEmployed() && ($profile->regime === Regime::EightPercent || $profile->deduction_method === DeductionMethod::Osd) => '1701A',
-            default => '1701',
-        };
+        return YearTaxpayer::of($profile)->incomeTaxForm($quarter, $class);
     }
 
     /**
