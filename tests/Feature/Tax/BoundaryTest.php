@@ -57,3 +57,14 @@ test('centavos round half up, and the whole-peso form stays within ₱1 of the e
         ->and($form['54A'])->toBe(801)
         ->and(abs($form['28A'] - $q1['due']))->toBeLessThan(1.0);
 });
+
+test('a whole-peso return shows the form’s amount to pay, its lines in whole pesos', function () {
+    $profile = TaxProfile::factory()->create();
+    Transaction::factory()->on('2026-02-10')->create(['amount' => 260_006.31]);
+
+    $layout = app(ReturnForm::class)->layout(app(ReturnForm::class)->snapshot($profile, 2026, 1, '1701Q'));
+
+    expect($layout['payable'])->toBe(801.0)
+        ->and(collect($layout['lines'])->firstWhere('label', 'Tax due (8%)')['amount'])->toBe(801.0)
+        ->and(collect($layout['lines'])->firstWhere('label', 'Tax payable')['amount'])->toBe(801.0);
+});

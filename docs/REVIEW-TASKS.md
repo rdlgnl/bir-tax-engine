@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 70 of 96 done.
+Status: 71 of 96 done.
 
 ---
 
@@ -231,7 +231,7 @@ Add these tests (table-driven where possible):
 
 ## Phase 5 — UX
 
-- [ ] **M2 Peso vs centavo.** On whole-peso forms, show the whole-peso amount as the amount to pay.
+- [x] **M2 Peso vs centavo.** On whole-peso forms (1701Q, 1701-MS, 1701A, 1701), the return pages show the form's amount to pay, penalties included, and their lines in whole pesos. The calendar and home still show the exact figure, within ₱1.
 - [ ] **M5 Honest PIN wording.** "Protects the screen, not the files", or encrypt sensitive data with a key from the PIN.
 - [x] **M6 Past ₱3M on 8%.** Graduated from the quarter the limit was passed, percentage tax to that month, VAT from the next, a VAT registration reminder; `cannot_compute` is gone.
 - [x] **M7 Unpaid quarters.** Later quarters credit an earlier one with its recorded payment, or with its tax only while it can still be paid on time; an overdue one, or one filed with nothing paid, stays owed in later returns, and My tax says how much of the amount it is.

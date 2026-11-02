@@ -51,7 +51,8 @@ test('the amended 1701Q credits what the original paid and adds only the interes
     $snapshot = $amendments->snapshot(TaxProfile::current(), $amendments->for(TaxProfile::current(), 2026, 2));
     $layout = app(ReturnForm::class)->layout($snapshot);
 
-    expect($layout)->toMatchArray(['payable' => 1600.0, 'total_payable' => 1622.36])
+    // As the form has it, in whole pesos.
+    expect($layout)->toMatchArray(['payable' => 1600.0, 'total_payable' => 1622.0])
         ->and(app(OfficialForms::class)->values($snapshot))->toMatchArray([
             '3.yes' => true, '3.no' => false, '59A' => 4000, '62A' => 12000, '63A' => 1600,
             '64A' => 0, '65A' => 22, '67A' => 22, '68A' => 1622, '31' => 1622,
@@ -60,7 +61,7 @@ test('the amended 1701Q credits what the original paid and adds only the interes
     $this->get('/file/2026/2/1701Q/amend')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('returns/amend')
         ->where('amendment.extra', 1600)
-        ->where('layout.total_payable', 1622.36)
+        ->where('layout.total_payable', 1622)
         // Q3 stays ₱14,000: its running total takes in the sale and, once paid, the extra for Q2.
         ->where('next', ['quarter' => 3, 'due' => 14000]));
 
