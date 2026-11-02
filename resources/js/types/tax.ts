@@ -89,6 +89,8 @@ export type AppliedRule = {
     basis: string;
     effective: string;
     detail: string | null;
+    /** Who signed the rule off, or null while it isn't reviewed. */
+    reviewed: SignOff | null;
 };
 
 export type Explanation = {
@@ -99,6 +101,9 @@ export type Explanation = {
 };
 
 export type RulePack = { version: string; reviewed: boolean };
+
+/** A tax professional's sign-off on a rule or a part of the pack. */
+export type SignOff = { by: string; on: string; source: string };
 
 /** RR 4-2026's one-time abatement for micro taxpayers. */
 export type AbatementOffer = {

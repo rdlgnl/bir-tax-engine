@@ -59,7 +59,10 @@ export function WhyPanel({ explanation, regimeLabel, rulePack }: Props) {
                         <p className="text-sm text-slate-700">{rule.basis}</p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
                             {rule.detail ?? `Rule ${rule.id} v${rule.version}`}{' '}
-                            · since {new Date(rule.effective).getFullYear()}
+                            · since {new Date(rule.effective).getFullYear()} ·{' '}
+                            {rule.reviewed
+                                ? `reviewed by ${rule.reviewed.by}`
+                                : 'not yet reviewed'}
                         </p>
                     </div>
                 ))}

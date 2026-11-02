@@ -19,7 +19,7 @@ use Illuminate\Support\Number;
  * @phpstan-import-type QuarterResult from TaxCalculationService
  * @phpstan-import-type Switch from TaxCalculationService
  *
- * @phpstan-type Rule array{id: string, version: int, title: string, basis: string, effective: string, detail: string|null}
+ * @phpstan-type Rule array{id: string, version: int, title: string, basis: string, effective: string, detail: string|null, reviewed: array{by: string, on: string, source: string}|null}
  */
 class TaxExplainer
 {
@@ -194,6 +194,8 @@ class TaxExplainer
             'basis' => $rule['basis'],
             'effective' => $rule['effective'],
             'detail' => null,
+            // Who signed the rule off, or null while it isn't reviewed.
+            'reviewed' => RuleReview::signOff($rule['reviewed'] ?? null),
         ];
     }
 

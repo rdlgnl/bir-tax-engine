@@ -5,6 +5,7 @@ namespace App\Tax\Controllers;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Tax\Services\RulePacks;
+use App\Tax\Services\RuleReview;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -25,12 +26,9 @@ class RuleController extends Controller
 
         return Inertia::render('tax/rules', [
             'version' => $this->packs->version(),
-            'reviewed' => (bool) config('tax.reviewed'),
-            // Each kind of rule, reviewed and versioned on its own.
-            'parts' => array_values(array_map(
-                fn (array $part) => ['title' => (string) $part['title'], 'version' => (string) $part['version'], 'reviewed' => (bool) $part['reviewed']],
-                (array) config('tax.parts'),
-            )),
+            'reviewed' => RuleReview::packReviewed(),
+            // Each kind of rule, reviewed and versioned on its own, with its sign-off.
+            'parts' => array_map(fn (array $part) => ['title' => $part['title'], 'version' => $part['version'], 'reviewed' => $part['reviewed']], RuleReview::parts()),
             'changes' => $this->packs->changes(),
             'pending' => $this->packs->pending(),
             'previousVersion' => $this->packs->seen()['version'] ?? null,

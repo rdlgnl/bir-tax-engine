@@ -9,6 +9,7 @@ use App\Profiles\Resources\TaxProfileResource;
 use App\Returns\Models\Filing;
 use App\Tax\Enums\TaxpayerClassification;
 use App\Tax\Services\FilingCalendar;
+use App\Tax\Services\RuleReview;
 use App\Tax\Services\TaxCalculationService;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +36,7 @@ class ProfileController extends Controller
             'year' => $year,
             'methodLockedOn' => Filing::firstQuarterReturn($year)?->filed_on->toDateString(),
             'nextYearDecisionDue' => $calendar->incomeTaxDue($year + 1, 1)->toDateString(),
-            'rulePack' => ['version' => config('tax.version'), 'reviewed' => config('tax.reviewed')],
+            'rulePack' => ['version' => config('tax.version'), 'reviewed' => RuleReview::packReviewed()],
         ]);
     }
 }
