@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 80 of 97 done.
+Status: 84 of 97 done.
 
 ---
 
@@ -251,12 +251,12 @@ Add these tests (table-driven where possible):
 
 ## Low priority
 
-- [ ] **L1** Packaged builds ship with `APP_DEBUG=false`.
-- [ ] **L2** Cache year-end ledger balances if the general ledger slows down ([GeneralLedger.php](../app/Books/Services/GeneralLedger.php)).
+- [x] **L1** Packaged builds ship with `APP_DEBUG=false`: a Packaging section in the README (debug off, the app URL, config cache, licences); `debug` already defaults to off. No packaged build exists yet.
+- [x] **L2** The general ledger builds each month's journal once per request, so opening balances no longer rebuild the months before for every account ([GeneralLedger.php](../app/Books/Services/GeneralLedger.php)).
 - [ ] **L3** Split the largest pages when next touched: `certificates/create`, `letters/create`, `corporation/*`.
-- [ ] **L4** Server recomputes or bounds the VAT amount sent from the form.
+- [x] **L4** The server keeps the VAT sent from the form to at most 12% of the amount, a peso allowed for rounding.
 - [ ] **L5** Move holiday names and other copy out of the rule pack.
-- [ ] **L6** Licences list (`smalot/pdfparser` is LGPL-3.0).
+- [x] **L6** Licences list: [docs/LICENSES.md](LICENSES.md), with the LGPL libraries (dompdf, smalot/pdfparser) and what they ask of a packaged build.
 
 ---
 

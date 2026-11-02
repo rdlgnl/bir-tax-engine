@@ -63,6 +63,15 @@ class SaveTransactionRequest extends FormRequest
                 $validator->errors()->add('occurred_on', NotInClosedYear::message($existing->occurred_on));
             }
 
+            // VAT is 12% of the amount (kept net of VAT); the form fills it in and
+            // can be edited, so the server only keeps it from going over, a peso
+            // allowed for rounding.
+            $cap = round((float) $this->input('amount') * (float) config('tax.vat.rate'), 2);
+
+            if ((float) $this->input('vat_amount') > $cap + 1) {
+                $validator->errors()->add('vat_amount', 'VAT can’t be more than '.((int) round((float) config('tax.vat.rate') * 100)).'% of the amount (₱'.number_format($cap, 2).').');
+            }
+
             // A payment for a recorded invoice: that sale already counts on the invoice's date.
             $invoice = $this->paidInvoice();
 

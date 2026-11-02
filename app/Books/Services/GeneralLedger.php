@@ -87,6 +87,9 @@ class GeneralLedger
     /** @var array<int, BooksMethod> each year's books method */
     private array $methods = [];
 
+    /** @var array<string, list<Entry>> each month's journal, once built */
+    private array $journals = [];
+
     public function __construct(private Payroll $payrollService, private DocumentaryStampTax $dst) {}
 
     /**
@@ -95,6 +98,15 @@ class GeneralLedger
      * @return list<Entry>
      */
     public function journal(int $year, int $month): array
+    {
+        // Opening balances replay every month before; each month is built once.
+        return $this->journals["{$year}-{$month}"] ??= $this->buildJournal($year, $month);
+    }
+
+    /**
+     * @return list<Entry>
+     */
+    private function buildJournal(int $year, int $month): array
     {
         $entries = [];
         // A paid invoice is a receipt in the month it was paid.
