@@ -22,10 +22,24 @@ enum TaxpayerClassification: string
      */
     public static function fromGross(float $gross): self
     {
+        return self::fromGrossUnder($gross, [
+            'micro' => (float) config('tax.classification.micro_below'),
+            'small' => (float) config('tax.classification.small_below'),
+            'medium' => (float) config('tax.classification.medium_below'),
+        ]);
+    }
+
+    /**
+     * The same, against the given limits: each class is below its limit.
+     *
+     * @param  array{micro: float, small: float, medium: float}  $below
+     */
+    public static function fromGrossUnder(float $gross, array $below): self
+    {
         return match (true) {
-            $gross < (float) config('tax.classification.micro_below') => self::Micro,
-            $gross < (float) config('tax.classification.small_below') => self::Small,
-            $gross < (float) config('tax.classification.medium_below') => self::Medium,
+            $gross < $below['micro'] => self::Micro,
+            $gross < $below['small'] => self::Small,
+            $gross < $below['medium'] => self::Medium,
             default => self::Large,
         };
     }

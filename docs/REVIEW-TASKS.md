@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 76 of 96 done.
+Status: 77 of 97 done.
 
 ---
 
@@ -201,7 +201,8 @@ Still to build:
 
 ## Phase 3 — Architecture
 
-- [ ] **A1 Pure calculator.** Gather inputs into a `TaxInputs` value. `TaxCalculator` takes inputs and a `RuleSet` and returns a `TaxResult`, with no queries and no `config()`. Corporations follow the same shape.
+- [x] **A1 Pure calculator.** [TaxInputs](../app/Tax/Calculation/TaxInputs.php) holds a year's sales (their dates already on the right method), expenses, filings, the year's taxpayer, rules and due dates; [TaxCalculator](../app/Tax/Calculation/TaxCalculator.php) computes the year from them alone, no queries and no `config()`, tested without the app ([TaxCalculatorTest](../tests/Unit/TaxCalculatorTest.php)). `TaxCalculationService` gathers the inputs; its public methods are unchanged.
+- [ ] **A1b** The same shape for corporations (`CorporateTax`) and for the planning comparison and per-transaction effects, which still read the rule pack directly.
 - [ ] **A2 Trace.** `TaxResult` carries each step: input, rule id, rate, rounding. `TaxExplainer` reads it, and the snapshot stores it.
 - [x] **A3 Amendments compare like with like.** A filed quarter is recomputed on the rule set kept with it (`TaxRules::pinned`), so only changed records call for an amendment, and the amended return uses the same rules. Returns filed before rule sets were kept use today's.
 - [x] **A4 Rule files split by kind.** The pack's parts are in [resources/rule-pack/](../resources/rule-pack/): rates, deadlines, holidays, form editions, tax codes, file formats and citations, each with its own version and sign-off under `parts`, listed on the BIR rules page. `config('tax.*')` reads them as one, unchanged.
