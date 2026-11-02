@@ -66,10 +66,12 @@ class TaxRules
             }
         }
 
-        // Lists like the graduated table are replaced whole, not merged row by row.
+        // Tables are replaced whole, not merged row by row.
         foreach ($this->entries() as $effective => $changes) {
-            if (CarbonImmutable::parse($effective)->lessThanOrEqualTo($date) && isset($changes['graduated_brackets'])) {
-                $values['graduated_brackets'] = $changes['graduated_brackets'];
+            foreach (['graduated_brackets', 'compensation_brackets'] as $table) {
+                if (CarbonImmutable::parse($effective)->lessThanOrEqualTo($date) && isset($changes[$table])) {
+                    $values[$table] = $changes[$table];
+                }
             }
         }
 

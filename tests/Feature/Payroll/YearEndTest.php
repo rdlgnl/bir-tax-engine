@@ -40,14 +40,15 @@ test('Joy’s 2316 shows her pay and, after the refund, no tax withheld', functi
         '1' => '2026', '2.from' => '10/01', '2.to' => '12/31',
         '3.1' => '345', '3.3' => '901', '3.branch' => '00000', '4' => 'RAMOS, JOY A.',
         '12.1' => '123', '12.branch' => '00000', '15.main' => true,
-        '19' => 90000.0, '21' => 90000.0, '23' => 90000.0, '24' => 0.0, '25A' => 0.0, '26' => 0.0, '28' => 0.0,
-        '39' => 90000.0, '52' => 90000.0,
+        // ₱90,000 of basic pay for the year is under ₱250,000, so it's exempt (item 29); so is the 13th month.
+        '11' => false, '19' => 97500.0, '20' => 97500.0, '21' => 0.0, '22' => null, '23' => 0.0, '24' => 0.0, '25A' => 0.0, '26' => 0.0, '28' => 0.0,
+        '29' => 90000.0, '34' => 7500.0, '36' => 0.0, '38' => 97500.0, '39' => 0.0, '48' => 0.0, '52' => 0.0,
     ]);
 
     $this->get("/payroll/employees/{$this->joy->id}/2316")->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('payroll/certificate')
         ->where('year', 2026)
-        ->where('pay.refund', 2750)
+        ->where('pay.refund', 2750.1)
         ->where('givenOn', null)
         ->where('dueDate', '2027-02-01')
         ->where('refundBy', '2027-01-25'));
@@ -65,11 +66,11 @@ test('the 1604-C lists each month and the refund as an over-remittance', functio
     $annual = app(Payroll::class)->annual(2026);
 
     expect($annual)->toMatchArray([
-        'compensation' => 90000.0, 'withheld' => 2750.0, 'refund' => 2750.0, 'due_date' => '2027-02-01', 'status' => 'open',
+        'compensation' => 97500.0, 'withheld' => 2750.1, 'refund' => 2750.1, 'due_date' => '2027-02-01', 'status' => 'open',
     ])->and(app(Form1604CItems::class)->values(TaxProfile::current(), $annual))->toMatchArray([
-        '1' => '26', '2.no' => true, '8.private' => true, '11.yes' => true, '12' => 2750.0, '13' => '01',
-        'm.10.date' => '11/05/2026', 'm.10.withheld' => 1375.0, 'm.10.remitted' => 1375.0,
-        'm.11.withheld' => 1375.0, 'm.12.withheld' => 0.0, 'm.total.withheld' => 2750.0, 'm.total.remitted' => 2750.0,
+        '1' => '26', '2.no' => true, '8.private' => true, '11.yes' => true, '12' => 2750.1, '13' => '01',
+        'm.10.date' => '11/05/2026', 'm.10.withheld' => 1375.05, 'm.10.remitted' => 1375.0,
+        'm.11.withheld' => 1375.05, 'm.12.withheld' => 0.0, 'm.total.withheld' => 2750.1, 'm.total.remitted' => 2750.05,
     ]);
 
     $this->get('/payroll/2026/annual')->assertOk()->assertInertia(fn (Assert $page) => $page

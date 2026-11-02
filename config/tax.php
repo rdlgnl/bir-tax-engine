@@ -27,6 +27,7 @@ return [
     // Each: area (Rules, Deadline calendar, Forms), title, summary.
     'changes' => [
         '2026.11' => [
+            ['area' => 'Rules', 'title' => 'Payroll on the BIR withholding table', 'summary' => 'Each month\'s tax on salaries follows the BIR table (RR 11-2018 Annex "E"), with the year-end adjustment in December. Contributions, de minimis benefits, a minimum wage and the 13th month up to ₱90,000 aren\'t taxed.'],
             ['area' => 'Rules', 'title' => 'Each year on its own rules', 'summary' => 'Years before 2023 use the 2018–2022 graduated table, percentage tax is 1% from July 2020 to June 2023, and corporations follow the CREATE rates and MCIT of each quarter. Years before 2018 (2021 for corporations) aren\'t computed.'],
         ],
         '2026.10' => [
@@ -68,6 +69,26 @@ return [
             'rule_ids' => ['graduated' => 'IT-GRAD-2018', 'percentage_tax' => 'PT-3PCT-2018'],
             // DST on loans (Sec. 179 as TRAIN amended it): ₱1.50 for each ₱200 or fraction.
             'dst' => ['loan' => ['per' => 200, 'rate' => 1.50]],
+            // Tax withheld on a month's taxable pay: RR 11-2018 Annex "D", for pay
+            // from 2018 to 2022. Same shape as the graduated table.
+            // REVIEW: copied from the annex as summarized, not from the printed table.
+            'compensation_brackets' => [
+                [0, 0, 0.00],
+                [20_833, 0, 0.20],
+                [33_333, 2_500, 0.25],
+                [66_667, 10_833.33, 0.30],
+                [166_667, 40_833.33, 0.32],
+                [666_667, 200_833.33, 0.35],
+            ],
+            // De minimis benefits an employer can pay untaxed (RR 11-2018 Sec. 2.78.1(A)(3)):
+            // the limits the employee page lists. REVIEW: RR 4-2025 raised clothing to
+            // ₱7,000 in 2025; its effective date isn't encoded.
+            'de_minimis' => [
+                'rice' => ['amount' => 2_000, 'per' => 'month', 'label' => 'Rice subsidy'],
+                'clothing' => ['amount' => 6_000, 'per' => 'year', 'label' => 'Uniform and clothing'],
+                'medical_dependents' => ['amount' => 250, 'per' => 'month', 'label' => 'Medical cash allowance to dependents'],
+                'laundry' => ['amount' => 300, 'per' => 'month', 'label' => 'Laundry allowance'],
+            ],
         ],
         // RA 11534 (CREATE): 1% percentage tax from July 1, 2020 to June 30, 2023.
         '2020-07-01' => [
@@ -91,6 +112,15 @@ return [
                 [8_000_000, 2_202_500, 0.35],
             ],
             'rule_ids' => ['graduated' => 'IT-GRAD-2023'],
+            // RR 11-2018 Annex "E", for pay from January 1, 2023.
+            'compensation_brackets' => [
+                [0, 0, 0.00],
+                [20_833, 0, 0.15],
+                [33_333, 1_875, 0.20],
+                [66_667, 8_541.80, 0.25],
+                [166_667, 33_541.80, 0.30],
+                [666_667, 183_541.80, 0.35],
+            ],
         ],
         // The CREATE relief ended: 3% percentage tax and 2% MCIT again.
         '2023-07-01' => [
@@ -102,6 +132,15 @@ return [
         // issue price, without rounding up to the next ₱200.
         '2025-07-01' => [
             'dst' => ['loan' => ['percent' => 0.0075]],
+        ],
+        // RR 29-2025: higher de minimis limits from January 6, 2026.
+        '2026-01-06' => [
+            'de_minimis' => [
+                'rice' => ['amount' => 2_500],
+                'clothing' => ['amount' => 8_000],
+                'medical_dependents' => ['amount' => 333],
+                'laundry' => ['amount' => 400],
+            ],
         ],
     ],
 
@@ -125,6 +164,11 @@ return [
         'monthly_due_day' => 10,
         // 1601-C for December: January 15 (RR 2-98 Sec. 2.83 as amended).
         'december_compensation_due_day' => 15,
+        // 13th month pay and other benefits left untaxed, together, each year
+        // (NIRC Sec. 32(B)(7)(e); RR 11-2018 Sec. 2.78.1(B)(11)).
+        'benefits_exempt' => 90_000,
+        // Pay for the year at or below this isn't withheld on (RR 11-2018 Sec. 2.78.1(B)).
+        'compensation_exempt' => 250_000,
         // The employer's copies of the 2316s to the BIR, scanned, with the
         // substituted-filing list (RR 16-2021): month and day of the next year.
         'certificates_to_bir' => [2, 28],

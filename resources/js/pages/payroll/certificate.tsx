@@ -44,10 +44,15 @@ export default function EmployeeCertificate({
             key: 'identity',
             label: `${employee.first_name}'s TIN and name match their ID`,
         },
-        {
-            key: 'only',
-            label: `${employee.first_name} had no other employer in ${year}`,
-        },
+        pay.previous_pay > 0
+            ? {
+                  key: 'only',
+                  label: `The earlier employer's 2316 for ${year} matches what you entered`,
+              }
+            : {
+                  key: 'only',
+                  label: `${employee.first_name} had no other employer in ${year}`,
+              },
     ];
 
     return (
@@ -142,8 +147,28 @@ export default function EmployeeCertificate({
                             title: 'Part III · Summary',
                             rows: [
                                 {
-                                    label: 'Taxable compensation',
+                                    label: 'Gross compensation',
                                     value: formAmount(pay.pay),
+                                },
+                                {
+                                    label: 'Less: non-taxable',
+                                    value: formAmount(pay.pay - pay.taxable),
+                                },
+                                ...(pay.previous_pay > 0
+                                    ? [
+                                          {
+                                              label: 'Taxable from the earlier employer',
+                                              value: formAmount(
+                                                  pay.previous_pay,
+                                              ),
+                                          },
+                                      ]
+                                    : []),
+                                {
+                                    label: 'Taxable compensation',
+                                    value: formAmount(
+                                        pay.taxable + pay.previous_pay,
+                                    ),
                                 },
                                 {
                                     label: 'Tax due',
@@ -168,10 +193,22 @@ export default function EmployeeCertificate({
                                               ),
                                           },
                                       ]),
+                                ...(pay.previous_pay > 0
+                                    ? [
+                                          {
+                                              label: 'Withheld by the earlier employer',
+                                              value: formAmount(
+                                                  pay.previous_withheld,
+                                              ),
+                                          },
+                                      ]
+                                    : []),
                                 {
                                     label: 'Total tax withheld',
                                     value: formAmount(
-                                        pay.withheld - pay.refund,
+                                        pay.withheld -
+                                            pay.refund +
+                                            pay.previous_withheld,
                                     ),
                                     total: true,
                                 },

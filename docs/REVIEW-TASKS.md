@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 28 of 92 done.
+Status: 32 of 92 done.
 
 ---
 
@@ -150,9 +150,11 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### M3 · Payroll exemptions
 
-- [ ] Model the ₱90,000 13th-month and other benefits exemption (NIRC Sec. 32(B)(7)(e), _Confirmed_).
-- [ ] De minimis benefits, and contributions entered or computed rather than "pay after contributions".
-- [ ] **Needs verification:** our annualized method against the BIR withholding table.
+- [x] Model the ₱90,000 13th-month and other benefits exemption (NIRC Sec. 32(B)(7)(e), _Confirmed_): the 13th month is paid with the last month and untaxed up to ₱90,000.
+- [x] De minimis benefits, and contributions entered rather than "pay after contributions"; minimum wage earners.
+- [x] Our annualized method against the BIR withholding table: the table each month, annualized only at year end (see R).
+
+**Done when:** the 1601-C and 2316 show the untaxed parts on their own lines. ✔ [WithholdingTest.php](../tests/Feature/Payroll/WithholdingTest.php)
 
 **Location:** [Payroll.php](../app/Payroll/Services/Payroll.php).
 
@@ -182,10 +184,10 @@ Done:
 - [x] Reduced EOPT penalties only for returns due from April 27, 2024 (RR 6-2024), and only for micro and small taxpayers. The BIR-assigned classification can be set per year on the profile; without it the app estimates from sales (RR 8-2024 thresholds: ₱3M, ₱20M, ₱1B).
 - [x] The ₱3M computerized-books rule is removed: computerized books are required only of large taxpayers (RR 9-2009).
 - [x] E-marketplace withholding note: WI760 / WC760, RR 16-2023 with the RMC 8-2024 start date.
+- [x] Payroll: the BIR's monthly withholding table (RR 11-2018 Annex "D" and "E"), the cumulative average method for a new hire with an earlier employer this year, and the annualized computation only at year end. Contributions, de minimis benefits (RR 29-2025 limits listed from January 6, 2026), the 13th month up to ₱90,000 and a minimum wage are kept out of taxable pay, on the 1601-C (items 15–20, 23) and the 2316 (items 10, 11, 22, 25B, 29, 34–36, 48). Replaces M3.
 
 Still to build:
 
-- [ ] Payroll: the BIR's withholding table per pay period (RR 11-2018 Annex E), annualized only at year end; the ₱90,000 13th-month and other benefits, de minimis (RR 29-2025 limits from January 6, 2026), contributions and minimum-wage earners kept out of taxable pay and shown on the 2316. Replaces M3.
 - [ ] 8% to graduated: crossing ₱3M in the year switches the year to graduated and recomputes the earlier quarters (RR 8-2018 Sec. 3(D)), instead of stopping.
 - [ ] No-payment returns: a registered tax type is filed every period, even at zero (0619-E, 1601-EQ, 2551Q, 1701Q, 1702Q).
 - [ ] 5% professional fee rate (WI010) only when the payee is non-VAT and declared under ₱3M (RR 14-2018).

@@ -31,6 +31,8 @@ return [
     '5' => $text(264.5, 302.5, 159.5),
     '6' => $text(42.6, 253.6, 187.5),
     '6A' => $text(261.4, 309.4, 187.5),
+    '10' => $text(209.9, 308.6, 301.6),
+    '11' => $check(47.7, 309.9),
 
     // Part II: the employer (present).
     '12.1' => $text(86.2, 124.1, 346.5),
@@ -57,7 +59,12 @@ return [
     '28' => $summary(719.0),
 
     // Part IV-B: details of compensation from the present employer.
+    '29' => $details(152.6),
+    '34' => $details(251.0),
+    '35' => $details(269.8),
+    '36' => $details(289.1),
     '38' => $details(328.0),
     '39' => $details(365.5),
+    '48' => $details(572.2),
     '52' => $details(678.0),
 ];

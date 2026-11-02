@@ -7,20 +7,28 @@ use App\Payroll\Models\EmployeeCertificate;
 use App\Returns\Models\Filing;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\TaxRules;
 use Carbon\CarbonImmutable;
 
 /**
- * Tax withheld on salaries: each month the tax on the pay as if earned all
- * year (the graduated rates on twelve times the month's pay, a twelfth of
- * it), and in the last month worked in the year the adjustment that makes
- * the year's withholding equal the tax on the year's pay. What was withheld
- * too much is refunded to the employee by January 25.
+ * Tax withheld on salaries (RR 2-98 Sec. 2.79 as RR 11-2018 amended it).
+ * Each month the BIR table for the month's taxable pay; for someone who
+ * joined from another employer this year, the cumulative average method
+ * (the table on the average month so far, less what's been withheld). In
+ * the last month worked in the year the annualized computation makes the
+ * year's withholding equal the tax on the year's taxable pay; what was
+ * withheld too much is refunded to the employee by January 25.
+ *
+ * Taxable pay is basic pay less the employee's share of contributions; a
+ * minimum wage earner's isn't taxed. De minimis benefits are paid on top,
+ * untaxed. The 13th month (a twelfth of the year's basic pay) is paid with
+ * the last month, untaxed up to ₱90,000.
  *
  * @phpstan-type Status 'open'|'due'|'overdue'|'filed'
- * @phpstan-type PayMonth array{month: int, pay: float, withheld: float, refund: float, year_end: bool}
- * @phpstan-type EmployeeYear array{months: list<PayMonth>, pay: float, tax: float, withheld: float, refund: float}
- * @phpstan-type RemittanceMonth array{month: int, employees: int, compensation: float, withheld: float, refund: float, due_date: string, status: Status, filed_on: string|null}
- * @phpstan-type AnnualEmployee array{id: int, name: string, tin: string|null, pay: float, tax: float, withheld: float, refund: float, given_on: string|null}
+ * @phpstan-type PayMonth array{month: int, pay: float, benefits: float, de_minimis: float, contributions: float, taxable: float, withheld: float, refund: float, year_end: bool}
+ * @phpstan-type EmployeeYear array{months: list<PayMonth>, method: 'table'|'cumulative', minimum_wage: bool, pay: float, basic: float, benefits: float, benefits_exempt: float, de_minimis: float, contributions: float, taxable: float, previous_pay: float, previous_withheld: float, tax: float, withheld: float, refund: float}
+ * @phpstan-type RemittanceMonth array{month: int, employees: int, compensation: float, minimum_wage: float, benefits: float, de_minimis: float, contributions: float, taxable: float, not_withheld: float, withheld: float, refund: float, due_date: string, status: Status, filed_on: string|null}
+ * @phpstan-type AnnualEmployee array{id: int, name: string, tin: string|null, pay: float, taxable: float, tax: float, withheld: float, refund: float, given_on: string|null}
  * @phpstan-type Annual array{year: int, months: list<RemittanceMonth>, employees: list<AnnualEmployee>, compensation: float, withheld: float, refund: float, due_date: string, status: Status, filed_on: string|null}
  */
 class Payroll
@@ -28,15 +36,34 @@ class Payroll
     public function __construct(
         private TaxCalculationService $engine,
         private FilingCalendar $calendar,
+        private TaxRules $rules,
     ) {}
 
     /**
-     * Tax withheld on one month's pay, before the year-end adjustment, on
-     * the year's table (this year's unless said otherwise).
+     * Tax withheld on a month's taxable pay by the BIR table in force that
+     * month (this month unless said otherwise), before any year-end adjustment.
      */
-    public function monthlyWithholding(float $pay, ?int $year = null): float
+    public function monthlyWithholding(float $taxable, ?int $year = null, int $month = 1): float
     {
-        return round($this->engine->graduatedTax($pay * 12, $year) / 12, 2);
+        $on = $year === null ? CarbonImmutable::now() : CarbonImmutable::create($year, $month);
+        $tax = 0.0;
+
+        foreach ($this->rules->on($on)->brackets('compensation_brackets') as [$over, $base, $rate]) {
+            if ($taxable > $over) {
+                $tax = $base + ($taxable - $over) * $rate;
+            }
+        }
+
+        return round($tax, 2);
+    }
+
+    /**
+     * An employee's taxable pay for one month: basic pay less their share
+     * of contributions, or nothing for a minimum wage earner.
+     */
+    public function taxablePay(Employee $employee): float
+    {
+        return $employee->minimum_wage ? 0.0 : round(max(0.0, (float) $employee->monthly_pay - (float) $employee->contributions), 2);
     }
 
     /**
@@ -47,29 +74,69 @@ class Payroll
     public function employeeYear(Employee $employee, int $year): array
     {
         $worked = array_values(array_filter(range(1, 12), fn (int $m) => $employee->workedIn($year, $m)));
-        $pay = (float) $employee->monthly_pay;
-        $annualTax = $this->engine->graduatedTax($pay * count($worked), $year);
+        $basic = (float) $employee->monthly_pay;
+        $contributions = (float) $employee->contributions;
+        $deMinimis = (float) $employee->de_minimis;
+        $regular = $this->taxablePay($employee);
+        $previous = $employee->previousEmployer($year);
+        // A new hire who had another employer this year (Sec. 2.79(B)(5)(a)).
+        // REVIEW: the periods averaged are the months from January.
+        $cumulative = $previous['pay'] > 0;
+
+        $benefits = round($basic * count($worked) / 12, 2);
+        $benefitsExempt = min($benefits, (float) config('tax.withholding.benefits_exempt'));
+        $taxable = round($regular * count($worked) + $benefits - $benefitsExempt, 2);
+        $annualTax = $this->engine->graduatedTax($previous['pay'] + $taxable, $year);
+        // The year's tax still owed here once the earlier employer's withholding counts.
+        $owed = max(0.0, $annualTax - $previous['withheld']);
         $months = [];
         $withheld = 0.0;
         $refund = 0.0;
 
         foreach ($worked as $i => $month) {
             $last = $i === count($worked) - 1;
-            $tax = $this->monthlyWithholding($pay, $year);
+            $monthTaxable = $last ? round($regular + $benefits - $benefitsExempt, 2) : $regular;
 
             if ($last) {
                 // The year-end adjustment: withhold what's still owed, or refund the excess.
-                $tax = round(max(0.0, $annualTax - $withheld), 2);
-                $refund = round(max(0.0, $withheld - $annualTax), 2);
+                $tax = round(max(0.0, $owed - $withheld), 2);
+                $refund = round(max(0.0, $withheld - $owed), 2);
+            } elseif ($cumulative) {
+                $average = ($previous['pay'] + $regular * ($i + 1)) / $month;
+                $tax = round(max(0.0, $this->monthlyWithholding($average, $year, $month) * $month - $previous['withheld'] - $withheld), 2);
+            } else {
+                $tax = $this->monthlyWithholding($regular, $year, $month);
             }
 
             $withheld += $tax;
-            $months[] = ['month' => $month, 'pay' => $pay, 'withheld' => $tax, 'refund' => $last ? $refund : 0.0, 'year_end' => $last];
+            $months[] = [
+                'month' => $month,
+                'pay' => $basic,
+                'benefits' => $last ? $benefits : 0.0,
+                'de_minimis' => $deMinimis,
+                'contributions' => $contributions,
+                'taxable' => $monthTaxable,
+                'withheld' => $tax,
+                'refund' => $last ? $refund : 0.0,
+                'year_end' => $last,
+            ];
         }
+
+        $count = count($worked);
 
         return [
             'months' => $months,
-            'pay' => round($pay * count($worked), 2),
+            'method' => $cumulative ? 'cumulative' : 'table',
+            'minimum_wage' => $employee->minimum_wage,
+            'pay' => round(($basic + $deMinimis) * $count + $benefits, 2),
+            'basic' => round($basic * $count, 2),
+            'benefits' => $benefits,
+            'benefits_exempt' => $benefitsExempt,
+            'de_minimis' => round($deMinimis * $count, 2),
+            'contributions' => round($contributions * $count, 2),
+            'taxable' => $taxable,
+            'previous_pay' => $previous['pay'],
+            'previous_withheld' => $previous['withheld'],
             'tax' => $annualTax,
             'withheld' => round($withheld, 2),
             'refund' => $refund,
@@ -103,6 +170,7 @@ class Payroll
                 'name' => $employee->name(),
                 'tin' => $employee->tin,
                 'pay' => $employeeYear['pay'],
+                'taxable' => $employeeYear['taxable'],
                 'tax' => $employeeYear['tax'],
                 'withheld' => $employeeYear['withheld'],
                 'refund' => $employeeYear['refund'],
@@ -154,20 +222,30 @@ class Payroll
         $months = [];
 
         foreach (range(1, 12) as $month) {
-            $rows = $years->map(fn (array $y) => collect($y['months'])->firstWhere('month', $month))->filter();
+            $rows = $years->map(fn (array $y) => [$y, collect($y['months'])->firstWhere('month', $month)])->filter(fn (array $row) => $row[1] !== null);
 
             if ($rows->isEmpty()) {
                 continue;
             }
+
+            $sum = fn (callable $amount) => round((float) $rows->sum(fn (array $row) => $amount(...$row)), 2);
 
             $due = $this->calendar->compensationMonthlyDue($year, $month);
             $filing = $filings->first(fn (Filing $f) => $f->month === $month);
             $months[] = [
                 'month' => $month,
                 'employees' => $rows->count(),
-                'compensation' => round((float) $rows->sum('pay'), 2),
-                'withheld' => round((float) $rows->sum('withheld'), 2),
-                'refund' => round((float) $rows->sum('refund'), 2),
+                'compensation' => $sum(fn (array $y, array $m) => $m['pay'] + $m['benefits'] + $m['de_minimis']),
+                // A minimum wage earner's pay after their contributions, which count on their own line.
+                'minimum_wage' => $sum(fn (array $y, array $m) => $y['minimum_wage'] ? $m['pay'] - $m['contributions'] : 0.0),
+                'benefits' => $sum(fn (array $y, array $m) => $m['year_end'] ? $y['benefits_exempt'] : 0.0),
+                'de_minimis' => $sum(fn (array $y, array $m) => $m['de_minimis']),
+                'contributions' => $sum(fn (array $y, array $m) => $m['contributions']),
+                'taxable' => $sum(fn (array $y, array $m) => $m['taxable']),
+                // Employees other than minimum wage earners whose year's pay is ₱250,000 or less.
+                'not_withheld' => $sum(fn (array $y, array $m) => ! $y['minimum_wage'] && (float) config('tax.withholding.compensation_exempt') >= $y['previous_pay'] + $y['taxable'] ? $m['taxable'] : 0.0),
+                'withheld' => $sum(fn (array $y, array $m) => $m['withheld']),
+                'refund' => $sum(fn (array $y, array $m) => $m['refund']),
                 'due_date' => $due->toDateString(),
                 'status' => match (true) {
                     $filing !== null => 'filed',

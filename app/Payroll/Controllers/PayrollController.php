@@ -15,6 +15,7 @@ use App\Returns\Forms\OfficialFormFiller;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\Penalties;
 use App\Tax\Services\TaxCalculationService;
+use App\Tax\Services\TaxRules;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,9 +49,9 @@ class PayrollController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(TaxRules $rules): Response
     {
-        return Inertia::render('payroll/employee', ['employee' => null, 'payday' => null]);
+        return Inertia::render('payroll/employee', ['employee' => null, 'payday' => null, 'deMinimis' => $this->deMinimis($rules)]);
     }
 
     public function store(SaveEmployeeRequest $request): RedirectResponse
@@ -61,19 +62,27 @@ class PayrollController extends Controller
         return redirect()->route('payroll.employee', $employee);
     }
 
-    public function show(Employee $employee, FilingCalendar $calendar): Response
+    public function show(Employee $employee, FilingCalendar $calendar, TaxRules $rules): Response
     {
         $today = CarbonImmutable::now();
         $year = $this->payroll->employeeYear($employee, $today->year);
-        $withheld = $this->payroll->monthlyWithholding((float) $employee->monthly_pay);
+        // This month's withholding, or the table's on a month outside the year-end adjustment.
+        $month = collect($year['months'])->first(fn (array $m) => $m['month'] === $today->month && ! $m['year_end']);
+        $withheld = $month['withheld'] ?? $this->payroll->monthlyWithholding($this->payroll->taxablePay($employee));
         $next = collect($this->payroll->year($today->year, $today))->first(fn (array $m) => $m['status'] !== 'filed');
+        $deductions = (float) $employee->contributions + $withheld;
 
         return Inertia::render('payroll/employee', [
             'employee' => $this->employee($employee),
             'payday' => [
+                'pay' => (float) $employee->monthly_pay,
+                'de_minimis' => (float) $employee->de_minimis,
+                'contributions' => (float) $employee->contributions,
+                'taxable' => $this->payroll->taxablePay($employee),
                 'withheld' => $withheld,
-                'net' => round((float) $employee->monthly_pay - $withheld, 2),
+                'net' => round((float) $employee->monthly_pay + (float) $employee->de_minimis - $deductions, 2),
             ],
+            'deMinimis' => $this->deMinimis($rules),
             'yearEnd' => [
                 'year' => $today->year,
                 ...$year,
@@ -248,8 +257,26 @@ class PayrollController extends Controller
             'tin' => $employee->tin,
             'position' => $employee->position,
             'monthly_pay' => (float) $employee->monthly_pay,
+            'contributions' => (float) $employee->contributions,
+            'de_minimis' => (float) $employee->de_minimis,
+            'minimum_wage' => $employee->minimum_wage,
             'started_on' => $employee->started_on->toDateString(),
             'ended_on' => $employee->ended_on?->toDateString(),
+            'previous_pay' => $employee->previous_pay !== null ? (float) $employee->previous_pay : null,
+            'previous_withheld' => $employee->previous_withheld !== null ? (float) $employee->previous_withheld : null,
         ];
+    }
+
+    /**
+     * The de minimis limits in force today, for the employee form.
+     *
+     * @return list<array{label: string, amount: float, per: string}>
+     */
+    private function deMinimis(TaxRules $rules): array
+    {
+        /** @var array<string, array{label: string, amount: int|float, per: string}> $limits */
+        $limits = $rules->on(CarbonImmutable::now())->get('de_minimis');
+
+        return array_values(array_map(fn (array $limit) => ['label' => $limit['label'], 'amount' => (float) $limit['amount'], 'per' => $limit['per']], $limits));
     }
 }

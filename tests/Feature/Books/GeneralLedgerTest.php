@@ -106,7 +106,7 @@ test('the cash journals count VAT and the taxpayer’s withholding in the cash, 
 
 test('tax withheld from salaries is owed until the 1601-C pays it, and a loan’s Form 2000 is a tax paid', function () {
     Employee::query()->create(['first_name' => 'Joy', 'last_name' => 'Ramos', 'monthly_pay' => 30_000, 'started_on' => '2026-09-01']);
-    Filing::factory()->create(['year' => 2026, 'quarter' => 3, 'month' => 9, 'form' => '1601-C', 'filed_on' => '2026-10-09', 'paid_on' => '2026-10-09', 'amount_paid' => 1_375]);
+    Filing::factory()->create(['year' => 2026, 'quarter' => 3, 'month' => 9, 'form' => '1601-C', 'filed_on' => '2026-10-09', 'paid_on' => '2026-10-09', 'amount_paid' => 1_375.05]);
     $loan = Loan::query()->create(['signed_on' => '2026-09-03', 'amount' => 100_000, 'lender' => 'Tito Ben', 'lender_kind' => 'person', 'term_months' => 12]);
     $loan->forceFill(['filed_on' => '2026-10-05', 'amount_paid' => 750])->save();
 
@@ -114,8 +114,8 @@ test('tax withheld from salaries is owed until the 1601-C pays it, and a loan’
     $october = collect(app(GeneralLedger::class)->journal(2026, 10))->keyBy('description');
 
     // October isn't over, so its salaries' tax isn't booked yet.
-    expect(lines($september['Tax withheld from September salaries']))->toBe([[101, 1375.0, 0.0], [202, 0.0, 1375.0]])
-        ->and(lines($october['1601-C paid · September 2026']))->toBe([[202, 1375.0, 0.0], [101, 0.0, 1375.0]])
+    expect(lines($september['Tax withheld from September salaries']))->toBe([[101, 1375.05, 0.0], [202, 0.0, 1375.05]])
+        ->and(lines($october['1601-C paid · September 2026']))->toBe([[202, 1375.05, 0.0], [101, 0.0, 1375.05]])
         ->and(lines($october['Form 2000 paid · DST on the loan from Tito Ben']))->toBe([[520, 750.0, 0.0], [101, 0.0, 750.0]])
         ->and($october->keys())->not->toContain('Tax withheld from October salaries')
         ->and(collect(app(GeneralLedger::class)->ledger(2026, 10)['accounts'])->firstWhere('code', 202)['closing'])->toBe(0.0);

@@ -86,9 +86,9 @@ test('years before 2018 are refused where records come in and where returns are 
 });
 
 test('payroll withholding uses the year’s table', function () {
-    // ₱30,000 a month: ₱360,000 a year. 2018 table: 20% of ₱110,000; 2023 table: 15%.
-    expect(app(Payroll::class)->monthlyWithholding(30_000, 2022))->toBe(1833.33)
-        ->and(app(Payroll::class)->monthlyWithholding(30_000, 2026))->toBe(1375.0);
+    // ₱30,000 a month: Annex "D" to 2022, 20% over ₱20,833; Annex "E" from 2023, 15%.
+    expect(app(Payroll::class)->monthlyWithholding(30_000, 2022))->toBe(1833.4)
+        ->and(app(Payroll::class)->monthlyWithholding(30_000, 2026))->toBe(1375.05);
 });
 
 test('a corporation’s MCIT takes each quarter’s rate, and years before 2021 aren’t computed', function () {
