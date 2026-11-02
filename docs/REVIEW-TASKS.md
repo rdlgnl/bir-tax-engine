@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 42 of 93 done.
+Status: 43 of 92 done.
 
 ---
 
@@ -187,13 +187,12 @@ Done:
 - [x] 8% to graduated: once an 8% year's sales exceed ₱3M, graduated rates (itemized) apply from that quarter with the 8% paid credited; that quarter's 2551Q carries percentage tax from January to the month passed; the annual return is the 1701; a calendar reminder to register for VAT by the end of the next month (RR 8-2018). The app no longer stops at ₱3M.
 - [x] No-payment returns: a withholding agent's 0619-E, 1601-EQ and 1604-E are listed every period from when withholding started, at ₱0 with "No payment"; the withholding page marks earlier periods and links to removing withholding from the registration (RMC 12-2015). The 1701Q and 2551Q were already listed at ₱0.
 - [x] Financial statements on the annual return by deduction method, audited above ₱3M (H6); filing channel: e-file by default, paper only for the 1701-MS (H3); the 1701-MS only for micro and small taxpayers, medium ones on the 1701A (8% or OSD) or 1701, by the class the BIR assigned or the estimate from sales.
+- [x] Notices: the RR 4-2026 abatement for micro taxpayers with returns due by the end of 2025 still unfiled, on the late return and the calendar until December 31, 2026; e-invoicing (EIS) by December 31, 2026 for online sellers that aren't micro; the 2550M is optional (RMC 52-2023); the 5% professional fee rate only for a payee who isn't VAT-registered (RR 14-2018).
 - [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
 
 Still to build:
 
 - [ ] No-payment 1702Q for a corporation with no income, and a 1601-C for months with no employees while registered for withholding on compensation (the app doesn't record that registration).
-- [ ] 5% professional fee rate (WI010) only when the payee is non-VAT and declared under ₱3M (RR 14-2018).
-- [ ] Notices: the RR 4-2026 abatement (until December 31, 2026); 2550M is optional; EIS by December 31, 2026 for those covered.
 - [ ] Corporations: MCIT at the monthly average for 2023 (1.5%), MCIT from the fourth year after BIR registration, NOLCO and excess-MCIT ledgers. Feeds M4.
 - [ ] Income timing: percentage tax and VAT on the invoice date only from April 27, 2024; income tax follows the books' method for the year. Settles H2.
 - [ ] Holidays back to 2018; the annual ITR's second installment; 0619-E on eFPS by the 15th.

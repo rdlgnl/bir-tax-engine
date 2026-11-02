@@ -125,12 +125,16 @@ export function AgentWithholding({
                                 }
                                 options={[
                                     { value: 'yes', label: 'Yes' },
-                                    { value: 'no', label: 'No / not sure' },
+                                    {
+                                        value: 'no',
+                                        label: 'No, VAT-registered, or not sure',
+                                    },
                                 ]}
                                 className="bg-slate-200/70"
                             />
                             <p className="text-[13px] text-muted-foreground">
-                                With it, you withhold 5%. Without it, 10%.
+                                With it, you withhold 5%. Without it, or if
+                                they're VAT-registered, 10%.
                             </p>
                         </div>
                     )}
