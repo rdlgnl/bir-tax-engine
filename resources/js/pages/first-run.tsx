@@ -71,6 +71,11 @@ export default function FirstRun({ lockOptions, defaultLockAfter }: Props) {
                                 computer
                             </span>
                         </div>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            The PIN locks the app's screens; it doesn't encrypt
+                            the files. Your computer's login and disk encryption
+                            protect those.
+                        </p>
                     </SectionCard>
 
                     <div className="flex flex-col gap-1.5">
