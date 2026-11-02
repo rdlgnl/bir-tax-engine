@@ -4,6 +4,7 @@ use App\Books\Services\GeneralLedger;
 use App\Books\Services\Journals;
 use App\Loans\Models\Loan;
 use App\Payroll\Models\Employee;
+use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\VatKind;
@@ -28,15 +29,18 @@ function lines(array $entry): array
 test('October’s receipts and expenses are double entries, like the cash journals', function () {
     $journal = app(GeneralLedger::class)->journal(2026, 10);
 
-    expect(array_column($journal, 'ref'))->toBe(['GJ-2026-10-001', 'GJ-2026-10-002', 'GJ-2026-10-003'])
+    // The books are on accrual: the unpaid Oct 26 invoice is income, owed as a receivable.
+    expect(array_column($journal, 'ref'))->toBe(['GJ-2026-10-001', 'GJ-2026-10-002', 'GJ-2026-10-003', 'GJ-2026-10-004'])
         ->and(array_column($journal, 'description'))->toBe([
             'Received from Studio Uno · invoice 0140',
             'Internet & phone · Converge ICT',
             'Received from Lumen Digital · invoice 0141',
+            'Invoiced Studio Uno · invoice 0142',
         ])
         ->and(lines($journal[0]))->toBe([[101, 25000.0, 0.0], [401, 0.0, 25000.0]])
         ->and(lines($journal[1]))->toBe([[510, 3500.0, 0.0], [101, 0.0, 3500.0]])
-        ->and(lines($journal[2]))->toBe([[101, 28500.0, 0.0], [105, 1500.0, 0.0], [401, 0.0, 30000.0]]);
+        ->and(lines($journal[2]))->toBe([[101, 28500.0, 0.0], [105, 1500.0, 0.0], [401, 0.0, 30000.0]])
+        ->and(lines($journal[3]))->toBe([[103, 40000.0, 0.0], [401, 0.0, 40000.0]]);
 });
 
 test('VAT, the taxpayer’s own withholding and tax payments each go to their account', function () {
@@ -69,7 +73,8 @@ test('the ledger carries each account’s balance from January 1 through the mon
     expect($october['debits'])->toBe($october['credits'])
         ->and($accounts[101]['opening'])->toBe($september[101]['closing'])
         ->and($accounts[101]['closing'])->toBe(round($september[101]['closing'] + 25_000 - 3_500 + 28_500, 2))
-        ->and($accounts[401]['credits'])->toBe(55000.0)
+        ->and($accounts[401]['credits'])->toBe(95000.0)
+        ->and($accounts[103]['closing'])->toBe(40000.0)
         ->and($accounts[510]['postings'][0])->toMatchArray(['ref' => 'GJ-2026-10-002', 'debit' => 3500.0, 'balance' => $accounts[510]['closing']]);
 });
 
@@ -78,9 +83,9 @@ test('the general journal and ledger page and PDF', function () {
         ->component('books/general')
         ->where('period', ['year' => 2026, 'month' => 10])
         ->where('next', null)
-        ->has('journal', 3)
+        ->has('journal', 4)
         ->where('accounts.101', 'Cash')
-        ->where('ledger.debits', 58500));
+        ->where('ledger.debits', 98500));
 
     $response = $this->get('/books/2026/10/general/pdf')->assertOk();
     expect($response->headers->get('content-type'))->toBe('application/pdf')
@@ -136,4 +141,20 @@ test('balances carry into the new year, the year’s income and expenses closed 
     $debits = $accounts->filter(fn (array $a) => GeneralLedger::ACCOUNTS[$a['code']][1] === 'debit')->sum('opening');
     $credits = $accounts->filter(fn (array $a) => GeneralLedger::ACCOUNTS[$a['code']][1] === 'credit')->sum('opening');
     expect(round($debits, 2))->toBe(round($credits, 2));
+});
+
+test('an accrual invoice is collected from the receivable; on cash books it’s income when paid', function () {
+    Transaction::query()->where('invoice_number', '0142')->sole()->update(['invoice_paid' => true, 'invoice_paid_on' => '2026-10-27', 'tax_withheld' => 2_000]);
+
+    $journal = collect(app(GeneralLedger::class)->journal(2026, 10))->keyBy('description');
+
+    expect(lines($journal['Invoiced Studio Uno · invoice 0142']))->toBe([[103, 40000.0, 0.0], [401, 0.0, 40000.0]])
+        ->and(lines($journal['Collected from Studio Uno · invoice 0142']))->toBe([[101, 38000.0, 0.0], [105, 2000.0, 0.0], [103, 0.0, 40000.0]])
+        ->and(collect(app(GeneralLedger::class)->ledger(2026, 10)['accounts'])->firstWhere('code', 103)['closing'])->toBe(0.0);
+
+    TaxProfile::current()->update(['books_method' => 'cash']);
+    $journal = collect(app(GeneralLedger::class)->journal(2026, 10))->keyBy('description');
+
+    expect($journal->keys())->not->toContain('Invoiced Studio Uno · invoice 0142')
+        ->and(lines($journal['Received from Studio Uno · invoice 0142']))->toBe([[101, 38000.0, 0.0], [105, 2000.0, 0.0], [401, 0.0, 40000.0]]);
 });

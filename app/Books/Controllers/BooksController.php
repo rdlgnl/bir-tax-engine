@@ -39,6 +39,7 @@ class BooksController extends Controller
             'next' => $next->isAfter($today) ? null : $this->link($next),
             'booksType' => ($profile->books_type ?? BooksType::Manual)->value,
             'booksMethod' => $profile->books_method->value,
+            'receivable' => $this->journals->receivable($period->year, $period->month),
             'regime' => $profile->regime?->value,
             'copiedAt' => BooksMonth::query()
                 ->where('year', $period->year)

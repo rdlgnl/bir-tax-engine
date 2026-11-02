@@ -139,11 +139,15 @@ class TaxCalculationService
         $today = $today->startOfDay();
         // The year's own method and registrations, and its own rules: a year
         // the rule pack doesn't cover is refused.
+        $base = $profile;
         $profile = $profile->forYear($year);
         $brackets = $this->rules->forYear($year)->brackets();
-        $method = $profile->books_method;
-        $income = $transactions->filter(fn (Transaction $t) => $t->incomeDate($method)?->year === $year)
-            ->sortBy(fn (Transaction $t) => $t->incomeDate($method)?->toDateString());
+        // Each sale on the books' method of the year it's dated, so an invoice
+        // counts once when the method changes between years.
+        $methods = [$year => $profile->books_method];
+        $method = fn (Transaction $t) => $methods[$t->occurred_on->year] ??= $base->forYear($t->occurred_on->year)->books_method;
+        $income = $transactions->filter(fn (Transaction $t) => $t->incomeDate($method($t))?->year === $year)
+            ->sortBy(fn (Transaction $t) => $t->incomeDate($method($t))?->toDateString());
         $sales = $transactions->filter(fn (Transaction $t) => $t->salesTaxDate()?->year === $year);
         $expenses = $transactions->filter(fn (Transaction $t) => ! $t->isIncome() && $t->occurred_on->year === $year);
         $yearGross = $this->sumCents($income, 'amount');
@@ -158,8 +162,8 @@ class TaxCalculationService
         $unpaidEarlier = 0;
 
         foreach ([1, 2, 3, 4] as $quarter) {
-            $toDate = $income->filter(fn (Transaction $t) => $t->incomeDate($method)?->quarter <= $quarter);
-            $inQuarter = $income->filter(fn (Transaction $t) => $t->incomeDate($method)?->quarter === $quarter);
+            $toDate = $income->filter(fn (Transaction $t) => $t->incomeDate($method($t))?->quarter <= $quarter);
+            $inQuarter = $income->filter(fn (Transaction $t) => $t->incomeDate($method($t))?->quarter === $quarter);
 
             $gross = $this->sumCents($toDate, 'amount');
             $deductible = $this->deductibleCents($expenses->filter(fn (Transaction $t) => $t->quarter() <= $quarter));
@@ -494,9 +498,10 @@ class TaxCalculationService
      * to it. The limit is "exceeded": exactly ₱3,000,000 stays on 8%.
      *
      * @param  Collection<int, Transaction>  $income
+     * @param  callable(Transaction): BooksMethod  $method  each sale's books method
      * @return Switch|null
      */
-    private function switchToGraduated(TaxProfile $profile, int $year, Collection $income, BooksMethod $method): ?array
+    private function switchToGraduated(TaxProfile $profile, int $year, Collection $income, callable $method): ?array
     {
         if ($profile->regime !== Regime::EightPercent) {
             return null;
@@ -507,7 +512,7 @@ class TaxCalculationService
 
         foreach ($income as $sale) {
             $total += $this->cents($sale->amount);
-            $on = $sale->incomeDate($method) ?? $sale->occurred_on;
+            $on = $sale->incomeDate($method($sale)) ?? $sale->occurred_on;
 
             if ($total > $limit) {
                 $next = CarbonImmutable::create($year, $on->month)->addMonth();

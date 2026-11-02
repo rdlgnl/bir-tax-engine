@@ -25,6 +25,8 @@ type Props = {
     booksType: BooksType;
     /** When income counts for income tax: invoice date, or when paid. */
     booksMethod: 'accrual' | 'cash';
+    /** Owed by clients at month end, on accrual books. */
+    receivable: number | null;
     regime: string | null;
     copiedAt: string | null;
     retentionYears: number;
@@ -45,6 +47,7 @@ export default function BooksShow({
     next,
     booksType,
     booksMethod,
+    receivable,
     regime,
     copiedAt,
     retentionYears,
@@ -263,6 +266,14 @@ export default function BooksShow({
                         />
                     </Link>
 
+                    {receivable !== null && receivable > 0 && (
+                        <Note title="Owed by clients">
+                            {peso(receivable)} of invoices weren't paid by the
+                            end of {month}. On accrual books they're income
+                            already, and accounts receivable in the general
+                            journal until paid.
+                        </Note>
+                    )}
                     <Note title={`Keep them ${retentionYears} years`}>
                         Books and records must be kept for {retentionYears}{' '}
                         years after the return they support is filed (EOPT).

@@ -43,8 +43,8 @@ test('the books open on the current month', function () {
 });
 
 test('an invoice enters the receipts journal once it is paid', function () {
-    // The seeded Oct 26 invoice 0142 is unpaid.
-    $this->get('/books/2026/10')->assertInertia(fn (Assert $page) => $page->has('receipts', 2));
+    // The seeded Oct 26 invoice 0142 is unpaid: owed by the client, on accrual books.
+    $this->get('/books/2026/10')->assertInertia(fn (Assert $page) => $page->has('receipts', 2)->where('receivable', 40000));
 
     Transaction::query()->where('invoice_number', '0142')->sole()->update(['invoice_paid' => true, 'invoice_paid_on' => '2026-10-27']);
 
