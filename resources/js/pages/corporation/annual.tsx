@@ -1,3 +1,4 @@
+import { BetaBadge, BetaNote } from '@/components/corporation/beta';
 import { Head, Link } from '@inertiajs/react';
 import { ChevronLeft, Download, Printer } from 'lucide-react';
 import { useState } from 'react';
@@ -72,6 +73,7 @@ export default function CorporationAnnual({
                     <div>
                         <h1 className="text-[28px] leading-tight font-extrabold tracking-tight sm:text-[30px]">
                             Your filled 1702-RT
+                            <BetaBadge />
                         </h1>
                         <p className="text-[15px] text-muted-foreground">
                             Official BIR form · {annual.year}
@@ -241,6 +243,7 @@ export default function CorporationAnnual({
                 </div>
 
                 <div className="flex flex-col gap-5">
+                    <BetaNote />
                     <Note
                         tone={annual.status === 'overdue' ? 'danger' : 'info'}
                         title={`File by ${formatDate(annual.due_date, 'short')}, ${annual.due_date.slice(0, 4)}`}

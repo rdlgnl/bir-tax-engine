@@ -154,7 +154,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### M4 · Corporations: scope and gaps
 
-- [ ] Decide: launch, label as beta, or hide.
+- [x] Decide: launch, label as beta, or hide. Labelled **beta**: a pill on each corporation page and the home card, and a note on the overview, setup and filled returns to check them with an accountant.
 - [x] NOLCO and the excess MCIT carry-forward, on the 1702-RT. ✔ [CarryForwardTest.php](../tests/Feature/Corporations/CarryForwardTest.php)
 - [x] The 1% MCIT period, via C1, and 2023 at the months' average (1.5%).
 - [x] The quarterly 20% test uses taxable income to date, labelled provisional on the corporation's home, the quarter and the filled 1702Q; the 1702-RT tests the year. **Needs verification** by the CPA: no BIR text says how the 1702Q applies it (pre-review C6).
