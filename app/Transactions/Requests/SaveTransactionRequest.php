@@ -38,6 +38,7 @@ class SaveTransactionRequest extends FormRequest
                     : []),
             ],
             'invoice_paid' => ['boolean'],
+            'invoice_paid_on' => ['nullable', 'date', 'after_or_equal:occurred_on', 'before_or_equal:today'],
             'category' => ['required_if:type,expense', 'nullable', Rule::enum(ExpenseCategory::class)],
             'has_valid_invoice' => ['boolean'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -128,6 +129,8 @@ class SaveTransactionRequest extends FormRequest
             // Every type keeps a number: the invoice issued, or the supplier's receipt for an expense.
             'invoice_number' => $this->input('invoice_number') ?: null,
             'invoice_paid' => $type === TransactionType::Invoice && $this->boolean('invoice_paid'),
+            // When it was paid: for income on cash books, and for the books' receipts.
+            'invoice_paid_on' => $type === TransactionType::Invoice && $this->boolean('invoice_paid') ? ($this->input('invoice_paid_on') ?: null) : null,
             'category' => $type === TransactionType::Expense ? $this->input('category') : null,
             'has_valid_invoice' => $type === TransactionType::Expense && $this->boolean('has_valid_invoice'),
             // VAT only for a VAT-registered taxpayer: a kind for sales, an amount for both.

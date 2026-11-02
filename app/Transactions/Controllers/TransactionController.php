@@ -61,11 +61,12 @@ class TransactionController extends Controller
             $withheld = (float) $request->validated('tax_withheld');
             $invoice->update([
                 'invoice_paid' => true,
+                'invoice_paid_on' => $request->validated('occurred_on'),
                 'tax_withheld' => $withheld > 0 ? $withheld : $invoice->tax_withheld,
                 'certificate_received_on' => $request->validated('certificate_received_on') ?? $invoice->certificate_received_on,
             ]);
 
-            return Inertia::flash('toast', "Invoice {$invoice->invoice_number} marked paid. The sale already counts on its date, so nothing was added.")->back();
+            return Inertia::flash('toast', "Invoice {$invoice->invoice_number} marked paid, so the sale wasn't added twice.")->back();
         }
 
         $transaction = new Transaction($request->validated());

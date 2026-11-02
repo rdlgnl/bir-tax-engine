@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 46 of 94 done.
+Status: 50 of 95 done.
 
 ---
 
@@ -97,18 +97,13 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### H2 · One income basis for returns and books
 
-- [ ] With a CPA, decide per tax type: invoice date (accrual) or cash received.
-- [ ] Make the engine and the books ([Journals.php](../app/Books/Services/Journals.php), [GeneralLedger.php](../app/Books/Services/GeneralLedger.php)) agree; if invoice date stays, add accounts receivable to the books.
-- [ ] Remove or correct the "Sales are counted by invoice date (EOPT)" copy to match.
+- [x] Per tax type, from the research (Q1): percentage tax and VAT count a sale on its invoice date from April 27, 2024 (RR 3-2024), and when paid before; income tax follows the books' method (NIRC Secs. 43–45), chosen per year on the books page (when invoiced or when paid). Invoices record the day they're paid.
+- [x] The books put a paid invoice in the receipts journal on the day it was paid. On cash books, a quarter's income on the return equals the books' receipts.
+- [ ] On accrual books, unpaid invoices aren't in the books: add accounts receivable.
+- [x] The return checklist says how sales are counted, by the books' method.
 
-**Why:** an invoice unpaid at quarter end is on the 1701Q and 2551Q but not in the books.
-**Basis:**
-
-- Confirmed: VAT on services moved to gross sales under RA 11976 (EOPT).
-- **Needs verification:** percentage tax under EOPT, and income tax for individuals on the cash method.
-
-**Done when:** a quarter's gross on the return equals the books' income for that quarter.
-**Waiting on:** Question Q1 in [RULE-REVIEW.md](RULE-REVIEW.md).
+**Basis:** RA 11976 Secs. 17, 24; RR 3-2024 Sec. 7(a) for invoices before April 27, 2024 (VAT; percentage tax by analogy, **needs verification**); NIRC Secs. 43–45.
+**Done when:** a quarter's gross on the return equals the books' income for that quarter. ✔ on cash books, [IncomeTimingTest.php](../tests/Feature/Tax/IncomeTimingTest.php)
 
 ### H3 · Filing channel settled and the copy says it plainly
 
@@ -188,12 +183,12 @@ Done:
 - [x] Financial statements on the annual return by deduction method, audited above ₱3M (H6); filing channel: e-file by default, paper only for the 1701-MS (H3); the 1701-MS only for micro and small taxpayers, medium ones on the 1701A (8% or OSD) or 1701, by the class the BIR assigned or the estimate from sales.
 - [x] Notices: the RR 4-2026 abatement for micro taxpayers with returns due by the end of 2025 still unfiled, on the late return and the calendar until December 31, 2026; e-invoicing (EIS) by December 31, 2026 for online sellers that aren't micro; the 2550M is optional (RMC 52-2023); the 5% professional fee rate only for a payee who isn't VAT-registered (RR 14-2018).
 - [x] Corporations: MCIT at the months' average (1.5% for 2023, RMC 69-2023); MCIT from the fourth year after BIR registration; NOLCO (three years, five for 2020–2021) and excess MCIT (three years) carried on the 1702-RT.
+- [x] Income timing: percentage tax and VAT on the invoice date from April 27, 2024 (when paid before); income tax on the books' method per year, accrual by default; invoices record when they're paid; the books' receipts on that day (H2).
 - [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
 
 Still to build:
 
 - [ ] No-payment 1702Q for a corporation with no income, and a 1601-C for months with no employees while registered for withholding on compensation (the app doesn't record that registration).
-- [ ] Income timing: percentage tax and VAT on the invoice date only from April 27, 2024; income tax follows the books' method for the year. Settles H2.
 - [ ] Holidays back to 2018; the annual ITR's second installment; 0619-E on eFPS by the 15th.
 
 ### M1 · Holidays beyond 2027

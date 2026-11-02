@@ -38,6 +38,7 @@ class BooksController extends Controller
             'previous' => $this->link($period->subMonth()),
             'next' => $next->isAfter($today) ? null : $this->link($next),
             'booksType' => ($profile->books_type ?? BooksType::Manual)->value,
+            'booksMethod' => $profile->books_method->value,
             'regime' => $profile->regime?->value,
             'copiedAt' => BooksMonth::query()
                 ->where('year', $period->year)

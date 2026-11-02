@@ -23,6 +23,8 @@ type Props = {
     previous: BooksPeriod | null;
     next: BooksPeriod | null;
     booksType: BooksType;
+    /** When income counts for income tax: invoice date, or when paid. */
+    booksMethod: 'accrual' | 'cash';
     regime: string | null;
     copiedAt: string | null;
     retentionYears: number;
@@ -42,6 +44,7 @@ export default function BooksShow({
     previous,
     next,
     booksType,
+    booksMethod,
     regime,
     copiedAt,
     retentionYears,
@@ -123,6 +126,37 @@ export default function BooksShow({
                             {booksType === 'manual'
                                 ? 'Copy these entries into your BIR-stamped journals.'
                                 : 'Print each month, bind them at year end, and keep the Permit to Use.'}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <span className="text-[15px] font-bold">
+                            When a sale counts as income
+                        </span>
+                        <ChoiceChips<'accrual' | 'cash'>
+                            label="When a sale counts as income"
+                            variant="segmented"
+                            value={booksMethod}
+                            onChange={(value) =>
+                                router.put(
+                                    type().url,
+                                    { books_method: value },
+                                    { preserveScroll: true },
+                                )
+                            }
+                            options={[
+                                { value: 'accrual', label: 'When invoiced' },
+                                { value: 'cash', label: 'When paid' },
+                            ]}
+                            className="max-w-md"
+                        />
+                        <p className="text-[13px] text-muted-foreground">
+                            {booksMethod === 'cash'
+                                ? 'Your income tax counts a sale when the money comes in, as these journals do.'
+                                : 'Your income tax counts a sale on its invoice date, paid or not.'}{' '}
+                            Percentage tax and VAT count it on its invoice date
+                            either way (since April 27, 2024). A change applies
+                            from this year.
                         </p>
                     </div>
 

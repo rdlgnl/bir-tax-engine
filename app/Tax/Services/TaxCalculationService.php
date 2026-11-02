@@ -6,6 +6,7 @@ use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Returns\Services\ReturnForm;
+use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
@@ -41,6 +42,7 @@ use Illuminate\Support\Collection;
  *     due: float,
  *     excess_credit: float,
  *     percentage_tax: float|null,
+ *     percentage_tax_base: float|null,
  *     statutory_date: string,
  *     due_date: string,
  *     due_date_moved_reason: string|null,
@@ -103,7 +105,7 @@ class TaxCalculationService
         return $this->computeYear(
             $profile,
             $year,
-            Transaction::query()->forYear($year)->orderBy('occurred_on')->orderBy('id')->get(),
+            Transaction::query()->forTaxYear($year)->orderBy('occurred_on')->orderBy('id')->get(),
             Filing::query()->where('year', $year)->whereIn('form', ReturnForm::INCOME_TAX_FORMS)->get(),
             $today ?? CarbonImmutable::now(),
             $this->compensation->forYear($profile, $year),
@@ -114,6 +116,11 @@ class TaxCalculationService
      * Quarterly returns are cumulative: each one computes tax on the year so
      * far, then subtracts what earlier quarters paid and what clients withheld.
      * Quarter 4 is the annual return.
+     *
+     * A sale counts for income tax on the books' method (accrual: its invoice
+     * date; cash: when paid), with the tax withheld from it; for percentage
+     * tax on its invoice date from April 27, 2024, when paid before. Expenses
+     * count on their date.
      *
      * @param  Collection<int, Transaction>  $transactions
      * @param  Collection<int, Filing>  $filings
@@ -133,28 +140,34 @@ class TaxCalculationService
         // the rule pack doesn't cover is refused.
         $profile = $profile->forYear($year);
         $brackets = $this->rules->forYear($year)->brackets();
-        $income = $transactions->filter(fn (Transaction $t) => $t->isIncome());
+        $method = $profile->books_method;
+        $income = $transactions->filter(fn (Transaction $t) => $t->incomeDate($method)?->year === $year)
+            ->sortBy(fn (Transaction $t) => $t->incomeDate($method)?->toDateString());
+        $sales = $transactions->filter(fn (Transaction $t) => $t->salesTaxDate()?->year === $year);
+        $expenses = $transactions->filter(fn (Transaction $t) => ! $t->isIncome() && $t->occurred_on->year === $year);
         $yearGross = $this->sumCents($income, 'amount');
 
         $status = $profile->income_source === IncomeSource::Employed ? 'not_applicable' : 'ok';
-        $switched = $this->switchToGraduated($profile, $year, $income);
+        $switched = $this->switchToGraduated($profile, $year, $income, $method);
         $classification = TaxpayerClassification::forYear($year, $this->pesos($yearGross));
 
         $quarters = [];
         $priorPaid = 0;
 
         foreach ([1, 2, 3, 4] as $quarter) {
-            $toDate = $transactions->filter(fn (Transaction $t) => $t->quarter() <= $quarter);
-            $inQuarter = $transactions->filter(fn (Transaction $t) => $t->quarter() === $quarter);
+            $toDate = $income->filter(fn (Transaction $t) => $t->incomeDate($method)?->quarter <= $quarter);
+            $inQuarter = $income->filter(fn (Transaction $t) => $t->incomeDate($method)?->quarter === $quarter);
 
-            $gross = $this->sumCents($toDate->filter(fn (Transaction $t) => $t->isIncome()), 'amount');
-            $deductible = $this->deductibleCents($toDate);
+            $gross = $this->sumCents($toDate, 'amount');
+            $deductible = $this->deductibleCents($expenses->filter(fn (Transaction $t) => $t->quarter() <= $quarter));
+            // The tax a client withheld counts with the income it was withheld from.
             $withheld = $this->sumCents($toDate, 'tax_withheld');
             $unconfirmed = $this->sumCents(
                 $toDate->filter(fn (Transaction $t) => $t->certificateStatus($today) !== CertificateStatus::Received),
                 'tax_withheld',
             );
-            $quarterGross = $this->sumCents($inQuarter->filter(fn (Transaction $t) => $t->isIncome()), 'amount');
+            $quarterGross = $this->sumCents($inQuarter, 'amount');
+            $quarterSales = $sales->filter(fn (Transaction $t) => $t->salesTaxDate()?->quarter === $quarter);
             // Graduated rates from the quarter an 8% year passed ₱3,000,000.
             $taxpayer = $this->quarterTaxpayer($profile, $year, $quarter, $switched);
 
@@ -225,7 +238,7 @@ class TaxCalculationService
                 'withheld_unconfirmed' => $this->pesos($unconfirmed),
                 'due' => $this->pesos($due),
                 'excess_credit' => $this->pesos(max(0, $withheld + $salaryWithheld + $priorPaid - $tax['tax'] - $salaryTax)),
-                'percentage_tax' => $this->quarterPercentageTax($taxpayer, $year, $quarter, $quarterGross, $income, $switched),
+                ...$this->quarterPercentageTax($taxpayer, $year, $quarter, $quarterSales, $sales, $switched),
                 'statutory_date' => $statutory->toDateString(),
                 'due_date' => $dueDate->toDateString(),
                 'due_date_moved_reason' => $this->calendar->movedReason($statutory, $dueDate),
@@ -273,6 +286,13 @@ class TaxCalculationService
             $before = $this->totalTax($taxpayer, (int) $year, 0, 0, 0, $brackets);
 
             foreach ($inYear->sortBy([['occurred_on', 'asc'], ['id', 'asc']]) as $transaction) {
+                // On cash books an unpaid invoice doesn't count yet.
+                if ($transaction->isIncome() && $transaction->incomeDate($taxpayer->books_method) === null) {
+                    $effects[$transaction->id] = 0.0;
+
+                    continue;
+                }
+
                 if ($transaction->isIncome()) {
                     $gross += $this->cents($transaction->amount);
                     $percentageTax += $this->percentageTaxOn($transaction);
@@ -299,7 +319,7 @@ class TaxCalculationService
     {
         $profile = $profile->forYear($candidate->occurred_on->year);
         $others = $yearTransactions->reject(fn (Transaction $t) => $candidate->exists && $t->is($candidate));
-        $income = $others->filter(fn (Transaction $t) => $t->isIncome());
+        $income = $others->filter(fn (Transaction $t) => $t->incomeDate($profile->books_method) !== null);
         $gross = $this->sumCents($income, 'amount');
         $deductible = $this->deductibleCents($others);
         $percentageTax = (int) $income->sum(fn (Transaction $t) => $this->percentageTaxOn($t));
@@ -309,7 +329,7 @@ class TaxCalculationService
         $year = $candidate->occurred_on->year;
         $before = $this->totalTax($profile, $year, $gross, $deductible, $percentageTax, $brackets);
         $after = match (true) {
-            $candidate->isIncome() => $this->totalTax($profile, $year, $gross + $amount, $deductible, $percentageTax + $this->percentageTaxOn($candidate), $brackets),
+            $candidate->incomeDate($profile->books_method) !== null => $this->totalTax($profile, $year, $gross + $amount, $deductible, $percentageTax + $this->percentageTaxOn($candidate), $brackets),
             $candidate->has_valid_invoice => $this->totalTax($profile, $year, $gross, $deductible + $amount, $percentageTax, $brackets),
             default => $before,
         };
@@ -463,7 +483,7 @@ class TaxCalculationService
      * @param  Collection<int, Transaction>  $income
      * @return Switch|null
      */
-    private function switchToGraduated(TaxProfile $profile, int $year, Collection $income): ?array
+    private function switchToGraduated(TaxProfile $profile, int $year, Collection $income, BooksMethod $method): ?array
     {
         if ($profile->regime !== Regime::EightPercent) {
             return null;
@@ -472,15 +492,16 @@ class TaxCalculationService
         $limit = $this->cents(config('tax.eight_percent.gross_limit'));
         $total = 0;
 
-        foreach ($income->sortBy(fn (Transaction $t) => $t->occurred_on->toDateString()) as $sale) {
+        foreach ($income as $sale) {
             $total += $this->cents($sale->amount);
+            $on = $sale->incomeDate($method) ?? $sale->occurred_on;
 
             if ($total > $limit) {
-                $next = CarbonImmutable::create($year, $sale->occurred_on->month)->addMonth();
+                $next = CarbonImmutable::create($year, $on->month)->addMonth();
 
                 return [
-                    'month' => $sale->occurred_on->month,
-                    'quarter' => $sale->quarter(),
+                    'month' => $on->month,
+                    'quarter' => $on->quarter,
                     'vat_from' => $next->toDateString(),
                     'register_by' => $next->endOfMonth()->toDateString(),
                 ];
@@ -491,28 +512,38 @@ class TaxCalculationService
     }
 
     /**
-     * A quarter's percentage tax. In a year that left 8%, it's all on the
-     * 2551Q of the quarter the limit was passed: the sales from January to
-     * that month, payable then without penalty; VAT replaces it after.
+     * A quarter's percentage tax and the sales it's on. In a year that left
+     * 8%, it's all on the 2551Q of the quarter the limit was passed: the
+     * sales from January to that month, payable then without penalty; VAT
+     * replaces it after.
      *
-     * @param  Collection<int, Transaction>  $income
+     * @param  Collection<int, Transaction>  $quarterSales
+     * @param  Collection<int, Transaction>  $sales  the year's
      * @param  Switch|null  $switched
+     * @return array{percentage_tax: float|null, percentage_tax_base: float|null}
      */
-    private function quarterPercentageTax(TaxProfile $taxpayer, int $year, int $quarter, int $quarterGross, Collection $income, ?array $switched): ?float
+    private function quarterPercentageTax(TaxProfile $taxpayer, int $year, int $quarter, Collection $quarterSales, Collection $sales, ?array $switched): array
     {
+        $none = ['percentage_tax' => null, 'percentage_tax_base' => null];
+
         if ($switched === null) {
+            $base = $this->sumCents($quarterSales, 'amount');
+
             return $this->owesPercentageTax($taxpayer)
-                ? $this->pesos($this->rate($quarterGross, $this->rules->forQuarter($year, $quarter)->rate('percentage_tax_rate')))
-                : null;
+                ? ['percentage_tax' => $this->pesos($this->rate($base, $this->rules->forQuarter($year, $quarter)->rate('percentage_tax_rate'))), 'percentage_tax_base' => $this->pesos($base)]
+                : $none;
         }
 
         if ($quarter !== $switched['quarter']) {
-            return null;
+            return $none;
         }
 
-        return $this->pesos((int) $income
-            ->filter(fn (Transaction $t) => $t->occurred_on->month <= $switched['month'])
-            ->sum(fn (Transaction $t) => $this->percentageTaxOn($t)));
+        $toSwitch = $sales->filter(fn (Transaction $t) => $t->salesTaxDate()?->month <= $switched['month']);
+
+        return [
+            'percentage_tax' => $this->pesos((int) $toSwitch->sum(fn (Transaction $t) => $this->percentageTaxOn($t))),
+            'percentage_tax_base' => $this->pesos($this->sumCents($toSwitch, 'amount')),
+        ];
     }
 
     /**
@@ -520,7 +551,9 @@ class TaxCalculationService
      */
     private function percentageTaxOn(Transaction $sale): int
     {
-        return $this->rate($this->cents($sale->amount), $this->rules->forQuarter($sale->occurred_on->year, $sale->quarter())->rate('percentage_tax_rate'));
+        $on = $sale->salesTaxDate() ?? $sale->occurred_on;
+
+        return $this->rate($this->cents($sale->amount), $this->rules->forQuarter($on->year, $on->quarter)->rate('percentage_tax_rate'));
     }
 
     private function owesPercentageTax(TaxProfile $profile): bool

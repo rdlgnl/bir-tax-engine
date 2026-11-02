@@ -88,7 +88,9 @@ class GeneralLedger
     public function journal(int $year, int $month): array
     {
         $entries = [];
-        $transactions = Transaction::query()->forMonth($year, $month)->orderBy('occurred_on')->orderBy('id')->get();
+        // A paid invoice is a receipt in the month it was paid.
+        $transactions = Transaction::query()->cashInMonth($year, $month)->orderBy('occurred_on')->orderBy('id')->get()
+            ->sortBy(fn (Transaction $t) => $t->cashDate()->toDateString())->values();
 
         foreach ($transactions as $t) {
             if ($t->type === TransactionType::Expense) {
@@ -241,7 +243,7 @@ class GeneralLedger
         $withheld = (float) $t->tax_withheld;
         $vat = (float) $t->vat_amount;
 
-        return $this->entry($t->occurred_on->toDateString(), "Received from {$t->counterparty}".($t->invoice_number ? " · invoice {$t->invoice_number}" : ''), [
+        return $this->entry($t->cashDate()->toDateString(), "Received from {$t->counterparty}".($t->invoice_number ? " · invoice {$t->invoice_number}" : ''), [
             $this->debit(101, $amount + $vat - $withheld),
             $this->debit(105, $withheld),
             $this->credit(401, $amount),

@@ -2,6 +2,7 @@
 
 namespace App\Profiles\Models;
 
+use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
@@ -20,13 +21,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property DeductionMethod|null $deduction_method
  * @property bool|null $vat_registered
  * @property bool|null $registered_percentage_tax
+ * @property BooksMethod|null $books_method
  * @property TaxpayerClassification|null $classification the class the BIR assigned for the year
  */
-#[Fillable(['year', 'regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax', 'classification'])]
+#[Fillable(['year', 'regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax', 'books_method', 'classification'])]
 class TaxYear extends Model
 {
     /** The profile's fields a year keeps its own value of. */
-    public const ELECTIONS = ['regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax'];
+    public const ELECTIONS = ['regime', 'deduction_method', 'vat_registered', 'registered_percentage_tax', 'books_method'];
 
     /**
      * Get the attributes that should be cast.
@@ -41,6 +43,7 @@ class TaxYear extends Model
             'deduction_method' => DeductionMethod::class,
             'vat_registered' => 'boolean',
             'registered_percentage_tax' => 'boolean',
+            'books_method' => BooksMethod::class,
             'classification' => TaxpayerClassification::class,
         ];
     }

@@ -12,7 +12,8 @@ use Illuminate\Support\Collection;
 /**
  * Quarterly VAT for a VAT-registered taxpayer: VAT on sales (output tax)
  * less VAT on purchases (input tax). Sales count on their invoice date
- * (EOPT). Input VAT counts only from purchase invoices in the taxpayer's
+ * from April 27, 2024 (RR 3-2024); a service invoiced before then counts
+ * when it's paid, even after (Sec. 7(a)). Input VAT counts only from purchase invoices in the taxpayer's
  * name; others are listed as excluded. Excess input VAT carries over to
  * the next quarter, from one year into the next too (NIRC Sec. 110(B)).
  *
@@ -48,13 +49,13 @@ class VatCalculator
     public function forYear(int $year, ?CarbonImmutable $today = null): array
     {
         $today ??= CarbonImmutable::now();
-        $transactions = Transaction::query()->forYear($year)->get();
+        $transactions = Transaction::query()->forTaxYear($year)->get();
         $filings = Filing::query()->where('year', $year)->where('form', '2550Q')->get()->keyBy('quarter');
         $carry = $this->carriedInto($year);
         $quarters = [];
 
         foreach ([1, 2, 3, 4] as $quarter) {
-            $in = $transactions->filter(fn (Transaction $t) => $t->quarter() === $quarter);
+            $in = $this->inQuarter($transactions, $year, $quarter);
             $q = $this->quarter($quarter, $in, $carry);
             $due = $this->calendar->vatDue($year, $quarter);
             $periodEnd = CarbonImmutable::create($year, $quarter * 3)->endOfMonth();
@@ -106,7 +107,7 @@ class VatCalculator
      */
     public function lists(int $year, int $quarter): array
     {
-        $in = Transaction::query()->forQuarter($year, $quarter)->orderBy('occurred_on')->get();
+        $in = $this->inQuarter(Transaction::query()->forTaxYear($year)->orderBy('occurred_on')->get(), $year, $quarter);
 
         $sales = $in->filter(fn (Transaction $t) => $t->isIncome())->groupBy('counterparty')
             ->map(fn (Collection $group, string $name) => [
@@ -165,6 +166,21 @@ class VatCalculator
             'payable' => max(0.0, $net),
             'excess' => max(0.0, -$net),
         ];
+    }
+
+    /**
+     * What counts in a quarter: sales on their VAT date, purchases on theirs.
+     *
+     * @param  Collection<int, Transaction>  $transactions
+     * @return Collection<int, Transaction>
+     */
+    private function inQuarter(Collection $transactions, int $year, int $quarter): Collection
+    {
+        return $transactions->filter(function (Transaction $t) use ($year, $quarter) {
+            $on = $t->isIncome() ? $t->salesTaxDate() : $t->occurred_on;
+
+            return $on !== null && $on->year === $year && $on->quarter === $quarter;
+        });
     }
 
     /**

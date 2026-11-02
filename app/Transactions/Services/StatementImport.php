@@ -201,6 +201,7 @@ class StatementImport
                 if ($invoice !== null) {
                     $invoice->update([
                         'invoice_paid' => true,
+                        'invoice_paid_on' => $row['date'],
                         'tax_withheld' => (float) $invoice->tax_withheld > 0 ? $invoice->tax_withheld : $row['withheld'],
                     ]);
                     $settled++;

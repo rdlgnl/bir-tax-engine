@@ -6,6 +6,7 @@ use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Services\Penalties;
@@ -50,6 +51,7 @@ use Illuminate\Support\Str;
  *     quarter: int,
  *     regime: string|null,
  *     deduction_method: string|null,
+ *     books_method?: string,
  *     purely_self_employed: bool,
  *     taxpayer: Taxpayer,
  *     figures: QuarterResult,
@@ -84,6 +86,7 @@ use Illuminate\Support\Str;
  *     quarter: int,
  *     period: string,
  *     method: string,
+ *     books_method: string,
  *     taxpayer: array{name: string, tin: string|null, rdo: string|null, atc: string},
  *     with_salary: bool,
  *     lines: list<Line>,
@@ -132,6 +135,7 @@ class ReturnForm
             'quarter' => $quarter,
             'regime' => $profile->regime?->value,
             'deduction_method' => $profile->deduction_method?->value,
+            'books_method' => $profile->books_method->value,
             'purely_self_employed' => $profile->isPurelySelfEmployed(),
             'taxpayer' => [
                 // As the forms write it: "LAST, FIRST MIDDLE".
@@ -268,6 +272,8 @@ class ReturnForm
             },
             'regime' => $snapshot['regime'],
             'deduction_method' => $snapshot['deduction_method'],
+            // Returns filed before the books' method was recorded were on invoice dates.
+            'books_method' => $snapshot['books_method'] ?? BooksMethod::Accrual->value,
             'taxpayer' => [
                 'name' => $snapshot['taxpayer']['name'],
                 'tin' => $snapshot['taxpayer']['tin'],
@@ -385,7 +391,7 @@ class ReturnForm
         $tax = (float) $f['percentage_tax'];
 
         return [
-            $this->line('Taxable amount (sales, this quarter)', $f['quarter_gross']),
+            $this->line('Taxable amount (sales, this quarter)', $f['percentage_tax_base'] ?? $f['quarter_gross']),
             $this->line('Tax due (3%)', $tax, 'total'),
             $this->line('Less: tax credits / payments', 0.0, 'subtract'),
             $this->line('Tax payable', $tax, 'total'),
