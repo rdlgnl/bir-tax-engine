@@ -101,8 +101,10 @@ class CorporateCalculator
         $ledger = array_values(array_filter($ledger, fn (array $entry) => $entry['last_year'] >= $year && $entry['remaining'] > 0));
         $carried = [];
 
-        // Losses first in, first used, against a profit; not under the OSD.
-        // REVIEW: whether a loss's years run on while the OSD is used.
+        // Losses first in, first used, against a profit; not under the OSD,
+        // which replaces the itemized deductions NOLCO is one of (NIRC Sec.
+        // 34(L); 1702-RT items 34-38). The years run on: "three consecutive
+        // taxable years" (Sec. 34(D)(3)). REVIEW: that reading.
         $room = $in->deductionMethod === 'itemized' ? max(0.0, $figures['taxable_income']) : 0.0;
 
         foreach ($ledger as $i => $entry) {
@@ -118,8 +120,10 @@ class CorporateCalculator
         $net = round($figures['taxable_income'] - $nolco, 2);
         $tax = $this->tax($in, $net, $figures['gross_income'], 12);
 
-        // Excess MCIT is credited against the regular tax, in a year it's the one due.
-        // REVIEW: whether the credit may take the tax below the year's MCIT.
+        // Excess MCIT is credited against the regular tax, in a year it's the
+        // one due (NIRC Sec. 27(E)(1); 1702Q item 15). Like the other credits,
+        // it comes off the tax due with no floor at the year's MCIT (1702-RT
+        // items 43 and 47).
         $room = $tax['uses'] === 'regular' ? $tax['tax_due'] : 0.0;
 
         foreach ($ledger as $i => $entry) {

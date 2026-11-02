@@ -46,6 +46,7 @@ return [
     'changes' => [
         '2026.11' => [
             ['area' => 'Rules', 'title' => '8% counts sales when paid', 'summary' => 'On the 8% option a sale counts for income tax when the money is received, on cash or accrual books alike: RR 8-2018 Sec. 2(g) defines gross receipts as amounts actually or constructively received.'],
+            ['area' => 'Rules', 'title' => 'Which land leaves total assets', 'summary' => 'For the 20% corporate rate, total assets are net of depreciation and bad debts and leave out only the land under the office, plant and equipment; land held for sale or investment counts (RMC 62-2021).'],
             ['area' => 'Rules', 'title' => '15% on fees to larger companies', 'summary' => 'Professional fees paid to a company with gross income over ₱720,000 are withheld at 15% (WC011); 10% (WC010) stays for ₱720,000 or less.'],
             ['area' => 'Rules', 'title' => 'Payroll on the BIR withholding table', 'summary' => 'Each month\'s tax on salaries follows the BIR table (RR 11-2018 Annex "E"), with the year-end adjustment in December. Contributions, de minimis benefits, a minimum wage and the 13th month up to ₱90,000 aren\'t taxed.'],
             ['area' => 'Rules', 'title' => 'Each year on its own rules', 'summary' => 'Years before 2023 use the 2018–2022 graduated table, percentage tax is 1% from July 2020 to June 2023, and corporations follow the CREATE rates and MCIT of each quarter. Years before 2018 (2021 for corporations) aren\'t computed.'],

@@ -219,10 +219,130 @@ The printed annex itself was not compared, so the `REVIEW` note stays.
 
 ---
 
-Batches still to come:
+## Batch 2 · Corporations
 
-- **Batch 2, corporations:** the quarterly 20% test, 2023 MCIT, excess MCIT,
-  NOLCO under the OSD, the 1% MCIT period, the DST code.
+Sources read in primary text for batch 2:
+
+- RR 5-2021 (CREATE corporate income tax): the rate table and the MCIT
+  clause, from the BIR's PDF.
+- RMC 62-2021, the BIR's digest: total assets and when MCIT starts.
+- The BIR's forms: 1702Q (January 2018) items 14–16 and its ATC table,
+  1702-RT (January 2018) items 33–47 and Schedule IV, 2000 (January 2018)
+  ATC table.
+- Secondary: Grant Thornton on RMC 36-2024 (2023 MCIT); Grant Thornton
+  and KPMG on RR 19-2025 (DST under CMEPA).
+
+| #   | Rule                                                     | Where                                                                                | Verdict               | Basis                                | Changed   |
+| --- | -------------------------------------------------------- | ------------------------------------------------------------------------------------ | --------------------- | ------------------------------------ | --------- |
+| C1  | What "total assets" means for the 20% rate               | [corporation/edit.tsx](../../resources/js/pages/corporation/edit.tsx)                | **Incorrect** → fixed | RMC 62-2021                          | Yes       |
+| C2  | Rates: 25%, or 20% at ≤ ₱5M taxable income and ≤ ₱100M   | [rates.php `dated`](../../resources/rule-pack/rates.php)                             | Correct               | RR 5-2021                            | Note only |
+| C3  | MCIT 1% from July 1, 2020 to June 30, 2023, then 2%      | same                                                                                 | Correct               | RR 5-2021                            | Note only |
+| C4  | MCIT from the 4th taxable year after BIR registration    | [CorporateTax::mcitFrom](../../app/Corporations/Services/CorporateTax.php)           | Correct               | RMC 62-2021; RR 9-98                 | Note only |
+| C5  | 2023 MCIT at 1.5% (months averaged)                      | [CorporateTax::mcitAverageRate](../../app/Corporations/Services/CorporateTax.php)    | Correct               | RMC 69-2023; RMC 36-2024 (secondary) | Note only |
+| C6  | The 20% test on each 1702Q, on taxable income to date    | [CorporateCalculator::tax](../../app/Corporations/Services/CorporateCalculator.php)  | No clear basis found  | —                                    | No        |
+| C7  | Excess MCIT: only when regular tax is due, no MCIT floor | [CorporateCalculator::year](../../app/Corporations/Services/CorporateCalculator.php) | Correct               | Sec. 27(E)(1); 1702Q, 1702-RT        | Note only |
+| C8  | No NOLCO under the OSD; its years keep running           | same                                                                                 | Correct (reading)     | Sec. 34(L), 34(D)(3); 1702-RT        | Note only |
+| C9  | DST on loans: DS106; 0.75% from July 1, 2025             | [rates.php `dst`](../../resources/rule-pack/rates.php)                               | Partly                | Form 2000; RR 19-2025 (secondary)    | No        |
+
+### C1 · Total assets: incorrect, fixed
+
+**Before.** The corporation's settings asked for "Total assets, excluding
+land". The 20% explanation said the same.
+
+**Basis.** RMC 62-2021 (**RMC**) gives three rules:
+
+- total assets are net of depreciation and allowance for bad debts;
+- only "the land where the business entity's office, plant and equipment
+  are situated" is excluded, at its cost or fair value as the financial
+  statements carry it, prorated by the floor area the office uses;
+- land "held primarily for sale to customers or land held for investment"
+  is not excluded.
+
+RR 5-2021 (**RR**) also requires that land to be shown in its own account
+in the financial statements.
+
+**Now.** The field says "Total assets, excluding the land your office stands
+on", with a line on what to leave out. The 20% explanation and the 1702Q
+note say the same. A corporation that left out investment land could have
+taken the 20% rate wrongly.
+
+### C2–C5 · Rates and MCIT: correct
+
+RR 5-2021's rate table (**RR**):
+
+| Domestic corporations                   | Regular rate | MCIT                                                |
+| --------------------------------------- | ------------ | --------------------------------------------------- |
+| In general                              | 25%          | 1% from July 1, 2020 to June 30, 2023; 2% from then |
+| Taxable income ≤ ₱5M and assets ≤ ₱100M | 20%          | same                                                |
+
+Both regular rates apply from July 1, 2020. The MCIT applies "beginning on
+the fourth taxable year immediately following the year in which such
+corporation commenced its business operations". RMC 62-2021 (**RMC**)
+reads that year as the year of BIR registration, citing RR 9-98, and gives
+the example of a business that commenced in 2017 paying MCIT from 2021.
+The app does the same.
+
+For 2023, gross income is divided by 12, with 1% for January to June and
+2% after. That is 1.50% for a year ending December 31, 2023 (RMC 36-2024's
+table, as Grant Thornton reports it). The app averages the months' rates,
+which gives the same result. RMC 36-2024's own text wasn't read, so its
+`REVIEW` note stays.
+
+### C6 · The 20% test on the 1702Q: no clear basis found
+
+The app gives a quarter the 20% rate when the taxable income to date is
+₱5,000,000 or less and the total assets entered are ₱100,000,000 or less.
+RR 5-2021 and RMC 62-2021 tie the test to the taxable income "during the
+taxable year" and say nothing about quarterly returns. The 1702Q (January 2018) predates CREATE and still shows 30%.
+
+**For the CPA:** each quarter on income to date (as now), each quarter on
+the year's expected income, or the annual return only, with the quarters
+trued up there?
+
+### C7 · Excess MCIT: correct
+
+NIRC Sec. 27(E)(1) (**Law**) carries the excess of MCIT over the normal tax
+forward three years, "credited against the normal income tax". The 1702Q
+item 15 (**Form**) allows it "only if the quarterly's tax due is the
+regular/normal rate". On the 1702-RT, item 43 takes the higher of the
+normal tax and the MCIT, and item 47 subtracts the excess MCIT applied
+like any other credit, so the result can go below that year's MCIT. The
+app does each of these.
+
+The app leaves 1702Q item 15 blank, as it says on that form, so the
+accountant fills it in. The credit is still taken on the annual return.
+
+### C8 · NOLCO under the OSD: correct as a reading of the law
+
+**Not deducted under the OSD.** NIRC Sec. 34(L) (**Law**) grants the OSD
+"in lieu of" the Sec. 34 deductions, and NOLCO is one of them
+(Sec. 34(D)(3)). On the 1702-RT (**Form**), NOLCO (item 36) is part of
+the itemized deductions (items 34–37), which are the alternative to the
+OSD (item 38).
+
+**The years keep running.** Sec. 34(D)(3) counts "the next three
+consecutive taxable years", so a year on the OSD still uses one up. This
+is an **Interpretation**: no regulation we read says it.
+
+**For the CPA:** confirm the reading, and whether a loss arising in an OSD
+year carries over. The app carries it.
+
+### C9 · DST on loans: partly confirmed
+
+Form 2000 (January 2018) (**Form**) lists DS106, "Original issue of all
+Debt Instruments", at ₱1.50 per ₱200 of the issue price, prorated by days
+over 365 for terms under one year. The app matches this up to June 30, 2025.
+
+From July 1, 2025, RR 19-2025 under RA 12214 (CMEPA) sets 0.75% of the
+issue price. That comes from Grant Thornton and KPMG; the RR itself
+wasn't read. No Form 2000 edition after 2018 was found, so whether the ATC
+changed has **no clear basis found**. The app keeps DS106 and its `REVIEW`
+note.
+
+---
+
+Batch still to come:
+
 - **Batch 3, withholding and filing:** nil 1601-EQ and 1604-E, 2316 item 29,
   payroll periods, registration dates, file layouts, 2027 holidays, the EIS
   circular, chart of accounts, clothing ₱7,000.

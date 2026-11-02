@@ -166,7 +166,8 @@ export default function CorporationEdit({
                                     htmlFor="total_assets"
                                     className="font-bold"
                                 >
-                                    Total assets, excluding land
+                                    Total assets, excluding the land your office
+                                    stands on
                                 </Label>
                                 <MoneyInput
                                     id="total_assets"
@@ -175,6 +176,13 @@ export default function CorporationEdit({
                                         form.setData('total_assets', value)
                                     }
                                 />
+                                <p className="text-[13px] text-muted-foreground">
+                                    As in your financial statements, net of
+                                    depreciation and bad debts. Leave out only
+                                    the land under your office, plant or
+                                    equipment; land held for sale or investment
+                                    counts (RMC 62-2021).
+                                </p>
                                 <FieldError
                                     message={form.errors.total_assets}
                                 />
