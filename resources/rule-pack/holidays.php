@@ -20,8 +20,8 @@ return [
     // as timeanddate.com lists them for 2018 to 2026. Local Muslim holidays
     // and special working days don't move deadlines. A year without a list
     // moves deadlines off weekends only, and the calendar says so.
-    // REVIEW: 2027 is from the usual dates; check its proclamation, and add
-    // the Eid holidays when they're declared.
+    // 2027 is Proclamation No. 1427, s. 2026 (as GMA News lists it; EDSA
+    // Day is a working day). REVIEW: add the Eid holidays when they're declared.
     'holidays' => [
         '2018-01-01' => 'New Year\'s Day',
         '2018-02-16' => 'Chinese New Year',
@@ -211,6 +211,7 @@ return [
         '2026-12-30' => 'Rizal Day',
         '2026-12-31' => 'Last day of the year',
         '2027-01-01' => "New Year's Day",
+        '2027-02-06' => 'Chinese New Year',
         '2027-03-25' => 'Maundy Thursday',
         '2027-03-26' => 'Good Friday',
         '2027-03-27' => 'Black Saturday',
@@ -220,6 +221,7 @@ return [
         '2027-08-21' => 'Ninoy Aquino Day',
         '2027-08-30' => 'National Heroes Day',
         '2027-11-01' => "All Saints' Day",
+        '2027-11-02' => "All Souls' Day",
         '2027-11-30' => 'Bonifacio Day',
         '2027-12-08' => 'Immaculate Conception',
         '2027-12-24' => 'Christmas Eve',

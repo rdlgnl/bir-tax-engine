@@ -29,9 +29,10 @@ use Illuminate\Support\Str;
  * their full pay, so the tax withheld from them is cash kept and owed.
  * Balances carry over from the first records in the app; at each year end
  * income, expenses and drawings close into owner's capital. Money held
- * before the first record isn't known, so it's added by hand.
- * REVIEW: the chart of accounts, income tax paid as owner's drawings, and
- * the payroll withholding entries.
+ * before the first record isn't known, so it's added by hand. Income tax
+ * is the owner's, not a business expense (NIRC Sec. 34(C)(1)(a)), so it's
+ * paid as drawings.
+ * REVIEW: the chart of accounts and the payroll withholding entries.
  *
  * @phpstan-type Line array{account: int, debit: float, credit: float}
  * @phpstan-type Entry array{ref: string, date: string, description: string, lines: list<Line>}

@@ -63,8 +63,9 @@ return [
                 [666_667, 200_833.33, 0.35],
             ],
             // De minimis benefits an employer can pay untaxed (RR 11-2018 Sec. 2.78.1(A)(3)):
-            // the limits the employee page lists. REVIEW: RR 4-2025 raised clothing to
-            // ₱7,000 in 2025; its effective date isn't encoded.
+            // the limits the employee page lists, raised by RR 29-2025 below.
+            // REVIEW: RR 4-2025 raised clothing to ₱7,000 during 2025; its
+            // effective date wasn't found, so 2025 keeps ₱6,000.
             'de_minimis' => [
                 'rice' => ['amount' => 2_000, 'per' => 'month', 'label' => 'Rice subsidy'],
                 'clothing' => ['amount' => 6_000, 'per' => 'year', 'label' => 'Uniform and clothing'],
@@ -115,7 +116,8 @@ return [
         '2025-07-01' => [
             'dst' => ['loan' => ['percent' => 0.0075]],
         ],
-        // RR 29-2025: higher de minimis limits from January 6, 2026.
+        // RR 29-2025: higher de minimis limits from January 6, 2026 (as KPMG
+        // reports it; ₱2,000 a semester for dependents' medical).
         '2026-01-06' => [
             'de_minimis' => [
                 'rice' => ['amount' => 2_500],
@@ -213,8 +215,7 @@ return [
     // The BIR's Electronic Invoicing System (EIS) is required by this date of
     // small, medium and large taxpayers selling online, and of those with
     // computerized books or under the Large Taxpayers Service (BIR, September
-    // 22, 2026). Micro taxpayers aren't covered.
-    // REVIEW: the circular's number wasn't found.
+    // 22, 2026; RMC 98-2026). Micro taxpayers aren't covered.
     'eis' => [
         'required_by' => '2026-12-31',
     ],
