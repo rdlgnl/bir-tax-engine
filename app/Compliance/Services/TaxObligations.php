@@ -256,7 +256,11 @@ class TaxObligations
                 kind: 'withholding',
                 status: $month['status'],
                 amount: $month['status'] === 'open' ? null : $month['withheld'],
-                note: $month['status'] === 'open' ? 'So far' : null,
+                note: match (true) {
+                    $month['status'] === 'open' => 'So far',
+                    $month['employees'] === 0 => 'No payment',
+                    default => null,
+                },
                 href: route('payroll.month', [$y, $month['month']], absolute: false),
             );
         }
@@ -301,7 +305,8 @@ class TaxObligations
         }
 
         // The 1702Q and 1702-RT of a corporation the taxpayer runs.
-        if (($corporation = Corporation::current()) !== null && $this->corporations->covers($y)) {
+        // From the year it registered with the BIR.
+        if (($corporation = Corporation::current()) !== null && $this->corporations->covers($y) && $y >= $corporation->operations_began) {
             foreach ($this->corporations->quarters($corporation, $y) as $quarter) {
                 if ($quarter['status'] === 'filed' && ! $includeFiled) {
                     continue;
@@ -315,7 +320,13 @@ class TaxObligations
                     kind: 'income_tax',
                     status: $quarter['status'],
                     amount: $ended && $quarter['has_figures'] ? max(0.0, $quarter['payable']) : null,
-                    note: $ended && ! $quarter['has_figures'] ? 'Enter figures' : ($ended ? null : 'Corporation'),
+                    // A quarter with nothing to pay still has its 1702Q, a no-payment one.
+                    note: match (true) {
+                        ! $ended => 'Corporation',
+                        ! $quarter['has_figures'] => 'Enter figures',
+                        $quarter['payable'] <= 0 => 'No payment',
+                        default => null,
+                    },
                     href: route('corporation.quarter', [$y, $quarter['quarter']], absolute: false),
                 );
             }

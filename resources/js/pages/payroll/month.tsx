@@ -35,13 +35,17 @@ export default function PayrollMonth({
     const missingTin = employees.filter((e) => !e.tin).map((e) => e.name);
     const toCheck = [
         { key: 'final', label: `${name} payroll is final` },
-        {
-            key: 'tins',
-            label:
-                employees.length === 1
-                    ? `${employees[0].name}'s TIN is on file`
-                    : "Each employee's TIN is on file",
-        },
+        ...(employees.length > 0
+            ? [
+                  {
+                      key: 'tins',
+                      label:
+                          employees.length === 1
+                              ? `${employees[0].name}'s TIN is on file`
+                              : "Each employee's TIN is on file",
+                  },
+              ]
+            : []),
     ];
 
     return (
@@ -174,6 +178,14 @@ export default function PayrollMonth({
                 />
 
                 <div className="flex flex-col gap-5">
+                    {employees.length === 0 && (
+                        <Note title="No one on payroll this month">
+                            The 1601-C is still filed, with no payment, while
+                            you're registered for withholding on salaries. If
+                            you no longer have employees, update your
+                            registration (1905) to stop.
+                        </Note>
+                    )}
                     <Note
                         tone={
                             remittance.status === 'overdue' ? 'danger' : 'info'

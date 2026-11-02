@@ -142,3 +142,20 @@ test('employees are added, edited and removed, and kept in backups', function ()
     $this->delete("/payroll/employees/{$employee->id}")->assertRedirect('/payroll');
     expect(Employee::query()->count())->toBe(0);
 });
+
+test('a month with no one on payroll, after the year’s first hire, still has its no-payment 1601-C', function () {
+    // Joy worked March and April only.
+    joy(['started_on' => '2026-03-01', 'ended_on' => '2026-04-30']);
+
+    $months = collect(app(Payroll::class)->year(2026))->keyBy('month');
+
+    expect($months->keys()->all())->toBe([3, 4, 5, 6, 7, 8, 9, 10, 11])
+        ->and($months[5])->toMatchArray(['employees' => 0, 'compensation' => 0.0, 'withheld' => 0.0, 'status' => 'overdue']);
+
+    $profile = TaxProfile::current();
+    $may = collect(app(TaxObligations::class)->deadlines($profile, app(TaxCalculationService::class)->forYear($profile, 2026)))
+        ->firstWhere('title', 'May 1601-C · tax on salaries');
+    expect($may)->toMatchArray(['amount' => 0.0, 'note' => 'No payment']);
+
+    $this->get('/payroll/2026/5')->assertOk()->assertInertia(fn (Assert $page) => $page->where('employees', []));
+});

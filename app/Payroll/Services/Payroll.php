@@ -220,11 +220,16 @@ class Payroll
         $years = $employees->map(fn (Employee $e) => $this->employeeYear($e, $year));
         $filings = Filing::query()->where('year', $year)->where('form', '1601-C')->get();
         $months = [];
+        // Registered for withholding on compensation from the year's first hire:
+        // a month with no one on payroll after that still has its no-payment
+        // 1601-C (RMC 12-2015), until the registration is updated (1905).
+        // REVIEW: the app doesn't record that registration.
+        $firstMonth = $years->flatMap(fn (array $y) => array_column($y['months'], 'month'))->min();
 
         foreach (range(1, 12) as $month) {
             $rows = $years->map(fn (array $y) => [$y, collect($y['months'])->firstWhere('month', $month)])->filter(fn (array $row) => $row[1] !== null);
 
-            if ($rows->isEmpty()) {
+            if ($rows->isEmpty() && ($firstMonth === null || $month < $firstMonth || CarbonImmutable::create($year, $month)->greaterThan($today))) {
                 continue;
             }
 

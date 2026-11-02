@@ -1,8 +1,11 @@
 <?php
 
+use App\Compliance\Services\TaxObligations;
 use App\Corporations\Models\Corporation;
 use App\Corporations\Services\CorporateTax;
+use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\Items\Form1702RTItems;
+use App\Tax\Services\TaxCalculationService;
 use Carbon\CarbonImmutable;
 
 beforeEach(function () {
@@ -54,4 +57,14 @@ test('a 2021 loss carries five years; a later one, three', function () {
     $carried = collect(app(CorporateTax::class)->annual($this->corporation, 2024)['carried'])->where('kind', 'nolco')->values();
 
     expect($carried->pluck('last_year', 'year')->all())->toBe([2021 => 2026, 2023 => 2026]);
+});
+
+test('a quarter with nothing to pay still has its 1702Q, and none before the corporation registered', function () {
+    corporateYear($this->corporation, 2026, 100_000, 400_000);
+    $this->corporation->update(['operations_began' => 2026]);
+    $profile = TaxProfile::factory()->create();
+    $deadlines = fn (int $year) => collect(app(TaxObligations::class)->deadlines($profile, app(TaxCalculationService::class)->forYear($profile, $year)));
+
+    expect($deadlines(2026)->firstWhere('title', 'Q1 1702Q · Bayani Creative Studio Inc.'))->toMatchArray(['amount' => 0.0, 'note' => 'No payment'])
+        ->and($deadlines(2025)->filter(fn (array $d) => str_contains($d['title'], '1702')))->toBeEmpty();
 });
