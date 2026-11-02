@@ -15,6 +15,8 @@ export type ReturnLayout = {
     method: string;
     regime: 'eight_percent' | 'graduated';
     deduction_method: 'osd' | 'itemized' | null;
+    /** When income counts for income tax: invoice date, or when paid. */
+    books_method: 'accrual' | 'cash';
     taxpayer: {
         name: string;
         tin: string | null;

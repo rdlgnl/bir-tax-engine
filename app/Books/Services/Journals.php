@@ -29,18 +29,21 @@ class Journals
      */
     public function forMonth(int $year, int $month): array
     {
+        // A paid invoice is a receipt in the month it was paid.
         $transactions = Transaction::query()
-            ->forMonth($year, $month)
+            ->cashInMonth($year, $month)
             ->orderBy('occurred_on')
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->sortBy(fn (Transaction $t) => $t->cashDate()->toDateString())
+            ->values();
 
         $receipts = array_values($transactions
             ->filter(fn (Transaction $t) => $t->type === TransactionType::Payment
                 || ($t->type === TransactionType::Invoice && $t->invoice_paid))
             ->map(fn (Transaction $t) => [
                 'id' => $t->id,
-                'occurred_on' => $t->occurred_on->toDateString(),
+                'occurred_on' => $t->cashDate()->toDateString(),
                 'counterparty' => $t->counterparty,
                 'invoice_number' => $t->invoice_number,
                 'amount' => (float) $t->amount,

@@ -55,7 +55,13 @@ export default function ReturnPreview({
                   },
               ]
             : []),
-        { key: 'invoice', label: 'Sales are counted by invoice date' },
+        {
+            key: 'invoice',
+            label:
+                incomeTax && layout.books_method === 'cash'
+                    ? 'Sales are counted when paid, as my books are kept'
+                    : 'Sales are counted by invoice date',
+        },
         ...(incomeTax
             ? [
                   {

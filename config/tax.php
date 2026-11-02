@@ -47,6 +47,11 @@ return [
 
     'osd_rate' => 0.40,
 
+    // From this date percentage tax and VAT count a sale when it's invoiced
+    // (RA 11976 Secs. 17, 24; RR 3-2024, effective April 27, 2024). Before,
+    // services counted when paid. Income tax follows the books' method.
+    'sales_by_invoice_from' => '2024-04-27',
+
     // Rules that changed over the years, by the date each took effect. A
     // period uses every entry on or before it (App\Tax\Services\TaxRules):
     // a year's income tax its last day, a quarter's percentage tax and MCIT

@@ -46,11 +46,13 @@ test('an invoice enters the receipts journal once it is paid', function () {
     // The seeded Oct 26 invoice 0142 is unpaid.
     $this->get('/books/2026/10')->assertInertia(fn (Assert $page) => $page->has('receipts', 2));
 
-    Transaction::query()->where('invoice_number', '0142')->update(['invoice_paid' => true]);
+    Transaction::query()->where('invoice_number', '0142')->sole()->update(['invoice_paid' => true, 'invoice_paid_on' => '2026-10-27']);
 
+    // On the day it was paid, not the invoice's date.
     $this->get('/books/2026/10')->assertInertia(fn (Assert $page) => $page
         ->has('receipts', 3)
-        ->where('receipts.2.invoice_number', '0142'));
+        ->where('receipts.2.invoice_number', '0142')
+        ->where('receipts.2.occurred_on', '2026-10-27'));
 });
 
 test('months in the future or out of range aren’t books', function (string $url) {

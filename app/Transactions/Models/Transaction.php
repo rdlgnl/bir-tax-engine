@@ -4,6 +4,7 @@ namespace App\Transactions\Models;
 
 use App\Compliance\Models\Certificate;
 use App\Compliance\Services\CertificateLinks;
+use App\Tax\Enums\BooksMethod;
 use App\Transactions\Enums\CertificateStatus;
 use App\Transactions\Enums\ExpenseCategory;
 use App\Transactions\Enums\TransactionType;
@@ -37,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $certificate_id
  * @property string|null $invoice_number
  * @property bool $invoice_paid
+ * @property CarbonImmutable|null $invoice_paid_on
  * @property ExpenseCategory|null $category
  * @property bool $has_valid_invoice
  * @property string|null $description
@@ -56,6 +58,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'certificate_received_on',
     'invoice_number',
     'invoice_paid',
+    'invoice_paid_on',
     'category',
     'has_valid_invoice',
     'description',
@@ -85,6 +88,14 @@ class Transaction extends Model
      */
     protected static function booted(): void
     {
+        // A paid invoice keeps the day it was paid; without one, its own date.
+        static::saving(function (self $transaction) {
+            if ($transaction->type !== TransactionType::Invoice || ! $transaction->invoice_paid) {
+                $transaction->invoice_paid_on = null;
+            } elseif ($transaction->invoice_paid_on === null) {
+                $transaction->invoice_paid_on = $transaction->occurred_on;
+            }
+        });
         static::saved(fn (self $transaction) => app(CertificateLinks::class)->afterChange($transaction));
         static::deleted(fn (self $transaction) => app(CertificateLinks::class)->afterChange($transaction));
     }
@@ -106,6 +117,7 @@ class Transaction extends Model
             'agent_withheld' => 'decimal:2',
             'certificate_received_on' => 'date',
             'invoice_paid' => 'boolean',
+            'invoice_paid_on' => 'date',
             'category' => ExpenseCategory::class,
             'has_valid_invoice' => 'boolean',
         ];
@@ -162,6 +174,71 @@ class Transaction extends Model
     public function isIncome(): bool
     {
         return $this->type->isIncome();
+    }
+
+    /**
+     * The day a sale counts as income on the books' method: an invoice on
+     * its date (accrual) or when paid (cash), a payment on its own date.
+     * Null for an unpaid invoice on cash, and for anything that isn't a sale.
+     */
+    public function incomeDate(BooksMethod $method): ?CarbonImmutable
+    {
+        return match (true) {
+            ! $this->isIncome() => null,
+            $this->type !== TransactionType::Invoice, $method === BooksMethod::Accrual => $this->occurred_on,
+            default => $this->invoice_paid ? ($this->invoice_paid_on ?? $this->occurred_on) : null,
+        };
+    }
+
+    /**
+     * The day a sale counts for percentage tax and VAT: billing from April
+     * 27, 2024 (RR 3-2024), so an invoice on its date; before then, receipts,
+     * so an invoice when it was paid, even after that date (Sec. 7(a)).
+     * REVIEW: the transitory rule is written for VAT; percentage tax follows by analogy.
+     */
+    public function salesTaxDate(): ?CarbonImmutable
+    {
+        $billing = $this->occurred_on->greaterThanOrEqualTo(CarbonImmutable::parse((string) config('tax.sales_by_invoice_from')));
+
+        return $this->incomeDate($billing ? BooksMethod::Accrual : BooksMethod::Cash);
+    }
+
+    /**
+     * Sales that count in a year one way or another: dated in it, or paid in it.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function forTaxYear(Builder $query, int $year): void
+    {
+        $query->where(fn (Builder $q) => $q
+            ->where(fn (Builder $q) => $q->where('occurred_on', '>=', "{$year}-01-01")->where('occurred_on', '<', ($year + 1).'-01-01'))
+            ->orWhere(fn (Builder $q) => $q->where('invoice_paid_on', '>=', "{$year}-01-01")->where('invoice_paid_on', '<', ($year + 1).'-01-01')));
+    }
+
+    /**
+     * What came in or went out in a month, for the cash books: a paid
+     * invoice counts in the month it was paid.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function cashInMonth(Builder $query, int $year, int $month): void
+    {
+        $start = CarbonImmutable::create($year, $month)->toDateString();
+        $end = CarbonImmutable::create($year, $month)->addMonth()->toDateString();
+
+        $query->where(fn (Builder $q) => $q
+            ->where(fn (Builder $q) => $q->where('type', '!=', TransactionType::Invoice->value)->where('occurred_on', '>=', $start)->where('occurred_on', '<', $end))
+            ->orWhere(fn (Builder $q) => $q->where('type', TransactionType::Invoice->value)->where('invoice_paid', true)->where('invoice_paid_on', '>=', $start)->where('invoice_paid_on', '<', $end)));
+    }
+
+    /**
+     * The day money moved: a paid invoice's payment date, else the date.
+     */
+    public function cashDate(): CarbonImmutable
+    {
+        return $this->type === TransactionType::Invoice && $this->invoice_paid_on !== null ? $this->invoice_paid_on : $this->occurred_on;
     }
 
     public function certificateStatus(CarbonInterface $today): CertificateStatus

@@ -35,6 +35,7 @@ class TransactionResource extends JsonResource
             'certificate_received_on' => $this->certificate_received_on?->toDateString(),
             'invoice_number' => $this->invoice_number,
             'invoice_paid' => $this->invoice_paid,
+            'invoice_paid_on' => $this->invoice_paid_on?->toDateString(),
             'category' => $this->category?->value,
             'category_label' => $this->category?->label(),
             'has_valid_invoice' => $this->has_valid_invoice,

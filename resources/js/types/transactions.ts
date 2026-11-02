@@ -34,6 +34,7 @@ export type Transaction = {
     certificate_received_on: string | null;
     invoice_number: string | null;
     invoice_paid: boolean;
+    invoice_paid_on: string | null;
     category: ExpenseCategory | null;
     category_label: string | null;
     has_valid_invoice: boolean;
@@ -52,6 +53,7 @@ export type TransactionForm = {
     certificate_received_on: string | null;
     invoice_number: string;
     invoice_paid: boolean;
+    invoice_paid_on: string;
     category: ExpenseCategory | '';
     has_valid_invoice: boolean;
     description: string;

@@ -8,6 +8,7 @@ use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
 use App\Profiles\Enums\WorkType;
 use App\Returns\Models\Filing;
+use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Transactions\Models\Transaction;
@@ -56,6 +57,7 @@ use LogicException;
  * @property int|null $expected_expense_percent
  * @property ClientsWithhold|null $clients_withhold
  * @property BooksType|null $books_type
+ * @property BooksMethod $books_method when income counts for income tax
  * @property CarbonImmutable|null $setup_completed_at
  */
 #[Fillable([
@@ -91,12 +93,22 @@ use LogicException;
     'expected_expense_percent',
     'clients_withhold',
     'books_type',
+    'books_method',
 ])]
 #[UseFactory(TaxProfileFactory::class)]
 class TaxProfile extends Model
 {
     /** @use HasFactory<TaxProfileFactory> */
     use HasFactory;
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'books_method' => 'accrual',
+    ];
 
     /** The year a copy from forYear() stands for: it's read, never saved. */
     public ?int $yearView = null;
@@ -137,6 +149,7 @@ class TaxProfile extends Model
             'expected_expense_percent' => 'integer',
             'clients_withhold' => ClientsWithhold::class,
             'books_type' => BooksType::class,
+            'books_method' => BooksMethod::class,
             'setup_completed_at' => 'datetime',
         ];
     }

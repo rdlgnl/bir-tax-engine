@@ -67,6 +67,7 @@ export function TransactionForm({
         certificate_received_on: editing?.certificate_received_on ?? null,
         invoice_number: editing?.invoice_number ?? '',
         invoice_paid: editing?.invoice_paid ?? false,
+        invoice_paid_on: editing?.invoice_paid_on ?? '',
         category: editing?.category ?? '',
         has_valid_invoice: editing?.has_valid_invoice ?? false,
         description: editing?.description ?? '',
@@ -499,6 +500,32 @@ export function TransactionForm({
                             ]}
                         />
                     </div>
+                    {form.data.invoice_paid && (
+                        <div className="flex flex-col gap-1.5">
+                            <Label
+                                htmlFor="tx-invoice-paid-on"
+                                className="text-sm font-bold"
+                            >
+                                Paid on
+                            </Label>
+                            <Input
+                                id="tx-invoice-paid-on"
+                                type="date"
+                                value={
+                                    form.data.invoice_paid_on ||
+                                    form.data.occurred_on
+                                }
+                                onChange={(event) =>
+                                    form.setData(
+                                        'invoice_paid_on',
+                                        event.target.value,
+                                    )
+                                }
+                                className="h-11 rounded-xl bg-card"
+                            />
+                            <FieldError message={form.errors.invoice_paid_on} />
+                        </div>
+                    )}
                 </>
             )}
 

@@ -16,7 +16,8 @@ class Form2551QItems extends FormItems
     {
         $taxpayer = $snapshot['taxpayer'];
         $f = $snapshot['figures'];
-        $sales = round($f['quarter_gross'], 2);
+        // The sales the percentage tax is on (by invoice date from April 27, 2024).
+        $sales = round($f['percentage_tax_base'] ?? $f['quarter_gross'], 2);
         $tax = round((float) $f['percentage_tax'], 2);
         // The quarter's own rate: 1% from July 2020 to June 2023, 3% otherwise.
         $rate = (string) round(app(TaxRules::class)->forQuarter($snapshot['year'], $snapshot['quarter'])->rate('percentage_tax_rate') * 100);
