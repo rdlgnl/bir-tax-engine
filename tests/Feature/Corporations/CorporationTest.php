@@ -268,6 +268,7 @@ test('the corporation is set up, shown, filled in, filed, on the calendar and in
         ->where('soFar.to_date.taxable_income', 1500000)
         ->where('annual.payable', 70000)
         ->where('rateNote.title', 'Why 20%, not 25%')
+        ->where('rateNote.body', fn (string $body) => str_contains($body, 'On the quarterly return the 20% is provisional'))
         ->where('mcitNote.title', 'Minimum corporate income tax applies from 2026')
         ->where('mcitNote.body', '2026 is the 4th year after it registered with the BIR (2022), so each quarter compares 2% of gross income with the regular tax.')
         ->where('alsoDue', [

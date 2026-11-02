@@ -104,10 +104,19 @@ export default function CorporationQuarter({
                                         value={peso(t.taxable_income)}
                                     />
                                     <Row
-                                        label={`Regular tax (${percent(tax.rate)})`}
+                                        label={`Regular tax (${percent(tax.rate)}${tax.small ? ', provisional' : ''})`}
                                         value={peso(tax.regular_tax)}
                                     />
                                 </dl>
+                                {tax.small && (
+                                    <p className="mt-3 text-[13px] text-muted-foreground">
+                                        20% while taxable income so far is
+                                        within the limit. The annual return
+                                        tests the whole year; over the limit,
+                                        the year is at 25% and the difference is
+                                        paid then.
+                                    </p>
+                                )}
                             </SectionCard>
 
                             {tax.mcit_applies && (
