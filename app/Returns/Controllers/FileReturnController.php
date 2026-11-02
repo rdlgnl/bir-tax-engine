@@ -12,6 +12,7 @@ use App\Returns\Services\ReturnHistory;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
+use App\Tax\Services\Abatement;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\Penalties;
 use App\Tax\Services\TaxCalculationService;
@@ -33,6 +34,7 @@ use ZipArchive;
  *
  * @phpstan-import-type Snapshot from ReturnForm
  * @phpstan-import-type Layout from ReturnForm
+ * @phpstan-import-type Offer from Abatement
  */
 class FileReturnController extends Controller
 {
@@ -105,7 +107,25 @@ class FileReturnController extends Controller
             )['missing_certificates'],
             'otherForms' => array_values(array_diff($forms, [$form])),
             'paperFiling' => $this->paperFiling($form),
+            'abatement' => $this->abatement($profile, $snapshot),
         ]);
+    }
+
+    /**
+     * RR 4-2026's abatement, for a late return a micro taxpayer can settle.
+     *
+     * @param  Snapshot  $snapshot
+     * @return Offer|null
+     */
+    private function abatement(TaxProfile $profile, array $snapshot): ?array
+    {
+        if ($snapshot['penalties'] === null) {
+            return null;
+        }
+
+        return app(Abatement::class)->offer(
+            $snapshot['year'], CarbonImmutable::parse($snapshot['figures']['due_date']), $this->engine->forYear($profile, $snapshot['year'])['gross'],
+        );
     }
 
     /**
@@ -227,6 +247,7 @@ class FileReturnController extends Controller
             'layout' => $this->returns->layout($snapshot),
             'dueDate' => $snapshot['figures']['due_date'],
             'weekly' => $penalties->weeklyInterest($snapshot['figures']['due'], CarbonImmutable::parse($snapshot['figures']['due_date']), $engine->forYear($profile, $year)['gross']),
+            'abatement' => $this->abatement($profile, $snapshot),
         ]);
     }
 

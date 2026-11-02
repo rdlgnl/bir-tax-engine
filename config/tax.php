@@ -152,8 +152,9 @@ return [
     // REVIEW: check the codes and rates against the current RR before relying on them.
     'withholding' => [
         'atcs' => [
-            'WI010' => ['kind' => 'professional', 'payee' => 'person', 'declaration' => true, 'rate' => 0.05, 'label' => 'Professional fee, with sworn declaration'],
-            'WI011' => ['kind' => 'professional', 'payee' => 'person', 'declaration' => false, 'rate' => 0.10, 'label' => 'Professional fee, without sworn declaration'],
+            // 5% only for a payee who isn't VAT-registered (RR 14-2018).
+            'WI010' => ['kind' => 'professional', 'payee' => 'person', 'declaration' => true, 'rate' => 0.05, 'label' => 'Professional fee, with sworn declaration, payee not VAT-registered'],
+            'WI011' => ['kind' => 'professional', 'payee' => 'person', 'declaration' => false, 'rate' => 0.10, 'label' => 'Professional fee, without sworn declaration or VAT-registered'],
             'WC010' => ['kind' => 'professional', 'payee' => 'company', 'declaration' => null, 'rate' => 0.10, 'label' => 'Professional fee to a company'],
             'WI100' => ['kind' => 'rent', 'payee' => 'person', 'declaration' => null, 'rate' => 0.05, 'label' => 'Rent of real property'],
             'WC100' => ['kind' => 'rent', 'payee' => 'company', 'declaration' => null, 'rate' => 0.05, 'label' => 'Rent of real property'],
@@ -285,6 +286,26 @@ return [
         'percentage_tax' => 'PT010',
         // REVIEW: the 2550Q's ATC for VAT on sale of services/goods.
         'vat' => 'VT010',
+    ],
+
+    // RR 4-2026 (RMC 84-2026): a one-time abatement for micro taxpayers of
+    // the tax and penalties of a taxable year, up to the ceiling, delinquent
+    // or under an open case as of `cases_as_of`; the fee is paid on Form 0605.
+    'abatement' => [
+        'cases_as_of' => '2025-12-31',
+        'until' => '2026-12-31',
+        'ceiling' => 80_000,
+        'fee' => 5_000,
+        'source' => 'RR 4-2026',
+    ],
+
+    // The BIR's Electronic Invoicing System (EIS) is required by this date of
+    // small, medium and large taxpayers selling online, and of those with
+    // computerized books or under the Large Taxpayers Service (BIR, September
+    // 22, 2026). Micro taxpayers aren't covered.
+    // REVIEW: the circular's number wasn't found.
+    'eis' => [
+        'required_by' => '2026-12-31',
     ],
 
     // How returns are filed (RMC 20-2026): taxpayers not on eFPS file

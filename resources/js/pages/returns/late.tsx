@@ -2,22 +2,29 @@ import { Head, Link } from '@inertiajs/react';
 import { ChevronLeft } from 'lucide-react';
 import { DownloadCard } from '@/components/download-card';
 import { Note } from '@/components/note';
+import { AbatementNote } from '@/components/returns/abatement-note';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso } from '@/lib/format';
 import { home } from '@/routes';
 import { pdf, show } from '@/routes/returns';
-import type { Penalty, ReturnLayout } from '@/types';
+import type { AbatementOffer, Penalty, ReturnLayout } from '@/types';
 
 type Props = {
     layout: ReturnLayout & { penalties: Penalty };
     dueDate: string;
     weekly: number;
+    abatement: AbatementOffer | null;
 };
 
 const percent = (rate: number) => `${Math.round(rate * 1000) / 10}%`;
 
-export default function PayingLate({ layout, dueDate, weekly }: Props) {
+export default function PayingLate({
+    layout,
+    dueDate,
+    weekly,
+    abatement,
+}: Props) {
     const args: [number, number, string] = [
         layout.year,
         layout.quarter,
@@ -122,6 +129,7 @@ export default function PayingLate({ layout, dueDate, weekly }: Props) {
                             surcharge (not 25%) and half the usual interest.
                         </Note>
                     )}
+                    {abatement && <AbatementNote offer={abatement} />}
                     <Note tone="warning" title="Estimate only">
                         A compromise penalty may be added by the BIR. Rates come
                         from your rule pack.

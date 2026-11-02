@@ -14,11 +14,15 @@ use App\Profiles\Enums\ClientsWithhold;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
+use App\Returns\Services\ReturnHistory;
 use App\Tax\Enums\Regime;
+use App\Tax\Enums\TaxpayerClassification;
+use App\Tax\Services\Abatement;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
 use App\Tax\Services\VatCalculator;
 use App\Transactions\Enums\CertificateStatus;
+use App\Transactions\Enums\TransactionType;
 use App\Transactions\Models\Transaction;
 use App\Withholding\Services\WithholdingAgent;
 use Carbon\CarbonImmutable;
@@ -85,6 +89,8 @@ class TaxObligations
         private Payroll $payroll,
         private CorporateTax $corporations,
         private CertificateMatcher $matcher,
+        private ReturnHistory $history,
+        private Abatement $abatement,
     ) {}
 
     /**
@@ -363,10 +369,63 @@ class TaxObligations
                 href: route('sworn.show', $y, absolute: false));
         }
 
+        foreach ($this->notices($profile, $year) as $item) {
+            $items[] = $item;
+        }
+
         $date = $this->calendar->incomeTaxDue($y + 1, 1)->toDateString();
         $items[] = $this->deadline($date, $date, 'Q1 '.($y + 1).' · tax method locks', 'decision', 'reminder', null, 'Decide', 'action');
 
         usort($items, fn (array $a, array $b) => strcmp($a['date'], $b['date']));
+
+        return $items;
+    }
+
+    /**
+     * Time-limited rules that reach this taxpayer, on the year they end:
+     * the micro taxpayers' abatement of back taxes (RR 4-2026), offered while
+     * a return due by its cut-off is unfiled; e-invoicing for online sellers
+     * that aren't micro.
+     *
+     * @param  YearResult  $year
+     * @return list<Deadline>
+     */
+    private function notices(TaxProfile $profile, array $year): array
+    {
+        $y = $year['year'];
+        $today = CarbonImmutable::now();
+        $items = [];
+        $until = CarbonImmutable::parse((string) config('tax.abatement.until'));
+
+        if ($until->year === $y && $today->lessThanOrEqualTo($until->endOfDay())) {
+            $cutoff = (string) config('tax.abatement.cases_as_of');
+            // The oldest return still unfiled from before the cut-off.
+            $back = collect($this->history->entries($profile, $today))
+                ->filter(fn (array $entry) => $entry['status'] === 'overdue' && $entry['due_date'] <= $cutoff)
+                ->sortBy('due_date')
+                ->first();
+            $offer = $back === null ? null : $this->abatement->offer(
+                $back['year'], CarbonImmutable::parse($back['due_date']), $this->engine->forYear($profile, $back['year'], $today)['gross'], $today,
+            );
+
+            if ($offer !== null) {
+                $items[] = $this->deadline($offer['until'], $offer['until'],
+                    'Clear back taxes for a '.$this->peso($offer['fee']).' fee · micro taxpayers', 'reminder', 'reminder', null, $offer['source'],
+                    href: route('returns.show', [$back['year'], $back['quarter'], $back['form']], absolute: false));
+            }
+        }
+
+        $eis = CarbonImmutable::parse((string) config('tax.eis.required_by'));
+        $sellsOnline = Transaction::query()->forYear($y)
+            ->where('type', TransactionType::Payment)
+            ->whereIn('counterparty', (array) config('import.marketplace.platforms'))
+            ->exists();
+
+        if ($eis->year === $y && $today->lessThanOrEqualTo($eis->endOfDay()) && $sellsOnline
+            && TaxpayerClassification::forYear($y, $year['gross']) !== TaxpayerClassification::Micro) {
+            $date = $eis->toDateString();
+            $items[] = $this->deadline($date, $date, 'Start e-invoicing through the BIR\'s EIS · online sellers', 'reminder', 'reminder', null, 'Reminder');
+        }
 
         return $items;
     }

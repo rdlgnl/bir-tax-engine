@@ -98,6 +98,14 @@ export type Explanation = {
 
 export type RulePack = { version: string; reviewed: boolean };
 
+/** RR 4-2026's one-time abatement for micro taxpayers. */
+export type AbatementOffer = {
+    until: string;
+    fee: number;
+    ceiling: number;
+    source: string;
+};
+
 export type NextPayment = {
     state: 'empty' | 'due' | 'overdue' | 'clear' | 'not_applicable';
     year: number;

@@ -2,13 +2,14 @@ import { Head, Link } from '@inertiajs/react';
 import { AlertTriangle, Download } from 'lucide-react';
 import { MarkFiledForm } from '@/components/mark-filed-form';
 import { Note } from '@/components/note';
+import { AbatementNote } from '@/components/returns/abatement-note';
 import { CopyValues } from '@/components/returns/copy-values';
 import { SectionCard } from '@/components/section-card';
 import { Step, StepList } from '@/components/step-list';
 import { formatDate, peso } from '@/lib/format';
 import { show as complianceShow } from '@/routes/compliance';
 import { late, preview, sawt, show, slsp } from '@/routes/returns';
-import type { ReturnLayout } from '@/types';
+import type { AbatementOffer, ReturnLayout } from '@/types';
 
 type Props = {
     layout: ReturnLayout;
@@ -17,6 +18,7 @@ type Props = {
     periodEnd: string;
     missingCertificates: { counterparty: string; amount: number }[];
     otherForms: string[];
+    abatement: AbatementOffer | null;
 };
 
 export default function ReturnShow({
@@ -26,6 +28,7 @@ export default function ReturnShow({
     periodEnd,
     missingCertificates,
     otherForms,
+    abatement,
 }: Props) {
     const name =
         layout.quarter === 4 && !['2551Q', '2550Q'].includes(layout.form)
@@ -67,6 +70,7 @@ export default function ReturnShow({
                             See the estimate
                         </Link>
                     </Note>
+                    {abatement && <AbatementNote offer={abatement} />}
                 </div>
             )}
 
@@ -91,6 +95,13 @@ export default function ReturnShow({
                             </span>
                         </span>
                     </Link>
+
+                    {layout.form === '2550Q' && (
+                        <Note title="Only the quarterly return is required">
+                            Filing the monthly 2550M is optional since 2023 (RMC
+                            52-2023).
+                        </Note>
+                    )}
 
                     <SectionCard>
                         <StepList>
