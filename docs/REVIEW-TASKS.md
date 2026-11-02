@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 79 of 97 done.
+Status: 80 of 97 done.
 
 ---
 
@@ -202,7 +202,7 @@ Still to build:
 ## Phase 3 — Architecture
 
 - [x] **A1 Pure calculator.** [TaxInputs](../app/Tax/Calculation/TaxInputs.php) holds a year's sales (their dates already on the right method), expenses, filings, the year's taxpayer, rules and due dates; [TaxCalculator](../app/Tax/Calculation/TaxCalculator.php) computes the year from them alone, no queries and no `config()`, tested without the app ([TaxCalculatorTest](../tests/Unit/TaxCalculatorTest.php)). `TaxCalculationService` gathers the inputs; its public methods are unchanged.
-- [ ] **A1b** The same shape for corporations (`CorporateTax`) and for the planning comparison and per-transaction effects, which still read the rule pack directly.
+- [x] **A1b** The same shape for corporations: [CorporateInputs](../app/Corporations/Services/CorporateInputs.php) and [CorporateCalculator](../app/Corporations/Services/CorporateCalculator.php), tested without the app; `CorporateTax` gathers. The planning comparison and per-transaction effects take the gathered rule values, so the rule pack is read only when gathering.
 - [x] **A2 Trace.** Each quarter of the calculator's result carries its `trace`: every step from gross to tax due and the percentage tax, with the rule it applies, its rate and the graduated band used (amounts round to the centavo, half up). The explanation and a return's rules used are read from it, and a filed return's snapshot keeps it with the figures.
 - [x] **A3 Amendments compare like with like.** A filed quarter is recomputed on the rule set kept with it (`TaxRules::pinned`), so only changed records call for an amendment, and the amended return uses the same rules. Returns filed before rule sets were kept use today's.
 - [x] **A4 Rule files split by kind.** The pack's parts are in [resources/rule-pack/](../resources/rule-pack/): rates, deadlines, holidays, form editions, tax codes, file formats and citations, each with its own version and sign-off under `parts`, listed on the BIR rules page. `config('tax.*')` reads them as one, unchanged.

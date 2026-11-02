@@ -99,6 +99,9 @@ class TaxCalculationService
         private TaxCalculator $calculator,
     ) {}
 
+    /** @var array<int, Rules> each year's rule values, once gathered */
+    private array $ruleValues = [];
+
     /**
      * Compute a year from what is recorded.
      *
@@ -201,7 +204,7 @@ class TaxCalculationService
      */
     private function ruleValues(int $year): array
     {
-        return [
+        return $this->ruleValues[$year] ??= [
             'brackets' => $this->rules->forYear($year)->brackets(),
             'percentage_rates' => array_combine([1, 2, 3, 4], array_map(fn (int $q) => $this->rules->forQuarter($year, $q)->rate('percentage_tax_rate'), [1, 2, 3, 4])),
             // The rules each step cites, for the trace.
@@ -313,21 +316,21 @@ class TaxCalculationService
     public function compare(float $income, int $expensePercent, ?float $salary = null, ?int $year = null): array
     {
         // Planning is for this year unless said otherwise.
-        $rules = $this->rules->forYear($year ?? CarbonImmutable::now()->year);
-        $brackets = $rules->brackets();
+        $rules = $this->ruleValues($year ?? CarbonImmutable::now()->year);
+        $brackets = $rules['brackets'];
         $gross = $this->cents($income);
         $expenses = $this->rate($gross, $expensePercent / 100);
         $salaryCents = $salary !== null ? $this->cents($salary) : 0;
-        $overLimit = $gross > $this->cents(config('tax.eight_percent.gross_limit'));
+        $overLimit = $gross > $rules['gross_limit'];
         // Above the limit the taxpayer must register for VAT instead.
-        $percentageTax = $overLimit ? 0 : $this->rate($gross, $rules->rate('percentage_tax_rate'));
+        $percentageTax = $overLimit ? 0 : $this->rate($gross, $rules['percentage_rates'][4]);
 
-        $exempt = $salaryCents > 0 ? 0 : min($gross, $this->cents(config('tax.eight_percent.exempt_amount')));
-        $osdTaxable = $gross - $this->rate($gross, config('tax.osd_rate'));
+        $exempt = $salaryCents > 0 ? 0 : min($gross, $rules['exempt_amount']);
+        $osdTaxable = $gross - $this->rate($gross, $rules['osd_rate']);
         $itemizedTaxable = max(0, $gross - $expenses);
 
         $options = [
-            $this->option('eight_percent', ! $overLimit, $exempt, $gross - $exempt, $this->rate($gross - $exempt, config('tax.eight_percent.rate')), 0),
+            $this->option('eight_percent', ! $overLimit, $exempt, $gross - $exempt, $this->rate($gross - $exempt, $rules['eight_percent_rate']), 0),
             $this->option('graduated_osd', true, 0, $osdTaxable, $this->stackedGraduated($salaryCents, $osdTaxable, $brackets), $percentageTax),
             $this->option('graduated_itemized', true, 0, $itemizedTaxable, $this->stackedGraduated($salaryCents, $itemizedTaxable, $brackets), $percentageTax),
         ];
@@ -361,7 +364,7 @@ class TaxCalculationService
      */
     private function incomeTax(TaxProfile $profile, int $gross, int $deductible, array $brackets): array
     {
-        return $this->calculator->incomeTax(YearTaxpayer::of($profile), $gross, $deductible, ['brackets' => $brackets] + $this->ruleValues(CarbonImmutable::now()->year));
+        return $this->calculator->incomeTax(YearTaxpayer::of($profile), $gross, $deductible, ['brackets' => $brackets] + $this->ruleValues($profile->yearView ?? CarbonImmutable::now()->year));
     }
 
     /**
@@ -374,7 +377,7 @@ class TaxCalculationService
      */
     private function totalTax(TaxProfile $profile, int $year, int $gross, int $deductible, int $percentageTax, array $brackets): int
     {
-        if ($profile->regime === Regime::EightPercent && $gross > $this->cents(config('tax.eight_percent.gross_limit'))) {
+        if ($profile->regime === Regime::EightPercent && $gross > $this->ruleValues($year)['gross_limit']) {
             $profile = $profile->onGraduatedRates($year);
         }
 
