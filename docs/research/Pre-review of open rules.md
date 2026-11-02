@@ -341,8 +341,131 @@ note.
 
 ---
 
-Batch still to come:
+## Batch 3 · Withholding, payroll, filing, books
 
-- **Batch 3, withholding and filing:** nil 1601-EQ and 1604-E, 2316 item 29,
-  payroll periods, registration dates, file layouts, 2027 holidays, the EIS
-  circular, chart of accounts, clothing ₱7,000.
+Sources for batch 3:
+
+- The BIR's 2316 (September 2021), items 29–42.
+- Secondary: KPMG on RR 29-2025 (de minimis); GMA News on Proclamation
+  No. 1427, s. 2026 (2027 holidays); news reports and the BIR's press
+  release on RMC 98-2026 (EIS). The Official Gazette and PCO pages
+  refused automated reading.
+- Earlier research on no-payment returns:
+  [notes/q5](notes/q5_withholding_and_nil_returns.md).
+
+| #   | Rule                                                | Where                                                                                                  | Verdict                | Basis                                      | Changed   |
+| --- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------- | ------------------------------------------ | --------- |
+| D1  | 2027 holidays                                       | [holidays.php](../../resources/rule-pack/holidays.php)                                                 | **Incomplete** → fixed | Proclamation No. 1427, s. 2026 (secondary) | Yes       |
+| D2  | 2316 item 29 for pay of ₱250,000 or less            | [Form2316Items](../../app/Returns/Forms/Items/Form2316Items.php)                                       | Correct                | Form 2316 (September 2021)                 | Note only |
+| D3  | De minimis limits from January 6, 2026              | [rates.php `dated`](../../resources/rule-pack/rates.php)                                               | Correct                | RR 29-2025 (secondary)                     | Note only |
+| D4  | De minimis clothing ₱7,000 during 2025              | same                                                                                                   | No clear basis found   | RR 4-2025's effective date not found       | No        |
+| D5  | EIS by December 31, 2026, micro taxpayers excluded  | [rates.php `eis`](../../resources/rule-pack/rates.php)                                                 | Correct                | RMC 98-2026                                | Note only |
+| D6  | Income tax paid as owner's drawings                 | [GeneralLedger](../../app/Books/Services/GeneralLedger.php)                                            | Correct                | NIRC Sec. 34(C)(1)(a)                      | Note only |
+| D7  | No-payment 0619-E every month from registration     | [TaxObligations](../../app/Compliance/Services/TaxObligations.php)                                     | Correct                | RMC 12-2015, RMC 28-2017 (secondary)       | No        |
+| D8  | No-payment 1601-EQ and 1604-E                       | same                                                                                                   | No clear basis found   | —                                          | No        |
+| D9  | New hire with a previous employer: months averaged  | [Payroll](../../app/Payroll/Services/Payroll.php)                                                      | No clear basis found   | RR 2-98 Sec. 2.79(B)(5)(a) not read        | No        |
+| D10 | When withholding registration began, for both kinds | [WithholdingAgent](../../app/Withholding/Services/WithholdingAgent.php), Payroll                       | Not a rule: app gap    | —                                          | No        |
+| D11 | QAP, alphalist, SAWT and SLSP file layouts          | [codes.php](../../resources/rule-pack/codes.php), [formats.php](../../resources/rule-pack/formats.php) | No clear basis found   | BIR's alphalist/RELIEF specs not read      | No        |
+| D12 | Filing channel (eBIRForms; paper 1701-MS only)      | [rates.php `filing`](../../resources/rule-pack/rates.php)                                              | Stays a yearly check   | RMC 20-2026                                | No        |
+
+### D1 · 2027 holidays: incomplete, fixed
+
+Proclamation No. 1427, s. 2026 (signed September 8, 2026), as GMA News
+lists it, gives:
+
+- **Regular holidays:** January 1, March 25 and 26, April 9, May 1, June 12,
+  August 30, November 30, December 25 and December 30.
+- **Special non-working days:** August 21, November 1, December 8 and
+  December 31, with February 6 (Chinese New Year), March 27, November 2
+  and December 24 added.
+- **Special working day:** February 25 (EDSA). It doesn't move deadlines.
+
+The app had every date except **February 6** and **November 2**, which are
+now added. The Eid holidays will be proclaimed later. Practice
+(RMC 65-2016, as the app applies it) moves a deadline that falls on any of
+these days to the next working day.
+
+### D2 · 2316 item 29: correct
+
+The 2316 (September 2021) (**Form**) labels item 29 "Basic Salary
+(including the exempt P250,000 & below) or the Statutory Minimum Wage of
+the MWE". It sits under non-taxable compensation; item 39 is basic salary
+under taxable compensation. The app puts basic pay in item 29 for a minimum
+wage earner or for a year's pay of ₱250,000 or less, and in item 39
+otherwise.
+
+### D3–D4 · De minimis: 2026 correct; 2025 open
+
+RR 29-2025 (dated October 27, 2025; in effect January 6, 2026, per KPMG)
+sets these limits, which the app already applies from that date:
+
+| Benefit                              | Limit                    |
+| ------------------------------------ | ------------------------ |
+| Rice subsidy                         | ₱2,500 a month           |
+| Uniform and clothing                 | ₱8,000 a year            |
+| Medical cash allowance to dependents | ₱2,000 a semester (₱333) |
+| Laundry                              | ₱400 a month             |
+
+The app lists only these four. KPMG's table also covers:
+
+- actual medical assistance, achievement awards, and CBA or productivity
+  incentives: ₱12,000 a year each;
+- Christmas and anniversary gifts: ₱6,000 a year;
+- unused vacation leave converted to cash: up to 12 days a year;
+- overtime and night-shift meals: up to 30% of the basic minimum wage.
+
+RR 4-2025 raised clothing to ₱7,000 earlier in 2025. We didn't find when
+it took effect, so 2025 keeps ₱6,000. **For the CPA:** RR 4-2025's
+effective date, and whether the app should list the other benefits.
+
+### D5 · E-invoicing: correct
+
+RMC 98-2026 (September 22, 2026) requires small, medium and large
+taxpayers in e-commerce or internet sales, among others, to issue
+electronic invoices by December 31, 2026. Micro taxpayers are not covered.
+That comes from the BIR's press release and news reports; the RMC itself
+wasn't read in full. The app's reminder matches. The number is now cited.
+
+### D6 · Income tax as drawings: correct
+
+NIRC Sec. 34(C)(1)(a) (**Law**) excludes "the income tax provided for under
+this Title" from deductible taxes. A sole proprietor's income tax is
+therefore not a business expense. The ledger books it as owner's drawings.
+The chart of accounts as a whole and the payroll entries remain for the
+CPA.
+
+### D7–D8 · No-payment returns
+
+RMC 12-2015 and RMC 28-2017, as summarized by KPMG and others, require
+business taxpayers to file no-payment returns electronically rather than
+skip them. One summary names the monthly 0619-E. The app applies the same
+rule to the 1601-EQ and 1604-E, but no source we found says so. **For the
+CPA:** confirm the quarterly 1601-EQ and annual 1604-E with nothing
+withheld.
+
+### D9–D10 · Payroll and registration
+
+- **D9:** for a new hire who had another employer earlier in the year
+  (RR 2-98 Sec. 2.79(B)(5)(a)), the app averages over the months from
+  January. The section's text wasn't read.
+- **D10:** the app takes the start of withholding from the first payment
+  withheld on, or the BIR registration date. It doesn't ask when the
+  withholding tax types were added to the COR. This is a missing input, not
+  a rule question; a field for it would settle both notes.
+
+### D11–D12 · File layouts and the filing channel
+
+The `.DAT` layouts for the QAP, the 1604-E alphalist, the SAWT and the
+RELIEF/SLSP follow the alphalist and RELIEF data entry modules as the app
+understands them. The BIR's technical specifications weren't read, so each
+file should be tested by validating it in the BIR's module before relying
+on it.
+
+The filing channel follows RMC 20-2026 and is meant to be checked each
+year.
+
+---
+
+All three batches are done. What's left for the CPA is every
+"No clear basis found" above, with its question, plus the sign-off of each
+rule-pack part.

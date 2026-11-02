@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
  * pay after contributions is exempt (item 29) for a minimum wage earner
  * and for pay of ₱250,000 or less for the year, otherwise taxable (39);
  * contributions are on their own line (36), so item 29 leaves them out.
- * REVIEW: item 29 for pay of ₱250,000 or less follows the form's label.
+ * Item 29 is "Basic Salary (including the exempt P250,000 & below) or the
+ * Statutory Minimum Wage of the MWE" (2316, September 2021).
  *
  * @phpstan-import-type Values from FormItems
  * @phpstan-import-type EmployeeYear from Payroll
