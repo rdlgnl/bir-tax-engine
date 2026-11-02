@@ -38,6 +38,7 @@ class FileReturnController extends Controller
         private ReturnForm $returns,
         private ReturnHistory $history,
         private FilingCalendar $calendar,
+        private TaxCalculationService $engine,
     ) {}
 
     /**
@@ -82,8 +83,10 @@ class FileReturnController extends Controller
         $periodEnd = CarbonImmutable::create($year, $quarter * 3)->endOfMonth();
         $layout = $this->returns->layout($snapshot);
 
-        if ($quarter === 4 && $form === $calendar->incomeTaxForm($profile, 4)) {
-            return $this->annual($profile, $snapshot, $layout, $transactions, $today, $periodEnd);
+        [$taxpayer, $forms] = $this->quarter($profile, $year, $quarter);
+
+        if ($quarter === 4 && $form === $snapshot['figures']['form']) {
+            return $this->annual($taxpayer, $snapshot, $layout, $transactions, $today, $periodEnd);
         }
 
         return Inertia::render('returns/show', [
@@ -98,7 +101,7 @@ class FileReturnController extends Controller
             'missingCertificates' => in_array($form, ['2551Q', '2550Q'], true) ? [] : $obligations->checklist(
                 $profile, $year, $snapshot['figures'], $transactions, $today,
             )['missing_certificates'],
-            'otherForms' => array_values(array_diff($this->history->formsFor($profile, $quarter), [$form])),
+            'otherForms' => array_values(array_diff($forms, [$form])),
         ]);
     }
 
@@ -139,7 +142,7 @@ class FileReturnController extends Controller
                 ->values()
                 ->all(),
             'scans' => Certificate::query()->where('year', $snapshot['year'])->whereNotNull('file_path')->count(),
-            'alternativeForm' => $this->calendar->alternativeAnnualForm($profile),
+            'alternativeForm' => $this->calendar->alternativeAnnualForm($profile) !== $snapshot['form'] ? $this->calendar->alternativeAnnualForm($profile) : null,
         ]);
     }
 
@@ -200,19 +203,20 @@ class FileReturnController extends Controller
         $profile = $this->ensureForm($year, $quarter, $form);
         $filing = $this->history->filingFor($year, $quarter, $form);
         $snapshot = $filing ? $this->returns->snapshotOf($filing, $profile) : $this->returns->snapshot($profile, $year, $quarter, $form);
+        [$taxpayer, $quarterForms] = $this->quarter($profile, $year, $quarter);
 
         return Inertia::render('returns/preview', [
             'layout' => $this->returns->layout($snapshot),
             'filedOn' => $filing?->filed_on->toDateString(),
             'missingDetails' => $forms->missingDetails($snapshot),
-            'alternativeForm' => $quarter === 4 && $form !== $this->calendar->alternativeAnnualForm($profile)
-                ? $this->calendar->alternativeAnnualForm($profile)
+            'alternativeForm' => $quarter === 4 && $form !== $this->calendar->alternativeAnnualForm($taxpayer)
+                ? $this->calendar->alternativeAnnualForm($taxpayer)
                 : null,
             // On graduated rates the 1701Q and the 2551Q go in together.
             'alsoFile' => array_map(fn (string $other) => [
                 'form' => $other,
                 'payable' => $this->returns->layout($this->returns->snapshot($profile, $year, $quarter, $other))['payable'],
-            ], array_values(array_diff($this->history->formsFor($profile, $quarter), [$form]))),
+            ], array_values(array_diff($quarterForms, [$form]))),
         ]);
     }
 
@@ -239,10 +243,10 @@ class FileReturnController extends Controller
     private function ensureForm(int $year, int $quarter, string $form): TaxProfile
     {
         $profile = TaxProfile::current();
-        $forms = $this->history->formsFor($profile, $quarter);
+        [$taxpayer, $forms] = $this->quarter($profile, $year, $quarter);
 
         if ($quarter === 4) {
-            $forms[] = $this->calendar->alternativeAnnualForm($profile);
+            $forms[] = $this->calendar->alternativeAnnualForm($taxpayer);
         }
 
         abort_unless(
@@ -252,5 +256,18 @@ class FileReturnController extends Controller
         );
 
         return $profile;
+    }
+
+    /**
+     * How a quarter is taxed (the year's method, on graduated rates once an
+     * 8% year passed ₱3,000,000) and the forms it's filed on.
+     *
+     * @return array{TaxProfile, list<string>}
+     */
+    private function quarter(TaxProfile $profile, int $year, int $quarter): array
+    {
+        $result = $this->engine->forYear($profile, $year);
+
+        return [$this->engine->taxpayerFor($profile, $result, $quarter), $this->history->formsForQuarter($profile, $result, $quarter)];
     }
 }

@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 32 of 92 done.
+Status: 33 of 93 done.
 
 ---
 
@@ -185,10 +185,11 @@ Done:
 - [x] The ₱3M computerized-books rule is removed: computerized books are required only of large taxpayers (RR 9-2009).
 - [x] E-marketplace withholding note: WI760 / WC760, RR 16-2023 with the RMC 8-2024 start date.
 - [x] Payroll: the BIR's monthly withholding table (RR 11-2018 Annex "D" and "E"), the cumulative average method for a new hire with an earlier employer this year, and the annualized computation only at year end. Contributions, de minimis benefits (RR 29-2025 limits listed from January 6, 2026), the 13th month up to ₱90,000 and a minimum wage are kept out of taxable pay, on the 1601-C (items 15–20, 23) and the 2316 (items 10, 11, 22, 25B, 29, 34–36, 48). Replaces M3.
+- [x] 8% to graduated: once an 8% year's sales exceed ₱3M, graduated rates (itemized) apply from that quarter with the 8% paid credited; that quarter's 2551Q carries percentage tax from January to the month passed; the annual return is the 1701; a calendar reminder to register for VAT by the end of the next month (RR 8-2018). The app no longer stops at ₱3M.
+- [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
 
 Still to build:
 
-- [ ] 8% to graduated: crossing ₱3M in the year switches the year to graduated and recomputes the earlier quarters (RR 8-2018 Sec. 3(D)), instead of stopping.
 - [ ] No-payment returns: a registered tax type is filed every period, even at zero (0619-E, 1601-EQ, 2551Q, 1701Q, 1702Q).
 - [ ] 5% professional fee rate (WI010) only when the payee is non-VAT and declared under ₱3M (RR 14-2018).
 - [ ] Financial statements: graduated with itemized attaches them, audited above ₱3M of gross sales (NIRC Sec. 232(A)); OSD and 8% need none. Replaces H6.

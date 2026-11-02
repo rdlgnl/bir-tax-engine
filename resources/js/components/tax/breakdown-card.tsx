@@ -16,7 +16,7 @@ type Props = {
 
 /** "How we calculated it": every line of the cumulative computation. */
 export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
-    const eightPercent = year.regime === 'eight_percent';
+    const eightPercent = quarter.regime === 'eight_percent';
     const priorQuarters =
         quarter.quarter === 1 ? null : `Q1–Q${quarter.quarter - 1}`;
     const payable = quarter.status === 'due' || quarter.status === 'overdue';
@@ -45,7 +45,7 @@ export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
                 ) : (
                     <Line
                         label={
-                            year.deduction_method === 'itemized'
+                            quarter.deduction_method === 'itemized'
                                 ? 'Less: expenses with invoices'
                                 : 'Less: flat 40% deduction'
                         }

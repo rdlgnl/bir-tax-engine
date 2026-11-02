@@ -48,7 +48,8 @@ class HomeController extends Controller
             'focus' => $focus,
             'yearStatus' => $year['status'],
             'yearGross' => $year['gross'],
-            'regime' => $profile->regime?->value,
+            // The focused quarter's: an 8% year turns graduated once it passes ₱3,000,000.
+            'regime' => $focus['regime'],
             'vatRegistered' => $profile->vat_registered,
             'withholdingAgent' => $profile->withholding_agent,
             // A job alongside the business: the salary's tax is the employer's until the annual return.

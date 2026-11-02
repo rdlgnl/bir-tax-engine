@@ -62,12 +62,13 @@ test('last year’s annual return is due in the first months', function () {
         ->where('nextPayment.quarter.due_date', '2027-04-15'));
 });
 
-test('home refuses to guess once 8% sales pass ₱3,000,000', function () {
+test('home shows graduated rates once 8% sales pass ₱3,000,000', function () {
     $this->travelTo(CarbonImmutable::parse('2026-04-10'));
     TaxProfile::factory()->create();
     Transaction::factory()->on('2026-03-01')->create(['amount' => 3_100_000]);
 
     $this->get('/home')->assertInertia(fn (Assert $page) => $page
-        ->where('nextPayment.state', 'cannot_compute')
-        ->where('yearStatus', 'cannot_compute'));
+        ->where('nextPayment.state', 'due')
+        ->where('yearStatus', 'ok')
+        ->where('regime', 'graduated'));
 });

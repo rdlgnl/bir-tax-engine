@@ -66,7 +66,7 @@ use Illuminate\Support\Str;
  *     unmatched: array{id: int, tax_withheld: float}|null,
  * }
  * @phpstan-type NextPayment array{
- *     state: 'empty'|'cannot_compute'|'due'|'overdue'|'clear'|'not_applicable',
+ *     state: 'empty'|'due'|'overdue'|'clear'|'not_applicable',
  *     year: int,
  *     quarter: QuarterResult|null,
  *     estimate: float|null,
@@ -107,10 +107,6 @@ class TaxObligations
 
         if ($year['status'] === 'not_applicable') {
             return [...$result, 'state' => 'not_applicable'];
-        }
-
-        if ($year['status'] === 'cannot_compute') {
-            return [...$result, 'state' => 'cannot_compute'];
         }
 
         // Last year's annual return is still payable in the first months.
@@ -206,6 +202,13 @@ class TaxObligations
                 amount: $ended ? $quarter['percentage_tax'] : null,
                 note: $ended ? null : 'Estimate',
             );
+        }
+
+        // Past ₱3,000,000 on 8%: register for VAT within the next month (RR 8-2018).
+        if ($year['switched'] !== null && ! $profile->vat_registered) {
+            $date = $year['switched']['register_by'];
+            $items[] = $this->deadline($date, $date, 'Register for VAT · sales passed ₱3,000,000', 'reminder', 'reminder', null,
+                'VAT from '.CarbonImmutable::parse($year['switched']['vat_from'])->format('M j'), href: route('registration', absolute: false));
         }
 
         if ($profile->vat_registered) {
@@ -523,11 +526,11 @@ class TaxObligations
                 "{$due} · rule pack ".config('tax.version'), action: 'tax'),
             $this->item('certificates', "Tax certificates: {$received} of {$withheld->count()}", $received === $withheld->count(),
                 $certificatesDetail, warning: $missing !== []),
-            $profile->regime === Regime::Graduated
+            $quarter['percentage_tax'] !== null
                 ? $this->item('percentage_tax', 'Percentage tax filed (2551Q)',
                     Filing::query()->where('year', $year)->where('quarter', $quarter['quarter'])->where('form', '2551Q')->exists(),
                     $this->peso((float) $quarter['percentage_tax']).' · due '.$this->calendar->percentageTaxDue($year, $quarter['quarter'])->format('M j'))
-                : $this->item('percentage_tax', 'No percentage tax due', true, '8% option replaces 2551Q'),
+                : $this->item('percentage_tax', 'No percentage tax due', true, $quarter['regime'] === Regime::Graduated->value ? 'VAT applies after passing ₱3,000,000' : '8% option replaces 2551Q'),
             $this->item('filed', 'Return filed', $filing !== null,
                 $filing ? "Filed {$filing->filed_on->format('M j')}" : "{$quarter['form']} · due {$dueOn}",
                 action: $filing === null && $ended ? 'file' : null),

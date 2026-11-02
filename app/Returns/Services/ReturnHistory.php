@@ -26,6 +26,8 @@ use Carbon\CarbonImmutable;
  *     filed_on: string|null,
  *     paid_on: string|null,
  * }
+ *
+ * @phpstan-import-type YearResult from TaxCalculationService
  */
 class ReturnHistory
 {
@@ -34,6 +36,24 @@ class ReturnHistory
         private FilingCalendar $calendar,
         private VatCalculator $vat,
     ) {}
+
+    /**
+     * The forms filed for one quarter of a computed year: the quarter's
+     * method decides, and a 2551Q only where percentage tax is owed (in a
+     * year that left 8%, the quarter it did).
+     *
+     * @param  YearResult  $result
+     * @return list<string>
+     */
+    public function formsForQuarter(TaxProfile $profile, array $result, int $quarter): array
+    {
+        $forms = $this->formsFor($this->engine->taxpayerFor($profile, $result, $quarter), $quarter);
+        // The income tax form the engine chose: a year that left 8% files the 1701.
+        $forms[0] = $result['quarters'][$quarter]['form'];
+        $percentageTax = $result['quarters'][$quarter]['percentage_tax'] !== null;
+
+        return array_values(array_filter($forms, fn (string $form) => $form !== '2551Q' || $percentageTax));
+    }
 
     /**
      * The forms a taxpayer files for one period.
@@ -85,7 +105,7 @@ class ReturnHistory
                     continue;
                 }
 
-                foreach ($this->formsFor($taxpayer, $quarter) as $form) {
+                foreach ($this->formsForQuarter($profile, $result, $quarter) as $form) {
                     $filing = $filings->get("{$year}-{$quarter}-{$form}");
                     $percentageTax = $form === '2551Q';
                     $isVat = $form === '2550Q';

@@ -17,6 +17,7 @@ use Illuminate\Support\Number;
  * it, for the "Why is this my tax?" panel.
  *
  * @phpstan-import-type QuarterResult from TaxCalculationService
+ * @phpstan-import-type Switch from TaxCalculationService
  *
  * @phpstan-type Rule array{id: string, version: int, title: string, basis: string, effective: string, detail: string|null}
  */
@@ -27,6 +28,7 @@ class TaxExplainer
     /**
      * @param  QuarterResult  $quarter
      * @param  Collection<int, Transaction>  $transactions  the year's transactions
+     * @param  Switch|null  $switched  when an 8% year passed ₱3,000,000
      * @return array{
      *     reasons: list<array{text: string, source: string, applies: bool}>,
      *     rules: list<Rule>,
@@ -34,12 +36,21 @@ class TaxExplainer
      *     warnings: list<string>,
      * }
      */
-    public function explain(TaxProfile $profile, int $year, array $quarter, Collection $transactions, CarbonImmutable $today): array
+    public function explain(TaxProfile $profile, int $year, array $quarter, Collection $transactions, CarbonImmutable $today, ?array $switched = null): array
     {
         $eightPercent = $profile->regime === Regime::EightPercent;
+        $reasons = $this->reasons($profile, $year, $quarter, $eightPercent);
+
+        if ($switched !== null && $quarter['quarter'] >= $switched['quarter']) {
+            array_splice($reasons, 2, 0, [[
+                'text' => 'Sales passed '.$this->peso(config('tax.eight_percent.gross_limit'), short: true).' in '.CarbonImmutable::create($year, $switched['month'])->format('F').', so graduated rates apply from Q'.$switched['quarter'],
+                'source' => 'transactions',
+                'applies' => true,
+            ]]);
+        }
 
         return [
-            'reasons' => $this->reasons($profile, $year, $quarter, $eightPercent),
+            'reasons' => $reasons,
             'rules' => $this->rules($profile, $year, $quarter, $eightPercent),
             'skipped' => $this->skipped($year, $quarter['quarter'], $eightPercent),
             'warnings' => $this->warnings($year, $quarter, $transactions, $today, $eightPercent),

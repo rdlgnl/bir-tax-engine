@@ -1,8 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
+import { Note } from '@/components/note';
 import { BreakdownCard } from '@/components/tax/breakdown-card';
 import { QuarterTable } from '@/components/tax/quarter-table';
 import { WhyPanel } from '@/components/tax/why-panel';
-import { formatDate, peso, periodLabel } from '@/lib/format';
+import { formatDate, monthLong, peso, periodLabel } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/tax';
 import type { Explanation, RulePack, YearResult } from '@/types';
@@ -82,33 +83,46 @@ export default function TaxShow({
                 </div>
             </header>
 
-            {result.status === 'cannot_compute' ? (
-                <p className="rounded-card border bg-card p-6 text-[15px]">
-                    Your {year} sales passed ₱3,000,000, which ends the 8%
-                    option for the whole year. The rule for moving to graduated
-                    rates mid-year isn't in your rule pack yet, so we won't
-                    guess.
-                </p>
-            ) : (
-                <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                    <div className="flex flex-col gap-5">
-                        <BreakdownCard
-                            year={result}
-                            quarter={current}
-                            purelySelfEmployed={purelySelfEmployed}
-                        />
-                        <QuarterTable
-                            quarters={Object.values(result.quarters)}
-                            selected={quarter}
-                        />
-                    </div>
-                    <WhyPanel
-                        explanation={explanation}
-                        regimeLabel={regimeLabel}
-                        rulePack={rulePack}
-                    />
+            {result.switched && (
+                <div className="mb-5">
+                    <Note
+                        tone="warning"
+                        title={`Your ${year} sales passed ₱3,000,000 in ${monthLong(result.switched.month)}`}
+                    >
+                        From Q{result.switched.quarter} your income tax is on
+                        graduated rates, with expenses that have invoices
+                        deducted, and the 8% you paid before is credited.
+                        Percentage tax on your sales from January to{' '}
+                        {monthLong(result.switched.month)} goes on your Q
+                        {result.switched.quarter} 2551Q, with no penalty if paid
+                        on time. Sales from{' '}
+                        {formatDate(result.switched.vat_from, 'long')} are
+                        subject to 12% VAT: register for VAT by{' '}
+                        {formatDate(result.switched.register_by, 'long')}.
+                        BuwisBuddy doesn't compute VAT for part of a year yet,
+                        so ask your accountant about those sales.
+                    </Note>
                 </div>
             )}
+
+            <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="flex flex-col gap-5">
+                    <BreakdownCard
+                        year={result}
+                        quarter={current}
+                        purelySelfEmployed={purelySelfEmployed}
+                    />
+                    <QuarterTable
+                        quarters={Object.values(result.quarters)}
+                        selected={quarter}
+                    />
+                </div>
+                <WhyPanel
+                    explanation={explanation}
+                    regimeLabel={regimeLabel}
+                    rulePack={rulePack}
+                />
+            </div>
         </>
     );
 }
