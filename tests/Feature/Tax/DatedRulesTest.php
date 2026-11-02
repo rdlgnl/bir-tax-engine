@@ -91,7 +91,7 @@ test('payroll withholding uses the year’s table', function () {
         ->and(app(Payroll::class)->monthlyWithholding(30_000, 2026))->toBe(1375.05);
 });
 
-test('a corporation’s MCIT takes each quarter’s rate, and years before 2021 aren’t computed', function () {
+test('a corporation’s 2023 MCIT is on the months’ average rate, and years before 2021 aren’t computed', function () {
     $corporation = Corporation::query()->create(['name' => 'Bayani Creative Studio Inc.', 'operations_began' => 2018, 'total_assets' => 30_000_000, 'deduction_method' => 'itemized']);
 
     foreach ([1, 2, 3, 4] as $quarter) {
@@ -100,12 +100,20 @@ test('a corporation’s MCIT takes each quarter’s rate, and years before 2021 
 
     $tax = app(CorporateTax::class);
 
-    // ₱1M gross income a quarter: 1% for Q1 and Q2, 2% for Q3 and Q4.
+    // ₱1M gross income a quarter. 1% for January to June, 2% after: on
+    // ₱3M to September, (6 × 1% + 3 × 2%) ÷ 9; the year at 1.5% (RMC 69-2023).
     expect($tax->quarter($corporation, 2023, 2)['mcit'])->toBe(20_000.0)
         ->and($tax->quarter($corporation, 2023, 3)['mcit'])->toBe(40_000.0)
         ->and($tax->annual($corporation, 2023)['mcit'])->toBe(60_000.0)
+        ->and($tax->mcitAverageRate(2023))->toBe(0.015)
         ->and($tax->covers(2020))->toBeFalse()
         ->and($tax->covers(2021))->toBeTrue();
 
     $this->put('/corporation/2020/1', ['sales' => 1, 'cost_of_sales' => 0, 'other_income' => 0, 'deductions' => 0, 'withheld' => 0])->assertNotFound();
+
+    // Uneven income: all of it in the first half still takes the year's 1.5%, not 1%.
+    $corporation->quarters()->where('quarter', '>', 2)->update(['sales' => 0, 'cost_of_sales' => 0, 'deductions' => 0]);
+    $corporation->quarters()->where('quarter', '<=', 2)->update(['sales' => 2_500_000]);
+
+    expect($tax->annual($corporation, 2023)['mcit'])->toBe(60_000.0);
 });

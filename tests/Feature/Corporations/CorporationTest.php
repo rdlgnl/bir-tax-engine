@@ -269,7 +269,7 @@ test('the corporation is set up, shown, filled in, filed, on the calendar and in
         ->where('annual.payable', 70000)
         ->where('rateNote.title', 'Why 20%, not 25%')
         ->where('mcitNote.title', 'Minimum corporate income tax applies from 2026')
-        ->where('mcitNote.body', '2026 is the 4th year after operations began (2022), so each quarter compares 2% of gross income with the regular tax.')
+        ->where('mcitNote.body', '2026 is the 4th year after it registered with the BIR (2022), so each quarter compares 2% of gross income with the regular tax.')
         ->where('alsoDue', [
             ['title' => 'October withholding (0619-E)', 'detail' => 'Payments to suppliers', 'date' => '2026-11-10'],
             ['title' => 'October payroll (1601-C)', 'detail' => '5 employees', 'date' => '2026-11-10'],

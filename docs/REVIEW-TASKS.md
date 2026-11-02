@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 43 of 92 done.
+Status: 46 of 94 done.
 
 ---
 
@@ -160,10 +160,9 @@ Do not let anyone rely on the app for real filings until these are ticked:
 ### M4 · Corporations: scope and gaps
 
 - [ ] Decide: launch, label as beta, or hide.
-- [ ] If kept:
-    - NOLCO and the excess MCIT carry-forward
-    - the 1% MCIT period, via C1
-    - **Needs verification:** the quarterly 20% test, which today uses taxable income to date
+- [x] NOLCO and the excess MCIT carry-forward, on the 1702-RT. ✔ [CarryForwardTest.php](../tests/Feature/Corporations/CarryForwardTest.php)
+- [x] The 1% MCIT period, via C1, and 2023 at the months' average (1.5%).
+- [ ] **Needs verification:** the quarterly 20% test, which uses taxable income to date. The research found no BIR guidance; year to date is the most defensible reading. Label the quarterly rate provisional.
 
 ### M10 · Excess input VAT stops at year end
 
@@ -188,12 +187,12 @@ Done:
 - [x] No-payment returns: a withholding agent's 0619-E, 1601-EQ and 1604-E are listed every period from when withholding started, at ₱0 with "No payment"; the withholding page marks earlier periods and links to removing withholding from the registration (RMC 12-2015). The 1701Q and 2551Q were already listed at ₱0.
 - [x] Financial statements on the annual return by deduction method, audited above ₱3M (H6); filing channel: e-file by default, paper only for the 1701-MS (H3); the 1701-MS only for micro and small taxpayers, medium ones on the 1701A (8% or OSD) or 1701, by the class the BIR assigned or the estimate from sales.
 - [x] Notices: the RR 4-2026 abatement for micro taxpayers with returns due by the end of 2025 still unfiled, on the late return and the calendar until December 31, 2026; e-invoicing (EIS) by December 31, 2026 for online sellers that aren't micro; the 2550M is optional (RMC 52-2023); the 5% professional fee rate only for a payee who isn't VAT-registered (RR 14-2018).
+- [x] Corporations: MCIT at the months' average (1.5% for 2023, RMC 69-2023); MCIT from the fourth year after BIR registration; NOLCO (three years, five for 2020–2021) and excess MCIT (three years) carried on the 1702-RT.
 - [ ] VAT for part of a year: after the switch, sales from the next month are VAT-able. The app says so but doesn't compute that VAT; registration is per year.
 
 Still to build:
 
 - [ ] No-payment 1702Q for a corporation with no income, and a 1601-C for months with no employees while registered for withholding on compensation (the app doesn't record that registration).
-- [ ] Corporations: MCIT at the monthly average for 2023 (1.5%), MCIT from the fourth year after BIR registration, NOLCO and excess-MCIT ledgers. Feeds M4.
 - [ ] Income timing: percentage tax and VAT on the invoice date only from April 27, 2024; income tax follows the books' method for the year. Settles H2.
 - [ ] Holidays back to 2018; the annual ITR's second installment; 0619-E on eFPS by the 15th.
 

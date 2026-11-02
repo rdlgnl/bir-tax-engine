@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $zip_code
  * @property string|null $contact_number
  * @property string|null $email
- * @property int $operations_began
+ * @property int $operations_began the year it registered with the BIR, from which MCIT counts (RR 9-98)
  * @property string $total_assets
  * @property 'itemized'|'osd' $deduction_method
  * @property bool $vat_registered

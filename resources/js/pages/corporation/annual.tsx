@@ -165,9 +165,21 @@ export default function CorporationAnnual({
                                             : 'Less: deductions (itemized)',
                                         value: formAmount(f.deductions),
                                     },
+                                    ...(annual.nolco > 0
+                                        ? [
+                                              {
+                                                  label: "Less: earlier years' losses (NOLCO)",
+                                                  value: formAmount(
+                                                      annual.nolco,
+                                                  ),
+                                              },
+                                          ]
+                                        : []),
                                     {
                                         label: 'Taxable income',
-                                        value: formAmount(f.taxable_income),
+                                        value: formAmount(
+                                            annual.net_taxable_income,
+                                        ),
                                     },
                                     {
                                         label: `Regular income tax (${percent(annual.rate)})`,
@@ -193,6 +205,16 @@ export default function CorporationAnnual({
                                             annual.quarterly_payments,
                                         ),
                                     },
+                                    ...(annual.excess_mcit_applied > 0
+                                        ? [
+                                              {
+                                                  label: 'Less: excess MCIT from earlier years',
+                                                  value: formAmount(
+                                                      annual.excess_mcit_applied,
+                                                  ),
+                                              },
+                                          ]
+                                        : []),
                                     {
                                         label: 'Less: creditable tax withheld',
                                         value: formAmount(annual.withheld),
@@ -225,6 +247,23 @@ export default function CorporationAnnual({
                     >
                         Attach audited financial statements and the SAWT.
                     </Note>
+
+                    {annual.carried.length > 0 && (
+                        <Note title="Carried from earlier years">
+                            <ul className="flex flex-col gap-1">
+                                {annual.carried.map((c) => (
+                                    <li key={`${c.kind}-${c.year}`}>
+                                        {c.kind === 'nolco'
+                                            ? `${c.year} loss`
+                                            : `${c.year} excess MCIT`}
+                                        : {peso(c.available)} left,{' '}
+                                        {peso(c.applied)} used this year, usable
+                                        through {c.last_year}.
+                                    </li>
+                                ))}
+                            </ul>
+                        </Note>
+                    )}
 
                     {missing.length > 0 && (
                         <Note tone="warning" title="Blank on the form">
