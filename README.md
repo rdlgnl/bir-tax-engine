@@ -4,7 +4,7 @@ A BIR tax app for Philippine freelancers and sole proprietors, built from the ap
 
 Laravel 13 · React 19 · TypeScript · Inertia 3 · Tailwind CSS 4 · shadcn/ui · SQLite
 
-> **Tax rules are not yet reviewed.** Every rate, threshold and deadline lives in `config/tax.php` (rule pack `2026.10`). It was encoded from the NIRC as amended by TRAIN and checked against the figures on the approved screens, but the design's "blueprint doc" was not available. Have a tax professional review it, then set `reviewed` to `true`. When you change the pack, bump `version` and describe the change under `changes`: the app shows it on its "what changed" screen.
+> **Tax rules are not yet reviewed.** Every rate, threshold and deadline is in the rule pack (`2026.11`): `config/tax.php` reads it as one from its parts in `resources/rule-pack/` (rates, deadlines, holidays, form editions, tax codes, file formats, citations). It was encoded from the NIRC as amended and the issuances in [docs/RULE-REVIEW.md](docs/RULE-REVIEW.md). Have a tax professional review each part, then set its `reviewed` under `parts`, and `reviewed` for the pack once all are. When you change the pack, bump `version` (and the part's) and describe the change under `changes`: the app shows it on its "what changed" screen.
 
 ## Run it
 
@@ -60,12 +60,12 @@ Downloaded returns and registration forms are the BIR's own PDFs, filled in: 170
 - `resources/forms/bir/{form}-{edition}.pdf` — the same PDFs rewritten so the PDF library can read them
 - `resources/forms/bir/{form}-{edition}.php` — the field map: where each item's box is, in points from the top-left of the page
 - `app/Returns/Forms/Items/` — which value goes in which item, from the return's figures (or the profile, for 1905 and 1900, and the payments withheld on, for 0619-E, 1601-EQ, 1604-E and 2307)
-- `config/tax.php` → `forms` — the edition each form uses
+- `resources/rule-pack/forms.php` → `forms` — the edition each form uses
 
 When the BIR revises a form:
 
 1. Add its URL to `scripts/bir-forms/fetch.sh` (the BIR Forms page lists the files; it needs `brew install qpdf`) and run it.
 2. Copy the old field map to the new edition's name and adjust it. `php artisan forms:calibrate 1701Q --grid` fills every box with sample values over a coordinate grid, written to `storage/app/private/forms-calibration/`.
-3. Point `config/tax.php` → `forms` at the new template, update the item builder if item numbers moved, and run the tests.
+3. Point `resources/rule-pack/forms.php` → `forms` at the new template, update the item builder if item numbers moved, and run the tests.
 
 Print the forms at actual size on 8.5 × 13 in (long bond) paper, except the 1900 and 2550Q, which are 8.5 × 14 in (legal), and the 0619-E, which is 8.5 × 11 in (letter).

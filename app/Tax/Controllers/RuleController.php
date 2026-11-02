@@ -26,6 +26,11 @@ class RuleController extends Controller
         return Inertia::render('tax/rules', [
             'version' => $this->packs->version(),
             'reviewed' => (bool) config('tax.reviewed'),
+            // Each kind of rule, reviewed and versioned on its own.
+            'parts' => array_values(array_map(
+                fn (array $part) => ['title' => (string) $part['title'], 'version' => (string) $part['version'], 'reviewed' => (bool) $part['reviewed']],
+                (array) config('tax.parts'),
+            )),
             'changes' => $this->packs->changes(),
             'pending' => $this->packs->pending(),
             'previousVersion' => $this->packs->seen()['version'] ?? null,

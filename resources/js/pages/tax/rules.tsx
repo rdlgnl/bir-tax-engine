@@ -17,6 +17,7 @@ type Numbers = {
 type Props = {
     version: string;
     reviewed: boolean;
+    parts: { title: string; version: string; reviewed: boolean }[];
     changes: { area: string; title: string; summary: string }[];
     pending: boolean;
     previousVersion: string | null;
@@ -31,6 +32,7 @@ const day = (date: string | null) =>
 export default function Rules({
     version,
     reviewed,
+    parts,
     changes,
     pending,
     previousVersion,
@@ -117,6 +119,27 @@ export default function Rules({
                                     </span>
                                     <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-bold">
                                         {change.area}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </SectionCard>
+
+                    <SectionCard title="Parts of the pack">
+                        <ul className="divide-y divide-divider">
+                            {parts.map((part) => (
+                                <li
+                                    key={part.title}
+                                    className="flex items-center justify-between gap-4 py-3 text-[15px]"
+                                >
+                                    <span className="font-bold">
+                                        {part.title}
+                                    </span>
+                                    <span className="text-sm text-muted-foreground">
+                                        {part.version} ·{' '}
+                                        {part.reviewed
+                                            ? 'reviewed'
+                                            : 'not yet reviewed'}
                                     </span>
                                 </li>
                             ))}

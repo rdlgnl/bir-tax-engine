@@ -1,6 +1,7 @@
 <?php
 
 use App\Profiles\Models\TaxProfile;
+use App\Profiles\Models\TaxYear;
 use App\Returns\Forms\OfficialForms;
 use App\Returns\Models\Filing;
 use App\Returns\Services\Amendments;
@@ -133,7 +134,7 @@ test('a filed quarter is recomputed on the rules it was filed under, so a newer 
     $this->travelTo(CarbonImmutable::parse('2026-09-01 10:00'));
     Filing::query()->delete();
     Transaction::query()->delete();
-    App\Profiles\Models\TaxYear::query()->delete();
+    TaxYear::query()->delete();
     TaxProfile::current()->update(['regime' => 'graduated', 'deduction_method' => 'osd']);
     Transaction::factory()->on('2026-05-10')->create(['amount' => 500_000]);
     $this->post('/filings', ['year' => 2026, 'quarter' => 2, 'form' => '1701Q', 'filed_on' => '2026-08-14', 'paid' => false])->assertSessionHasNoErrors();
