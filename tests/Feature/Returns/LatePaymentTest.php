@@ -67,7 +67,8 @@ test('a return prepared after its due date adds the penalties to every figure', 
 
     expect($snapshot['penalties'])->toMatchArray(['surcharge' => 1400.0, 'interest' => 6.9, 'total' => 1406.9])
         ->and($layout['payable'])->toBe(14000.0)
-        ->and($layout['total_payable'])->toBe(15406.9)
+        // The form is in whole pesos: ₱1,400 + ₱7 of penalties.
+        ->and($layout['total_payable'])->toBe(15407.0)
         ->and(array_slice(array_column($layout['lines'], 'label'), -3))->toBe([
             'Add: surcharge (10%)', 'Add: interest (6% a year, 3 days)', 'Total amount payable',
         ])
@@ -80,7 +81,7 @@ test('a return prepared after its due date adds the penalties to every figure', 
         ->component('returns/late')
         ->where('dueDate', '2026-11-16')
         ->where('weekly', 16.11)
-        ->where('layout.total_payable', 15406.9));
+        ->where('layout.total_payable', 15407));
 });
 
 test('on time there are no penalties and no late page', function () {

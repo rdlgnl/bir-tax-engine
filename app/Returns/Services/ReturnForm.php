@@ -5,6 +5,7 @@ namespace App\Returns\Services;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Enums\Profession;
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Forms\OfficialForms;
 use App\Returns\Models\Filing;
 use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
@@ -241,9 +242,12 @@ class ReturnForm
         $f = $snapshot['figures'];
         $percentageTax = $snapshot['form'] === '2551Q';
         $vat = $snapshot['vat'] ?? null;
+        // Income tax forms are in whole pesos: the amount to pay is the form's.
+        $whole = $vat === null && ! $percentageTax ? $this->wholePesos($snapshot) : null;
         $payable = match (true) {
             $vat !== null => $vat['payable'],
             $percentageTax => (float) $f['percentage_tax'],
+            $whole !== null => $whole['payable'],
             // An amended return pays only what the earlier returns didn't.
             $snapshot['amendment'] !== null => max(0.0, round($f['due'] - $snapshot['amendment']['previously_paid'], 2)),
             default => $f['due'],
@@ -284,12 +288,12 @@ class ReturnForm
             'lines' => match (true) {
                 $vat !== null => $this->vatLines($vat),
                 $percentageTax => $this->percentageTaxLines($f),
-                default => $this->incomeTaxLines($snapshot),
+                default => $this->wholeLines($this->incomeTaxLines($snapshot), $whole),
             },
             'payable' => $payable,
             'penalties' => $snapshot['penalties'],
             'amendment' => $snapshot['amendment'],
-            'total_payable' => round($payable + ($snapshot['penalties']['total'] ?? 0.0), 2),
+            'total_payable' => round($payable + ($whole['penalties'] ?? $snapshot['penalties']['total'] ?? 0.0), 2),
             'overpayment' => match (true) {
                 $vat !== null => $vat['excess'],
                 $percentageTax => 0.0,
@@ -300,6 +304,57 @@ class ReturnForm
             'rules' => $snapshot['rules'],
             'taken_at' => $snapshot['taken_at'],
         ];
+    }
+
+    /**
+     * Where each whole-peso form has its amount payable, before and after penalties.
+     */
+    private const PAYABLE_ITEMS = [
+        '1701Q' => ['28A', '31'],
+        '1701-MS' => ['27A', '30'],
+        '1701A' => ['24A', '30'],
+        '1701' => ['26A', '32'],
+    ];
+
+    /**
+     * The amount to pay as a whole-peso form has it: each line rounded,
+     * then added up, so it can differ from the exact figure by a peso.
+     *
+     * @param  Snapshot  $snapshot
+     * @return array{payable: float, penalties: float}|null
+     */
+    private function wholePesos(array $snapshot): ?array
+    {
+        $items = self::PAYABLE_ITEMS[$snapshot['form']] ?? null;
+
+        if ($items === null || ! config("tax.forms.{$snapshot['form']}.whole_pesos")) {
+            return null;
+        }
+
+        $values = app(OfficialForms::class)->values($snapshot);
+        $payable = (float) ($values[$items[0]] ?? 0);
+
+        return ['payable' => max(0.0, $payable), 'penalties' => (float) ($values[$items[1]] ?? 0) - $payable];
+    }
+
+    /**
+     * A whole-peso form's lines in whole pesos, its payable lines as the form has them.
+     *
+     * @param  list<Line>  $lines
+     * @param  array{payable: float, penalties: float}|null  $whole
+     * @return list<Line>
+     */
+    private function wholeLines(array $lines, ?array $whole): array
+    {
+        if ($whole === null) {
+            return $lines;
+        }
+
+        return array_map(fn (array $line) => [...$line, 'amount' => match ($line['label']) {
+            'Tax payable' => $whole['payable'],
+            'Total amount payable' => $whole['payable'] + $whole['penalties'],
+            default => round($line['amount']),
+        }], $lines);
     }
 
     /**
