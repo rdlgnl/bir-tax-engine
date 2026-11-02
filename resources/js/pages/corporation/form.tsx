@@ -1,3 +1,4 @@
+import { BetaBadge, BetaNote } from '@/components/corporation/beta';
 import { Head, Link } from '@inertiajs/react';
 import { ChevronLeft, Download, Printer } from 'lucide-react';
 import { useState } from 'react';
@@ -66,6 +67,7 @@ export default function CorporationForm({
                     <div>
                         <h1 className="text-[28px] leading-tight font-extrabold tracking-tight sm:text-[30px]">
                             Your filled 1702Q
+                            <BetaBadge />
                         </h1>
                         <p className="text-[15px] text-muted-foreground">
                             Official BIR form · Q{tax.quarter} {tax.year} ·{' '}
@@ -209,6 +211,7 @@ export default function CorporationForm({
                 />
 
                 <div className="flex flex-col gap-5">
+                    <BetaNote />
                     <Note
                         tone={tax.status === 'overdue' ? 'danger' : 'info'}
                         title={`Due ${formatDate(tax.due_date, 'full')}`}

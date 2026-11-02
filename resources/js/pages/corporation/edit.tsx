@@ -1,3 +1,4 @@
+import { BetaBadge, BetaNote } from '@/components/corporation/beta';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ChevronLeft } from 'lucide-react';
 import { ChoiceChips } from '@/components/choice-chips';
@@ -105,6 +106,7 @@ export default function CorporationEdit({
                         {corporation
                             ? corporation.name
                             : 'A corporation you run'}
+                        <BetaBadge />
                     </h1>
                     <p className="text-[15px] text-muted-foreground">
                         Its own taxpayer, with its own TIN and returns
@@ -231,6 +233,7 @@ export default function CorporationEdit({
                 </div>
 
                 <div className="flex flex-col gap-4">
+                    <BetaNote />
                     <Note title="How this works">
                         The corporation keeps its own books. Each quarter, enter
                         its figures from them; the app works out the 1702Q,

@@ -1,3 +1,4 @@
+import { BetaBadge, BetaNote } from '@/components/corporation/beta';
 import { Head, Link } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Note } from '@/components/note';
@@ -67,6 +68,7 @@ export default function CorporationShow({
                 <div>
                     <h1 className="text-[28px] leading-tight font-extrabold tracking-tight sm:text-[30px]">
                         {corporation.name}
+                        <BetaBadge />
                     </h1>
                     <p className="text-[15px] text-muted-foreground">
                         Corporation
@@ -180,6 +182,7 @@ export default function CorporationShow({
                 </div>
 
                 <div className="flex flex-col gap-4">
+                    <BetaNote />
                     {rateNote && (
                         <Note title={rateNote.title}>{rateNote.body}</Note>
                     )}

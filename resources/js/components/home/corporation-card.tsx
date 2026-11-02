@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
+import { BetaBadge } from '@/components/corporation/beta';
 import { SectionCard } from '@/components/section-card';
 import { formatDate, peso } from '@/lib/format';
 import { show } from '@/routes/corporation';
@@ -22,7 +23,15 @@ export function CorporationCard({
     const next = corporation.next;
 
     return (
-        <SectionCard title="Your corporation" className="self-start">
+        <SectionCard
+            title={
+                <>
+                    Your corporation
+                    <BetaBadge />
+                </>
+            }
+            className="self-start"
+        >
             <Link
                 href={show().url}
                 className="flex items-center justify-between gap-3 hover:underline"

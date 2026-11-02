@@ -1,3 +1,4 @@
+import { BetaBadge } from '@/components/corporation/beta';
 import { Head, Link } from '@inertiajs/react';
 import { Check, ChevronLeft, Download } from 'lucide-react';
 import { FiguresForm } from '@/components/corporation/figures-form';
@@ -52,6 +53,7 @@ export default function CorporationQuarter({
                 <div>
                     <h1 className="text-[28px] leading-tight font-extrabold tracking-tight sm:text-[30px]">
                         Q{tax.quarter} corporate income tax
+                        <BetaBadge />
                     </h1>
                     <p className="text-[15px] text-muted-foreground">
                         BIR Form 1702Q · {periodLabel(tax.quarter)} {tax.year},
