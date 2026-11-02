@@ -59,7 +59,8 @@ test('My tax explains the switch', function () {
         ->component('tax/show')
         ->where('result.switched.quarter', 3)
         ->where('regimeLabel', 'Graduated rates')
-        ->where('explanation.reasons.2.text', 'Sales passed ₱3M in August, so graduated rates apply from Q3'));
+        ->where('explanation.reasons.2.text', 'Sales passed ₱3M in August, so graduated rates apply from Q3')
+        ->where('explanation.reasons.3.text', 'You chose Flat 8% in setup'));
 
     $this->get('/tax/2')->assertInertia(fn (Assert $page) => $page->where('regimeLabel', 'Flat 8%'));
 });

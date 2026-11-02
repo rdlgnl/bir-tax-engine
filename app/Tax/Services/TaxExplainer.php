@@ -39,9 +39,12 @@ class TaxExplainer
     public function explain(TaxProfile $profile, int $year, array $quarter, Collection $transactions, CarbonImmutable $today, ?array $switched = null): array
     {
         $eightPercent = $profile->regime === Regime::EightPercent;
-        $reasons = $this->reasons($profile, $year, $quarter, $eightPercent);
+        $afterSwitch = $switched !== null && $quarter['quarter'] >= $switched['quarter'];
+        // What was chosen on the Q1 return: 8%, even once the year left it.
+        $chosen = $afterSwitch ? Regime::EightPercent->label() : ($profile->regime?->label() ?? 'No method');
+        $reasons = $this->reasons($profile, $year, $quarter, $eightPercent, $chosen);
 
-        if ($switched !== null && $quarter['quarter'] >= $switched['quarter']) {
+        if ($afterSwitch) {
             array_splice($reasons, 2, 0, [[
                 'text' => 'Sales passed '.$this->peso(config('tax.eight_percent.gross_limit'), short: true).' in '.CarbonImmutable::create($year, $switched['month'])->format('F').', so graduated rates apply from Q'.$switched['quarter'],
                 'source' => 'transactions',
@@ -61,7 +64,7 @@ class TaxExplainer
      * @param  QuarterResult  $quarter
      * @return list<array{text: string, source: string, applies: bool}>
      */
-    private function reasons(TaxProfile $profile, int $year, array $quarter, bool $eightPercent): array
+    private function reasons(TaxProfile $profile, int $year, array $quarter, bool $eightPercent, string $method): array
     {
         $q1 = Filing::query()
             ->where('year', $year)
@@ -69,7 +72,6 @@ class TaxExplainer
             ->where('form', '1701Q')
             ->first();
 
-        $method = $profile->regime?->label() ?? 'No method';
         $choice = $q1 !== null
             ? ['text' => "You chose {$method} on your Q1 return", 'source' => 'filed '.$q1->filed_on->format('M j')]
             : ['text' => "You chose {$method} in setup", 'source' => 'locks when Q1 is filed'];
