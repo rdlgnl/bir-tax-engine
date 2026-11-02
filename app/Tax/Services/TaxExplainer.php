@@ -118,20 +118,8 @@ class TaxExplainer
      */
     private function rules(TaxProfile $profile, int $year, array $quarter, bool $eightPercent): array
     {
-        // The year's table and the quarter's percentage tax, as the engine used them.
-        $ids = $eightPercent
-            ? [$profile->isPurelySelfEmployed() ? 'IT-8PCT-PURE' : 'IT-8PCT-MIXED']
-            : [
-                $this->taxRules->forYear($year)->ruleId('graduated'),
-                $profile->deduction_method === DeductionMethod::Itemized ? 'IT-ITEMIZED' : 'IT-OSD',
-                $this->taxRules->forQuarter($year, $quarter['quarter'])->ruleId('percentage_tax'),
-            ];
-
-        $rules = array_map(fn (string $id) => $this->rule($id), $ids);
-
-        if ($quarter['withheld'] > 0) {
-            $rules[] = $this->rule('CWT-CREDIT');
-        }
+        // The rules the computation applied, from its trace.
+        $rules = array_map(fn (string $id) => $this->rule($id), TaxCalculationService::rulesApplied($quarter));
 
         $statutory = CarbonImmutable::parse($quarter['statutory_date']);
         $due = CarbonImmutable::parse($quarter['due_date']);

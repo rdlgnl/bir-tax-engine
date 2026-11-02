@@ -121,14 +121,19 @@ class TaxObligations
             ? $this->engine->forYear($profile, $year['year'] - 1, $today)['quarters']
             : [];
 
-        $payable = collect([$year['year'] - 1 => $previous, $year['year'] => $year['quarters']])
-            ->flatMap(fn (array $quarters, int $taxYear) => array_map(
-                fn (array $quarter) => ['year' => $taxYear, 'quarter' => $quarter],
-                array_values($quarters),
-            ))
-            ->filter(fn (array $row) => in_array($row['quarter']['status'], ['due', 'overdue'], true))
-            ->sortBy(fn (array $row) => $row['quarter']['due_date'])
-            ->first();
+        $payables = [];
+
+        foreach ([$year['year'] - 1 => $previous, $year['year'] => $year['quarters']] as $taxYear => $quarters) {
+            foreach ($quarters as $quarter) {
+                if (in_array($quarter['status'], ['due', 'overdue'], true)) {
+                    $payables[] = ['year' => $taxYear, 'quarter' => $quarter];
+                }
+            }
+        }
+
+        // The soonest due first; the sort keeps the year order on a tie.
+        usort($payables, fn (array $a, array $b) => strcmp($a['quarter']['due_date'], $b['quarter']['due_date']));
+        $payable = $payables[0] ?? null;
 
         if ($payable !== null) {
             return [

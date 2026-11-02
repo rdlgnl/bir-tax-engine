@@ -66,3 +66,20 @@ test('graduated with the 40% deduction, and its quarterly percentage tax', funct
     // ₱600,000 less 40% = ₱360,000: 15% over ₱250,000.
     expect($year['quarters'][1])->toMatchArray(['deduction' => 240000.0, 'taxable' => 360000.0, 'income_tax' => 16500.0, 'percentage_tax' => 18000.0, 'percentage_tax_base' => 600000.0]);
 });
+
+test('each quarter carries the steps from gross to tax due, with the rule and rate each applies', function () {
+    $taxpayer = new YearTaxpayer(Regime::Graduated, DeductionMethod::Osd, IncomeSource::Business, false);
+    $in = inputs($taxpayer, [['2026-02-10', 600_000, 10_000]]);
+    $in = new TaxInputs($in->year, $in->today, $in->taxpayer, $in->sales, $in->expenses, $in->filings,
+        [...$in->rules, 'rule_ids' => ['graduated' => 'IT-GRAD-2023', 'percentage_tax' => [1 => 'PT-3PCT', 2 => 'PT-3PCT', 3 => 'PT-3PCT', 4 => 'PT-3PCT']]],
+        $in->dates, null, null);
+
+    $trace = collect((new TaxCalculator)->year($in)['quarters'][1]['trace'])->keyBy('step');
+
+    expect($trace->keys()->all())->toBe(['gross', 'deduction', 'taxable', 'income_tax', 'prior_payments', 'withheld', 'due', 'percentage_tax'])
+        ->and($trace['deduction'])->toMatchArray(['amount' => 240000.0, 'rule' => 'IT-OSD', 'rate' => 0.4])
+        ->and($trace['income_tax'])->toMatchArray(['amount' => 16500.0, 'rule' => 'IT-GRAD-2023', 'note' => '15% of the excess over ₱250,000'])
+        ->and($trace['withheld'])->toMatchArray(['amount' => 10000.0, 'rule' => 'CWT-CREDIT'])
+        ->and($trace['due']['amount'])->toBe(6500.0)
+        ->and($trace['percentage_tax'])->toMatchArray(['part' => 'percentage_tax', 'amount' => 18000.0, 'rule' => 'PT-3PCT', 'rate' => 0.03]);
+});

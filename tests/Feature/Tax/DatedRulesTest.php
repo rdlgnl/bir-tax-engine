@@ -75,8 +75,11 @@ test('the explanation cites the rules the year was computed on', function () {
     $profile = TaxProfile::current();
     $ids = fn (int $y, array $quarter) => array_column(app(TaxExplainer::class)->explain($profile, $y, $quarter, Transaction::query()->forYear($y)->get(), CarbonImmutable::now())['rules'], 'id');
 
+    // 2022 on graduated rates; 2026 stays on the 8% its Q1 return elected,
+    // whatever the profile says now, and the explanation cites what was applied.
     expect($ids(2022, $year['quarters'][2]))->toContain('IT-GRAD-2018', 'PT-1PCT')
-        ->and($ids(2026, app(TaxCalculationService::class)->forYear($profile, 2026)['quarters'][3]))->toContain('IT-GRAD-2023', 'PT-3PCT');
+        ->and($ids(2026, app(TaxCalculationService::class)->forYear($profile, 2026)['quarters'][3]))->toContain('IT-8PCT-PURE')
+        ->not->toContain('IT-GRAD-2023');
 });
 
 test('years before 2018 are refused where records come in and where returns are shown', function () {

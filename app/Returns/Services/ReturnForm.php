@@ -505,15 +505,8 @@ class ReturnForm
             return ['VAT-12PCT v'.config('tax.rules.VAT-12PCT.version')];
         }
 
-        $ids = $profile->regime === Regime::EightPercent
-            ? [$profile->isPurelySelfEmployed() ? 'IT-8PCT-PURE' : 'IT-8PCT-MIXED']
-            : [$this->rules->forYear($year)->ruleId('graduated'), $profile->deduction_method === DeductionMethod::Itemized ? 'IT-ITEMIZED' : 'IT-OSD'];
-
-        if ($quarter['withheld'] > 0) {
-            $ids[] = 'CWT-CREDIT';
-        }
-
-        $ids[] = 'DL-1701Q';
+        // The income tax rules the computation applied, from its trace.
+        $ids = [...TaxCalculationService::rulesApplied($quarter, 'income_tax'), 'DL-1701Q'];
 
         return array_map(fn (string $id) => "{$id} v".config("tax.rules.{$id}.version"), $ids);
     }
