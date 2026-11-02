@@ -86,8 +86,8 @@ export default function ReturnShow({
                                 See your filled {layout.form}
                             </span>
                             <span className="text-sm text-slate-300">
-                                Print-ready, filled from your records. Print,
-                                sign, file.
+                                Filled from your records, to check and keep. You
+                                file it in eBIRForms.
                             </span>
                         </span>
                     </Link>
@@ -99,7 +99,7 @@ export default function ReturnShow({
                                 title={`Open ${layout.form} in eBIRForms`}
                             >
                                 Choose the {layout.method} option, as on your Q1
-                                return.
+                                return. (eFPS instead, if you're enrolled.)
                             </Step>
                             <Step n={2} title="Copy the values on the left">
                                 Then submit and keep the confirmation email.

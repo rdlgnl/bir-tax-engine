@@ -5,6 +5,7 @@ namespace App\Tax\Services;
 use App\Profiles\Models\TaxProfile;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
+use App\Tax\Enums\TaxpayerClassification;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
@@ -124,13 +125,15 @@ class FilingCalendar
      * ₱20,000,000 in sales); someone with a salary as well files the 1701,
      * which has room for every employer.
      */
-    public function incomeTaxForm(TaxProfile $profile, int $quarter): string
+    public function incomeTaxForm(TaxProfile $profile, int $quarter, TaxpayerClassification $class = TaxpayerClassification::Micro): string
     {
-        if ($quarter < 4) {
-            return '1701Q';
-        }
-
-        return $profile->isPurelySelfEmployed() ? '1701-MS' : '1701';
+        return match (true) {
+            $quarter < 4 => '1701Q',
+            // The 1701-MS is for micro and small taxpayers (1701-MS guidelines, August 2024).
+            $profile->isPurelySelfEmployed() && $class->microOrSmall() => '1701-MS',
+            $profile->isPurelySelfEmployed() && ($profile->regime === Regime::EightPercent || $profile->deduction_method === DeductionMethod::Osd) => '1701A',
+            default => '1701',
+        };
     }
 
     /**
@@ -138,8 +141,12 @@ class FilingCalendar
      * older 1701A on 8% or OSD and the 1701 on itemized deductions; with a
      * salary, the shorter 1701-MS for micro taxpayers in place of the 1701.
      */
-    public function alternativeAnnualForm(TaxProfile $profile): ?string
+    public function alternativeAnnualForm(TaxProfile $profile, TaxpayerClassification $class = TaxpayerClassification::Micro): ?string
     {
+        if (! $class->microOrSmall()) {
+            return null;
+        }
+
         if (! $profile->isPurelySelfEmployed()) {
             return '1701-MS';
         }

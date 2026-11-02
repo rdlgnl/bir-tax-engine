@@ -2,6 +2,8 @@
 
 namespace App\Tax\Enums;
 
+use App\Profiles\Models\TaxYear;
+
 /**
  * The size class the BIR assigns each taxpayer under the Ease of Paying
  * Taxes Act (RA 11976; RR 8-2024), by gross sales: micro, small, medium,
@@ -28,6 +30,23 @@ enum TaxpayerClassification: string
         };
     }
 
+    /**
+     * A year's class: the one the BIR assigned, set on the profile, else
+     * the estimate from the year's gross sales.
+     */
+    public static function forYear(int $year, float $gross): self
+    {
+        return TaxYear::query()->where('year', $year)->first()->classification ?? self::fromGross($gross);
+    }
+
+    /**
+     * Micro and small: reduced penalties, and the 1701-MS (RR 8-2024).
+     */
+    public function microOrSmall(): bool
+    {
+        return $this === self::Micro || $this === self::Small;
+    }
+
     public function label(): string
     {
         return match ($this) {
@@ -40,6 +59,6 @@ enum TaxpayerClassification: string
 
     public function reducedPenalties(): bool
     {
-        return $this === self::Micro || $this === self::Small;
+        return $this->microOrSmall();
     }
 }

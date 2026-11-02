@@ -287,6 +287,24 @@ return [
         'vat' => 'VT010',
     ],
 
+    // How returns are filed (RMC 20-2026): taxpayers not on eFPS file
+    // through eBIRForms, no-payment returns included. Paper is for the
+    // 1701-MS of micro and small taxpayers, and otherwise only when the BIR
+    // declares its systems down. Any other filled form is a worksheet to
+    // copy from. REVIEW: check each year's filing guidelines.
+    'filing' => [
+        'paper_forms' => ['1701-MS'],
+    ],
+
+    // Financial statements with the annual return (RMC 17-2019): none on 8%
+    // or the 40% deduction; with itemized deductions, statements (or an
+    // Account Information Form), audited by an independent CPA once gross
+    // sales exceed this (NIRC Sec. 232(A) as TRAIN amended it). They go
+    // through eAFS with the 2307s, within 15 days after the deadline.
+    'financial_statements' => [
+        'audit_above' => 3_000_000,
+    ],
+
     // The BIR's own forms the downloads are filled on. `template` names the
     // PDF and its field map in resources/forms/bir; a new BIR edition is a new
     // template (scripts/bir-forms/fetch.sh) and a new map. The income tax

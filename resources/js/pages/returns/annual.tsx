@@ -27,6 +27,10 @@ type Props = {
     certificatesNotIn: { counterparty: string; withheld: number }[];
     scans: number;
     alternativeForm: string | null;
+    /** Only the 1701-MS can be filed on paper; other forms are e-filed. */
+    paperFiling: boolean;
+    /** What goes with the return (RMC 17-2019; NIRC Sec. 232(A)). */
+    financialStatements: 'none' | 'unaudited' | 'audited';
 };
 
 export default function AnnualReturn({
@@ -39,6 +43,8 @@ export default function AnnualReturn({
     certificatesNotIn,
     scans,
     alternativeForm,
+    paperFiling,
+    financialStatements,
 }: Props) {
     const args: [number, number, string] = [layout.year, 4, layout.form];
     const estimate = !periodEnded;
@@ -156,12 +162,14 @@ export default function AnnualReturn({
                         </span>
                         <span>
                             <span className="block text-lg font-extrabold">
-                                Download filled {layout.form}
+                                {paperFiling
+                                    ? `Download filled ${layout.form}`
+                                    : `See your filled ${layout.form}`}
                             </span>
                             <span className="text-sm text-slate-300">
-                                {layout.form === '1701-MS'
+                                {paperFiling
                                     ? 'Official BIR form for micro and small taxpayers, filled for you.'
-                                    : 'Official BIR form, filled for you.'}
+                                    : 'Official BIR form, filled for you: the values to copy into eBIRForms.'}
                             </span>
                         </span>
                     </Link>
@@ -183,26 +191,71 @@ export default function AnnualReturn({
 
                     <SectionCard title="How to file">
                         <StepList>
-                            <Step n={1} title="Print 3 copies">
-                                Long bond paper, then sign all three
-                            </Step>
-                            <Step n={2} title="File and pay">
-                                With tax to pay, at any accredited bank or
-                                online. With nothing to pay, file at any RDO or
-                                online.
-                            </Step>
+                            {paperFiling ? (
+                                <>
+                                    <Step n={1} title="Print 3 copies">
+                                        Long bond paper, then sign all three
+                                    </Step>
+                                    <Step n={2} title="File and pay">
+                                        With tax to pay, at any accredited bank
+                                        or online. With nothing to pay, file at
+                                        any RDO or online.
+                                    </Step>
+                                </>
+                            ) : (
+                                <>
+                                    <Step
+                                        n={1}
+                                        title={`Open ${layout.form} in eBIRForms`}
+                                    >
+                                        Copy the values from the filled form
+                                        (eFPS instead, if you're enrolled)
+                                    </Step>
+                                    <Step n={2} title="Submit and pay">
+                                        Online or at any accredited bank; keep
+                                        the confirmation email
+                                    </Step>
+                                </>
+                            )}
                             <Step
                                 n={3}
-                                title="Upload your 2307s within 15 days"
+                                title={
+                                    financialStatements === 'none'
+                                        ? 'Upload your 2307s within 15 days'
+                                        : 'Upload your 2307s and statements within 15 days'
+                                }
                             >
                                 Through the BIR's eAFS site
                             </Step>
                         </StepList>
                     </SectionCard>
 
-                    {eightPercent && (
+                    {financialStatements === 'none' && (
                         <Note title="No financial statements needed">
-                            On 8%, you don't attach financial statements.
+                            {eightPercent
+                                ? "On 8%, you don't attach financial statements."
+                                : "On the 40% deduction, you don't attach financial statements."}
+                        </Note>
+                    )}
+                    {financialStatements === 'unaudited' && (
+                        <Note
+                            tone="warning"
+                            title="Attach financial statements"
+                        >
+                            With itemized deductions, your return goes with your
+                            financial statements (or an Account Information
+                            Form), uploaded through eAFS with your 2307s.
+                        </Note>
+                    )}
+                    {financialStatements === 'audited' && (
+                        <Note
+                            tone="warning"
+                            title="Audited financial statements needed"
+                        >
+                            Your {layout.year} sales are over ₱3,000,000, so an
+                            independent CPA audits your books. Upload the
+                            audited statements and the CPA's certificate through
+                            eAFS with your 2307s.
                         </Note>
                     )}
 

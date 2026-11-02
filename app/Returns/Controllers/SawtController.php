@@ -27,7 +27,7 @@ class SawtController extends Controller
         return Inertia::render('returns/sawt', [
             'year' => $year,
             'quarter' => $quarter,
-            'form' => $this->sawt->form($profile, $quarter),
+            'form' => $this->sawt->form($profile, $year, $quarter),
             'rows' => $rows,
             'totals' => [
                 'clients' => count($rows),

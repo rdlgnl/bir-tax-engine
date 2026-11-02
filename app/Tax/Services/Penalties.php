@@ -2,7 +2,6 @@
 
 namespace App\Tax\Services;
 
-use App\Profiles\Models\TaxYear;
 use App\Tax\Enums\TaxpayerClassification;
 use Carbon\CarbonImmutable;
 
@@ -63,8 +62,6 @@ class Penalties
             return false;
         }
 
-        $assigned = TaxYear::query()->where('year', $dueDate->year)->first()?->classification;
-
-        return ($assigned ?? TaxpayerClassification::fromGross($yearGross))->reducedPenalties();
+        return TaxpayerClassification::forYear($dueDate->year, $yearGross)->reducedPenalties();
     }
 }
