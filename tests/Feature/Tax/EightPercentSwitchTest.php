@@ -19,6 +19,8 @@ beforeEach(function () {
     Transaction::factory()->on('2026-07-10')->create(['counterparty' => 'Acme', 'amount' => 800_000]);
     Transaction::factory()->on('2026-08-10')->create(['counterparty' => 'Acme', 'amount' => 500_000]);
     Transaction::factory()->expense(validInvoice: true)->on('2026-09-05')->create(['counterparty' => 'Studio rent', 'amount' => 500_000]);
+    // Q1 and Q2 paid on 8%.
+    payQuarters($this->profile, 2026, 2);
 });
 
 test('passing ₱3,000,000 on 8% moves the year to graduated rates from that quarter, crediting the 8% paid', function () {
@@ -83,7 +85,7 @@ test('My tax explains the switch', function () {
         ->where('result.switched.quarter', 3)
         ->where('regimeLabel', 'Graduated rates')
         ->where('explanation.reasons.2.text', 'Sales passed ₱3M in August, so graduated rates apply from Q3')
-        ->where('explanation.reasons.3.text', 'You chose Flat 8% in setup'));
+        ->where('explanation.reasons.3.text', 'You chose Flat 8% on your Q1 return'));
 
     $this->get('/tax/2')->assertInertia(fn (Assert $page) => $page->where('regimeLabel', 'Flat 8%'));
 });

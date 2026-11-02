@@ -80,6 +80,7 @@ test('the 2316 is checked, and its photo kept on this computer and replaced on u
 test('the annual return uses the 2316 instead of the estimate', function () {
     $profile = employee();
     $this->post('/2316/2026', the2316(['tax_withheld' => '60000']));
+    payQuarters($profile, 2026);
 
     $q4 = app(TaxCalculationService::class)->forYear($profile, 2026)['quarters'][4];
 

@@ -16,13 +16,16 @@ beforeEach(function () {
 
 /**
  * Liza from the design: a ₱50,000-a-month job at Northwind, and a side
- * business that earned ₱170,000 by September and ₱200,000 for the year.
+ * business that earned ₱170,000 by September and ₱200,000 for the year,
+ * each quarter's tax paid on time.
  */
 function sideBusiness(TaxProfile $profile): TaxProfile
 {
     foreach (['2026-02-10' => 40_000, '2026-05-10' => 40_000, '2026-08-10' => 90_000, '2026-11-10' => 30_000] as $date => $amount) {
         Transaction::query()->create(['type' => TransactionType::Payment, 'occurred_on' => $date, 'counterparty' => 'Lumen Digital', 'amount' => $amount]);
     }
+
+    payQuarters($profile, 2026);
 
     return $profile;
 }

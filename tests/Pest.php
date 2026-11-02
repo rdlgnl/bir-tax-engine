@@ -1,5 +1,8 @@
 <?php
 
+use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
+use App\Tax\Services\TaxCalculationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +47,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Marks a year's quarters filed and paid on their due dates, each for what
+ * it owed, so later quarters credit them.
+ */
+function payQuarters(TaxProfile $profile, int $year, int $upTo = 3): void
 {
-    // ..
+    foreach (range(1, $upTo) as $quarter) {
+        $q = app(TaxCalculationService::class)->forYear($profile, $year)['quarters'][$quarter];
+        Filing::factory()->quarter($quarter, $q['due_date'], $q['due'])->create(['year' => $year, 'form' => $q['form']]);
+    }
 }

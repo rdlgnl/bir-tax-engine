@@ -19,6 +19,8 @@ export type QuarterResult = {
     taxable: number;
     income_tax: number;
     prior_payments: number;
+    /** Earlier quarters' tax not paid, so still in this return's. */
+    unpaid_earlier: number;
     withheld: number;
     withheld_unconfirmed: number;
     due: number;

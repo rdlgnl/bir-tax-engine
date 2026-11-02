@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 68 of 96 done.
+Status: 70 of 96 done.
 
 ---
 
@@ -222,7 +222,7 @@ Add these tests (table-driven where possible):
 - [x] 2023 Q2 vs Q3 percentage tax → 1% then 3%
 - [x] Regime switch between years → each year uses its own election
 - [x] Invoice then its payment → counted once
-- [ ] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
+- [x] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
 - [x] Engine total vs printed form total → within ₱1 (M2) ✔ [BoundaryTest.php](../tests/Feature/Tax/BoundaryTest.php)
 - [x] Host header `evil.example` → rejected
 - [ ] CPA reference cases → a small set of worked returns as the acceptance suite
@@ -234,7 +234,7 @@ Add these tests (table-driven where possible):
 - [ ] **M2 Peso vs centavo.** On whole-peso forms, show the whole-peso amount as the amount to pay.
 - [ ] **M5 Honest PIN wording.** "Protects the screen, not the files", or encrypt sensitive data with a key from the PIN.
 - [x] **M6 Past ₱3M on 8%.** Graduated from the quarter the limit was passed, percentage tax to that month, VAT from the next, a VAT registration reminder; `cannot_compute` is gone.
-- [ ] **M7 Unpaid quarters.** Count only recorded payments in later quarters; show an unpaid earlier quarter as owed (`priorPaid += $quarterPaid ?? $due` today).
+- [x] **M7 Unpaid quarters.** Later quarters credit an earlier one with its recorded payment, or with its tax only while it can still be paid on time; an overdue one, or one filed with nothing paid, stays owed in later returns, and My tax says how much of the amount it is.
 - [x] **M9 Silent cascade deletes.** Removing an employee or the corporation asks first, and their 2316s or quarters are removed one by one, each in the history (H4).
 
 ---

@@ -103,6 +103,14 @@ export function BreakdownCard({ year, quarter, purelySelfEmployed }: Props) {
                 )}
             </dl>
 
+            {quarter.unpaid_earlier > 0 && quarter.status !== 'filed' && (
+                <p className="mt-3 rounded-xl bg-warning-soft px-3.5 py-2.5 text-sm text-warning">
+                    Includes {peso(quarter.unpaid_earlier)} from an earlier
+                    quarter that wasn't paid. Pay that return, with its
+                    penalties, and this one drops by as much.
+                </p>
+            )}
+
             <div className="mt-4 flex items-center justify-between gap-4 rounded-2xl bg-ink px-[18px] py-4 text-ink-foreground">
                 <div>
                     <p className="text-[15px] font-bold">
