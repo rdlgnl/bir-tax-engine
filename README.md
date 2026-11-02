@@ -50,7 +50,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 
 `app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
 
-Books prints the two cash journals and the general journal and ledger, on a cash basis. The ledger's balances carry over from the first records in the app, each year's income and expenses closing into owner's capital; money held before the first record is added by hand.
+Books prints the two cash journals and the general journal and ledger. The cash journals record money as it moves; the general journal follows the books' method for each year (on accrual books an invoice is income on its date, owed as accounts receivable until paid). The ledger's balances carry over from the first records in the app, each year's income and expenses closing into owner's capital; money held before the first record is added by hand.
 
 ## Official BIR forms
 
@@ -69,3 +69,12 @@ When the BIR revises a form:
 3. Point `resources/rule-pack/forms.php` → `forms` at the new template, update the item builder if item numbers moved, and run the tests.
 
 Print the forms at actual size on 8.5 × 13 in (long bond) paper, except the 1900 and 2550Q, which are 8.5 × 14 in (legal), and the 0619-E, which is 8.5 × 11 in (letter).
+
+## Packaging
+
+A packaged build (the desktop app) runs on the taxpayer's own computer, so:
+
+- Ship it with `APP_ENV=production` and `APP_DEBUG=false`. Error pages carry the app's shared data, the taxpayer's name and figures among it; the debug page would show far more. `config/app.php` defaults `debug` to off when `APP_DEBUG` isn't set.
+- Set `APP_URL` to the address the app answers on: `RejectUnknownHosts` only answers `localhost`, `127.0.0.1`, `[::1]` and that host.
+- Run `php artisan config:cache`; the rule pack in `resources/rule-pack/` is read into it.
+- Keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md).

@@ -77,6 +77,17 @@ test('excess input VAT left after Q4 carries into the next year (NIRC Sec. 110(B
         ->and($this_year[1]['carried_over'])->toBe(24000.0);
 });
 
+test('the VAT sent with a sale can’t be more than 12% of its amount (L4)', function () {
+    vatTaxpayer();
+    $sale = ['type' => 'payment', 'occurred_on' => '2026-10-15', 'counterparty' => 'Northbay Media', 'amount' => '50000', 'tax_withheld' => '0', 'vat_kind' => 'vatable'];
+
+    $this->post('/transactions', [...$sale, 'vat_amount' => '7000'])
+        ->assertSessionHasErrors(['vat_amount' => 'VAT can’t be more than 12% of the amount (₱6,000.00).']);
+    // A peso over for rounding is fine; less (edited down) is the taxpayer's call.
+    $this->post('/transactions', [...$sale, 'vat_amount' => '6000.80'])->assertSessionHasNoErrors();
+    $this->post('/transactions', [...$sale, 'vat_amount' => '5000'])->assertSessionHasNoErrors();
+});
+
 test('a VAT-registered taxpayer records VAT; others don’t', function () {
     vatTaxpayer();
 
