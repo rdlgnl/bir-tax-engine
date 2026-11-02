@@ -157,7 +157,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [ ] Decide: launch, label as beta, or hide.
 - [x] NOLCO and the excess MCIT carry-forward, on the 1702-RT. ✔ [CarryForwardTest.php](../tests/Feature/Corporations/CarryForwardTest.php)
 - [x] The 1% MCIT period, via C1, and 2023 at the months' average (1.5%).
-- [ ] **Needs verification:** the quarterly 20% test, which uses taxable income to date. The research found no BIR guidance; year to date is the most defensible reading. Label the quarterly rate provisional.
+- [x] The quarterly 20% test uses taxable income to date, labelled provisional on the corporation's home, the quarter and the filled 1702Q; the 1702-RT tests the year. **Needs verification** by the CPA: no BIR text says how the 1702Q applies it (pre-review C6).
 
 ### M10 · Excess input VAT stops at year end
 

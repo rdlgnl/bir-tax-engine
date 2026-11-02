@@ -196,7 +196,9 @@ class CorporationController extends Controller
     }
 
     /**
-     * Why the rate is 20% or 25%.
+     * Why the rate is 20% or 25%. The 20% on a quarter is provisional: no
+     * BIR text says how the ₱5,000,000 test applies to the 1702Q, so it's
+     * tested on the taxable income so far, and the 1702-RT settles it.
      *
      * @return array{title: string, body: string}|null
      */
@@ -210,7 +212,7 @@ class CorporationController extends Controller
         $assets = '₱'.Number::abbreviate((float) config('tax.corporation.small_total_assets'));
 
         return $small
-            ? ['title' => 'Why 20%, not 25%', 'body' => "Taxable income is {$income} or less and total assets are {$assets} or less (excluding the land under the office, plant and equipment). Above either, the rate is 25%."]
+            ? ['title' => 'Why 20%, not 25%', 'body' => "Taxable income so far is {$income} or less and total assets are {$assets} or less (excluding the land under the office, plant and equipment). Above either, the rate is 25%. On the quarterly return the 20% is provisional: the BIR hasn't said how the test applies to a quarter. The annual return settles it on the year's taxable income; if that's over {$income}, the whole year is at 25% and the difference is paid with it."]
             : ['title' => 'Why 25%, not 20%', 'body' => (float) $corporation->total_assets > (float) config('tax.corporation.small_total_assets')
                 ? "Total assets (excluding the land under the office, plant and equipment) are above {$assets}. The 20% rate is for corporations with {$assets} or less and taxable income of {$income} or less."
                 : "Taxable income so far is above {$income}. The 20% rate is for {$income} or less, with total assets of {$assets} or less (excluding the land under the office, plant and equipment)."];

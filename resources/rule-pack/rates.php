@@ -161,7 +161,8 @@ return [
     // gross income (RMC 62-2021). The rates are in `dated`. The quarterly
     // 1702Q is due 60 days after each of the first three quarters.
     // REVIEW: testing the lower rate on the taxable income to date each
-    // quarter; neither RR 5-2021 nor RMC 62-2021 says how the 1702Q applies it.
+    // quarter; neither RR 5-2021 nor RMC 62-2021 says how the 1702Q applies it,
+    // so the screens call the quarterly 20% provisional.
     'corporation' => [
         'small_taxable_income' => 5_000_000,
         'small_total_assets' => 100_000_000,
