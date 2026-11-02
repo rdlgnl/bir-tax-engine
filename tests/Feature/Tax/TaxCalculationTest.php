@@ -1,6 +1,7 @@
 <?php
 
 use App\Profiles\Models\TaxProfile;
+use App\Returns\Models\Filing;
 use App\Tax\Enums\DeductionMethod;
 use App\Tax\Services\TaxCalculationService;
 use App\Transactions\Models\Transaction;
@@ -168,4 +169,30 @@ test('entries on December 31 count in their year', function () {
     Transaction::factory()->on('2027-01-01')->create(['amount' => 999_000]);
 
     expect($this->engine->forYear($profile, 2026)['gross'])->toBe(300_000.0);
+});
+
+test('an earlier quarter left unpaid isn’t credited once it’s overdue: its tax stays owed (M7)', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-06-01 10:00'));
+    $profile = TaxProfile::factory()->create();
+    // 8% of ₱250,000 over the reduction in Q1, and of ₱100,000 more in Q2.
+    Transaction::factory()->on('2026-02-10')->create(['amount' => 500_000]);
+    Transaction::factory()->on('2026-04-10')->create(['amount' => 100_000]);
+
+    // June: Q1 (due May 15) is overdue and unpaid; Q2 credits nothing for it.
+    expect($this->engine->forYear($profile, 2026)['quarters'][2])
+        ->toMatchArray(['income_tax' => 28000.0, 'prior_payments' => 0.0, 'unpaid_earlier' => 20000.0, 'due' => 28000.0]);
+
+    // Q1 filed and paid: credited.
+    Filing::factory()->quarter(1, '2026-06-01', 20_000)->create(['year' => 2026]);
+    expect($this->engine->forYear($profile, 2026)['quarters'][2])
+        ->toMatchArray(['prior_payments' => 20000.0, 'unpaid_earlier' => 0.0, 'due' => 8000.0]);
+});
+
+test('an earlier quarter still payable on time counts as paid for the estimate', function () {
+    $this->travelTo(CarbonImmutable::parse('2026-04-20 10:00'));
+    $profile = TaxProfile::factory()->create();
+    Transaction::factory()->on('2026-02-10')->create(['amount' => 500_000]);
+    Transaction::factory()->on('2026-04-10')->create(['amount' => 100_000]);
+
+    expect($this->engine->forYear($profile, 2026)['quarters'][2])->toMatchArray(['prior_payments' => 20000.0, 'unpaid_earlier' => 0.0, 'due' => 8000.0]);
 });

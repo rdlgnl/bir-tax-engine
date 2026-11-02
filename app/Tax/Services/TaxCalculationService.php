@@ -37,6 +37,7 @@ use Illuminate\Support\Collection;
  *     taxable: float,
  *     income_tax: float,
  *     prior_payments: float,
+ *     unpaid_earlier: float,
  *     withheld: float,
  *     withheld_unconfirmed: float,
  *     due: float,
@@ -153,6 +154,8 @@ class TaxCalculationService
 
         $quarters = [];
         $priorPaid = 0;
+        // Earlier quarters' tax that wasn't paid and isn't credited: it's still owed.
+        $unpaidEarlier = 0;
 
         foreach ([1, 2, 3, 4] as $quarter) {
             $toDate = $income->filter(fn (Transaction $t) => $t->incomeDate($method)?->quarter <= $quarter);
@@ -234,6 +237,7 @@ class TaxCalculationService
                 'taxable' => $this->pesos($tax['taxable']),
                 'income_tax' => $this->pesos($tax['tax']),
                 'prior_payments' => $this->pesos($priorPaid),
+                'unpaid_earlier' => $this->pesos($unpaidEarlier),
                 'withheld' => $this->pesos($withheld),
                 'withheld_unconfirmed' => $this->pesos($unconfirmed),
                 'due' => $this->pesos($due),
@@ -250,8 +254,17 @@ class TaxCalculationService
                 'compensation' => $compensation,
             ];
 
-            // What later quarters subtract: the payment made, or the amount owed.
-            $priorPaid += $quarterPaid ?? $due;
+            // What later quarters subtract: the payment recorded, or, while the
+            // quarter can still be paid on time, the tax it owes. One overdue,
+            // or filed with nothing paid, isn't credited: its tax stays in the
+            // later returns, as the 1701Q's "tax paid in previous quarters" has it.
+            $credited = match (true) {
+                $quarterPaid !== null => $quarterPaid,
+                $filing === null && $quarterStatus !== 'overdue' => $due,
+                default => 0,
+            };
+            $priorPaid += $credited;
+            $unpaidEarlier += $quarterPaid === null ? $due - $credited : max(0, $due - $quarterPaid);
         }
 
         return [
