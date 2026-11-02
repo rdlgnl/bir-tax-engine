@@ -46,6 +46,7 @@ return [
     'changes' => [
         '2026.11' => [
             ['area' => 'Rules', 'title' => '8% counts sales when paid', 'summary' => 'On the 8% option a sale counts for income tax when the money is received, on cash or accrual books alike: RR 8-2018 Sec. 2(g) defines gross receipts as amounts actually or constructively received.'],
+            ['area' => 'Deadline calendar', 'title' => 'Holidays you can change', 'summary' => 'A year whose proclamation isn\'t in the pack yet uses the holidays every year keeps, Holy Week and National Heroes Day included, instead of weekends only. On the calendar, any year\'s holidays can be added to, renamed or turned off, and the deadlines follow.'],
             ['area' => 'Deadline calendar', 'title' => '2027 holidays as proclaimed', 'summary' => 'Chinese New Year (February 6) and All Souls\' Day (November 2) are added to 2027, as Proclamation No. 1427, s. 2026 declares them. The Eid holidays come when they\'re declared.'],
             ['area' => 'Rules', 'title' => 'Which land leaves total assets', 'summary' => 'For the 20% corporate rate, total assets are net of depreciation and bad debts and leave out only the land under the office, plant and equipment; land held for sale or investment counts (RMC 62-2021).'],
             ['area' => 'Rules', 'title' => '15% on fees to larger companies', 'summary' => 'Professional fees paid to a company with gross income over ₱720,000 are withheld at 15% (WC011); 10% (WC010) stays for ₱720,000 or less.'],

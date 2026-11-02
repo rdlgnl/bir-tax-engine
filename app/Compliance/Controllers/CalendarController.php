@@ -34,6 +34,7 @@ class CalendarController extends Controller
         $last = $month->endOfMonth()->toDateString();
 
         $inMonth = fn (string $date) => $date >= $first && $date <= $last;
+        $holidays = array_filter($this->calendar->holidaysIn($month->year), $inMonth, ARRAY_FILTER_USE_KEY);
 
         return Inertia::render('calendar/index', [
             'month' => $month->format('Y-m'),
@@ -43,11 +44,9 @@ class CalendarController extends Controller
                 $this->deadlines([$month->year - 1, $month->year], $today),
                 fn (array $d) => $inMonth($d['date']) || $inMonth($d['statutory_date']),
             )),
-            'holidays' => array_values(array_map(
-                fn (string $date) => ['date' => $date, 'name' => $this->calendar->holidays()[$date]],
-                array_filter(array_keys($this->calendar->holidays()), $inMonth),
-            )),
+            'holidays' => array_map(fn (string $date, string $name) => ['date' => $date, 'name' => $name], array_keys($holidays), $holidays),
             'holidaysKnown' => $this->calendar->knowsHolidays($month->year),
+            'holidayList' => $this->calendar->holidayList($month->year),
             'comingUp' => $this->obligations->upcoming(
                 TaxProfile::current(),
                 $this->engine->forYear(TaxProfile::current(), $today->year, $today),

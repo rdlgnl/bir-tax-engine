@@ -2,6 +2,8 @@ import { Head, Link } from '@inertiajs/react';
 import { CalendarPlus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ComingUp } from '@/components/calendar/coming-up';
 import { DeadlineChip } from '@/components/calendar/deadline-chip';
+import { HolidayList } from '@/components/calendar/holiday-list';
+import type { HolidayRow } from '@/components/calendar/holiday-list';
 import { MonthGrid } from '@/components/calendar/month-grid';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
@@ -16,8 +18,10 @@ type Props = {
     today: string;
     deadlines: Deadline[];
     holidays: { date: string; name: string }[];
-    /** Whether the rule pack has this year's holidays. */
+    /** Whether the rule pack has this year's proclaimed holidays. */
     holidaysKnown: boolean;
+    /** The year's holidays, with the taxpayer's changes. */
+    holidayList: HolidayRow[];
     comingUp: Deadline[];
 };
 
@@ -34,6 +38,7 @@ export default function CalendarIndex({
     deadlines,
     holidays,
     holidaysKnown,
+    holidayList,
     comingUp,
 }: Props) {
     const label = new Intl.DateTimeFormat('en-US', {
@@ -133,19 +138,26 @@ export default function CalendarIndex({
                     {!holidaysKnown && (
                         <Note
                             tone="warning"
-                            title={`No ${month.slice(0, 4)} holidays yet`}
+                            title={`${month.slice(0, 4)} holidays are estimated`}
                         >
-                            Your rule pack doesn't have this year's holidays, so
-                            deadlines here move off weekends only. A deadline on
-                            a holiday may be a day or two later.
+                            This year's holidays aren't proclaimed yet, so the
+                            calendar uses the ones every year keeps: New Year's,
+                            Holy Week, Labor Day, Independence Day, National
+                            Heroes Day, All Saints', Christmas and Rizal Day.
+                            When the proclamation is out, add its other days
+                            below.
                         </Note>
                     )}
+                    <HolidayList
+                        year={Number(month.slice(0, 4))}
+                        rows={holidayList}
+                    />
                     <SectionCard title="How dates are set">
                         <p className="text-sm text-slate-700">
                             Weekends and holidays move a deadline to the next
-                            working day. Holidays come from your rule pack;
-                            special non-working days can change by proclamation,
-                            so check each year's list.
+                            working day. The holidays come with the app; when a
+                            proclamation adds or moves a day, change the list
+                            and the deadlines follow.
                         </p>
                         <p className="mt-2 text-sm text-muted-foreground">
                             "Add to my calendar" downloads the next 12 months of
