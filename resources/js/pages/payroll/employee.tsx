@@ -445,7 +445,7 @@ export default function EmployeePage({
                                 onClick={() => {
                                     if (
                                         window.confirm(
-                                            `Remove ${employee.name} from payroll?`,
+                                            `Remove ${employee.name} from payroll? Their pay and 2316 records go too; the history of changes keeps a copy.`,
                                         )
                                     ) {
                                         router.delete(destroy(employee.id).url);

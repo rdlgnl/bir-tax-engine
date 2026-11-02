@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 57 of 96 done.
+Status: 68 of 96 done.
 
 ---
 
@@ -138,7 +138,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 - [x] Graduated filers on itemized deductions: say financial statements (or an Account Information Form) are attached; on OSD or 8%, none (RMC 17-2019).
 - [x] The CPA audit threshold: gross sales above ₱3,000,000 (NIRC Sec. 232(A) as TRAIN amended it), in the rules as `tax.financial_statements.audit_above`.
 - [x] Show it on the annual return page ([returns/annual.tsx](../resources/js/pages/returns/annual.tsx)).
-- [ ] And on the compliance checklist.
+- [x] And on the compliance checklist (the annual quarter's "Financial statements" item).
 
 **Done when:** a graduated filer above the threshold is told to attach audited statements. ✔ [FilingGuidanceTest.php](../tests/Feature/Returns/FilingGuidanceTest.php)
 
@@ -205,7 +205,7 @@ Still to build:
 - [ ] **A2 Trace.** `TaxResult` carries each step: input, rule id, rate, rounding. `TaxExplainer` reads it, and the snapshot stores it.
 - [ ] **A3 Amendments compare like with like.** Recompute the filed period under the snapshot's rule set, not today's.
 - [ ] **A4 Rule files split by kind.** Rates, deadlines, holidays, form editions, ATC codes and file formats are reviewed and versioned separately.
-- [ ] **M8 Side effect on saving a transaction.** Document the 2307 relinking in `Transaction::booted`, or have imports call it explicitly.
+- [x] **M8 Side effect on saving a transaction.** Documented in `Transaction::booted`: saving or deleting a sale relinks the client's 2307s.
 
 ---
 
@@ -213,17 +213,17 @@ Still to build:
 
 Add these tests (table-driven where possible):
 
-- [ ] Gross exactly ₱250,000 on 8% → ₱0 income tax
-- [ ] Gross exactly ₱3,000,000 on 8% → still allowed
-- [ ] Graduated taxable at ₱250,000 / ₱400,000 / ₱800,000 / ₱2,000,000 / ₱8,000,000 → each band's base tax
-- [ ] Zero income, expenses only → ₱0, never negative
-- [ ] Centavo rounding: amounts at x.005 → consistent with the forms' whole pesos
+- [x] Gross exactly ₱250,000 on 8% → ₱0 income tax
+- [x] Gross exactly ₱3,000,000 on 8% → still allowed
+- [x] Graduated taxable at ₱250,000 / ₱400,000 / ₱800,000 / ₱2,000,000 / ₱8,000,000 → each band's base tax
+- [x] Zero income, expenses only → ₱0, never negative
+- [x] Centavo rounding: amounts at x.005 → consistent with the forms' whole pesos
 - [x] 2022 return → 2018–2022 table
 - [x] 2023 Q2 vs Q3 percentage tax → 1% then 3%
 - [x] Regime switch between years → each year uses its own election
 - [x] Invoice then its payment → counted once
 - [ ] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
-- [ ] Engine total vs printed form total → within ₱1 (M2)
+- [x] Engine total vs printed form total → within ₱1 (M2) ✔ [BoundaryTest.php](../tests/Feature/Tax/BoundaryTest.php)
 - [x] Host header `evil.example` → rejected
 - [ ] CPA reference cases → a small set of worked returns as the acceptance suite
 
@@ -233,15 +233,15 @@ Add these tests (table-driven where possible):
 
 - [ ] **M2 Peso vs centavo.** On whole-peso forms, show the whole-peso amount as the amount to pay.
 - [ ] **M5 Honest PIN wording.** "Protects the screen, not the files", or encrypt sensitive data with a key from the PIN.
-- [ ] **M6 Past ₱3M on 8%.** A guided path (graduated for the year, VAT registration, penalties) instead of `cannot_compute`.
+- [x] **M6 Past ₱3M on 8%.** Graduated from the quarter the limit was passed, percentage tax to that month, VAT from the next, a VAT registration reminder; `cannot_compute` is gone.
 - [ ] **M7 Unpaid quarters.** Count only recorded payments in later quarters; show an unpaid earlier quarter as owed (`priorPaid += $quarterPaid ?? $due` today).
-- [ ] **M9 Silent cascade deletes.** Removing employees or a corporation is recorded (via H4) and confirmed.
+- [x] **M9 Silent cascade deletes.** Removing an employee or the corporation asks first, and their 2316s or quarters are removed one by one, each in the history (H4).
 
 ---
 
 ## Phase 6 — Future BIR readiness
 
-- [ ] EOPT taxpayer classification (micro, small, medium, large) stored per year. **Needs verification:** RR 8-2024 bands.
+- [x] EOPT taxpayer classification (micro, small, medium, large) stored per year, set on the profile; RR 8-2024 bands (₱3M, ₱20M, ₱1B).
 - [ ] E-invoicing (EIS) readiness, if the app ever issues invoices.
 - [ ] Rule updates shipped as dated rule files with a sign-off record (C1 + C3).
 - [ ] Filing and payment through an accredited provider: decision first (not in the design).

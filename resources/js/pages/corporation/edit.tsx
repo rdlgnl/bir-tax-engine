@@ -249,7 +249,7 @@ export default function CorporationEdit({
                             onClick={() => {
                                 if (
                                     window.confirm(
-                                        `Remove ${corporation.name} and its quarterly figures?`,
+                                        `Remove ${corporation.name} and its quarterly figures? The history of changes keeps a copy.`,
                                     )
                                 ) {
                                     router.delete(destroy().url);

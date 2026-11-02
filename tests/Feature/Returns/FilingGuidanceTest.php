@@ -1,5 +1,6 @@
 <?php
 
+use App\Compliance\Services\TaxObligations;
 use App\Profiles\Models\TaxProfile;
 use App\Profiles\Models\TaxYear;
 use App\Tax\Enums\DeductionMethod;
@@ -60,3 +61,13 @@ test('financial statements follow the deduction method, audited above ₱3,000,0
     'graduated, itemized, exactly ₱3M' => ['graduated', DeductionMethod::Itemized, 3_000_000, 'unaudited'],
     'graduated, itemized, over ₱3M' => ['graduated', DeductionMethod::Itemized, 3_500_000, 'audited'],
 ]);
+
+test('the compliance checklist asks for the financial statements with the annual return', function () {
+    $profile = TaxProfile::factory()->graduated(DeductionMethod::Itemized)->create();
+    Transaction::factory()->on('2026-03-01')->create(['amount' => 3_500_000]);
+    $q4 = app(TaxCalculationService::class)->forYear($profile, 2026)['quarters'][4];
+
+    $items = collect(app(TaxObligations::class)->checklist($profile, 2026, $q4, Transaction::query()->get(), CarbonImmutable::now())['items']);
+
+    expect($items->firstWhere('key', 'statements'))->toMatchArray(['label' => 'Audited financial statements', 'done' => false]);
+});

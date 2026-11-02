@@ -7,9 +7,9 @@ use App\Compliance\Services\TaxObligations;
 use App\Http\Controllers\Controller;
 use App\Profiles\Models\TaxProfile;
 use App\Returns\Forms\OfficialForms;
+use App\Returns\Services\FinancialStatements;
 use App\Returns\Services\ReturnForm;
 use App\Returns\Services\ReturnHistory;
-use App\Tax\Enums\DeductionMethod;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
 use App\Tax\Services\Abatement;
@@ -167,7 +167,7 @@ class FileReturnController extends Controller
             'scans' => Certificate::query()->where('year', $snapshot['year'])->whereNotNull('file_path')->count(),
             'alternativeForm' => $alternative !== $snapshot['form'] ? $alternative : null,
             'paperFiling' => $this->paperFiling($snapshot['form']),
-            'financialStatements' => $this->financialStatements($snapshot),
+            'financialStatements' => FinancialStatements::required($snapshot['regime'], $snapshot['deduction_method'], $snapshot['figures']['gross']),
             // Over ₱2,000, half now and half by October 15 (NIRC Sec. 56(A)(2)).
             'secondInstallment' => $layout['payable'] > (float) config('tax.deadlines.installment_above')
                 ? ['amount' => round($layout['payable'] / 2, 2), 'due' => $this->calendar->secondInstallmentDue($snapshot['year'])->toDateString()]
@@ -182,24 +182,6 @@ class FileReturnController extends Controller
     private function paperFiling(string $form): bool
     {
         return in_array($form, (array) config('tax.filing.paper_forms'), true);
-    }
-
-    /**
-     * What goes with the annual return: nothing on 8% or the 40% deduction;
-     * with itemized deductions, financial statements, audited by an
-     * independent CPA once gross sales exceed ₱3,000,000 (RMC 17-2019; NIRC
-     * Sec. 232(A); RR 8-2018 for a year that left 8%).
-     *
-     * @param  Snapshot  $snapshot
-     * @return 'none'|'unaudited'|'audited'
-     */
-    private function financialStatements(array $snapshot): string
-    {
-        return match (true) {
-            $snapshot['regime'] !== Regime::Graduated->value || $snapshot['deduction_method'] !== DeductionMethod::Itemized->value => 'none',
-            $snapshot['figures']['gross'] > (float) config('tax.financial_statements.audit_above') => 'audited',
-            default => 'unaudited',
-        };
     }
 
     /**

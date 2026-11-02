@@ -46,6 +46,14 @@ class Corporation extends Model
     use RecordsChanges;
 
     /**
+     * Its quarters go with it, one by one, so each removal is in the history.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(fn (self $corporation) => $corporation->quarters()->get()->each->delete());
+    }
+
+    /**
      * The app keeps one corporation.
      */
     public static function current(): ?self
