@@ -24,7 +24,7 @@ documentary stamp tax on loans, and one corporation the taxpayer runs.
 Periods from **January 1, 2018** (corporations from **January 1, 2021**);
 earlier periods are refused by the app.
 
-Rule pack version under review: **2026.11** ([config/tax.php](../config/tax.php)).
+Rule pack version under review: **2026.11** ([config/tax.php](../config/tax.php), with its parts in [resources/rule-pack/](../resources/rule-pack/)). Each part can be signed off on its own under `parts` in config/tax.php.
 Reference letters such as `IT-GRAD-2023` are the app's own rule ids.
 
 ---

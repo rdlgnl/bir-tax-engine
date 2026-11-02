@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 75 of 96 done.
+Status: 76 of 96 done.
 
 ---
 
@@ -31,7 +31,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 ### C1 · Tax rules follow the date they apply to
 
 - [x] **Stop-gap:** refuse periods before the earliest encoded rules: transactions, imports, letters and returns before 2018, corporations before 2021 (2020 straddles the CREATE change and isn't encoded).
-- [x] Effective-dated rules: the rule pack's `dated` section (`2018-01-01`, `2020-07-01`, `2021-01-01`, `2023-01-01`, `2023-07-01`), each holding only what changed. Kept in [config/tax.php](../config/tax.php) rather than separate files; A4 can split them.
+- [x] Effective-dated rules: the rule pack's `dated` section (`2018-01-01`, `2020-07-01`, `2021-01-01`, `2023-01-01`, `2023-07-01`), each holding only what changed. In [resources/rule-pack/rates.php](../resources/rule-pack/rates.php) since A4.
 - [x] `TaxRules::on($date)` / `forYear()` / `forQuarter()` resolver returning a `RuleSet`; the engines, payroll, 2316, the 2551Q and 1702 forms and the explainer use it. No `config()` read of a dated rate remains.
 - [x] Percentage tax and MCIT take each quarter's rate (the changes fall on quarter starts); each sale's tax effect uses its own quarter.
 - [x] Snapshots store the rule set itself: its date and every dated rule in force for the period (`rule_set`), so a filed return keeps the rules it was computed on even after the pack changes (groundwork for A3).
@@ -204,7 +204,7 @@ Still to build:
 - [ ] **A1 Pure calculator.** Gather inputs into a `TaxInputs` value. `TaxCalculator` takes inputs and a `RuleSet` and returns a `TaxResult`, with no queries and no `config()`. Corporations follow the same shape.
 - [ ] **A2 Trace.** `TaxResult` carries each step: input, rule id, rate, rounding. `TaxExplainer` reads it, and the snapshot stores it.
 - [x] **A3 Amendments compare like with like.** A filed quarter is recomputed on the rule set kept with it (`TaxRules::pinned`), so only changed records call for an amendment, and the amended return uses the same rules. Returns filed before rule sets were kept use today's.
-- [ ] **A4 Rule files split by kind.** Rates, deadlines, holidays, form editions, ATC codes and file formats are reviewed and versioned separately.
+- [x] **A4 Rule files split by kind.** The pack's parts are in [resources/rule-pack/](../resources/rule-pack/): rates, deadlines, holidays, form editions, tax codes, file formats and citations, each with its own version and sign-off under `parts`, listed on the BIR rules page. `config('tax.*')` reads them as one, unchanged.
 - [x] **M8 Side effect on saving a transaction.** Documented in `Transaction::booted`: saving or deleting a sale relinks the client's 2307s.
 
 ---
