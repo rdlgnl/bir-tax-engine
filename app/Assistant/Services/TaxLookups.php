@@ -3,6 +3,8 @@
 namespace App\Assistant\Services;
 
 use App\Compliance\Services\TaxObligations;
+use App\Letters\Models\Letter;
+use App\Letters\Services\LetterCheck;
 use App\Profiles\Enums\IncomeSource;
 use App\Profiles\Models\TaxProfile;
 use App\Tax\Services\RuleReview;
@@ -29,6 +31,7 @@ class TaxLookups
         private TaxCalculationService $engine,
         private TaxObligations $obligations,
         private TaxRules $rules,
+        private LetterCheck $letterCheck,
     ) {}
 
     /**
@@ -71,6 +74,11 @@ class TaxLookups
                 ],
             ],
             [
+                'name' => 'letters',
+                'description' => "The letters from the BIR the taxpayer has added to the app, newest first: what kind each is, the return and period it names, the date to reply by, whether it's resolved, and what the app found when it checked the letter against their records.",
+                'schema' => ['type' => 'object', 'properties' => new \stdClass],
+            ],
+            [
                 'name' => 'rules',
                 'description' => 'The rules in the rule pack: each id, what it is, its legal basis, when it took effect, and whether a CPA has reviewed it.',
                 'schema' => ['type' => 'object', 'properties' => new \stdClass],
@@ -93,6 +101,7 @@ class TaxLookups
             'quarter_steps' => $this->quarterSteps($profile, $this->year($input), $this->quarter($input)),
             'deadlines' => $this->deadlines($profile),
             'compare_methods' => $this->compare($profile, $input),
+            'letters' => $this->letters($profile),
             'rules' => $this->ruleList(),
             default => throw new InvalidArgumentException("There's no lookup called {$name}."),
         };
@@ -244,6 +253,34 @@ class TaxLookups
             'lowest' => $comparison['best'] !== null ? $labels[$comparison['best']] : null,
             'savings_against_the_next' => $comparison['savings'],
         ], array_map(fn (array $o) => [$labels[$o['key']].' total', $o['available'] ? $this->peso($o['total']) : 'not available'], $comparison['options']));
+    }
+
+    /**
+     * The letters added, with what the app's check found; not their notes,
+     * which are the taxpayer's own words.
+     *
+     * @return Result
+     */
+    private function letters(TaxProfile $profile): array
+    {
+        $kinds = (array) config('letters.kinds');
+        $letters = Letter::query()->latest('dated_on')->latest('id')->limit(10)->get()->map(function (Letter $letter) use ($kinds, $profile) {
+            $check = $this->letterCheck->for($letter, $profile);
+
+            return [
+                'kind' => $kinds[$letter->kind]['label'] ?? $letter->kind,
+                'dated_on' => $letter->dated_on?->toDateString(),
+                'office' => $letter->office,
+                'return' => $letter->form,
+                'period' => $this->letterCheck->period($letter),
+                'reply_by' => $letter->reply_by?->toDateString(),
+                'resolved_on' => $letter->resolved_on?->toDateString(),
+                'what_the_app_found' => ['result' => $check['result'], 'title' => $check['title'], 'detail' => $check['detail']],
+            ];
+        })->all();
+        $open = collect($letters)->whereNull('resolved_on')->count();
+
+        return $this->result(['letters' => $letters], $letters === [] ? [] : [['Letters not yet resolved', (string) $open]]);
     }
 
     /**

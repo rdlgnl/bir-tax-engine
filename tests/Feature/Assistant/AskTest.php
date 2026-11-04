@@ -1,6 +1,7 @@
 <?php
 
 use App\Assistant\Exceptions\AssistantUnavailable;
+use App\Assistant\Providers\Document;
 use App\Assistant\Providers\Provider;
 use App\Assistant\Providers\ProviderFactory;
 use App\Assistant\Providers\Turn;
@@ -31,6 +32,11 @@ class ScriptedProvider implements Provider
             $next instanceof Turn => $next,
             default => $next($history, $question),
         };
+    }
+
+    public function read(Document $document, string $instructions, array $schema): array
+    {
+        throw new AssistantUnavailable('Not reading documents in this test.');
     }
 }
 

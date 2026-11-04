@@ -2,6 +2,7 @@
 
 namespace App\Letters\Controllers;
 
+use App\Assistant\Services\AssistantSettings;
 use App\Http\Controllers\Controller;
 use App\Letters\Models\Letter;
 use App\Letters\Requests\StoreLetterRequest;
@@ -32,9 +33,14 @@ class LetterController extends Controller
 
     public function create(): Response
     {
+        $assistant = AssistantSettings::current();
+
         return Inertia::render('letters/create', [
             'kinds' => collect((array) config('letters.kinds'))->map(fn (array $k, string $key) => ['value' => $key, 'label' => $k['label']])->values(),
             'forms' => config('letters.forms'),
+            'assistant' => ['ready' => $assistant->ready(), 'provider' => $assistant->label()],
+            // What the assistant read from the letter, once, to fill in the form.
+            'reading' => session('letter_reading'),
         ]);
     }
 

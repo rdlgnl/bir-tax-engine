@@ -120,10 +120,40 @@ class ClaudeProvider implements Provider
         }
     }
 
+    public function read(Document $document, string $instructions, array $schema): array
+    {
+        $message = ['role' => 'user', 'content' => [
+            $document->isPdf()
+                ? ['type' => 'document', 'source' => ['type' => 'base64', 'media_type' => 'application/pdf', 'data' => $document->base64()]]
+                : ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $document->mediaType, 'data' => $document->base64()]],
+            ['type' => 'text', 'text' => $instructions],
+        ]];
+
+        try {
+            $reply = $this->request([$message], null, $schema);
+        } catch (BadRequestException $e) {
+            throw new AssistantUnavailable("Anthropic couldn't take this file: ".$e->getMessage());
+        }
+
+        if ($reply->stopReason === 'refusal') {
+            throw new AssistantUnavailable('The assistant declined to read this document.');
+        }
+
+        /** @var list<array<string, mixed>> $content */
+        $content = json_decode((string) json_encode($reply->content), true);
+        $answer = $reply->stopReason === 'max_tokens' ? null : JsonObject::decode($this->text($content));
+
+        return $answer ?? throw new AssistantUnavailable("The assistant couldn't finish reading this document. Try again, or fill in the details yourself.");
+    }
+
     /**
+     * A conversation turn with the lookups as tools, or a one-off answer as
+     * JSON the schema describes.
+     *
      * @param  list<array<string, mixed>>  $history
+     * @param  array<string, mixed>|null  $schema
      */
-    private function request(array $history, TaxLookups $lookups): BetaMessage
+    private function request(array $history, ?TaxLookups $lookups, ?array $schema = null): BetaMessage
     {
         $fallback = in_array($this->model, self::FALLBACK_MODELS, true);
 
@@ -134,12 +164,12 @@ class ClaudeProvider implements Provider
                     ? BetaAssistantMessageParam::fromArray($message)
                     : BetaUserMessageParam::fromArray($message), $history),
                 model: $this->model,
-                cacheControl: ['type' => 'ephemeral'],
+                cacheControl: $lookups !== null ? ['type' => 'ephemeral'] : null,
                 fallbacks: $fallback ? 'default' : null,
-                outputConfig: ['effort' => 'medium'],
-                system: [['type' => 'text', 'text' => Prompt::system()]],
+                outputConfig: $schema === null ? ['effort' => 'medium'] : ['effort' => 'medium', 'format' => ['type' => 'json_schema', 'schema' => $schema]],
+                system: $lookups !== null ? [['type' => 'text', 'text' => Prompt::system()]] : null,
                 thinking: ['type' => 'adaptive'],
-                tools: array_map(fn (array $tool) => BetaTool::fromArray([
+                tools: $lookups === null ? null : array_map(fn (array $tool) => BetaTool::fromArray([
                     'name' => $tool['name'],
                     'description' => $tool['description'],
                     'input_schema' => $tool['schema'],
