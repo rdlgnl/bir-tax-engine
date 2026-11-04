@@ -28,11 +28,16 @@ type CorporationForm = {
     vat_registered: boolean;
     withholding_agent: boolean;
     employees: string;
+    efps_group: string;
 };
 
 type TextField = Exclude<
     keyof CorporationForm,
-    'deduction_method' | 'vat_registered' | 'withholding_agent' | 'total_assets'
+    | 'deduction_method'
+    | 'vat_registered'
+    | 'withholding_agent'
+    | 'total_assets'
+    | 'efps_group'
 >;
 
 export default function CorporationEdit({
@@ -56,6 +61,7 @@ export default function CorporationEdit({
         vat_registered: corporation?.vat_registered ?? false,
         withholding_agent: corporation?.withholding_agent ?? false,
         employees: String(corporation?.employees ?? 0),
+        efps_group: corporation?.efps_group ?? '',
     });
     const field = (
         name: TextField,
@@ -227,6 +233,39 @@ export default function CorporationEdit({
                                     inputMode: 'numeric',
                                     min: 0,
                                 })}
+                            </div>
+                            <div className="flex max-w-[280px] flex-col gap-1.5">
+                                <Label
+                                    htmlFor="efps_group"
+                                    className="font-bold"
+                                >
+                                    How it files
+                                </Label>
+                                <select
+                                    id="efps_group"
+                                    value={form.data.efps_group}
+                                    onChange={(event) =>
+                                        form.setData(
+                                            'efps_group',
+                                            event.target.value,
+                                        )
+                                    }
+                                    className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
+                                >
+                                    <option value="">eBIRForms</option>
+                                    {['A', 'B', 'C', 'D', 'E'].map((group) => (
+                                        <option key={group} value={group}>
+                                            eFPS, Group {group}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-[13px] text-muted-foreground">
+                                    eFPS is required of large taxpayers and
+                                    corporations with paid-up capital of ₱10
+                                    million or more, among others. Its group
+                                    sets the day its 0619-E and 1601-C are due.
+                                </p>
+                                <FieldError message={form.errors.efps_group} />
                             </div>
                         </div>
                     </SectionCard>

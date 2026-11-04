@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 87 of 97 done.
+Status: 90 of 97 done.
 
 ---
 
@@ -190,7 +190,7 @@ Done:
 Still to build:
 
 - [x] No-payment 1702Q: every quarter is listed from the year the corporation registered, "No payment" when nothing's due; a 1601-C for months with no one on payroll after the year's first hire, "No payment", the month page pointing to the 1905 to stop (REVIEW: the app doesn't record the compensation-withholding registration).
-- [ ] eFPS filers' dates (0619-E by the 15th, 1601-C by group): the app assumes eBIRForms filers, as RMC 20-2026 has the self-employed who aren't listed for eFPS.
+- [x] eFPS filers' dates: the profile and the corporation say how they file, eBIRForms or eFPS and its group (the profile from a month on, so earlier returns keep their dates). An eFPS filer's 0619-E is due the 15th, its 1601-C on the group's day, the 11th to the 15th, December's included (RR 26-2002; PwC's 2026 calendar). The app shows the e-filing date; payment by the 15th (December's January 20) isn't shown apart (REVIEW). ✔ [EfpsTest.php](../tests/Feature/Tax/EfpsTest.php)
 
 ### M1 · Holidays beyond 2027
 

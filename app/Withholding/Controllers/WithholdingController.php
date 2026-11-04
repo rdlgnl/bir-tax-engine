@@ -81,7 +81,9 @@ class WithholdingController extends Controller
     public function monthPdf(int $year, int $month, Form0619EItems $items): HttpResponse
     {
         $this->ensureMonth($year, $month);
-        $values = $items->values(TaxProfile::current(), $year, $month, $this->agent->month($year, $month)['withheld'], $this->calendar->withholdingMonthlyDue($year, $month));
+        $profile = TaxProfile::current();
+        $due = $this->calendar->withholdingMonthlyDue($year, $month, $profile->efpsGroupFor($year, $month));
+        $values = $items->values($profile, $year, $month, $this->agent->month($year, $month)['withheld'], $due);
 
         return $this->pdf('0619-E', $values, sprintf('0619-E-%d-%02d.pdf', $year, $month));
     }

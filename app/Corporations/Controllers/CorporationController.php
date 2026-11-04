@@ -269,7 +269,7 @@ class CorporationController extends Controller
         if ($corporation->withholding_agent) {
             $candidates[] = array_map(fn (CarbonImmutable $month) => $month->month % 3 === 0
                 ? ['title' => "Q{$month->quarter} withholding (1601-EQ)", 'detail' => 'Payments to suppliers', 'date' => $this->calendar->withholdingQuarterlyDue($month->year, $month->quarter)]
-                : ['title' => "{$month->format('F')} withholding (0619-E)", 'detail' => 'Payments to suppliers', 'date' => $this->calendar->withholdingMonthlyDue($month->year, $month->month)],
+                : ['title' => "{$month->format('F')} withholding (0619-E)", 'detail' => 'Payments to suppliers', 'date' => $this->calendar->withholdingMonthlyDue($month->year, $month->month, $corporation->efps_group)],
                 [$lastMonth, $today]);
         }
 
@@ -277,7 +277,7 @@ class CorporationController extends Controller
             $candidates[] = array_map(fn (CarbonImmutable $month) => [
                 'title' => "{$month->format('F')} payroll (1601-C)",
                 'detail' => $corporation->employees === 1 ? '1 employee' : "{$corporation->employees} employees",
-                'date' => $this->calendar->compensationMonthlyDue($month->year, $month->month),
+                'date' => $this->calendar->compensationMonthlyDue($month->year, $month->month, $corporation->efps_group),
             ], [$lastMonth, $today]);
         }
 
@@ -318,6 +318,7 @@ class CorporationController extends Controller
             'vat_registered' => $corporation->vat_registered,
             'withholding_agent' => $corporation->withholding_agent,
             'employees' => $corporation->employees,
+            'efps_group' => $corporation->efps_group?->value,
         ];
     }
 }

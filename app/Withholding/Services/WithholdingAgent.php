@@ -40,6 +40,7 @@ class WithholdingAgent
         $payments = $this->payments($year);
         $filings = Filing::query()->where('year', $year)->whereIn('form', ['0619-E', '1601-EQ'])->get();
         $given = IssuedCertificate::query()->where('year', $year)->get();
+        $profile = TaxProfile::current();
         $quarters = [];
 
         foreach ([1, 2, 3, 4] as $quarter) {
@@ -58,7 +59,7 @@ class WithholdingAgent
                 }
 
                 $filing = $filings->first(fn (Filing $f) => $f->form === '0619-E' && $f->month === $month);
-                $due = $this->calendar->withholdingMonthlyDue($year, $month);
+                $due = $this->calendar->withholdingMonthlyDue($year, $month, $profile?->efpsGroupFor($year, $month));
                 $months[] = [
                     'month' => $month,
                     'withheld' => $withheld,

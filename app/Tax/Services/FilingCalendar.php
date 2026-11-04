@@ -6,6 +6,7 @@ use App\Compliance\Models\HolidayChange;
 use App\Profiles\Models\TaxProfile;
 use App\Tax\Calculation\YearTaxpayer;
 use App\Tax\Enums\DeductionMethod;
+use App\Tax\Enums\EfpsGroup;
 use App\Tax\Enums\Regime;
 use App\Tax\Enums\TaxpayerClassification;
 use Carbon\CarbonImmutable;
@@ -66,22 +67,32 @@ class FilingCalendar
 
     /**
      * 0619-E: the withholding of the first two months of a quarter, by the
-     * 10th of the month after.
+     * 10th of the month after, or the 15th for an eFPS filer.
      */
-    public function withholdingMonthlyDue(int $year, int $month): CarbonImmutable
+    public function withholdingMonthlyDue(int $year, int $month, ?EfpsGroup $efps = null): CarbonImmutable
     {
-        return $this->nextWorkingDay(CarbonImmutable::create($year, $month)->addMonth()->day((int) config('tax.withholding.monthly_due_day')));
+        $day = $efps === null ? config('tax.withholding.monthly_due_day') : config('tax.withholding.efps.monthly_due_day');
+
+        return $this->dayOfNextMonth($year, $month, (int) $day);
     }
 
     /**
      * 1601-C: the month's tax withheld on salaries, by the 10th of the month
-     * after; December's by January 15 (RR 2-98 Sec. 2.83, as amended).
+     * after; December's by January 15 (RR 2-98 Sec. 2.83, as amended). An
+     * eFPS filer's by their group's day, the 11th to the 15th, every month.
      */
-    public function compensationMonthlyDue(int $year, int $month): CarbonImmutable
+    public function compensationMonthlyDue(int $year, int $month, ?EfpsGroup $efps = null): CarbonImmutable
     {
-        return $month === 12
-            ? $this->nextWorkingDay(CarbonImmutable::create($year + 1, 1, (int) config('tax.withholding.december_compensation_due_day')))
-            : $this->withholdingMonthlyDue($year, $month);
+        return match (true) {
+            $efps !== null => $this->dayOfNextMonth($year, $month, $efps->compensationDueDay()),
+            $month === 12 => $this->dayOfNextMonth($year, $month, (int) config('tax.withholding.december_compensation_due_day')),
+            default => $this->withholdingMonthlyDue($year, $month),
+        };
+    }
+
+    private function dayOfNextMonth(int $year, int $month, int $day): CarbonImmutable
+    {
+        return $this->nextWorkingDay(CarbonImmutable::create($year, $month)->addMonth()->day($day));
     }
 
     /**

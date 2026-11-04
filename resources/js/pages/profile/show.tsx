@@ -4,7 +4,11 @@ import { ClassificationList } from '@/components/profile/classification-list';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
 import { data, registration } from '@/routes';
-import { classification as saveClassification } from '@/routes/profile';
+import { Input } from '@/components/ui/input';
+import {
+    classification as saveClassification,
+    efps as saveEfps,
+} from '@/routes/profile';
 import { show as setupShow } from '@/routes/setup';
 import { compare } from '@/routes/tax';
 import type { RulePack, TaxProfileSummary } from '@/types';
@@ -19,6 +23,7 @@ type Props = {
         estimate: Choice;
         options: Choice[];
     };
+    efps: { group: string | null; from: string | null; options: Choice[] };
     year: number;
     methodLockedOn: string | null;
     nextYearDecisionDue: string;
@@ -32,11 +37,19 @@ function maskTin(tin: string | null): string | null {
 export default function ProfileShow({
     profile,
     classification,
+    efps,
     year,
     methodLockedOn,
     nextYearDecisionDue,
     rulePack,
 }: Props) {
+    const fileThrough = (group: string | null, from: string | null) =>
+        router.put(
+            saveEfps().url,
+            { efps_group: group, efps_from: from },
+            { preserveScroll: true },
+        );
+
     return (
         <>
             <Head title="Profile & settings" />
@@ -176,6 +189,65 @@ export default function ProfileShow({
                             <p className="text-[13px] text-muted-foreground">
                                 The BIR assigns it; ORUS shows yours. Micro and
                                 small taxpayers pay lower penalties.
+                            </p>
+                        </div>
+                        <div className="mt-4 flex flex-col gap-1.5">
+                            <label
+                                htmlFor="efps_group"
+                                className="text-sm font-bold"
+                            >
+                                How you file
+                            </label>
+                            <select
+                                id="efps_group"
+                                value={efps.group ?? ''}
+                                onChange={(event) =>
+                                    fileThrough(
+                                        event.target.value || null,
+                                        efps.from,
+                                    )
+                                }
+                                className="h-11 rounded-xl border border-input bg-card px-3 text-sm"
+                            >
+                                <option value="">eBIRForms</option>
+                                {efps.options.map((option) => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {efps.group && (
+                                <>
+                                    <label
+                                        htmlFor="efps_from"
+                                        className="mt-2 text-sm font-bold"
+                                    >
+                                        First month filed through eFPS
+                                    </label>
+                                    <Input
+                                        id="efps_from"
+                                        type="month"
+                                        value={efps.from ?? ''}
+                                        onChange={(event) =>
+                                            fileThrough(
+                                                efps.group,
+                                                event.target.value || null,
+                                            )
+                                        }
+                                        className="h-11 rounded-xl"
+                                    />
+                                </>
+                            )}
+                            <p className="text-[13px] text-muted-foreground">
+                                Choose a group only if the BIR enrolled you in
+                                eFPS. Your 0619-E is then due the 15th, and your
+                                1601-C on your group&rsquo;s day, from the 15th
+                                (Group A) to the 11th (Group E).
+                                {efps.group &&
+                                    ' Leave the month blank if every return went through eFPS.'}
                             </p>
                         </div>
                         <div className="mt-4 flex flex-wrap gap-2.5">
