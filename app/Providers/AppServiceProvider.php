@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Desktop\DeviceKey;
 use App\Tax\Services\TaxRules;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,6 +20,13 @@ class AppServiceProvider extends ServiceProvider
     {
         // One rule lookup per request, so pinning a filed year's rules reaches every service.
         $this->app->scoped(TaxRules::class);
+
+        // The desktop app encrypts with a key of its own, not the build's
+        // APP_KEY. NativePHP has moved the storage path to the app's data
+        // folder by now; nothing is encrypted yet.
+        if (config('nativephp-internal.running')) {
+            config(['app.key' => (new DeviceKey(storage_path('app/device.key')))->get((string) config('app.cipher'))]);
+        }
     }
 
     /**

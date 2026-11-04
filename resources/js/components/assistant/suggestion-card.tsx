@@ -1,6 +1,7 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { openExternal } from '@/lib/external';
 import { formatDate, peso } from '@/lib/format';
 import { suggestion as suggestionRoute } from '@/routes/ask';
 import { show as setupShow } from '@/routes/setup';
@@ -59,6 +60,7 @@ export function SuggestionCard({
     turn: number;
     index: number;
 }) {
+    const { desktop } = usePage().props;
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -117,7 +119,10 @@ export function SuggestionCard({
                                 type="button"
                                 className="rounded-xl font-bold"
                                 onClick={() => {
-                                    window.location.href = `mailto:${encodeURIComponent(suggestion.to ?? '')}?subject=${encodeURIComponent(suggestion.subject)}&body=${encodeURIComponent(suggestion.body)}`;
+                                    openExternal(
+                                        `mailto:${encodeURIComponent(suggestion.to ?? '')}?subject=${encodeURIComponent(suggestion.subject)}&body=${encodeURIComponent(suggestion.body)}`,
+                                        desktop,
+                                    );
                                     mark('done');
                                 }}
                             >

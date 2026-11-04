@@ -6,6 +6,7 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             issuesUrl: string;
+            desktop: boolean;
             taxpayer: Taxpayer | null;
             nextDeadline: NextDeadline | null;
             transactionForm: TransactionFormContext | null;

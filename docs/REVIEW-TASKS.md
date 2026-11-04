@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 94 of 97 done.
+Status: 96 of 97 done.
 
 ---
 
@@ -243,9 +243,9 @@ Add these tests (table-driven where possible):
 ## Phase 6 — Future BIR readiness
 
 - [x] EOPT taxpayer classification (micro, small, medium, large) stored per year, set on the profile; RR 8-2024 bands (₱3M, ₱20M, ₱1B).
-- [ ] E-invoicing (EIS) readiness, if the app ever issues invoices.
+- [x] E-invoicing (EIS) readiness, if the app ever issues invoices. Closed, not planned (2026-11-04): issuing invoices through the EIS needs the BIR to accredit the software, too heavy for a free app on the taxpayer's own computer. The app records invoices issued elsewhere and keeps its reminder of the EIS deadline for online sellers.
 - [x] Rule updates shipped as dated rule files with a sign-off record (C1 + C3): the pack's parts, each versioned with its sign-off, and the update steps in the README.
-- [ ] Filing and payment through an accredited provider: decision first (not in the design).
+- [x] Filing and payment through an accredited provider: decision first (not in the design). Closed, not planned (2026-11-04): the same accreditation applies. The app prepares each return and the values to copy into eBIRForms, and the taxpayer files and pays there.
 
 ---
 

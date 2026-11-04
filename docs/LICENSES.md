@@ -8,6 +8,7 @@ BuwisBuddy itself is under the [MIT License](../LICENSE). This is what it ships 
 - **Dual-licensed** (`nette/schema`, `nette/utils`: BSD-3-Clause or GPL-2.0/3.0): used under BSD-3-Clause.
 - **BIR forms**: the PDF templates in `resources/forms/bir/` are the BIR's own forms, downloaded from bir.gov.ph and filled in place; they're government forms meant for the public to fill.
 - **Fonts and icons**: Lucide icons (ISC). Any font bundled with a packaged build needs its licence alongside.
+- **The desktop app** (NativePHP) bundles Electron (MIT) with Chromium (BSD-3-Clause and others; electron-builder ships its `LICENSES.chromium.html`) and a static PHP binary (PHP License 3.01, with the licences of the libraries compiled into it). Keep those files in the installer.
 
 Everything else is MIT, BSD-3-Clause, Apache-2.0 or ISC: keep the copyright notices with a packaged build.
 
@@ -48,6 +49,7 @@ Everything else is MIT, BSD-3-Clause, Apache-2.0 or ISC: keep the copyright noti
 | `league/uri-interfaces`               | 7.9.1    | MIT                                      |
 | `masterminds/html5`                   | 2.12.0   | MIT                                      |
 | `monolog/monolog`                     | 3.12.1   | MIT                                      |
+| `nativephp/desktop`                   | 2.4.0    | MIT                                      |
 | `nesbot/carbon`                       | 3.15.1   | MIT                                      |
 | `nette/schema`                        | v1.4.0   | BSD-3-Clause, GPL-2.0-only, GPL-3.0-only |
 | `nette/utils`                         | v4.1.6   | BSD-3-Clause, GPL-2.0-only, GPL-3.0-only |
@@ -73,6 +75,7 @@ Everything else is MIT, BSD-3-Clause, Apache-2.0 or ISC: keep the copyright noti
 | `setasign/fpdf`                       | 1.9.0    | MIT                                      |
 | `setasign/fpdi`                       | v2.6.9   | MIT                                      |
 | `smalot/pdfparser`                    | v2.13.1  | LGPL-3.0                                 |
+| `spatie/laravel-package-tools`        | 1.93.3   | MIT                                      |
 | `standard-webhooks/standard-webhooks` | v1.0.2   | MIT                                      |
 | `symfony/clock`                       | v8.1.9   | MIT                                      |
 | `symfony/console`                     | v8.1.10  | MIT                                      |
@@ -81,6 +84,7 @@ Everything else is MIT, BSD-3-Clause, Apache-2.0 or ISC: keep the copyright noti
 | `symfony/error-handler`               | v8.1.10  | MIT                                      |
 | `symfony/event-dispatcher`            | v8.1.5   | MIT                                      |
 | `symfony/event-dispatcher-contracts`  | v3.7.1   | MIT                                      |
+| `symfony/filesystem`                  | v8.1.11  | MIT                                      |
 | `symfony/finder`                      | v8.1.10  | MIT                                      |
 | `symfony/http-foundation`             | v8.1.10  | MIT                                      |
 | `symfony/http-kernel`                 | v8.1.10  | MIT                                      |
