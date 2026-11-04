@@ -1,10 +1,18 @@
 # BuwisBuddy
 
-A BIR tax app for Philippine freelancers and sole proprietors, built from the approved design in `design/`.
+A BIR tax app for Philippine freelancers and sole proprietors: a desktop app for macOS, Windows and Linux that keeps their records on their own computer, works out their taxes and fills the BIR's own forms. Built from the approved design in `design/`.
 
 Laravel 13 · React 19 · TypeScript · Inertia 3 · Tailwind CSS 4 · shadcn/ui · SQLite
 
 > **Tax rules are not reviewed by a tax professional.** BuwisBuddy is open source and was released without a CPA review: the rules were encoded from the NIRC as amended and the issuances in [docs/RULE-REVIEW.md](docs/RULE-REVIEW.md), and mistakes are reported and fixed in the open. The app says so beside the rules, with a "Report a mistake" link to the issue tracker. Every rate, threshold and deadline is in the rule pack (`2026.11`): `config/tax.php` reads it as one from its parts in `resources/rule-pack/` (rates, deadlines, holidays, form editions, tax codes, file formats, citations). A part or rule counts as reviewed only when a tax professional has signed it off (see "Updating the rule pack"). [CONTRIBUTING.md](CONTRIBUTING.md) says how to help; the code is under the [MIT License](LICENSE).
+
+In `docs/`:
+
+- [RULE-REVIEW.md](docs/RULE-REVIEW.md): every rule as the app applies it, for a CPA or tax lawyer to check.
+- [REFERENCE-CASES.md](docs/REFERENCE-CASES.md): ten typical taxpayers and the returns the app prepares for them, line by line; generated from the test that checks them (see "Checks").
+- [REVIEW-TASKS.md](docs/REVIEW-TASKS.md): the November 2026 review's fix list, all closed.
+- [LICENSES.md](docs/LICENSES.md): what the app and its desktop build ship with, and under what terms.
+- `research/`: the notes behind the rules, with their sources.
 
 ## Run it
 
@@ -18,11 +26,12 @@ composer run dev         # or: php artisan serve + npm run dev
 
 The app is single-user and keeps no accounts: data stays in `database/database.sqlite` on this computer. Backups (`.bbk`, encrypted with a password you choose) go to `~/Documents/BuwisBuddy` unless you pick another folder under Your data; set `BACKUP_FOLDER` to change the default.
 
-The one exception is the assistant (Ask), which is off by default. Turned on under Your data, it uses the taxpayer's own API key for Claude or an OpenAI-compatible API, and sends their question and the figures it looks up, never their name, TIN or address. Reading a BIR letter is the one case where the letter itself goes, their name and TIN on it, and only after they tick the box for that letter. The key is stored encrypted with `APP_KEY`, stays out of backups, and "Erase all data" removes it.
+The one exception is the assistant (Ask), which is off by default. Turned on under Your data, it uses the taxpayer's own API key for Claude or an OpenAI-compatible API, and sends their question and the figures it looks up, never their name, TIN or address. Reading a BIR letter is the one case where the letter itself goes, their name and TIN on it, and only after they tick the box for that letter. The key is stored encrypted (with `APP_KEY`, or in the desktop app with its own key: see "Desktop app"), stays out of backups, and "Erase all data" removes it.
 
 ## Checks
 
 ```bash
+composer ci:check        # all of the below, as CI runs them
 php artisan test         # Pest
 vendor/bin/phpstan analyse
 vendor/bin/pint
@@ -30,14 +39,19 @@ npm run check            # lint + format
 npm run types:check
 ```
 
+- Feature tests render pages from the built frontend: after adding a page, run `npm run build` (CI does, in `composer setup`). A page missing from the build fails with "Not a valid Inertia response".
+- If PHPStan stops at PHP's memory limit (Laravel Herd sets 128M), run it with `--memory-limit=1G`.
+- `tests/Feature/Acceptance/ReferenceCasesTest.php` checks the returns in [docs/REFERENCE-CASES.md](docs/REFERENCE-CASES.md) line by line, and that the document matches. When a change moves a figure on purpose, update the case's expected figures and rewrite the document with `REFERENCE_CASES_WRITE=1 php artisan test --filter=ReferenceCases`.
+- Every file name must work on Windows, where the installers are built too, or the checkout fails: no `< > : " \ | ? *` in a name, no trailing dot or space, no reserved name like `CON`. A test checks.
+
 ## Layout
 
 Business domains sit directly under `app/`, each with ordinary Laravel parts and its own `routes.php` (registered in `bootstrap/app.php`):
 
 | Domain             | Owns                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `app/Profiles`     | The tax profile, the setup wizard, and registration updates (filled Form 1905)                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `app/Tax`          | The tax engine (`TaxCalculationService`), quarterly VAT (`VatCalculator`), due dates (`FilingCalendar`), the "why" explanation, My tax and What if, and the rule pack in use with what a new one changed                                                                                                                                                                                                                                                                                                                       |
+| `app/Profiles`     | The tax profile, the setup wizard, how the taxpayer files (eBIRForms, or eFPS and its group, from a month on), the BIR classification per year, and registration updates (filled Form 1905)                                                                                                                                                                                                                                                                                                                                    |
+| `app/Tax`          | The tax engine (`TaxCalculationService`), quarterly VAT (`VatCalculator`), due dates (`FilingCalendar`, eFPS filers' withholding dates included), the "why" explanation, My tax and What if, and the rule pack in use with what a new one changed                                                                                                                                                                                                                                                                              |
 | `app/Transactions` | Payments, invoices, expenses, 2307 tracking, the live tax preview, finding records (search, quick filters, export), importing payments from bank, e-wallet and payout statements (CSV), and importing marketplace payout reports (sales, fees, platform withholding)                                                                                                                                                                                                                                                           |
 | `app/Compliance`   | What's due next, the quarter checklist, 2307 certificates (read from their PDF's text) and matching, kept up to date as payments change, the 2316 from an employer, the deadline calendar and its .ics export                                                                                                                                                                                                                                                                                                                  |
 | `app/Returns`      | Preparing a return (values to copy, filled form, PDF), marking it filed with its figures frozen, amending a filed 1701Q, paying late (surcharge and interest), history, the SAWT and SLSP with their BIR data files, and reports (tax summary, CSV exports, encrypted accountant ZIP)                                                                                                                                                                                                                                          |
@@ -51,7 +65,7 @@ Business domains sit directly under `app/`, each with ordinary Laravel parts and
 | `app/Withholding`  | The taxpayer as a withholding agent: tax kept from fees and rent they pay, the monthly 0619-E, the quarterly 1601-EQ with its list of payees (QAP data file), the 2307 each payee is given, and the annual 1604-E with its alphalist                                                                                                                                                                                                                                                                                           |
 | `app/Assistant`    | Ask about your taxes: the settings (provider, model, the taxpayer's own encrypted key), read-only lookups of the engine's figures and the rule pack (`TaxLookups`), Claude through Anthropic's SDK and OpenAI-compatible APIs behind one `Provider`, the conversation kept in the session, reading a BIR letter into the letter form (`LetterReader`), and its suggestions (an email draft, a transaction to add, a profile answer to change), which change nothing until approved through the app's own forms (`Suggestions`) |
 
-`app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains.
+`app/Http/Controllers/HomeController` draws on all of them, so it lives outside the domains. So do the desktop app's own pieces: `app/Desktop/DeviceKey` (each install's encryption key), `app/Providers/NativeAppServiceProvider` (its window and PHP settings) and `app/Http/Controllers/ExternalLinkController` (opening links out in the computer's browser or email app).
 
 Books prints the two cash journals and the general journal and ledger. The cash journals record money as it moves; the general journal follows the books' method for each year (on accrual books an invoice is income on its date, owed as accounts receivable until paid). The ledger's balances carry over from the first records in the app, each year's income and expenses closing into owner's capital; money held before the first record is added by hand.
 
@@ -102,7 +116,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-It drafts a GitHub release for the tag with notes from the merged pull requests, builds on GitHub's runners for macOS (Apple silicon and Intel, `.dmg` and `.zip`), Windows (setup `.exe`) and Linux (`.AppImage` and `.deb`), with the app's version taken from the tag, and attaches each installer to the draft. Check the installers, then publish the release on GitHub. A failed build can be run again from the Actions tab ("release", Run workflow, with the tag).
+It drafts a GitHub release for the tag with notes from the merged pull requests, builds on GitHub's runners for macOS (Apple silicon and Intel, `.dmg` and `.zip`), Windows (setup `.exe`) and Linux (`.AppImage` and `.deb`), with the app's version taken from the tag, and attaches each installer to the draft. Check the installers, then publish the release on GitHub. A pre-release tag like `v1.1.0-beta.1` builds the same way, a good first run for a new version. A failed build can be run again from the Actions tab ("release", Run workflow, with the tag).
 
 Before a public release: sign the builds (unsigned ones are blocked by macOS Gatekeeper and warned about by Windows SmartScreen; NativePHP takes the Apple notarization and Azure Trusted Signing settings from `.env`), and keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md). Updates through GitHub releases are set up but off until `NATIVEPHP_UPDATER_ENABLED=true`. To sign in the release workflow, add those settings as repository secrets, write them into the build's `.env` in its Install step, and drop `CSC_IDENTITY_AUTO_DISCOVERY` from its Build step.
 
