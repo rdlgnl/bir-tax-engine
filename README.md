@@ -93,7 +93,18 @@ What the packaged app does differently (`AppServiceProvider`, `NativeAppServiceP
 - **One window, kept to the app.** Links out (Report a mistake, email drafts) open in the computer's browser or email app through `POST /external`, which only opens the issue tracker and `mailto:` links. Only the app's own window can reach its server: NativePHP turns ordinary browser visits away, and `RejectUnknownHosts` answers `localhost` and `127.0.0.1` only.
 - **PHP settings** for the PDFs and the assistant (memory, time, upload size) in `NativeAppServiceProvider::phpIni()`.
 
-Before a public release: set `NATIVEPHP_APP_VERSION`, sign the builds (unsigned ones are blocked by macOS Gatekeeper and warned about by Windows SmartScreen; NativePHP takes the Apple notarization and Azure Trusted Signing settings from `.env`), and keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md). Updates through GitHub releases are set up but off until `NATIVEPHP_UPDATER_ENABLED=true`.
+### Releases
+
+Push a version tag and GitHub Actions builds the installers (`.github/workflows/release.yml`):
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+It drafts a GitHub release for the tag with notes from the merged pull requests, builds on GitHub's runners for macOS (Apple silicon and Intel, `.dmg` and `.zip`), Windows (setup `.exe`) and Linux (`.AppImage` and `.deb`), with the app's version taken from the tag, and attaches each installer to the draft. Check the installers, then publish the release on GitHub. A failed build can be run again from the Actions tab ("release", Run workflow, with the tag).
+
+Before a public release: sign the builds (unsigned ones are blocked by macOS Gatekeeper and warned about by Windows SmartScreen; NativePHP takes the Apple notarization and Azure Trusted Signing settings from `.env`), and keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md). Updates through GitHub releases are set up but off until `NATIVEPHP_UPDATER_ENABLED=true`. To sign in the release workflow, add those settings as repository secrets, write them into the build's `.env` in its Install step, and drop `CSC_IDENTITY_AUTO_DISCOVERY` from its Build step.
 
 ## Updating the rule pack
 
