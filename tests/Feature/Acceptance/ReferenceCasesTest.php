@@ -691,7 +691,7 @@ function referenceCasesDocument(): string
         '',
         '# Reference cases',
         '',
-        'Worked returns from BuwisBuddy for a CPA to check, alongside the rule review in [RULE-REVIEW.md](RULE-REVIEW.md). Each case is a typical taxpayer: the facts that matter, then each return the app prepares for them, line by line, as its return page lists the amounts to copy into eBIRForms. Every return is prepared on its due date and paid in full that day, except in case R8.',
+        'Worked returns from BuwisBuddy for a CPA or tax lawyer to check, alongside the rule review in [RULE-REVIEW.md](RULE-REVIEW.md). BuwisBuddy is open source and was released without a professional review; send what you find as an issue or pull request (see [CONTRIBUTING.md](../CONTRIBUTING.md)). Each case is a typical taxpayer: the facts that matter, then each return the app prepares for them, line by line, as its return page lists the amounts to copy into eBIRForms. Every return is prepared on its due date and paid in full that day, except in case R8.',
         '',
         "**What we ask:** for each line, tick the CPA column if the amount is right, or write the right amount and its basis. Note under the return any line that's missing or shouldn't be there, and answer the case's question where it has one.",
         '',

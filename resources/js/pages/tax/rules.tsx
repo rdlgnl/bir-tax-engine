@@ -2,6 +2,7 @@ import type { SignOff } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChevronLeft } from 'lucide-react';
 import { Note } from '@/components/note';
+import { ReportMistakeLink } from '@/components/report-mistake-link';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { formatDate, peso } from '@/lib/format';
@@ -81,7 +82,8 @@ export default function Rules({
                         Rule pack {version}
                         {reviewed
                             ? ' · reviewed by a tax professional'
-                            : ' · not yet reviewed by a tax professional'}
+                            : ' · not yet reviewed by a tax professional'}{' '}
+                        · <ReportMistakeLink packVersion={version} />
                     </p>
                 </div>
             </header>

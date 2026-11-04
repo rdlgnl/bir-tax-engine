@@ -44,6 +44,8 @@ test('a new pack shows what changed and the numbers before and after', function 
 test('the rules page also describes the pack in use', function () {
     $this->get('/rules')->assertInertia(fn (Assert $page) => $page
         ->where('version', '2026.11')
+        // Where a mistake in the rules is reported.
+        ->where('issuesUrl', 'https://github.com/rdlgnl/bir-tax-engine/issues')
         ->where('pending', false)
         ->where('before', null)
         ->has('changes', 8)

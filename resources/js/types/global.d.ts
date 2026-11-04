@@ -5,6 +5,7 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            issuesUrl: string;
             taxpayer: Taxpayer | null;
             nextDeadline: NextDeadline | null;
             transactionForm: TransactionFormContext | null;

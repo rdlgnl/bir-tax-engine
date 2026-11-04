@@ -48,6 +48,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'issuesUrl' => config('app.issues_url'),
             'taxpayer' => fn () => $this->taxpayer(),
             'nextDeadline' => fn () => $this->nextDeadline(),
             'transactionForm' => fn () => $this->transactionForm(),

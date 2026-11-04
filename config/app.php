@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Where a mistake in the rules or the app is reported: the project's
+    // public issue tracker (a fork sets its own).
+    'issues_url' => env('ISSUES_URL', 'https://github.com/rdlgnl/bir-tax-engine/issues'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

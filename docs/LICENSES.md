@@ -1,6 +1,6 @@
 # Licences
 
-What BuwisBuddy ships with, and under what terms. Generated from `composer licenses --no-dev` and each runtime npm package's `package.json`; development tools aren't shipped and aren't listed.
+BuwisBuddy itself is under the [MIT License](../LICENSE). This is what it ships with, and under what terms. Generated from `composer licenses --no-dev` and each runtime npm package's `package.json`; development tools aren't shipped and aren't listed.
 
 ## What needs attention
 
