@@ -1,6 +1,5 @@
 <?php
 
-use App\Profiles\Models\TaxProfile;
 use App\Tax\Services\RuleReview;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DemoTaxpayerSeeder;
