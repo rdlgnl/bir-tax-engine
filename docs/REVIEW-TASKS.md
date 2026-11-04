@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 96 of 97 done.
+Status: 97 of 97 done.
 
 ---
 
@@ -253,7 +253,7 @@ Add these tests (table-driven where possible):
 
 - [x] **L1** Packaged builds ship with `APP_DEBUG=false`: a Packaging section in the README (debug off, the app URL, config cache, licences); `debug` already defaults to off. No packaged build exists yet.
 - [x] **L2** The general ledger builds each month's journal once per request, so opening balances no longer rebuild the months before for every account ([GeneralLedger.php](../app/Books/Services/GeneralLedger.php)).
-- [ ] **L3** Split the largest pages when next touched: `certificates/create`, `letters/create`, `corporation/*`.
+- [x] **L3** Split the largest pages when next touched: `certificates/create`, `letters/create`, `corporation/*`. Done for the two largest (2026-11-04): `transactions/import` (737 lines to 159) and `certificates/create` (651 to 153), their parts in `components/transactions/import/` and `components/compliance/certificate-form/`, unchanged in what they show. `letters/create` (about 460) and `corporation/*` (300 to 360 each) are left as they are.
 - [x] **L4** The server keeps the VAT sent from the form to at most 12% of the amount, a peso allowed for rounding.
 - [x] **L5** Move holiday names and other copy out of the rule pack. Closed, not done: what's left is the law's own wording for its data (holiday names from the proclamations, ATC and de minimis descriptions, rule titles), reviewed with it. Moving it would split each date or rate from its name and make every yearly update two edits, and holidays can be renamed in the app.
 - [x] **L6** Licences list: [docs/LICENSES.md](LICENSES.md), with the LGPL libraries (dompdf, smalot/pdfparser) and what they ask of a packaged build.
