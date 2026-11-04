@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 90 of 97 done.
+Status: 91 of 97 done.
 
 ---
 
@@ -226,7 +226,7 @@ Add these tests (table-driven where possible):
 - [x] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
 - [x] Engine total vs printed form total → within ₱1 (M2) ✔ [BoundaryTest.php](../tests/Feature/Tax/BoundaryTest.php)
 - [x] Host header `evil.example` → rejected
-- [ ] CPA reference cases → a small set of worked returns as the acceptance suite
+- [ ] CPA reference cases → a small set of worked returns as the acceptance suite. Drafted: ten cases in [REFERENCE-CASES.md](REFERENCE-CASES.md) with the app's figures and a question where the app may be wrong, generated from and tested by [ReferenceCasesTest.php](../tests/Feature/Acceptance/ReferenceCasesTest.php). Done when the CPA has confirmed or corrected every figure and the tests pass on them.
 
 ---
 
@@ -255,7 +255,7 @@ Add these tests (table-driven where possible):
 - [x] **L2** The general ledger builds each month's journal once per request, so opening balances no longer rebuild the months before for every account ([GeneralLedger.php](../app/Books/Services/GeneralLedger.php)).
 - [ ] **L3** Split the largest pages when next touched: `certificates/create`, `letters/create`, `corporation/*`.
 - [x] **L4** The server keeps the VAT sent from the form to at most 12% of the amount, a peso allowed for rounding.
-- [ ] **L5** Move holiday names and other copy out of the rule pack.
+- [x] **L5** Move holiday names and other copy out of the rule pack. Closed, not done: what's left is the law's own wording for its data (holiday names from the proclamations, ATC and de minimis descriptions, rule titles), reviewed with it. Moving it would split each date or rate from its name and make every yearly update two edits, and holidays can be renamed in the app.
 - [x] **L6** Licences list: [docs/LICENSES.md](LICENSES.md), with the LGPL libraries (dompdf, smalot/pdfparser) and what they ask of a packaged build.
 
 ---
