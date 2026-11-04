@@ -1307,7 +1307,7 @@
  {
   "page": "devtools",
   "section": "Developer tool: rule pack editor (not shipped in the app)",
-  "file": "screens/developer/Developer tool: rule pack editor (not shipped in the app)-01-RuleAdmin.png",
+  "file": "screens/developer/dev-01-RuleAdmin.png",
   "title": "Rule admin (developer tool, not in the app)",
   "source": "source/RuleAdmin.dc.html",
   "w": 1440,
