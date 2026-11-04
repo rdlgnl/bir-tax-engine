@@ -5,9 +5,12 @@ namespace App\Assistant\Providers;
 use App\Assistant\Exceptions\AssistantUnavailable;
 use App\Assistant\Prompt;
 use App\Assistant\Services\TaxLookups;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
+use Smalot\PdfParser\Parser;
 
 /**
  * OpenAI, or any server with the same chat completions API (OpenRouter,
@@ -64,13 +67,60 @@ class OpenAiProvider implements Provider
         return new Turn("I couldn't finish that answer. Try a narrower question.", $history, $figures);
     }
 
+    public function read(Document $document, string $instructions, array $schema): array
+    {
+        if ($document->isPdf()) {
+            // Not every compatible server takes a PDF: send its text, read here.
+            $text = $this->pdfText($document->contents);
+
+            if ($text === '') {
+                throw new AssistantUnavailable("This PDF is a scan with no text in it, and {$this->host()} would need it as a picture. Add a photo or screenshot of the letter instead.");
+            }
+
+            $content = $instructions."\n\nThe letter's text:\n\n".$text;
+        } else {
+            $content = [
+                ['type' => 'text', 'text' => $instructions],
+                ['type' => 'image_url', 'image_url' => ['url' => "data:{$document->mediaType};base64,{$document->base64()}"]],
+            ];
+        }
+
+        $body = ['model' => $this->model, 'messages' => [['role' => 'user', 'content' => $content]]];
+        $response = $this->post([...$body, 'response_format' => ['type' => 'json_schema', 'json_schema' => ['name' => 'answer', 'strict' => true, 'schema' => $schema]]]);
+
+        // A server without structured outputs is asked again, for JSON in words.
+        if ($response->status() === 400) {
+            $response = $this->post($body);
+        }
+
+        $choice = $this->choice($response);
+
+        return JsonObject::decode((string) ($choice['message']['content'] ?? ''))
+            ?? throw new AssistantUnavailable("{$this->host()} didn't send back the details in a form the app could read. Try again, or fill them in yourself.");
+    }
+
     /**
      * @param  list<array<string, mixed>>  $history
      * @return array<string, mixed> the first choice
      */
     private function send(array $history, TaxLookups $lookups): array
     {
-        $host = parse_url($this->baseUrl, PHP_URL_HOST) ?: $this->baseUrl;
+        return $this->choice($this->post([
+            'model' => $this->model,
+            'messages' => [['role' => 'system', 'content' => Prompt::system()], ...$history],
+            'tools' => array_map(fn (array $tool) => ['type' => 'function', 'function' => [
+                'name' => $tool['name'],
+                'description' => $tool['description'],
+                'parameters' => $tool['schema'],
+            ]], $lookups->definitions()),
+        ]));
+    }
+
+    /**
+     * @param  array<string, mixed>  $body
+     */
+    private function post(array $body): Response
+    {
         $request = Http::acceptJson()->timeout(120)->connectTimeout(15);
 
         if ($this->key !== null && $this->key !== '') {
@@ -78,19 +128,18 @@ class OpenAiProvider implements Provider
         }
 
         try {
-            $response = $request->post($this->baseUrl.'/chat/completions', [
-                'model' => $this->model,
-                'messages' => [['role' => 'system', 'content' => Prompt::system()], ...$history],
-                'tools' => array_map(fn (array $tool) => ['type' => 'function', 'function' => [
-                    'name' => $tool['name'],
-                    'description' => $tool['description'],
-                    'parameters' => $tool['schema'],
-                ]], $lookups->definitions()),
-            ]);
+            return $request->post($this->baseUrl.'/chat/completions', $body);
         } catch (ConnectionException) {
-            throw new AssistantUnavailable("Couldn't reach {$host}. Check the address and your internet connection, and try again.");
+            throw new AssistantUnavailable("Couldn't reach {$this->host()}. Check the address and your internet connection, and try again.");
         }
+    }
 
+    /**
+     * @return array<string, mixed> the reply's first choice
+     */
+    private function choice(Response $response): array
+    {
+        $host = $this->host();
         $choice = $response->json('choices.0');
 
         return match (true) {
@@ -101,5 +150,19 @@ class OpenAiProvider implements Provider
             ! is_array($choice) => throw new AssistantUnavailable("{$host} sent back something the app couldn't read."),
             default => $choice,
         };
+    }
+
+    private function host(): string
+    {
+        return parse_url($this->baseUrl, PHP_URL_HOST) ?: $this->baseUrl;
+    }
+
+    private function pdfText(string $contents): string
+    {
+        try {
+            return trim((new Parser)->parseContent($contents)->getText());
+        } catch (Exception) {
+            return '';
+        }
     }
 }

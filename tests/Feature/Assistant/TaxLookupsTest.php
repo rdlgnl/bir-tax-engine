@@ -1,6 +1,7 @@
 <?php
 
 use App\Assistant\Services\TaxLookups;
+use App\Letters\Models\Letter;
 use App\Profiles\Models\TaxProfile;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -75,3 +76,18 @@ test('a lookup that does not exist, or a year or quarter out of range, is refuse
     'quarter 5' => ['quarter_steps', ['year' => 2026, 'quarter' => 5], 'The quarter must be 1, 2, 3, or 4'],
     'negative sales' => ['compare_methods', ['expected_sales' => -1], 'expected_sales must be a number'],
 ]);
+
+test('letters show what the app found, but not the taxpayer’s notes', function () {
+    Letter::query()->create([
+        'kind' => 'unfiled', 'dated_on' => '2026-10-30', 'office' => 'RDO 028', 'form' => '1701Q',
+        'year' => 2026, 'quarter' => 3, 'reply_by' => '2026-11-15', 'notes' => 'Called Ate Rosa at the RDO about this',
+    ]);
+
+    ['data' => $letters, 'figures' => $figures, 'content' => $content] = lookUp('letters');
+
+    expect($letters['letters'])->toHaveCount(1)
+        ->and($letters['letters'][0])->toMatchArray(['kind' => 'Reminder of a return not filed', 'return' => '1701Q', 'reply_by' => '2026-11-15', 'resolved_on' => null])
+        ->and($letters['letters'][0]['what_the_app_found'])->toHaveKeys(['result', 'title', 'detail'])
+        ->and($figures)->toBe([['Letters not yet resolved', '1']])
+        ->and($content)->not->toContain('Ate Rosa');
+});

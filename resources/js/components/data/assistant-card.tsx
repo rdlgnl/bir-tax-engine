@@ -190,8 +190,9 @@ export function AssistantCard({ settings }: { settings: AssistantSettings }) {
                 <p className="text-[13px] text-muted-foreground">
                     When it's on, your question and only the numbers needed to
                     answer it go to that provider; your name, TIN and address
-                    never do. Tax amounts are always computed on this computer.
-                    The key stays here, encrypted, and isn't in backups.
+                    don't, unless you ask it to read a BIR letter, which shows
+                    them. Tax amounts are always computed on this computer. The
+                    key stays here, encrypted, and isn't in backups.
                 </p>
 
                 <Button

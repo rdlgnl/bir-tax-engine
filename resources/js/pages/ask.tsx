@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { data } from '@/routes';
 import { clear, feedback, store } from '@/routes/ask';
+import { create as lettersCreate } from '@/routes/letters';
 
 type Rule = { id: string; version: number; title: string; basis: string };
 
@@ -212,6 +213,12 @@ export default function Ask({
                                     {suggestion}
                                 </button>
                             ))}
+                            <Link
+                                href={lettersCreate().url}
+                                className="rounded-full border border-primary px-3 py-1.5 text-sm font-semibold text-primary hover:bg-selected"
+                            >
+                                Upload a BIR letter
+                            </Link>
                         </div>
                         <form
                             className="flex gap-2.5"
