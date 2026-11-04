@@ -228,8 +228,9 @@ class ReturnForm
         return [
             ...$snapshot,
             'taxpayer' => $snapshot['taxpayer'] + $now['taxpayer'],
-            // Returns filed before salaries were recorded had none.
-            'figures' => $snapshot['figures'] + ['compensation' => null],
+            // Returns filed before salaries were recorded had none, and
+            // before the computation was traced, no trace.
+            'figures' => $snapshot['figures'] + ['compensation' => null, 'trace' => []],
             'penalties' => $snapshot['penalties'] ?? null,
             'amendment' => $snapshot['amendment'] ?? null,
             'previous_figures' => $snapshot['previous_figures'] ?? $now['previous_figures'],
@@ -460,10 +461,13 @@ class ReturnForm
     private function percentageTaxLines(array $f): array
     {
         $tax = (float) $f['percentage_tax'];
+        // The quarter's own rate (1% from July 2020 to June 2023), from its
+        // trace; a return filed before traces were kept just says "Tax due".
+        $rate = collect($f['trace'])->firstWhere('step', 'percentage_tax')['rate'] ?? null;
 
         return [
             $this->line('Taxable amount (sales, this quarter)', $f['percentage_tax_base'] ?? $f['quarter_gross']),
-            $this->line('Tax due (3%)', $tax, 'total'),
+            $this->line($rate !== null ? sprintf('Tax due (%s%%)', $this->percent($rate)) : 'Tax due', $tax, 'total'),
             $this->line('Less: tax credits / payments', 0.0, 'subtract'),
             $this->line('Tax payable', $tax, 'total'),
         ];

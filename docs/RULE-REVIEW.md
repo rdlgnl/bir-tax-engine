@@ -18,6 +18,10 @@ Use **Notes** for conditions, effective dates or issuances we missed. The
 please correct it where it's wrong or incomplete. The
 section **Questions** at the end needs a short written answer each.
 
+**Worked returns.** [REFERENCE-CASES.md](REFERENCE-CASES.md) shows these
+rules at work: ten typical taxpayers and the returns the app prepares for
+them, line by line. Please check those figures with this sheet.
+
 **Scope.** Individuals (self-employed or mixed income, 8% or graduated
 rates, VAT or non-VAT), the taxpayer as a withholding agent and employer,
 documentary stamp tax on loans, and one corporation the taxpayer runs.
