@@ -1,6 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { openExternal } from '@/lib/external';
 import { formatDate, peso } from '@/lib/format';
 import type { CertificateRow, QuarterResult } from '@/types';
 
@@ -12,7 +13,7 @@ type Props = {
 
 /** A ready-to-send request for a missing 2307, written in the person's voice. */
 export function RequestEmail({ row, year, quarter }: Props) {
-    const { taxpayer } = usePage().props;
+    const { taxpayer, desktop } = usePage().props;
     const [copied, setCopied] = useState(false);
 
     const period = `${monthsLong(row.quarter)} ${year}`;
@@ -26,6 +27,7 @@ export function RequestEmail({ row, year, quarter }: Props) {
     const body =
         `Hi! Could you send me the BIR Form 2307 for ${period}? You withheld ${peso(row.amount)} from ${payment}.${deadline} Thank you, ${taxpayer?.first_name ?? ''}`.trim();
     const subject = `BIR Form 2307 for ${period}`;
+    const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     async function copy() {
         try {
@@ -46,7 +48,13 @@ export function RequestEmail({ row, year, quarter }: Props) {
             <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild className="rounded-xl font-bold">
                     <a
-                        href={`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
+                        href={mailto}
+                        onClick={(event) => {
+                            if (desktop) {
+                                event.preventDefault();
+                                openExternal(mailto, true);
+                            }
+                        }}
                     >
                         Open in my email
                     </a>

@@ -1,4 +1,5 @@
 import { usePage } from '@inertiajs/react';
+import { openExternal } from '@/lib/external';
 
 /**
  * Opens a new issue on the project's tracker for a rule that looks wrong,
@@ -13,7 +14,7 @@ export function ReportMistakeLink({
     rule?: { id: string; version: number };
     label?: string;
 }) {
-    const { issuesUrl } = usePage().props;
+    const { issuesUrl, desktop } = usePage().props;
     const what = rule ? `Rule ${rule.id} v${rule.version}` : 'A rule';
     const body = [
         `**Rule:** ${rule ? `${rule.id} v${rule.version}` : '(which one?)'}, rule pack ${packVersion}`,
@@ -31,6 +32,12 @@ export function ReportMistakeLink({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(event) => {
+                if (desktop) {
+                    event.preventDefault();
+                    openExternal(href, true);
+                }
+            }}
             className="font-bold text-primary hover:underline"
         >
             {label}

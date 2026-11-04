@@ -73,14 +73,27 @@ When the BIR revises a form:
 
 Print the forms at actual size on 8.5 × 13 in (long bond) paper, except the 1900 and 2550Q, which are 8.5 × 14 in (legal), and the 0619-E, which is 8.5 × 11 in (letter).
 
-## Packaging
+## Desktop app
 
-A packaged build (the desktop app) runs on the taxpayer's own computer, so:
+The app ships as a desktop app through [NativePHP for Desktop](https://nativephp.com/docs/desktop/2) (Electron with a bundled PHP 8.4), for macOS, Windows and Linux.
 
-- Ship it with `APP_ENV=production` and `APP_DEBUG=false`. Error pages carry the app's shared data, the taxpayer's name and figures among it; the debug page would show far more. `config/app.php` defaults `debug` to off when `APP_DEBUG` isn't set.
-- Set `APP_URL` to the address the app answers on: `RejectUnknownHosts` only answers `localhost`, `127.0.0.1`, `[::1]` and that host.
-- Run `php artisan config:cache`; the rule pack in `resources/rule-pack/` is read into it.
-- Keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md).
+```bash
+php artisan native:install   # once after composer install: Electron and its npm packages, in vendor/
+composer native:dev          # the app in its own window, with Vite
+php artisan native:build mac # or win, linux: the installer lands in nativephp/electron/dist
+```
+
+`composer update` reinstalls NativePHP's Electron packages itself (`post-update-cmd`). A build downloads Electron and the PHP binary for the target, runs `npm run build` first (`prebuild` in `config/nativephp.php`), and bundles your `.env` without the keys listed under `cleanup_env_keys`.
+
+What the packaged app does differently (`AppServiceProvider`, `NativeAppServiceProvider`, `config/nativephp.php`):
+
+- **Production, whatever the builder's `.env` says.** `APP_ENV`, `APP_DEBUG` and `BACKUP_FOLDER` are stripped from the bundle, so the app runs with the defaults: production, debug off, backups in `~/Documents/BuwisBuddy`. Error pages carry the taxpayer's data; the debug page would show far more.
+- **Its own data folder.** NativePHP moves the database (its own SQLite file), sessions and stored files (certificates, letters) to the app's data folder and runs the migrations at each start.
+- **Its own encryption key.** Each install makes a key on its first run (`App\Desktop\DeviceKey`, in the data folder) and uses it instead of the build's `APP_KEY`, so the assistant's API key and the session can't be opened with another copy of the app.
+- **One window, kept to the app.** Links out (Report a mistake, email drafts) open in the computer's browser or email app through `POST /external`, which only opens the issue tracker and `mailto:` links. Only the app's own window can reach its server: NativePHP turns ordinary browser visits away, and `RejectUnknownHosts` answers `localhost` and `127.0.0.1` only.
+- **PHP settings** for the PDFs and the assistant (memory, time, upload size) in `NativeAppServiceProvider::phpIni()`.
+
+Before a public release: set `NATIVEPHP_APP_VERSION`, sign the builds (unsigned ones are blocked by macOS Gatekeeper and warned about by Windows SmartScreen; NativePHP takes the Apple notarization and Azure Trusted Signing settings from `.env`), and keep the licence files of the dependencies listed in [docs/LICENSES.md](docs/LICENSES.md). Updates through GitHub releases are set up but off until `NATIVEPHP_UPDATER_ENABLED=true`.
 
 ## Updating the rule pack
 

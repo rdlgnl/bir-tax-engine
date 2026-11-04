@@ -49,6 +49,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'issuesUrl' => config('app.issues_url'),
+            // In the desktop app, links out open through the app (see ExternalLinkController).
+            'desktop' => (bool) config('nativephp-internal.running'),
             'taxpayer' => fn () => $this->taxpayer(),
             'nextDeadline' => fn () => $this->nextDeadline(),
             'transactionForm' => fn () => $this->transactionForm(),

@@ -43,3 +43,7 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 .DS_Store
+
+# The desktop app's builds, and its database while developing it
+/nativephp/electron/dist
+/database/nativephp.sqlite*
