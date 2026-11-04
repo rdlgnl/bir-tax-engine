@@ -14,6 +14,7 @@ export type Corporation = {
     vat_registered: boolean;
     withholding_agent: boolean;
     employees: number;
+    efps_group: string | null;
 };
 
 export type CorporateFigures = {

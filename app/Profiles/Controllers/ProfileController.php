@@ -7,6 +7,7 @@ use App\Profiles\Models\TaxProfile;
 use App\Profiles\Models\TaxYear;
 use App\Profiles\Resources\TaxProfileResource;
 use App\Returns\Models\Filing;
+use App\Tax\Enums\EfpsGroup;
 use App\Tax\Enums\TaxpayerClassification;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\RuleReview;
@@ -32,6 +33,11 @@ class ProfileController extends Controller
                 'assigned' => $assigned?->value,
                 'estimate' => ['value' => $estimate->value, 'label' => $estimate->label()],
                 'options' => array_map(fn (TaxpayerClassification $c) => ['value' => $c->value, 'label' => $c->label()], TaxpayerClassification::cases()),
+            ],
+            'efps' => [
+                'group' => $profile->efps_group?->value,
+                'from' => $profile->efps_from?->format('Y-m'),
+                'options' => array_map(fn (EfpsGroup $g) => ['value' => $g->value, 'label' => $g->label()], EfpsGroup::cases()),
             ],
             'year' => $year,
             'methodLockedOn' => Filing::firstQuarterReturn($year)?->filed_on->toDateString(),

@@ -3,6 +3,7 @@
 namespace App\Corporations\Models;
 
 use App\Data\Concerns\RecordsChanges;
+use App\Tax\Enums\EfpsGroup;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $vat_registered
  * @property bool $withholding_agent
  * @property int $employees
+ * @property EfpsGroup|null $efps_group the eFPS group it e-files under; blank for eBIRForms
  */
 #[Fillable([
     'name',
@@ -40,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'vat_registered',
     'withholding_agent',
     'employees',
+    'efps_group',
 ])]
 class Corporation extends Model
 {
@@ -82,6 +85,7 @@ class Corporation extends Model
             'vat_registered' => 'boolean',
             'withholding_agent' => 'boolean',
             'employees' => 'integer',
+            'efps_group' => EfpsGroup::class,
         ];
     }
 

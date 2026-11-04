@@ -11,6 +11,7 @@ use App\Profiles\Enums\WorkType;
 use App\Returns\Models\Filing;
 use App\Tax\Enums\BooksMethod;
 use App\Tax\Enums\DeductionMethod;
+use App\Tax\Enums\EfpsGroup;
 use App\Tax\Enums\Regime;
 use App\Transactions\Models\Transaction;
 use Carbon\CarbonImmutable;
@@ -59,6 +60,8 @@ use LogicException;
  * @property ClientsWithhold|null $clients_withhold
  * @property BooksType|null $books_type
  * @property BooksMethod $books_method when income counts for income tax
+ * @property EfpsGroup|null $efps_group the eFPS group they e-file under; blank for eBIRForms
+ * @property CarbonImmutable|null $efps_from the first month whose returns go through eFPS; blank for every month
  * @property CarbonImmutable|null $setup_completed_at
  */
 #[Fillable([
@@ -95,6 +98,8 @@ use LogicException;
     'clients_withhold',
     'books_type',
     'books_method',
+    'efps_group',
+    'efps_from',
 ])]
 #[UseFactory(TaxProfileFactory::class)]
 class TaxProfile extends Model
@@ -153,8 +158,23 @@ class TaxProfile extends Model
             'clients_withhold' => ClientsWithhold::class,
             'books_type' => BooksType::class,
             'books_method' => BooksMethod::class,
+            'efps_group' => EfpsGroup::class,
+            'efps_from' => 'date',
             'setup_completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The eFPS group a month's returns are e-filed under, from the first
+     * month the taxpayer named; null for a month filed through eBIRForms.
+     */
+    public function efpsGroupFor(int $year, int $month): ?EfpsGroup
+    {
+        if ($this->efps_from !== null && CarbonImmutable::create($year, $month)->lessThan($this->efps_from->startOfMonth())) {
+            return null;
+        }
+
+        return $this->efps_group;
     }
 
     public static function current(): ?self

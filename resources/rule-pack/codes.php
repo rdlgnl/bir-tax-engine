@@ -38,6 +38,16 @@ return [
         'monthly_due_day' => 10,
         // 1601-C for December: January 15 (RR 2-98 Sec. 2.83 as amended).
         'december_compensation_due_day' => 15,
+        // eFPS filers e-file on other days: the 0619-E by the 15th of the next
+        // month (RR 11-2018), and the 1601-C, December's included, by their
+        // group's day of the next month (RR 26-2002): Group A the 15th down to
+        // Group E the 11th. These are the e-filing dates; payment is by the
+        // 15th, December's by January 20 (PwC 2026 tax calendar).
+        // REVIEW: the payment dates, which the app doesn't show apart.
+        'efps' => [
+            'monthly_due_day' => 15,
+            'compensation_due_day' => ['A' => 15, 'B' => 14, 'C' => 13, 'D' => 12, 'E' => 11],
+        ],
         // 13th month pay and other benefits left untaxed, together, each year
         // (NIRC Sec. 32(B)(7)(e); RR 11-2018 Sec. 2.78.1(B)(11)).
         'benefits_exempt' => 90_000,

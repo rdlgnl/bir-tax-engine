@@ -4,6 +4,7 @@ namespace App\Payroll\Services;
 
 use App\Payroll\Models\Employee;
 use App\Payroll\Models\EmployeeCertificate;
+use App\Profiles\Models\TaxProfile;
 use App\Returns\Models\Filing;
 use App\Tax\Services\FilingCalendar;
 use App\Tax\Services\TaxCalculationService;
@@ -219,6 +220,7 @@ class Payroll
         $employees = Employee::query()->get();
         $years = $employees->map(fn (Employee $e) => $this->employeeYear($e, $year));
         $filings = Filing::query()->where('year', $year)->where('form', '1601-C')->get();
+        $employer = TaxProfile::current();
         $months = [];
         // Registered for withholding on compensation from the year's first hire:
         // a month with no one on payroll after that still has its no-payment
@@ -235,7 +237,7 @@ class Payroll
 
             $sum = fn (callable $amount) => round((float) $rows->sum(fn (array $row) => $amount(...$row)), 2);
 
-            $due = $this->calendar->compensationMonthlyDue($year, $month);
+            $due = $this->calendar->compensationMonthlyDue($year, $month, $employer?->efpsGroupFor($year, $month));
             $filing = $filings->first(fn (Filing $f) => $f->month === $month);
             $months[] = [
                 'month' => $month,

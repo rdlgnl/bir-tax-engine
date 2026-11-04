@@ -45,6 +45,7 @@ return [
     // Each: area (Rules, Deadline calendar, Forms), title, summary.
     'changes' => [
         '2026.11' => [
+            ['area' => 'Deadline calendar', 'title' => 'eFPS filers\' withholding dates', 'summary' => 'Enrolled in eFPS? Choose your group on your profile: the 0619-E is then due the 15th, and the 1601-C on your group\'s day, from the 15th (Group A) to the 11th (Group E), December\'s included (RR 26-2002). A corporation\'s group is on its own page.'],
             ['area' => 'Rules', 'title' => '8% counts sales when paid', 'summary' => 'On the 8% option a sale counts for income tax when the money is received, on cash or accrual books alike: RR 8-2018 Sec. 2(g) defines gross receipts as amounts actually or constructively received.'],
             ['area' => 'Deadline calendar', 'title' => 'Holidays you can change', 'summary' => 'A year whose proclamation isn\'t in the pack yet uses the holidays every year keeps, Holy Week and National Heroes Day included, instead of weekends only. On the calendar, any year\'s holidays can be added to, renamed or turned off, and the deadlines follow.'],
             ['area' => 'Deadline calendar', 'title' => '2027 holidays as proclaimed', 'summary' => 'Chinese New Year (February 6) and All Souls\' Day (November 2) are added to 2027, as Proclamation No. 1427, s. 2026 declares them. The Eid holidays come when they\'re declared.'],

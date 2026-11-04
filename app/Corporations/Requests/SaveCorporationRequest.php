@@ -2,6 +2,7 @@
 
 namespace App\Corporations\Requests;
 
+use App\Tax\Enums\EfpsGroup;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -27,6 +28,7 @@ class SaveCorporationRequest extends FormRequest
             'vat_registered' => ['boolean'],
             'withholding_agent' => ['boolean'],
             'employees' => ['required', 'integer', 'between:0,10000'],
+            'efps_group' => ['nullable', Rule::enum(EfpsGroup::class)],
         ];
     }
 

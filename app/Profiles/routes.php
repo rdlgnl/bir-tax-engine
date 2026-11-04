@@ -1,6 +1,7 @@
 <?php
 
 use App\Profiles\Controllers\ClassificationController;
+use App\Profiles\Controllers\EfpsController;
 use App\Profiles\Controllers\JobController;
 use App\Profiles\Controllers\ProfileController;
 use App\Profiles\Controllers\RegistrationController;
@@ -18,6 +19,7 @@ Route::middleware('setup.complete')->group(function () {
     Route::get('/profile', ProfileController::class)->name('profile');
     Route::put('/profile/job', [JobController::class, 'update'])->name('profile.job');
     Route::put('/profile/classification', [ClassificationController::class, 'update'])->name('profile.classification');
+    Route::put('/profile/efps', [EfpsController::class, 'update'])->name('profile.efps');
     Route::get('/profile/registration', [RegistrationController::class, 'show'])->name('registration');
     Route::get('/profile/registration/1905', [RegistrationController::class, 'form'])->name('registration.form');
 });
