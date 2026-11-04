@@ -56,6 +56,7 @@ class ClaudeProvider implements Provider
         $history[] = ['role' => 'user', 'content' => $question];
         /** @var list<Figure> $figures */
         $figures = [];
+        $suggestions = [];
 
         for ($round = 0; $round < self::MAX_ROUNDS; $round++) {
             $message = $this->send($history, $lookups);
@@ -65,13 +66,13 @@ class ClaudeProvider implements Provider
             $text = $this->text($content);
 
             if ($message->stopReason === 'refusal') {
-                return new Turn("I can't help with that one. Try asking it another way.", $history, $figures);
+                return new Turn("I can't help with that one. Try asking it another way.", $history, $figures, $suggestions);
             }
 
             if ($message->stopReason !== 'tool_use') {
                 $cutOff = $message->stopReason === 'max_tokens' ? "\n\n(The answer was cut off.)" : '';
 
-                return new Turn(($text !== '' ? $text : "I don't have an answer to that.").$cutOff, $history, $figures);
+                return new Turn(($text !== '' ? $text : "I don't have an answer to that.").$cutOff, $history, $figures, $suggestions);
             }
 
             $results = [];
@@ -85,6 +86,10 @@ class ClaudeProvider implements Provider
                     $lookup = $lookups->run((string) $block['name'], (array) ($block['input'] ?? []));
                     $results[] = ['type' => 'tool_result', 'tool_use_id' => $block['id'], 'content' => $lookup['content']];
                     array_push($figures, ...$lookup['figures']);
+
+                    if (isset($lookup['suggestion'])) {
+                        $suggestions[] = $lookup['suggestion'];
+                    }
                 } catch (InvalidArgumentException $e) {
                     $results[] = ['type' => 'tool_result', 'tool_use_id' => $block['id'], 'content' => $e->getMessage(), 'is_error' => true];
                 }
@@ -93,7 +98,7 @@ class ClaudeProvider implements Provider
             $history[] = ['role' => 'user', 'content' => $results];
         }
 
-        return new Turn("I couldn't finish that answer. Try a narrower question.", $history, $figures);
+        return new Turn("I couldn't finish that answer. Try a narrower question.", $history, $figures, $suggestions);
     }
 
     /**

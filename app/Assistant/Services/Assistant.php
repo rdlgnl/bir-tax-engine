@@ -16,7 +16,7 @@ use Illuminate\Contracts\Session\Session;
  * @phpstan-import-type Figure from TaxLookups as LookupFigure
  *
  * @phpstan-type Rule array{id: string, version: int, title: string, basis: string}
- * @phpstan-type PageTurn array{question: string, answer: string, error: bool, figures: list<Figure>, feedback: 'helpful'|'wrong'|null, rules: list<Rule>}
+ * @phpstan-type PageTurn array{question: string, answer: string, error: bool, figures: list<Figure>, suggestions: list<array<string, mixed>>, feedback: 'helpful'|'wrong'|null, rules: list<Rule>}
  */
 class Assistant
 {
@@ -66,10 +66,10 @@ class Assistant
         try {
             $turn = $this->providers->for($settings)->ask($conversation->history, $dated, $this->lookups);
             $conversation->history = $turn->history;
-            $conversation->turns[] = ['question' => $question, 'answer' => $turn->text, 'error' => false, 'figures' => $this->figures($turn->figures), 'feedback' => null];
+            $conversation->turns[] = ['question' => $question, 'answer' => $turn->text, 'error' => false, 'figures' => $this->figures($turn->figures), 'suggestions' => $turn->suggestions, 'feedback' => null];
         } catch (AssistantUnavailable $e) {
             // The question isn't kept in the history: asking again starts clean.
-            $conversation->turns[] = ['question' => $question, 'answer' => $e->getMessage(), 'error' => true, 'figures' => [], 'feedback' => null];
+            $conversation->turns[] = ['question' => $question, 'answer' => $e->getMessage(), 'error' => true, 'figures' => [], 'suggestions' => [], 'feedback' => null];
         }
 
         $this->session->put(self::SESSION_KEY, $conversation->toSession());
@@ -84,6 +84,21 @@ class Assistant
 
         if (isset($conversation->turns[$turn])) {
             $conversation->turns[$turn]['feedback'] = $feedback;
+            $this->session->put(self::SESSION_KEY, $conversation->toSession());
+        }
+    }
+
+    /**
+     * A suggestion the taxpayer approved (and the app's form took) or set aside.
+     *
+     * @param  'done'|'dismissed'  $status
+     */
+    public function suggestion(int $turn, int $index, string $status): void
+    {
+        $conversation = $this->conversation();
+
+        if (isset($conversation->turns[$turn]['suggestions'][$index])) {
+            $conversation->turns[$turn]['suggestions'][$index]['status'] = $status;
             $this->session->put(self::SESSION_KEY, $conversation->toSession());
         }
     }

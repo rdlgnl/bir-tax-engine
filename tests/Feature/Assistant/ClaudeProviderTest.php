@@ -81,7 +81,7 @@ test('it looks figures up, answers, and keeps the whole conversation as Claude s
         ->and($second['system'])->toBe($first['system'])
         ->and($second['system'][0]['text'])->toBe(Prompt::system())
         ->and($second['tools'])->toBe($first['tools'])
-        ->and(array_column($first['tools'], 'name'))->toBe(['tax_year', 'quarter_steps', 'deadlines', 'compare_methods', 'letters', 'rules'])
+        ->and(array_column($first['tools'], 'name'))->toBe(['tax_year', 'quarter_steps', 'deadlines', 'compare_methods', 'letters', 'rules', 'draft_email', 'suggest_transaction', 'suggest_profile_change'])
         ->and($first)->toMatchArray(['model' => 'claude-opus-5-5', 'max_tokens' => 16000, 'fallbacks' => 'default', 'thinking' => ['type' => 'adaptive'], 'output_config' => ['effort' => 'medium'], 'cache_control' => ['type' => 'ephemeral']])
         ->and($this->sent[0]['request']->getHeaderLine('anthropic-beta'))->toBe('server-side-fallback-2026-07-01')
         ->and($this->sent[0]['request']->getHeaderLine('Authorization'))->toBe('Bearer sk-ant-test');
