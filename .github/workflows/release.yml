@@ -1,0 +1,140 @@
+name: release
+
+# Builds the desktop app's installers when a version tag is pushed
+# (git tag v1.0.0 && git push origin v1.0.0) and attaches them to a draft
+# GitHub release, for a maintainer to check and publish. The builds are
+# unsigned until signing is set up: see "Desktop app" in the README.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: An existing tag to build again, like v1.0.0
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  release:
+    name: Draft the release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      version: ${{ steps.tag.outputs.version }}
+
+    steps:
+      - name: Read the version from the tag
+        id: tag
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::A release tag looks like v1.2.3 (or v1.2.3-beta.1), not $TAG"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 \
+            || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag --generate-notes --title "BuwisBuddy $TAG"
+
+  build:
+    name: Build for ${{ matrix.name }}
+    needs: release
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Both Macs build on Apple silicon: NativePHP fetches the PHP binary for the target.
+          - name: macOS (Apple silicon)
+            runner: macos-latest
+            os: mac
+            arch: arm64
+          - name: macOS (Intel)
+            runner: macos-latest
+            os: mac
+            arch: x64
+          - name: Windows
+            runner: windows-latest
+            os: win
+            arch: x64
+          - name: Linux
+            runner: ubuntu-latest
+            os: linux
+            arch: x64
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          # The app bundles a PHP binary of this version.
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Install
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+          # The version the app reports, from the tag.
+          php -r '$env = file_get_contents(".env"); file_put_contents(".env", preg_replace("/^NATIVEPHP_APP_VERSION=.*$/m", "NATIVEPHP_APP_VERSION=".getenv("VERSION"), $env));'
+          npm ci
+          php artisan native:install --force --no-interaction
+
+      - name: Build
+        env:
+          # No signing identity yet: build unsigned rather than look for one.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: php artisan native:build ${{ matrix.os }} ${{ matrix.arch }} --no-interaction
+
+      - name: Attach the installers to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          cd nativephp/electron/dist
+          shopt -s nullglob
+          files=( *.dmg *.zip *.exe *.AppImage *.deb )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::The build left no installer in nativephp/electron/dist"
+            ls -la
+            exit 1
+          fi
+          printf 'Attaching %s\n' "${files[@]}"
+          gh release upload "$TAG" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
