@@ -3,6 +3,7 @@ import { AppLockCard } from '@/components/data/app-lock-card';
 import { AssistantCard } from '@/components/data/assistant-card';
 import type { AssistantSettings } from '@/components/data/assistant-card';
 import { FieldError } from '@/components/field-error';
+import { ReportMistakeLink } from '@/components/report-mistake-link';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -148,7 +149,13 @@ export default function YourData({
                                 ? 'Reviewed by a tax professional.'
                                 : 'Not yet reviewed by a tax professional.'}{' '}
                             New rules arrive with app updates; nothing about you
-                            is sent anywhere.
+                            is sent anywhere. BuwisBuddy is open source: if a
+                            rule looks wrong,{' '}
+                            <ReportMistakeLink
+                                packVersion={rulePack.version}
+                                label="report it"
+                            />
+                            .
                         </p>
                         <Link
                             href={rules().url}

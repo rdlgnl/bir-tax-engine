@@ -4,7 +4,7 @@ A BIR tax app for Philippine freelancers and sole proprietors, built from the ap
 
 Laravel 13 · React 19 · TypeScript · Inertia 3 · Tailwind CSS 4 · shadcn/ui · SQLite
 
-> **Tax rules are not yet reviewed.** Every rate, threshold and deadline is in the rule pack (`2026.11`): `config/tax.php` reads it as one from its parts in `resources/rule-pack/` (rates, deadlines, holidays, form editions, tax codes, file formats, citations). It was encoded from the NIRC as amended and the issuances in [docs/RULE-REVIEW.md](docs/RULE-REVIEW.md). Have a tax professional review each part, then set its `reviewed` under `parts`, and `reviewed` for the pack once all are. When you change the pack, bump `version` (and the part's) and describe the change under `changes`: the app shows it on its "what changed" screen.
+> **Tax rules are not reviewed by a tax professional.** BuwisBuddy is open source and was released without a CPA review: the rules were encoded from the NIRC as amended and the issuances in [docs/RULE-REVIEW.md](docs/RULE-REVIEW.md), and mistakes are reported and fixed in the open. The app says so beside the rules, with a "Report a mistake" link to the issue tracker. Every rate, threshold and deadline is in the rule pack (`2026.11`): `config/tax.php` reads it as one from its parts in `resources/rule-pack/` (rates, deadlines, holidays, form editions, tax codes, file formats, citations). A part or rule counts as reviewed only when a tax professional has signed it off (see "Updating the rule pack"). [CONTRIBUTING.md](CONTRIBUTING.md) says how to help; the code is under the [MIT License](LICENSE).
 
 ## Run it
 
@@ -89,6 +89,6 @@ The rules are in `resources/rule-pack/`, one file per kind, read as one by `conf
 1. Change the part, citing the issuance. A rule that changes on a date goes in `rates.php` → `dated` under that date, holding only what changed; earlier periods keep their rules, and filed returns keep the rule set they were filed on.
 2. Bump the pack's `version` and the part's under `parts`, describe the change under `changes` (the app shows it on its "what changed" screen), and clear the part's `reviewed` sign-off: it's a new version to review.
 3. Run the tests.
-4. Once a tax professional has checked it, record their sign-off on the part and on each rule it cites (`'reviewed' => ['by' => …, 'on' => 'YYYY-MM-DD', 'source' => …]`). `php artisan rules:status` lists what's left; `--strict` fails until nothing is, for a release check.
+4. Once a tax professional has checked it, record their sign-off on the part and on each rule it cites (`'reviewed' => ['by' => …, 'on' => 'YYYY-MM-DD', 'source' => …]`). `php artisan rules:status` lists what's left; `--strict` fails until nothing is, for a release that requires a full review. Never record a sign-off that didn't happen: the app shows it to taxpayers as reviewed.
 
 Every December, add the next year's holidays to `holidays.php` from the proclamation (regular holidays and special non-working days, nationwide; the Eid holidays when they're declared). Until a year has a list the calendar moves deadlines off weekends only, and says so.

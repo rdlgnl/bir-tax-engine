@@ -1,4 +1,5 @@
 import { AlertTriangle, Check, X } from 'lucide-react';
+import { ReportMistakeLink } from '@/components/report-mistake-link';
 import { SectionCard } from '@/components/section-card';
 import type { Explanation, RulePack } from '@/types';
 
@@ -62,7 +63,13 @@ export function WhyPanel({ explanation, regimeLabel, rulePack }: Props) {
                             · since {new Date(rule.effective).getFullYear()} ·{' '}
                             {rule.reviewed
                                 ? `reviewed by ${rule.reviewed.by}`
-                                : 'not yet reviewed'}
+                                : 'not yet reviewed'}{' '}
+                            ·{' '}
+                            <ReportMistakeLink
+                                packVersion={rulePack.version}
+                                rule={rule}
+                                label="report a mistake"
+                            />
                         </p>
                     </div>
                 ))}
@@ -104,7 +111,8 @@ export function WhyPanel({ explanation, regimeLabel, rulePack }: Props) {
                 Rule pack {rulePack.version}
                 {rulePack.reviewed
                     ? ' · reviewed by a tax professional'
-                    : ' · not yet reviewed by a tax professional'}
+                    : ' · not yet reviewed by a tax professional'}{' '}
+                · <ReportMistakeLink packVersion={rulePack.version} />
             </p>
         </SectionCard>
     );

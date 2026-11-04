@@ -9,7 +9,7 @@ Tick an item in the same PR that fixes it, and link the PR.
 - **Basis**: _Confirmed_ = settled law; _Needs verification_ = check with a CPA or the BIR issuance before relying on it. No rule here should be coded from this file alone.
 - **Done when**: the acceptance check for the item.
 
-Status: 91 of 97 done.
+Status: 94 of 97 done.
 
 ---
 
@@ -19,7 +19,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 - [x] C1 Tax rules follow the date they apply to
 - [x] C2 Elections are kept per tax year
-- [ ] C3 Rule pack reviewed by a CPA
+- [x] C3 Rule pack reviewed by a CPA: decided 2026-11-04 to release as open source without one (see C3)
 - [x] H1 A sale can't be counted twice
 - [x] H3 Filing channel settled and the copy says it plainly
 - [x] H5 Host header check (DNS rebinding)
@@ -60,7 +60,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 ### C3 · Rule pack reviewed by a CPA
 
 - [x] List every rule the app applies, `REVIEW` comments included, for a CPA: [RULE-REVIEW.md](RULE-REVIEW.md) (each rule as applied, its value, basis and periods, a decision column, seven questions and a sign-off).
-- [ ] CPA reviews each one; record reviewer, date and source per rule.
+- [x] CPA reviews each one; record reviewer, date and source per rule. Closed, not done: on 2026-11-04 the owner decided to release BuwisBuddy as open source (MIT) without a CPA review, and fix mistakes in the open. No sign-off is recorded, so the app keeps saying "not yet reviewed by a tax professional", now with a "Report a mistake" link to the issue tracker. A tax professional who reviews a part or rule later is recorded with the existing sign-off (who, when, against what), and the app shows it as reviewed.
 - [x] Set `reviewed` per rule and per part (not one flag for the whole pack), as a sign-off record (who, when, against what); the app says "not yet reviewed" for any rule without one, and the pack counts as reviewed when every part is. `php artisan rules:status` lists what's left.
 
 **Includes:**
@@ -168,7 +168,7 @@ Do not let anyone rely on the app for real filings until these are ticked:
 
 ### R · Corrections from the rule research
 
-From [BIR rule review answers.md](research/BIR%20rule%20review%20answers.md). Each item still goes to the CPA with the rest of the pack (C3).
+From [BIR rule review answers.md](research/BIR%20rule%20review%20answers.md). Each item is open to review with the rest of the pack (C3).
 
 Done:
 
@@ -226,7 +226,7 @@ Add these tests (table-driven where possible):
 - [x] Unpaid earlier quarter → shown as owed, not assumed paid (M7)
 - [x] Engine total vs printed form total → within ₱1 (M2) ✔ [BoundaryTest.php](../tests/Feature/Tax/BoundaryTest.php)
 - [x] Host header `evil.example` → rejected
-- [ ] CPA reference cases → a small set of worked returns as the acceptance suite. Drafted: ten cases in [REFERENCE-CASES.md](REFERENCE-CASES.md) with the app's figures and a question where the app may be wrong, generated from and tested by [ReferenceCasesTest.php](../tests/Feature/Acceptance/ReferenceCasesTest.php). Done when the CPA has confirmed or corrected every figure and the tests pass on them.
+- [x] CPA reference cases → a small set of worked returns as the acceptance suite. Drafted: ten cases in [REFERENCE-CASES.md](REFERENCE-CASES.md) with the app's figures and a question where the app may be wrong, generated from and tested by [ReferenceCasesTest.php](../tests/Feature/Acceptance/ReferenceCasesTest.php). Closed with C3: the cases test the app's own figures; anyone who checks them and finds one wrong corrects the case, and the app is fixed until it passes.
 
 ---
 

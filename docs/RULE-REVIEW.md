@@ -1,11 +1,14 @@
 # BuwisBuddy — tax rule review for a CPA
 
-**Purpose.** BuwisBuddy is a desktop app that helps Filipino freelancers and
-sole proprietors keep records, compute their taxes and fill the BIR's own
-forms. Every rate, threshold, deadline and form it uses was encoded by the
-developers from the NIRC and BIR issuances, **without professional review**.
-This sheet lists each rule exactly as the app applies it, so a CPA can
-confirm or correct it before people rely on the app.
+**Purpose.** BuwisBuddy is an open-source desktop app that helps Filipino
+freelancers and sole proprietors keep records, compute their taxes and fill
+the BIR's own forms. Every rate, threshold, deadline and form it uses was
+encoded by the developers from the NIRC and BIR issuances, **without
+professional review**, and the app was released that way, telling its users
+so. This sheet lists each rule exactly as the app applies it, so any CPA or
+tax lawyer can confirm or correct it. Send what you find as an issue or pull
+request (see [CONTRIBUTING.md](../CONTRIBUTING.md)); a rule you sign off is
+recorded with your name and shown as reviewed in the app.
 
 **How to review.** For each row, write in **Decision**:
 
