@@ -8,7 +8,7 @@ namespace App\Assistant\Services;
  * as the page shows them. Kept in the session, as JSON.
  *
  * @phpstan-type Figure array{label: string, value: string}
- * @phpstan-type Exchange array{question: string, answer: string, error: bool, figures: list<Figure>, feedback: 'helpful'|'wrong'|null}
+ * @phpstan-type Exchange array{question: string, answer: string, error: bool, figures: list<Figure>, suggestions: list<array<string, mixed>>, feedback: 'helpful'|'wrong'|null}
  */
 final class Conversation
 {
@@ -56,12 +56,21 @@ final class Conversation
                 }
             }
 
+            $suggestions = [];
+
+            foreach (is_array($turn['suggestions'] ?? null) ? $turn['suggestions'] : [] as $suggestion) {
+                if (is_array($suggestion) && in_array($suggestion['kind'] ?? null, ['email', 'transaction', 'profile'], true) && in_array($suggestion['status'] ?? null, ['open', 'done', 'dismissed'], true)) {
+                    $suggestions[] = self::withStringKeys($suggestion);
+                }
+            }
+
             $feedback = $turn['feedback'] ?? null;
             $turns[] = [
                 'question' => $turn['question'],
                 'answer' => $turn['answer'],
                 'error' => $turn['error'],
                 'figures' => $figures,
+                'suggestions' => $suggestions,
                 'feedback' => $feedback === 'helpful' || $feedback === 'wrong' ? $feedback : null,
             ];
         }

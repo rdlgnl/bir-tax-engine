@@ -1,5 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import { SuggestionCard } from '@/components/assistant/suggestion-card';
+import type { Suggestion } from '@/components/assistant/suggestion-card';
 import { FieldError } from '@/components/field-error';
 import { Note } from '@/components/note';
 import { SectionCard } from '@/components/section-card';
@@ -18,6 +20,7 @@ type Turn = {
     error: boolean;
     rules: Rule[];
     figures: { label: string; value: string }[];
+    suggestions: Suggestion[];
     feedback: 'helpful' | 'wrong' | null;
 };
 
@@ -185,6 +188,18 @@ export default function Ask({
                                         </div>
                                     )}
                                 </Bubble>
+                                {turn.suggestions.map((suggestion, at) => (
+                                    <div
+                                        key={at}
+                                        className="max-w-[85%] self-start"
+                                    >
+                                        <SuggestionCard
+                                            suggestion={suggestion}
+                                            turn={index}
+                                            index={at}
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         ))}
                         {pending !== null && (
@@ -287,9 +302,11 @@ export default function Ask({
                         </p>
                     </SectionCard>
 
-                    <Note title="It reads, you decide">
-                        It can't change anything in the app. When something
-                        needs doing, it tells you where.
+                    <Note title="It can suggest, you decide">
+                        Drafting an email, adding a transaction or changing a
+                        profile answer always shows you a preview to approve
+                        first. It reads your figures but never changes or
+                        computes them.
                     </Note>
 
                     {last && !last.error && (

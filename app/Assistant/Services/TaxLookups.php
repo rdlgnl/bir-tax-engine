@@ -16,13 +16,17 @@ use InvalidArgumentException;
 /**
  * What the assistant can look up: the tax engine's figures and the rule
  * pack, read-only. Each lookup returns JSON for the model and the figures
- * it used, for the page to show beside the answer.
+ * it used, for the page to show beside the answer. The suggestions it can
+ * put to the taxpayer come through here too (see Suggestions).
  *
  * Only figures and tax choices are shared: never the taxpayer's name, TIN
  * or address, nor the names of their clients or employer.
  *
  * @phpstan-type Figure array{string, string}
- * @phpstan-type Result array{content: string, figures: list<Figure>}
+ *
+ * @phpstan-import-type Suggestion from Suggestions
+ *
+ * @phpstan-type Result array{content: string, figures: list<Figure>, suggestion?: Suggestion}
  * @phpstan-type Definition array{name: string, description: string, schema: array<string, mixed>}
  */
 class TaxLookups
@@ -32,6 +36,7 @@ class TaxLookups
         private TaxObligations $obligations,
         private TaxRules $rules,
         private LetterCheck $letterCheck,
+        private Suggestions $suggestions,
     ) {}
 
     /**
@@ -83,6 +88,7 @@ class TaxLookups
                 'description' => 'The rules in the rule pack: each id, what it is, its legal basis, when it took effect, and whether a CPA has reviewed it.',
                 'schema' => ['type' => 'object', 'properties' => new \stdClass],
             ],
+            ...$this->suggestions->definitions(),
         ];
     }
 
@@ -94,6 +100,12 @@ class TaxLookups
      */
     public function run(string $name, array $input): array
     {
+        if ($this->suggestions->handles($name)) {
+            ['content' => $content, 'suggestion' => $suggestion] = $this->suggestions->run($name, $input);
+
+            return ['content' => $content, 'figures' => [], 'suggestion' => $suggestion];
+        }
+
         $profile = TaxProfile::current() ?? throw new InvalidArgumentException('There is no tax profile yet.');
 
         return match ($name) {

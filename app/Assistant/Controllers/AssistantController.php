@@ -58,6 +58,18 @@ class AssistantController extends Controller
         return back();
     }
 
+    public function suggestion(Request $request, Assistant $assistant): RedirectResponse
+    {
+        $data = $request->validate([
+            'turn' => ['required', 'integer', 'min:0'],
+            'index' => ['required', 'integer', 'min:0'],
+            'status' => ['required', Rule::in(['done', 'dismissed'])],
+        ]);
+        $assistant->suggestion((int) $data['turn'], (int) $data['index'], $data['status']);
+
+        return back();
+    }
+
     public function clear(Assistant $assistant): RedirectResponse
     {
         $assistant->clear();

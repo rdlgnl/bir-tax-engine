@@ -31,6 +31,7 @@ class OpenAiProvider implements Provider
         $history[] = ['role' => 'user', 'content' => $question];
         /** @var list<Figure> $figures */
         $figures = [];
+        $suggestions = [];
 
         for ($round = 0; $round < self::MAX_ROUNDS; $round++) {
             $choice = $this->send($history, $lookups);
@@ -40,13 +41,13 @@ class OpenAiProvider implements Provider
             $text = trim((string) ($message['content'] ?? ''));
 
             if (($choice['finish_reason'] ?? null) === 'content_filter') {
-                return new Turn("I can't help with that one. Try asking it another way.", $history, $figures);
+                return new Turn("I can't help with that one. Try asking it another way.", $history, $figures, $suggestions);
             }
 
             if ($calls === []) {
                 $cutOff = ($choice['finish_reason'] ?? null) === 'length' ? "\n\n(The answer was cut off.)" : '';
 
-                return new Turn(($text !== '' ? $text : "I don't have an answer to that.").$cutOff, $history, $figures);
+                return new Turn(($text !== '' ? $text : "I don't have an answer to that.").$cutOff, $history, $figures, $suggestions);
             }
 
             foreach ($calls as $call) {
@@ -56,6 +57,10 @@ class OpenAiProvider implements Provider
                     $lookup = $lookups->run((string) ($call['function']['name'] ?? ''), is_array($arguments) ? $arguments : []);
                     $content = $lookup['content'];
                     array_push($figures, ...$lookup['figures']);
+
+                    if (isset($lookup['suggestion'])) {
+                        $suggestions[] = $lookup['suggestion'];
+                    }
                 } catch (InvalidArgumentException $e) {
                     $content = 'Error: '.$e->getMessage();
                 }
@@ -64,7 +69,7 @@ class OpenAiProvider implements Provider
             }
         }
 
-        return new Turn("I couldn't finish that answer. Try a narrower question.", $history, $figures);
+        return new Turn("I couldn't finish that answer. Try a narrower question.", $history, $figures, $suggestions);
     }
 
     public function read(Document $document, string $instructions, array $schema): array
