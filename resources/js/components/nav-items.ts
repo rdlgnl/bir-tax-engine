@@ -10,7 +10,7 @@ import {
     MessageCircleQuestion,
     UserRound,
 } from 'lucide-react';
-import { calendar, history, home, profile } from '@/routes';
+import { ask, calendar, history, home, profile } from '@/routes';
 import { show as complianceShow } from '@/routes/compliance';
 import { index as returnsIndex } from '@/routes/returns';
 import { show as taxShow } from '@/routes/tax';
@@ -63,7 +63,12 @@ export const navItems: NavItem[] = [
         href: history.url(),
         match: ['/history', '/books'],
     },
-    { label: 'Ask', icon: MessageCircleQuestion, href: null, match: [] },
+    {
+        label: 'Ask',
+        icon: MessageCircleQuestion,
+        href: ask.url(),
+        match: ['/ask'],
+    },
     {
         label: 'Profile & settings',
         icon: UserRound,

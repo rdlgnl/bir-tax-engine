@@ -1,5 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { AppLockCard } from '@/components/data/app-lock-card';
+import { AssistantCard } from '@/components/data/assistant-card';
+import type { AssistantSettings } from '@/components/data/assistant-card';
 import { FieldError } from '@/components/field-error';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +21,7 @@ type Props = {
     rulePack: { version: string; reviewed: boolean };
     lock: { enabled: boolean; lock_after: number; options: number[] };
     reminders: boolean;
+    assistant: AssistantSettings;
 };
 
 export default function YourData({
@@ -29,6 +32,7 @@ export default function YourData({
     rulePack,
     lock,
     reminders,
+    assistant,
 }: Props) {
     const folderForm = useForm({ backup_folder: folder });
     const folderChanged = folderForm.data.backup_folder !== folder;
@@ -156,11 +160,7 @@ export default function YourData({
 
                     <AppLockCard lock={lock} reminders={reminders} />
 
-                    <SectionCard title="Assistant (AI)">
-                        <p className="text-sm text-muted-foreground">
-                            Asking about your taxes comes in a later update.
-                        </p>
-                    </SectionCard>
+                    <AssistantCard settings={assistant} />
 
                     <SectionCard title="Erase all data">
                         <p className="text-sm text-muted-foreground">

@@ -2,6 +2,7 @@
 
 namespace App\Data\Controllers;
 
+use App\Assistant\Services\AssistantSettings;
 use App\Data\Models\Setting;
 use App\Data\Requests\UpdateDataSettingsRequest;
 use App\Data\Services\AppLock;
@@ -32,6 +33,7 @@ class DataController extends Controller
             'rulePack' => ['version' => config('tax.version'), 'reviewed' => RuleReview::packReviewed()],
             'lock' => ['enabled' => $lock->enabled(), 'lock_after' => $lock->lockAfter(), 'options' => config('lock.after_options')],
             'reminders' => (bool) Setting::get('reminders', false),
+            'assistant' => AssistantSettings::current()->toProps(),
         ]);
     }
 
